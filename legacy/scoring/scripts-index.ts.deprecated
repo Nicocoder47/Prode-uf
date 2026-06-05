@@ -1,0 +1,58 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+/** @deprecated See legacy/scoring/README.md — use score_match_predictions RPC */
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
+serve(async (req) => {
+  try {
+    const { match_id } = await req.json()
+    
+    const { data: match } = await supabase.from('matches').select('*').eq('id', match_id).single()
+    if (!match || match.status !== 'finished') {
+        return new Response(JSON.stringify({ error: "Match not found or not finished" }), { status: 400 })
+    }
+
+    const { data: predictions } = await supabase.from('predictions').select('*').eq('match_id', match_id).eq('status', 'locked')
+    if (!predictions || predictions.length === 0) {
+        return new Response(JSON.stringify({ message: "No predictions to score" }))
+    }
+
+    for (const pred of predictions) {
+        let points = 0
+        let isExact = false
+        let isResult = false
+
+        const homeScore = match.home_score
+        const awayScore = match.away_score
+        const actualWinner = homeScore > awayScore ? 'home' : (homeScore < awayScore ? 'away' : 'draw')
+
+        if (pred.predicted_winner === actualWinner) {
+            points += 3
+            isResult = true
+        }
+        
+        if (pred.predicted_home_score === homeScore && pred.predicted_away_score === awayScore) {
+            points += 5
+            isExact = true
+        }
+
+        await supabase.from('predictions').update({ points, status: 'scored' }).eq('id', pred.id)
+        
+        if (points > 0) {
+            const { data: lb } = await supabase.from('leaderboard').select('*').eq('user_id', pred.user_id).single()
+            if (lb) {
+                await supabase.from('leaderboard').update({ points: lb.points + points, exact_scores: lb.exact_scores + (isExact ? 1 : 0), correct_results: lb.correct_results + (isResult ? 1 : 0) }).eq('user_id', pred.user_id)
+            } else {
+                await supabase.from('leaderboard').insert({ user_id: pred.user_id, points, exact_scores: isExact ? 1 : 0, correct_results: isResult ? 1 : 0 })
+            }
+        }
+    }
+
+    return new Response(JSON.stringify({ success: true, processed: predictions.length }), { headers: { "Content-Type": "application/json" } })
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: e.message }), { status: 500 })
+  }
+})

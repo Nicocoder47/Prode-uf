@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-06-05T18:01:19.309Z",
+  "host": "unknown",
+  "nodeEnv": "development",
+  "scheduler": {
+    "script": "src/workers/scheduler.ts",
+    "liveIntervalSec": 30,
+    "fixtureCron": "0 * * * *",
+    "dailyCron": "0 2 * * *",
+    "tasks": [
+      "live sync",
+      "fixtures",
+      "standings",
+      "knockout",
+      "teams/players enrich"
+    ]
+  },
+  "worker": {
+    "status": "unknown",
+    "lastHeartbeatAt": null,
+    "lastCycle": null
+  },
+  "sync": {
+    "lastLiveMatches": null,
+    "lastLivePipeline": null
+  },
+  "redis": {
+    "configured": true,
+    "optional": true,
+    "provider": "other"
+  },
+  "errors": []
+}

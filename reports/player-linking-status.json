@@ -1,0 +1,412 @@
+{
+  "generatedAt": "2026-06-05T09:39:49.014Z",
+  "totalPlayers": 1213,
+  "identity": {
+    "verified": 132,
+    "needsReview": 1,
+    "possibleMatch": 0,
+    "conflict": 0,
+    "rejected": 6,
+    "unlinked": 1074
+  },
+  "coverage": {
+    "withPhoto": 109,
+    "withClub": 114,
+    "withExternalId": 132,
+    "verifiedNoPhoto": 53
+  },
+  "countries": {
+    "total": 48,
+    "verified": 48,
+    "needsReview": 0,
+    "conflict": 0,
+    "unlinked": 0,
+    "missingCodes": 0
+  },
+  "byTeam": [
+    {
+      "name": "Algeria",
+      "players": 24,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 24,
+      "noPhoto": 24
+    },
+    {
+      "name": "Australia",
+      "players": 25,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 25,
+      "noPhoto": 25
+    },
+    {
+      "name": "Austria",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Bosnia-Herzegovina",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Canada",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Cape Verde Islands",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Colombia",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Croatia",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Curaçao",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Ecuador",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Egypt",
+      "players": 22,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 22,
+      "noPhoto": 22
+    },
+    {
+      "name": "Haiti",
+      "players": 24,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 24,
+      "noPhoto": 24
+    },
+    {
+      "name": "Iran",
+      "players": 23,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 23,
+      "noPhoto": 23
+    },
+    {
+      "name": "Iraq",
+      "players": 25,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 25,
+      "noPhoto": 25
+    },
+    {
+      "name": "Ivory Coast",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Japan",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Jordan",
+      "players": 18,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 18,
+      "noPhoto": 18
+    },
+    {
+      "name": "Mexico",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "New Zealand",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Norway",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Paraguay",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Senegal",
+      "players": 28,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 28,
+      "noPhoto": 28
+    },
+    {
+      "name": "South Africa",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "South Korea",
+      "players": 25,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 25,
+      "noPhoto": 25
+    },
+    {
+      "name": "Sweden",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Switzerland",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "United States",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 26,
+      "noPhoto": 26
+    },
+    {
+      "name": "Uzbekistan",
+      "players": 23,
+      "verPct": 0,
+      "photoPct": 0,
+      "noLink": 23,
+      "noPhoto": 23
+    },
+    {
+      "name": "Belgium",
+      "players": 26,
+      "verPct": 31,
+      "photoPct": 0,
+      "noLink": 17,
+      "noPhoto": 26
+    },
+    {
+      "name": "Ghana",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 4,
+      "noLink": 26,
+      "noPhoto": 25
+    },
+    {
+      "name": "Panama",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 4,
+      "noLink": 26,
+      "noPhoto": 25
+    },
+    {
+      "name": "Scotland",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 4,
+      "noLink": 26,
+      "noPhoto": 25
+    },
+    {
+      "name": "Tunisia",
+      "players": 23,
+      "verPct": 0,
+      "photoPct": 4,
+      "noLink": 23,
+      "noPhoto": 22
+    },
+    {
+      "name": "Turkey",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 4,
+      "noLink": 26,
+      "noPhoto": 25
+    },
+    {
+      "name": "Congo DR",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 8,
+      "noLink": 26,
+      "noPhoto": 24
+    },
+    {
+      "name": "Morocco",
+      "players": 25,
+      "verPct": 0,
+      "photoPct": 8,
+      "noLink": 25,
+      "noPhoto": 23
+    },
+    {
+      "name": "Qatar",
+      "players": 24,
+      "verPct": 0,
+      "photoPct": 8,
+      "noLink": 24,
+      "noPhoto": 22
+    },
+    {
+      "name": "Saudi Arabia",
+      "players": 20,
+      "verPct": 0,
+      "photoPct": 15,
+      "noLink": 20,
+      "noPhoto": 17
+    },
+    {
+      "name": "Spain",
+      "players": 26,
+      "verPct": 42,
+      "photoPct": 19,
+      "noLink": 12,
+      "noPhoto": 21
+    },
+    {
+      "name": "Netherlands",
+      "players": 26,
+      "verPct": 46,
+      "photoPct": 23,
+      "noLink": 13,
+      "noPhoto": 20
+    },
+    {
+      "name": "Brazil",
+      "players": 26,
+      "verPct": 54,
+      "photoPct": 23,
+      "noLink": 12,
+      "noPhoto": 20
+    },
+    {
+      "name": "England",
+      "players": 26,
+      "verPct": 50,
+      "photoPct": 27,
+      "noLink": 12,
+      "noPhoto": 19
+    },
+    {
+      "name": "Germany",
+      "players": 26,
+      "verPct": 58,
+      "photoPct": 35,
+      "noLink": 11,
+      "noPhoto": 17
+    },
+    {
+      "name": "France",
+      "players": 26,
+      "verPct": 54,
+      "photoPct": 38,
+      "noLink": 11,
+      "noPhoto": 16
+    },
+    {
+      "name": "Portugal",
+      "players": 26,
+      "verPct": 54,
+      "photoPct": 42,
+      "noLink": 12,
+      "noPhoto": 15
+    },
+    {
+      "name": "Uruguay",
+      "players": 26,
+      "verPct": 58,
+      "photoPct": 42,
+      "noLink": 11,
+      "noPhoto": 15
+    },
+    {
+      "name": "Czechia",
+      "players": 26,
+      "verPct": 0,
+      "photoPct": 58,
+      "noLink": 26,
+      "noPhoto": 11
+    },
+    {
+      "name": "Argentina",
+      "players": 26,
+      "verPct": 62,
+      "photoPct": 58,
+      "noLink": 10,
+      "noPhoto": 11
+    }
+  ]
+}

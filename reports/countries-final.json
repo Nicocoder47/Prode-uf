@@ -1,0 +1,348 @@
+{
+  "generatedAt": "2026-06-05T09:39:20.649Z",
+  "total": 48,
+  "verified": 48,
+  "needsReview": 0,
+  "conflict": 0,
+  "unlinked": 0,
+  "missingCodes": 0,
+  "ok": true,
+  "teams": [
+    {
+      "id": "7df1390a-718f-4b1e-a597-8d980324eda0",
+      "name": "Algeria",
+      "status": "verified",
+      "fifaCode": "ALG",
+      "iso3": "DZA"
+    },
+    {
+      "id": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+      "name": "Argentina",
+      "status": "verified",
+      "fifaCode": "ARG",
+      "iso3": "ARG"
+    },
+    {
+      "id": "a73a94c8-e3af-4404-9ce4-c2049f0c9a03",
+      "name": "Australia",
+      "status": "verified",
+      "fifaCode": "AUS",
+      "iso3": "AUS"
+    },
+    {
+      "id": "84925d19-3e40-41e1-9e24-5baa786f7bc1",
+      "name": "Austria",
+      "status": "verified",
+      "fifaCode": "AUT",
+      "iso3": "AUT"
+    },
+    {
+      "id": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "name": "Belgium",
+      "status": "verified",
+      "fifaCode": "BEL",
+      "iso3": "BEL"
+    },
+    {
+      "id": "3a913532-beb7-4e68-95bf-f23c5b371b66",
+      "name": "Bosnia-Herzegovina",
+      "status": "verified",
+      "fifaCode": "BIH",
+      "iso3": "BIH"
+    },
+    {
+      "id": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+      "name": "Brazil",
+      "status": "verified",
+      "fifaCode": "BRA",
+      "iso3": "BRA"
+    },
+    {
+      "id": "a8ca5259-d6e7-4f6c-a725-ae5ee9a4f31f",
+      "name": "Canada",
+      "status": "verified",
+      "fifaCode": "CAN",
+      "iso3": "CAN"
+    },
+    {
+      "id": "70b24cb4-8a7e-4de9-903e-df6f2c740e08",
+      "name": "Cape Verde Islands",
+      "status": "verified",
+      "fifaCode": "CPV",
+      "iso3": "CPV"
+    },
+    {
+      "id": "0243418e-2272-4ec0-ac4f-6ed035cb8ae2",
+      "name": "Colombia",
+      "status": "verified",
+      "fifaCode": "COL",
+      "iso3": "COL"
+    },
+    {
+      "id": "6ca6376c-7cf1-4aa6-8827-a75ffd61415a",
+      "name": "Congo DR",
+      "status": "verified",
+      "fifaCode": "COD",
+      "iso3": "COD"
+    },
+    {
+      "id": "3ddd5bf7-0140-46b2-aed0-6a34fbb05537",
+      "name": "Croatia",
+      "status": "verified",
+      "fifaCode": "CRO",
+      "iso3": "HRV"
+    },
+    {
+      "id": "d6a85925-637a-4222-9f53-f8292241d192",
+      "name": "Curaçao",
+      "status": "verified",
+      "fifaCode": "CUW",
+      "iso3": "CUW"
+    },
+    {
+      "id": "289440d1-d32d-48cb-8eb6-d3ea43f7a055",
+      "name": "Czechia",
+      "status": "verified",
+      "fifaCode": "CZE",
+      "iso3": "CZE"
+    },
+    {
+      "id": "ebe7036a-9f91-4923-88a1-38f7e0aa4058",
+      "name": "Ecuador",
+      "status": "verified",
+      "fifaCode": "ECU",
+      "iso3": "ECU"
+    },
+    {
+      "id": "06279e02-83c9-4fd6-82b0-91be4b31108b",
+      "name": "Egypt",
+      "status": "verified",
+      "fifaCode": "EGY",
+      "iso3": "EGY"
+    },
+    {
+      "id": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+      "name": "England",
+      "status": "verified",
+      "fifaCode": "ENG",
+      "iso3": "GBR"
+    },
+    {
+      "id": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+      "name": "France",
+      "status": "verified",
+      "fifaCode": "FRA",
+      "iso3": "FRA"
+    },
+    {
+      "id": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+      "name": "Germany",
+      "status": "verified",
+      "fifaCode": "GER",
+      "iso3": "DEU"
+    },
+    {
+      "id": "0f3607e9-50b7-489e-940c-58e5f2c356ae",
+      "name": "Ghana",
+      "status": "verified",
+      "fifaCode": "GHA",
+      "iso3": "GHA"
+    },
+    {
+      "id": "bb5642a4-c733-4801-90f1-5e4b3cd8f293",
+      "name": "Haiti",
+      "status": "verified",
+      "fifaCode": "HAI",
+      "iso3": "HTI"
+    },
+    {
+      "id": "e7cb6eb7-12fe-4172-8ba3-7ef358b8ed81",
+      "name": "Iran",
+      "status": "verified",
+      "fifaCode": "IRN",
+      "iso3": "IRN"
+    },
+    {
+      "id": "56271655-66ea-47a2-be05-9f2cf4665936",
+      "name": "Iraq",
+      "status": "verified",
+      "fifaCode": "IRQ",
+      "iso3": "IRQ"
+    },
+    {
+      "id": "4ecd4315-8d94-4afb-972d-7c191e3fa468",
+      "name": "Ivory Coast",
+      "status": "verified",
+      "fifaCode": "CIV",
+      "iso3": "CIV"
+    },
+    {
+      "id": "282e5bcd-01e5-4b07-a44a-6f469662dbfe",
+      "name": "Japan",
+      "status": "verified",
+      "fifaCode": "JPN",
+      "iso3": "JPN"
+    },
+    {
+      "id": "0a828293-51b2-478d-9f4e-e7a6f87619c3",
+      "name": "Jordan",
+      "status": "verified",
+      "fifaCode": "JOR",
+      "iso3": "JOR"
+    },
+    {
+      "id": "ab4f6ae8-4b80-47fc-a8cc-ca8d11532b08",
+      "name": "Mexico",
+      "status": "verified",
+      "fifaCode": "MEX",
+      "iso3": "MEX"
+    },
+    {
+      "id": "3a13e6cf-c720-473d-ab70-aaffad905130",
+      "name": "Morocco",
+      "status": "verified",
+      "fifaCode": "MAR",
+      "iso3": "MAR"
+    },
+    {
+      "id": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+      "name": "Netherlands",
+      "status": "verified",
+      "fifaCode": "NED",
+      "iso3": "NLD"
+    },
+    {
+      "id": "a67e228a-8de0-4bea-833a-0dc288057d21",
+      "name": "New Zealand",
+      "status": "verified",
+      "fifaCode": "NZL",
+      "iso3": "NZL"
+    },
+    {
+      "id": "4f1e28c1-4e46-47cf-80c7-240a9de8328e",
+      "name": "Norway",
+      "status": "verified",
+      "fifaCode": "NOR",
+      "iso3": "NOR"
+    },
+    {
+      "id": "2dea2a5c-da4c-495b-a08c-96a8e351746e",
+      "name": "Panama",
+      "status": "verified",
+      "fifaCode": "PAN",
+      "iso3": "PAN"
+    },
+    {
+      "id": "2c36be30-d96e-45ff-aa82-f5bb6bb9d746",
+      "name": "Paraguay",
+      "status": "verified",
+      "fifaCode": "PAR",
+      "iso3": "PRY"
+    },
+    {
+      "id": "82032bc1-b59c-493a-b604-88628df78627",
+      "name": "Portugal",
+      "status": "verified",
+      "fifaCode": "POR",
+      "iso3": "PRT"
+    },
+    {
+      "id": "d16e1d74-bb92-4e34-b9fe-68fe42fe5e1c",
+      "name": "Qatar",
+      "status": "verified",
+      "fifaCode": "QAT",
+      "iso3": "QAT"
+    },
+    {
+      "id": "29740816-c6f2-4ec7-8594-872c88ce43dd",
+      "name": "Saudi Arabia",
+      "status": "verified",
+      "fifaCode": "KSA",
+      "iso3": "SAU"
+    },
+    {
+      "id": "be055aa3-602a-4826-8b32-afadf12fd2d0",
+      "name": "Scotland",
+      "status": "verified",
+      "fifaCode": "SCO",
+      "iso3": "GBR"
+    },
+    {
+      "id": "c32c4d47-814f-4d6c-b933-821a42d175f4",
+      "name": "Senegal",
+      "status": "verified",
+      "fifaCode": "SEN",
+      "iso3": "SEN"
+    },
+    {
+      "id": "67c1f893-56c5-48dd-82a3-94b1c5389878",
+      "name": "South Africa",
+      "status": "verified",
+      "fifaCode": "RSA",
+      "iso3": "ZAF"
+    },
+    {
+      "id": "2911e712-934b-4228-ba1c-c48fe67ef17d",
+      "name": "South Korea",
+      "status": "verified",
+      "fifaCode": "KOR",
+      "iso3": "KOR"
+    },
+    {
+      "id": "944474ac-2102-4033-9275-195ff11c9b4b",
+      "name": "Spain",
+      "status": "verified",
+      "fifaCode": "ESP",
+      "iso3": "ESP"
+    },
+    {
+      "id": "83b65973-3b09-493c-a58c-e50e34d1f675",
+      "name": "Sweden",
+      "status": "verified",
+      "fifaCode": "SWE",
+      "iso3": "SWE"
+    },
+    {
+      "id": "9deeac35-9527-4c86-b4cb-d8114153d1e9",
+      "name": "Switzerland",
+      "status": "verified",
+      "fifaCode": "SUI",
+      "iso3": "CHE"
+    },
+    {
+      "id": "1ec8cecf-ce3d-4f76-9d5a-db707f285be0",
+      "name": "Tunisia",
+      "status": "verified",
+      "fifaCode": "TUN",
+      "iso3": "TUN"
+    },
+    {
+      "id": "4d015f6d-93a6-4073-9513-a5567c93f948",
+      "name": "Turkey",
+      "status": "verified",
+      "fifaCode": "TUR",
+      "iso3": "TUR"
+    },
+    {
+      "id": "9441db50-b67a-4666-8c20-5eb82df436e2",
+      "name": "United States",
+      "status": "verified",
+      "fifaCode": "USA",
+      "iso3": "USA"
+    },
+    {
+      "id": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+      "name": "Uruguay",
+      "status": "verified",
+      "fifaCode": "URU",
+      "iso3": "URY"
+    },
+    {
+      "id": "5ee8e15b-7128-4710-a0f0-cce016baa94b",
+      "name": "Uzbekistan",
+      "status": "verified",
+      "fifaCode": "UZB",
+      "iso3": "UZB"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+# PRODEMUNDIAL — Redis local SOLO para desarrollo
+# En producción usar Upstash Free (REDIS_URL=rediss://...)
+# Si Redis no está disponible, el worker continúa con Supabase únicamente.
+version: '3.8'
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: prode_redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

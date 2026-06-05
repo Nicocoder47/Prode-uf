@@ -1,0 +1,317 @@
+{
+  "ok": true,
+  "generatedAt": "2026-06-05T17:57:36.902Z",
+  "groupsComplete": [],
+  "groupsPending": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L"
+  ],
+  "allGroupsComplete": false,
+  "qualifiers": null,
+  "matchesUpserted": 0,
+  "matchesResolved": 0,
+  "matchesPending": 32,
+  "predictionsEnabled": 0,
+  "errors": [],
+  "bracket": [
+    {
+      "bracketKey": "M73",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "2.º Grupo A",
+      "awayPlaceholder": "2.º Grupo B",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M76",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo C",
+      "awayPlaceholder": "2.º Grupo F",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M74",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo E",
+      "awayPlaceholder": "3.º (A/B/C/D/F)",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M75",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo F",
+      "awayPlaceholder": "2.º Grupo C",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M78",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "2.º Grupo E",
+      "awayPlaceholder": "2.º Grupo I",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M77",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo I",
+      "awayPlaceholder": "3.º (C/D/F/G/H)",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M79",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo A",
+      "awayPlaceholder": "3.º (C/E/F/H/I)",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M80",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo L",
+      "awayPlaceholder": "3.º (E/H/I/J/K)",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M82",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo G",
+      "awayPlaceholder": "3.º (A/E/H/I/J)",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M81",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo D",
+      "awayPlaceholder": "3.º (B/E/F/I/J)",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M84",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo H",
+      "awayPlaceholder": "2.º Grupo J",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M83",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "2.º Grupo K",
+      "awayPlaceholder": "2.º Grupo L",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M85",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo B",
+      "awayPlaceholder": "3.º (E/F/G/I/J)",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M88",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "2.º Grupo D",
+      "awayPlaceholder": "2.º Grupo G",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M86",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo J",
+      "awayPlaceholder": "2.º Grupo H",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M87",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "1.º Grupo K",
+      "awayPlaceholder": "3.º (D/E/I/J/L)",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M89",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M74",
+      "awayPlaceholder": "Ganador M77",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M90",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M73",
+      "awayPlaceholder": "Ganador M75",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M91",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M76",
+      "awayPlaceholder": "Ganador M78",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M92",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M79",
+      "awayPlaceholder": "Ganador M80",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M93",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M83",
+      "awayPlaceholder": "Ganador M84",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M94",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M81",
+      "awayPlaceholder": "Ganador M82",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M95",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M86",
+      "awayPlaceholder": "Ganador M88",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M96",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M85",
+      "awayPlaceholder": "Ganador M87",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M97",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M89",
+      "awayPlaceholder": "Ganador M90",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M98",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M93",
+      "awayPlaceholder": "Ganador M94",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M99",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M91",
+      "awayPlaceholder": "Ganador M92",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M100",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M95",
+      "awayPlaceholder": "Ganador M96",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M101",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M97",
+      "awayPlaceholder": "Ganador M98",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M102",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M99",
+      "awayPlaceholder": "Ganador M100",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M103",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Perdedor M101",
+      "awayPlaceholder": "Perdedor M102",
+      "resolved": false,
+      "predictionsOpen": false
+    },
+    {
+      "bracketKey": "M104",
+      "homeTeamId": null,
+      "awayTeamId": null,
+      "homePlaceholder": "Ganador M101",
+      "awayPlaceholder": "Ganador M102",
+      "resolved": false,
+      "predictionsOpen": false
+    }
+  ],
+  "auditNote": "Fase de grupos en curso — placeholders conservados hasta cierre de grupos"
+}

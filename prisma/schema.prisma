@@ -1,0 +1,260 @@
+// Prisma schema for PRODEMUNDIAL 2026
+// Use `prisma migrate dev` to generate migrations in dev
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ENUMS
+
+enum MatchStatus {
+  SCHEDULED
+  LIVE
+  FINISHED
+  POSTPONED
+  CANCELLED
+}
+
+// MODELS
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  name           String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  predictions    Prediction[]
+  tokenBalance   Int       @default(0)
+}
+
+model Team {
+  id                String   @id @default(uuid())
+  providerName      String?  // e.g. api-football
+  providerTeamId    String?  // provider id
+  name              String
+  shortName         String?
+  country           String?
+  fifaCode          String?
+  crestUrl          String?
+  fifaRanking       Int?
+  coach             String?
+  confederation     String?
+  marketValue       Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  players           Player[]
+  homeMatches       Match[]  @relation("homeMatches")
+  awayMatches       Match[]  @relation("awayMatches")
+  lineups           Lineup[]
+  @@index([providerName, providerTeamId])
+}
+
+model Player {
+  id               String     @id @default(uuid())
+  providerName     String?    // provider source
+  providerPlayerId String?
+  teamId           String?    @db.VarChar
+  team             Team?      @relation(fields: [teamId], references: [id])
+  name             String
+  photo            String?
+  dob              DateTime?
+  age              Int?
+  position         String?
+  height           Int?      // cm
+  weight           Int?      // kg
+  nationality      String?
+  club             String?
+  marketValue      MarketValue?
+  stats            PlayerStat[]
+  ratings          PlayerRating[]
+  mvpHistory       MVPHistory[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  @@index([providerName, providerPlayerId])
+}
+
+model Match {
+  id             String      @id @default(uuid())
+  providerName   String?
+  providerMatchId String?
+  homeTeamId     String?     @db.VarChar
+  awayTeamId     String?     @db.VarChar
+  homeTeam       Team?       @relation("homeMatches", fields: [homeTeamId], references: [id])
+  awayTeam       Team?       @relation("awayMatches", fields: [awayTeamId], references: [id])
+  stadiumId      String?     @db.VarChar
+  stadium        Stadium?    @relation(fields: [stadiumId], references: [id])
+  kickoff        DateTime?
+  status         MatchStatus @default(SCHEDULED)
+  homeScore      Int?
+  awayScore      Int?
+  venue          String?
+  city           String?
+  country        String?
+  groupName      String?
+  stage          String?
+  events         MatchEvent[]
+  liveSnapshots  LiveSnapshot[]
+  lineups        Lineup[]
+  predictions    Prediction[]
+  mvpHistory     MVPHistory[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  @@index([providerName, providerMatchId])
+  @@index([kickoff])
+}
+
+model MatchEvent {
+  id          String   @id @default(uuid())
+  matchId     String   @db.VarChar
+  match       Match    @relation(fields: [matchId], references: [id])
+  minute      Int?
+  type        String   // goal, card, substitution, xg, shot
+  teamId      String?  @db.VarChar
+  playerId    String?  @db.VarChar
+  assistId    String?  @db.VarChar
+  data        Json?
+  createdAt   DateTime @default(now())
+}
+
+model PlayerStat {
+  id         String   @id @default(uuid())
+  playerId   String   @db.VarChar
+  player     Player   @relation(fields: [playerId], references: [id])
+  matchId    String?  @db.VarChar
+  match      Match?   @relation(fields: [matchId], references: [id])
+  stats      Json
+  createdAt  DateTime @default(now())
+}
+
+model PlayerRating {
+  id         String   @id @default(uuid())
+  playerId   String   @db.VarChar
+  player     Player   @relation(fields: [playerId], references: [id])
+  matchId    String?  @db.VarChar
+  minute     Int?
+  rating     Float
+  provider   String?
+  raw        Json?
+  createdAt  DateTime @default(now())
+  @@index([playerId, matchId])
+}
+
+model MarketValue {
+  id          String   @id @default(uuid())
+  playerId    String   @db.VarChar
+  player      Player   @relation(fields: [playerId], references: [id])
+  value       Int
+  currency    String   @default("EUR")
+  source      String
+  observedAt  DateTime @default(now())
+}
+
+model Standing {
+  id        String   @id @default(uuid())
+  season    String?
+  groupName String?
+  data      Json
+  createdAt DateTime @default(now())
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  season    String   // "2026"
+  name      String   // "A", "B", etc.
+  teams     String[] // JSON array of team IDs
+  standings Json?    // Group standings
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([season, name])
+}
+
+model Stadium {
+  id          String   @id @default(uuid())
+  providerName    String?
+  providerStadiumId String?
+  name        String
+  city        String?
+  country     String?
+  capacity    Int?
+  coordinates Json?   // { lat, lng }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([providerName, providerStadiumId])
+}
+
+model Lineup {
+  id        String   @id @default(uuid())
+  matchId   String   @db.VarChar
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  teamId    String   @db.VarChar
+  team      Team     @relation(fields: [teamId], references: [id])
+  formation String?  // "4-3-3"
+  players   Json     // Array of player lineups
+  bench     Json?    // Array of bench players
+  createdAt DateTime @default(now())
+  @@index([matchId, teamId])
+}
+
+model MVPHistory {
+  id        String   @id @default(uuid())
+  matchId   String   @db.VarChar
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  playerId  String   @db.VarChar
+  player    Player   @relation(fields: [playerId], references: [id])
+  score     Float
+  createdAt DateTime @default(now())
+}
+
+model LiveSnapshot {
+  id        String   @id @default(uuid())
+  matchId   String   @db.VarChar
+  data      Json
+  takenAt   DateTime @default(now())
+}
+
+model Prediction {
+  id        String   @id @default(uuid())
+  userId    String   @db.VarChar
+  user      User     @relation(fields: [userId], references: [id])
+  matchId   String   @db.VarChar
+  match     Match    @relation(fields: [matchId], references: [id])
+  payload   Json
+  createdAt DateTime @default(now())
+}
+
+model DataSyncLog {
+  id          String   @id @default(uuid())
+  provider    String
+  providerId  String?
+  entity      String
+  entityId    String?
+  raw         Json?
+  status      String
+  message     String?
+  createdAt   DateTime @default(now())
+}
+
+model ProviderMapping {
+  id            String   @id @default(uuid())
+  provider      String
+  providerId    String
+  entity        String
+  localId       String
+  extra         Json?
+  createdAt     DateTime @default(now())
+  @@index([provider, providerId, entity])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  service   String
+  level     String
+  message   String
+  meta      Json?
+  createdAt DateTime @default(now())
+}

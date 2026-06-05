@@ -1,0 +1,208 @@
+{
+  "scanned": 18,
+  "verified": 0,
+  "needsReview": 0,
+  "possibleMatch": 0,
+  "rejected": 0,
+  "noCandidates": 18,
+  "records": [
+    {
+      "playerId": "04818009-70d4-432b-87c8-2b2b001de7cf",
+      "name": "Charles De Ketelaere",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "072ec226-7343-4c93-9e40-483b1814b138",
+      "name": "Axel Witsel",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "0c3efcf3-05a7-4a5d-a1c5-aefba83f976a",
+      "name": "Maxim De Cuyper",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "0d663896-4b5a-40dc-ba45-a8b05a1c5030",
+      "name": "Arthur Theate",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "14f80544-7515-465a-967e-24d5ec4a6edc",
+      "name": "Amadou Onana",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "2a136498-23a6-4965-9563-933ce35666e6",
+      "name": "Brandon Mechele",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "a795a145-b2e1-449b-8ad4-fd891cff9ebc",
+      "name": "Timothy Castagne",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "aa55f6be-b4f3-4613-8cb5-4cd14481854d",
+      "name": "Matias Fernandez-Pardo",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "ac16d8f2-e62d-4c50-bd8b-b77262f40b57",
+      "name": "Leandro Trossard",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "b5974b24-8307-4e3c-ab65-213159a316db",
+      "name": "Youri Tielemans",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "b90297c8-19fd-4c23-80ea-f8d18db611df",
+      "name": "Thibaut Courtois",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "d2875fab-b82f-4a4b-82c2-aa8e2c22c355",
+      "name": "Joaquin Seys",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "d9b8e685-42da-41bf-a54f-9f9ee762857f",
+      "name": "Jeremy Doku",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "dbf847fe-650d-468d-b57e-2100baeeea43",
+      "name": "Kevin De Bruyne",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "e6b0029f-585c-4ebf-b0f3-1d820766889d",
+      "name": "Nathan Ngoy",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "efdcc098-1a27-42c4-a0ec-1a2a28992db6",
+      "name": "Romelu Lukaku",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "f3f67ea8-75ce-4e2d-a168-d8f2462e750b",
+      "name": "Hans Vanaken",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    },
+    {
+      "playerId": "fdb86bc4-b61a-48c3-89ca-6ab8c017b063",
+      "name": "Koni De Winter",
+      "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+      "status": "no_candidates",
+      "score": 0,
+      "provider": null,
+      "candidateName": null,
+      "matchedFields": [],
+      "conflictedFields": []
+    }
+  ]
+}

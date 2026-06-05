@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-06-05T18:01:18.144Z",
+  "configured": {
+    "url": true,
+    "serviceRole": true,
+    "anonKey": true
+  },
+  "rest": {
+    "ok": true,
+    "status": 200
+  },
+  "auth": {
+    "ok": true
+  },
+  "tables": {
+    "matches": 72,
+    "predictions": 1,
+    "leaderboard": 0,
+    "profiles": 1,
+    "standings": 48,
+    "events": 0
+  },
+  "edgeFunctions": [
+    "score-match"
+  ],
+  "rpc": {
+    "scoreMatch": "ok"
+  },
+  "realtime": {
+    "note": "Verificar en dashboard Supabase → Database → Replication"
+  },
+  "rls": {
+    "note": "Políticas en supabase/migrations/"
+  },
+  "errors": []
+}

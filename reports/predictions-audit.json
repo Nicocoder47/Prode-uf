@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-06-05T10:00:00.893Z",
+  "counts": {
+    "pending": 0,
+    "locked": 0,
+    "scored": 0,
+    "total": 0
+  },
+  "unscoredOnFinished": [],
+  "finishedWithoutScoring": [],
+  "inconsistent": [],
+  "scoringRules": {
+    "source": "score_match_predictions (Supabase migration v5)",
+    "exactScore": 5,
+    "correctResult": 3,
+    "firstScorerBonus": 2,
+    "mvpBonus": 2,
+    "exclusiveExactOrResult": true
+  }
+}

@@ -1,0 +1,241 @@
+{
+  "generatedAt": "2026-06-05T18:01:09.416Z",
+  "objective": "Deploy gratuito — Vercel + Oracle + Supabase + Upstash",
+  "architecture": {
+    "frontend": "Vercel Free",
+    "backend": "Oracle Cloud Always Free",
+    "database": "Supabase Free",
+    "redis": "Upstash Free (opcional)",
+    "monitoring": "UptimeRobot Free"
+  },
+  "package": {
+    "name": "prode-mundial-2026",
+    "buildScript": "tsc -b && vite build",
+    "workerScript": "tsx src/workers/scheduler.ts",
+    "apiScript": "tsx server/index.ts"
+  },
+  "deployArtifacts": {
+    "vercelJson": true,
+    "dockerfile": true,
+    "ecosystemConfig": true,
+    "oracleDocs": true
+  },
+  "environment": {
+    "frontend": [
+      {
+        "key": "VITE_SUPABASE_URL",
+        "set": true,
+        "isLocal": true,
+        "valuePreview": "http://127.0.0.1:54321"
+      },
+      {
+        "key": "VITE_SUPABASE_ANON_KEY",
+        "set": true,
+        "isLocal": false,
+        "valuePreview": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ"
+      }
+    ],
+    "backend": [
+      {
+        "key": "SUPABASE_URL",
+        "set": true,
+        "isLocal": true,
+        "valuePreview": "http://127.0.0.1:54321"
+      },
+      {
+        "key": "SUPABASE_SERVICE_ROLE_KEY",
+        "set": true,
+        "isLocal": false,
+        "valuePreview": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ"
+      }
+    ],
+    "optional": [
+      {
+        "key": "REDIS_URL",
+        "set": true,
+        "isLocal": true,
+        "valuePreview": "redis://localhost:6379"
+      },
+      {
+        "key": "VITE_API_BASE_URL",
+        "set": false,
+        "isLocal": false
+      },
+      {
+        "key": "FOOTBALL_DATA_API_KEY",
+        "set": true,
+        "isLocal": false,
+        "valuePreview": "c8ce24b29a5541858219167ed36a450f"
+      },
+      {
+        "key": "API_FOOTBALL_KEY",
+        "set": false,
+        "isLocal": false,
+        "valuePreview": ""
+      }
+    ]
+  },
+  "supabase": {
+    "url": "http://127.0.0.1:54321",
+    "reachable": true,
+    "httpStatus": 200
+  },
+  "localReferences": {
+    "total": 17,
+    "devOnlyAcceptable": 0,
+    "productionRisk": [
+      {
+        "file": "scripts\\generateDeployAudit.ts",
+        "line": 21,
+        "text": "/localhost/i,"
+      },
+      {
+        "file": "scripts\\generateDeployAudit.ts",
+        "line": 23,
+        "text": "/0\\.0\\.0\\.0:5174/,"
+      },
+      {
+        "file": "scripts\\generateDeployAudit.ts",
+        "line": 24,
+        "text": "/:5173\\b/,"
+      },
+      {
+        "file": "scripts\\generateDeployAudit.ts",
+        "line": 25,
+        "text": "/:5174\\b/,"
+      },
+      {
+        "file": "scripts\\generateDeployAudit.ts",
+        "line": 26,
+        "text": "/:3001\\b/,"
+      },
+      {
+        "file": "scripts\\generateDeployAudit.ts",
+        "line": 27,
+        "text": "/:54321\\b/,"
+      },
+      {
+        "file": "scripts\\generateDeployAudit.ts",
+        "line": 28,
+        "text": "/:6379\\b/,"
+      },
+      {
+        "file": "scripts\\generateDeployAudit.ts",
+        "line": 67,
+        "text": "!h.text.includes('localhost:3001')"
+      },
+      {
+        "file": "scripts\\generateDeployAudit.ts",
+        "line": 78,
+        "text": "isLocal: /localhost|127\\.0\\.0\\.1|:54321|:6379/.test(process.env[key] ?? ''),"
+      },
+      {
+        "file": "scripts\\generateDeployAudit.ts",
+        "line": 159,
+        "text": "if (process.env.REDIS_URL?.includes('127.0.0.1') || process.env.REDIS_URL?.includes('localhost')) {"
+      },
+      {
+        "file": "docker-compose.yml",
+        "line": 10,
+        "text": "- '6379:6379'"
+      }
+    ]
+  },
+  "localHits": [
+    {
+      "file": "scripts\\generateDeployAudit.ts",
+      "line": 21,
+      "text": "/localhost/i,"
+    },
+    {
+      "file": "scripts\\generateDeployAudit.ts",
+      "line": 23,
+      "text": "/0\\.0\\.0\\.0:5174/,"
+    },
+    {
+      "file": "scripts\\generateDeployAudit.ts",
+      "line": 24,
+      "text": "/:5173\\b/,"
+    },
+    {
+      "file": "scripts\\generateDeployAudit.ts",
+      "line": 25,
+      "text": "/:5174\\b/,"
+    },
+    {
+      "file": "scripts\\generateDeployAudit.ts",
+      "line": 26,
+      "text": "/:3001\\b/,"
+    },
+    {
+      "file": "scripts\\generateDeployAudit.ts",
+      "line": 27,
+      "text": "/:54321\\b/,"
+    },
+    {
+      "file": "scripts\\generateDeployAudit.ts",
+      "line": 28,
+      "text": "/:6379\\b/,"
+    },
+    {
+      "file": "scripts\\generateDeployAudit.ts",
+      "line": 67,
+      "text": "!h.text.includes('localhost:3001')"
+    },
+    {
+      "file": "scripts\\generateDeployAudit.ts",
+      "line": 78,
+      "text": "isLocal: /localhost|127\\.0\\.0\\.1|:54321|:6379/.test(process.env[key] ?? ''),"
+    },
+    {
+      "file": "scripts\\generateDeployAudit.ts",
+      "line": 159,
+      "text": "if (process.env.REDIS_URL?.includes('127.0.0.1') || process.env.REDIS_URL?.includes('localhost')) {"
+    },
+    {
+      "file": "vite.config.ts",
+      "line": 7,
+      "text": "const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:3001'"
+    },
+    {
+      "file": ".env.example",
+      "line": 13,
+      "text": "# VITE_API_PROXY_TARGET=http://127.0.0.1:3001"
+    },
+    {
+      "file": ".env.example",
+      "line": 26,
+      "text": "# REDIS_URL=rediss://default:PASSWORD@HOST.upstash.io:6379"
+    },
+    {
+      "file": ".env.example",
+      "line": 55,
+      "text": "# VITE_SUPABASE_URL=http://127.0.0.1:54321"
+    },
+    {
+      "file": ".env.example",
+      "line": 56,
+      "text": "# SUPABASE_URL=http://127.0.0.1:54321"
+    },
+    {
+      "file": ".env.example",
+      "line": 57,
+      "text": "# REDIS_URL=redis://127.0.0.1:6379"
+    },
+    {
+      "file": "docker-compose.yml",
+      "line": 10,
+      "text": "- '6379:6379'"
+    }
+  ],
+  "blockers": [],
+  "recommendations": [
+    "Reemplazar VITE_SUPABASE_URL por URL cloud de Supabase",
+    "Reemplazar SUPABASE_URL por proyecto Supabase cloud",
+    "Configurar VITE_API_BASE_URL con URL pública de Oracle (Express API)",
+    "Migrar REDIS_URL a Upstash (rediss://...)",
+    "Vercel: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_API_BASE_URL",
+    "Oracle: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, FOOTBALL_DATA_API_KEY, REDIS_URL (Upstash)",
+    "Monitoreo UptimeRobot: GET /api/health y frontend Vercel URL"
+  ]
+}

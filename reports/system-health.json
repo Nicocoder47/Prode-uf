@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-06-05T17:43:01.192Z",
+  "worker": {
+    "status": "unknown",
+    "lastHeartbeatAt": null,
+    "lastCycle": null,
+    "expectedIntervalSec": 30
+  },
+  "sync": {
+    "lastLiveMatches": null,
+    "lastLivePipeline": null,
+    "recentErrors": []
+  },
+  "apis": {
+    "apiFootball": {
+      "configured": false,
+      "keyPresent": false
+    },
+    "sportmonks": {
+      "configured": false
+    },
+    "transfermarkt": {
+      "configured": false
+    },
+    "redis": {
+      "configured": true,
+      "optional": true
+    },
+    "supabase": {
+      "configured": true
+    }
+  },
+  "players": {
+    "total": 1213,
+    "withProviderId": 1000,
+    "withApiFootballId": 0,
+    "verified": 82,
+    "coveragePct": 82
+  },
+  "live": {
+    "liveMatches": 0,
+    "totalEvents": 0,
+    "goalEvents": 0,
+    "eventsWithPlayerId": 0,
+    "eventsWithoutPlayerId": 0,
+    "playerIdCoveragePct": 0,
+    "recentEvents": []
+  },
+  "scoring": {
+    "finishedMatches": 0,
+    "scoredMatches": 0,
+    "pendingScoring": 0,
+    "matchesWithMvp": 0,
+    "matchesMvpFromRatingsFallback": 0
+  }
+}

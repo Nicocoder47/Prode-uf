@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.env
+.env.local
+reports
+debug
+backend
+frontend
+*.md
+!docs
+.vscode
+.cursor
+supabase/.temp

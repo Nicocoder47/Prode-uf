@@ -1,0 +1,2428 @@
+{
+  "generatedAt": "2026-06-05T10:36:37.041Z",
+  "countries": [
+    "Argentina",
+    "Brazil",
+    "France",
+    "England",
+    "Spain",
+    "Portugal",
+    "Germany",
+    "Netherlands",
+    "Uruguay",
+    "Belgium"
+  ],
+  "results": [
+    {
+      "country": "Argentina",
+      "link": {
+        "scanned": 10,
+        "verified": 6,
+        "needsReview": 0,
+        "possibleMatch": 0,
+        "rejected": 1,
+        "noCandidates": 3,
+        "records": [
+          {
+            "playerId": "13097896-906e-4252-80b1-94d0d7e8c045",
+            "name": "José Manuel López",
+            "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "171a0c7f-53db-47d6-a201-334609587cfd",
+            "name": "Emiliano Martínez",
+            "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "229058fe-1ff2-4cf6-8167-efd809fe2d4c",
+            "name": "Juan Musso",
+            "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "39fe03e4-06b0-4431-a2f4-9b16b4b87d6e",
+            "name": "Nicolás González",
+            "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Nicolás González",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "4690ff48-f743-48cb-9f48-21022f79b69c",
+            "name": "Giovani Lo Celso",
+            "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Giovani Lo Celso",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "4ad6d1fd-2175-4aff-913c-0622aebcc83f",
+            "name": "Nahuel Molina",
+            "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Nahuel Molina",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "4c27ee01-587b-4041-aa68-cad7b784f799",
+            "name": "Exequiel Palacios",
+            "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Exequiel Palacios",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "52e3bba7-fc83-4356-a05a-73eec15c4da4",
+            "name": "Géronimo Rulli",
+            "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Gerónimo Rulli",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "62a17b00-be88-48e6-bf6c-6018c0b5a879",
+            "name": "Leonardo Balerdi",
+            "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Leonardo Balerdi",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "cf22fb98-f1c9-4700-a42f-f507507a69e3",
+            "name": "Christian Romero",
+            "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+            "status": "rejected",
+            "score": -30,
+            "provider": "thesportsdb",
+            "candidateName": "Sergio Romero",
+            "matchedFields": [
+              "nationality",
+              "country"
+            ],
+            "conflictedFields": [
+              "date_of_birth"
+            ]
+          }
+        ]
+      },
+      "enrich": {
+        "scanned": 22,
+        "enriched": 2,
+        "conflicts": 0,
+        "skipped": 20,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "photos": {
+        "scanned": 5,
+        "enriched": 1,
+        "conflicts": 0,
+        "skipped": 4,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "team": {
+        "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+        "teamName": "Argentina",
+        "players": 11,
+        "verified": 7,
+        "verifiedPct": 64,
+        "photos": 6,
+        "photoPct": 55,
+        "clubs": 6,
+        "clubPct": 55,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 4,
+        "marketValuePct": 36,
+        "unlinked": 3,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    },
+    {
+      "country": "Brazil",
+      "link": {
+        "scanned": 12,
+        "verified": 4,
+        "needsReview": 0,
+        "possibleMatch": 0,
+        "rejected": 1,
+        "noCandidates": 7,
+        "records": [
+          {
+            "playerId": "15da6692-ede6-495c-a1f0-f460dfccb66d",
+            "name": "Thiago",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "36ca533e-6a3f-414d-afd0-c883797315e1",
+            "name": "Wesley",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "662a69ac-f80a-4a31-9608-31c43ba6eb33",
+            "name": "Bruno Guimarães",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "7085796f-2e3b-4bc3-bdf4-03ee42053d05",
+            "name": "Casemiro",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "7fb82366-e38b-4772-8884-60a31d130ab5",
+            "name": "Danilo Luiz da Silva",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "rejected",
+            "score": 25,
+            "provider": "thesportsdb",
+            "candidateName": "Danilo Silva",
+            "matchedFields": [
+              "name",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": [
+              "date_of_birth"
+            ]
+          },
+          {
+            "playerId": "80192973-0e3d-4543-91f6-a02c1241356f",
+            "name": "Vinicius Junior",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Vinícius Júnior",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "81a8c6ca-4ae5-4dbd-b412-8e8367e1cbdc",
+            "name": "Rayan",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "8a228440-626a-4f32-ac82-360ce22791fd",
+            "name": "Fabinho",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Fabinho",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "98532438-b4ce-40a1-8d6b-174e2b9e36be",
+            "name": "Alex Sandro",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Alex Sandro",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "9af641c6-dc7d-4cc4-ac3f-e4c4ccdd084c",
+            "name": "Martinelli",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "9ea44dba-969b-4760-a7dd-f3945da0c4c7",
+            "name": "Alisson Becker",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Alisson Becker",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "ba21250a-de12-4723-b275-2c102edeac4f",
+            "name": "Danilo dos Santos de Oliveira",
+            "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          }
+        ]
+      },
+      "enrich": {
+        "scanned": 18,
+        "enriched": 5,
+        "conflicts": 0,
+        "skipped": 13,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "photos": {
+        "scanned": 7,
+        "enriched": 1,
+        "conflicts": 0,
+        "skipped": 6,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "team": {
+        "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+        "teamName": "Brazil",
+        "players": 15,
+        "verified": 7,
+        "verifiedPct": 47,
+        "photos": 4,
+        "photoPct": 27,
+        "clubs": 3,
+        "clubPct": 20,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 2,
+        "marketValuePct": 13,
+        "unlinked": 7,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    },
+    {
+      "country": "France",
+      "link": {
+        "scanned": 12,
+        "verified": 7,
+        "needsReview": 0,
+        "possibleMatch": 0,
+        "rejected": 1,
+        "noCandidates": 4,
+        "records": [
+          {
+            "playerId": "3044c159-846f-4931-9ca4-305b1567654c",
+            "name": "Aurélien Tchouameni",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Aurélien Tchouaméni",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "338ecaac-2a62-416d-a9d3-a5dd1716a807",
+            "name": "Robin Risser",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Robin Risser",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "48f752bd-4f9f-4dca-9feb-5a88b7ca7e38",
+            "name": "Lucas Digne",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Lucas Digne",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "6092d33e-6ff9-4f75-bb86-8a4ddc195476",
+            "name": "Maghnes Akliouche",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "verified",
+            "score": 105,
+            "provider": "thesportsdb",
+            "candidateName": "Maghnes Akliouche",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "686f1a06-8abc-49b1-8869-9d15d41d84f9",
+            "name": "Desire Doue",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Désiré Doué",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "9cf62780-0ac2-45d4-8867-377080de80d6",
+            "name": "Marcus Thuram-Ulien",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "rejected",
+            "score": -30,
+            "provider": "thesportsdb",
+            "candidateName": "Yohann Thuram-Ulien",
+            "matchedFields": [
+              "nationality",
+              "country"
+            ],
+            "conflictedFields": [
+              "date_of_birth"
+            ]
+          },
+          {
+            "playerId": "c1df3726-8922-472e-8190-4b0320a72606",
+            "name": "Theo Hernández",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Théo Hernandez",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "c4854e47-ecb4-411f-8d15-355ae8d02296",
+            "name": "Bradley Barcola",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Bradley Barcola",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "cd572630-fc30-4694-afc4-65d9198d8f29",
+            "name": "Maxence Lacroix",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "d902818e-7481-4d8b-b286-6bee3fe584f9",
+            "name": "William Saliba",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "e3c2a135-b1f5-425d-bf1b-27ec5352bfa7",
+            "name": "Adrien Rabiot",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "e640059d-89e5-4cc8-8ffa-787bc9330bcd",
+            "name": "Brice Samba",
+            "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          }
+        ]
+      },
+      "enrich": {
+        "scanned": 21,
+        "enriched": 6,
+        "conflicts": 0,
+        "skipped": 15,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "photos": {
+        "scanned": 6,
+        "enriched": 2,
+        "conflicts": 0,
+        "skipped": 4,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "team": {
+        "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+        "teamName": "France",
+        "players": 8,
+        "verified": 3,
+        "verifiedPct": 38,
+        "photos": 1,
+        "photoPct": 13,
+        "clubs": 1,
+        "clubPct": 13,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 0,
+        "marketValuePct": 0,
+        "unlinked": 4,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    },
+    {
+      "country": "England",
+      "link": {
+        "scanned": 13,
+        "verified": 5,
+        "needsReview": 0,
+        "possibleMatch": 0,
+        "rejected": 1,
+        "noCandidates": 7,
+        "records": [
+          {
+            "playerId": "064b16ec-b930-48b4-8705-f42148ffdfb8",
+            "name": "Marcus Rashford",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Marcus Rashford",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "07515996-b317-40a1-8b0a-34f2c7d56fe6",
+            "name": "James Trafford",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "James Trafford",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "0cb9f687-e4c6-478e-a8c6-898390a4ad86",
+            "name": "Noni Madueke",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Noni Madueke",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "265b814a-2ab2-4c43-9c3c-bd79105d9b93",
+            "name": "Elliot Anderson",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "verified",
+            "score": 105,
+            "provider": "thesportsdb",
+            "candidateName": "Elliott Anderson",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "4c3a24fa-954e-4829-819e-c705199cf27c",
+            "name": "Eberechi Eze",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Eberechi Eze",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "4d1f9b00-4935-4733-bbe5-0368ca09de34",
+            "name": "Ezri Konsa",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "rejected",
+            "score": 35,
+            "provider": "thesportsdb",
+            "candidateName": "Ezri Konsa",
+            "matchedFields": [
+              "name",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": [
+              "date_of_birth"
+            ]
+          },
+          {
+            "playerId": "520ffbfd-a002-44c5-a980-530c54ca418e",
+            "name": "Jordan Henderson",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "b35b5ecd-10df-423a-99db-4db92b5a1270",
+            "name": "Reece James",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "b805e1d3-9bc6-450c-95c5-2f317da046a7",
+            "name": "Djed Spence",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "bdaed433-efe5-48d0-9a3e-e69320051af7",
+            "name": "Valentino Livramento",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "ca609c59-889f-4722-847e-7189a0cf0140",
+            "name": "Kobbie Mainoo",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "ca8b404a-176b-4127-b3fc-ad1e4ec38aae",
+            "name": "Bukayo Saka",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "d706b09c-a5d5-4632-bb0d-4c82869d4bfa",
+            "name": "Ivan Toney",
+            "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          }
+        ]
+      },
+      "enrich": {
+        "scanned": 18,
+        "enriched": 9,
+        "conflicts": 0,
+        "skipped": 9,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "photos": {
+        "scanned": 2,
+        "enriched": 2,
+        "conflicts": 0,
+        "skipped": 0,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "team": {
+        "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+        "teamName": "England",
+        "players": 17,
+        "verified": 9,
+        "verifiedPct": 53,
+        "photos": 9,
+        "photoPct": 53,
+        "clubs": 7,
+        "clubPct": 41,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 4,
+        "marketValuePct": 24,
+        "unlinked": 7,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    },
+    {
+      "country": "Spain",
+      "link": {
+        "scanned": 15,
+        "verified": 5,
+        "needsReview": 1,
+        "possibleMatch": 0,
+        "rejected": 1,
+        "noCandidates": 8,
+        "records": [
+          {
+            "playerId": "0e8e69a7-a930-4c90-bce8-42d086ceedd7",
+            "name": "Borja Iglesias",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Borja Iglesias",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "1a4d7ed6-0402-421e-bd9e-9fb2eef59b13",
+            "name": "Joan García",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "253b23f2-4c70-4fc3-b4a6-ff88545dc530",
+            "name": "Dani Olmo",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "2c915687-8c4c-47b3-aa3c-170695d3bce4",
+            "name": "Mikel Oyarzabal",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "3f8fffab-8452-42f3-833f-6df053fe9a6e",
+            "name": "Unai Simón",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "5e86d2ef-85b4-46dc-b1b3-64cb83417255",
+            "name": "Pedri",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "6acafd5c-da39-406c-a23e-fc2947828ecd",
+            "name": "Pablo Gavira",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "74eaf4a5-ba5a-488a-a523-e3fdd64613bc",
+            "name": "Rodri",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "79407cbd-23e5-4c80-88cc-747e546afd17",
+            "name": "Cucurella",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "needs_review",
+            "score": 60,
+            "provider": "thesportsdb",
+            "candidateName": "Marc Cucurella",
+            "matchedFields": [
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "7ad0295a-1def-4ca9-9e23-ce8e1204de5e",
+            "name": "Víctor Muñoz",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "rejected",
+            "score": 25,
+            "provider": "thesportsdb",
+            "candidateName": "Víctor Muñoz",
+            "matchedFields": [
+              "name",
+              "nationality",
+              "country"
+            ],
+            "conflictedFields": [
+              "date_of_birth"
+            ]
+          },
+          {
+            "playerId": "a268ebdc-3fe8-4edc-a84c-7cdadeaa59c8",
+            "name": "Yeremi Pino",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "ad4aa27c-1ef5-4b2a-99b4-4f4fb1b59a1c",
+            "name": "Alejandro Grimaldo",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Alejandro Grimaldo",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "bc217a85-27d2-4e6c-b0ff-2fada1c9e3f8",
+            "name": "Pau Cubarsí",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Pau Cubarsí",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "bcb42d9d-5189-4700-8ad9-1df0bb2d77b8",
+            "name": "Marc Pubill",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Marc Pubill",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "c286437e-7916-4879-8389-eb5d238a8aa5",
+            "name": "Eric García",
+            "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Eric García",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          }
+        ]
+      },
+      "enrich": {
+        "scanned": 16,
+        "enriched": 6,
+        "conflicts": 0,
+        "skipped": 10,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "photos": {
+        "scanned": 6,
+        "enriched": 5,
+        "conflicts": 0,
+        "skipped": 1,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "team": {
+        "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+        "teamName": "Spain",
+        "players": 21,
+        "verified": 11,
+        "verifiedPct": 52,
+        "photos": 10,
+        "photoPct": 48,
+        "clubs": 6,
+        "clubPct": 29,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 4,
+        "marketValuePct": 19,
+        "unlinked": 8,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    },
+    {
+      "country": "Portugal",
+      "link": {
+        "scanned": 12,
+        "verified": 5,
+        "needsReview": 0,
+        "possibleMatch": 0,
+        "rejected": 0,
+        "noCandidates": 7,
+        "records": [
+          {
+            "playerId": "12cf6655-9e09-4a2c-a61d-a2bd5a7a42c3",
+            "name": "Pedro Neto",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Pedro Neto",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "13e25a96-3c1b-4d3f-b926-b54ed7b0bd69",
+            "name": "Nélson Semedo",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Nélson Semedo",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "2127b332-e131-463a-aee1-a2a566f3c3a6",
+            "name": "José Sá",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "2bf9238d-84b1-481f-8e62-e859a74ed6c9",
+            "name": "Tomas Araujo",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "38418dc0-a20d-4ade-9e51-fa1758681ba9",
+            "name": "Samuel Almeida Costa",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "4e06028d-9e8e-4ab2-b081-924e7d3a01a4",
+            "name": "Diogo Costa",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "92e9712c-e24f-4bb9-86f8-814aaeda7fbd",
+            "name": "Renato Veiga",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "962c3e1d-1836-43b2-95e1-3fd9938e84dd",
+            "name": "Trincão",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "a6881c03-297a-4c1b-b9d8-183c9378cd1b",
+            "name": "Joao Neves",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "abdd4ed9-f517-4eda-9726-076b69a25731",
+            "name": "Nuno Mendes",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Nuno Mendes",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "b27d4313-6d9e-4260-948f-97ee5076d03f",
+            "name": "Cristiano Ronaldo",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Cristiano Ronaldo",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "c3dcf711-5d1d-4da3-a304-29ab56cb8d59",
+            "name": "João Félix",
+            "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "João Félix",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          }
+        ]
+      },
+      "enrich": {
+        "scanned": 19,
+        "enriched": 4,
+        "conflicts": 0,
+        "skipped": 15,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "photos": {
+        "scanned": 5,
+        "enriched": 5,
+        "conflicts": 0,
+        "skipped": 0,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "team": {
+        "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+        "teamName": "Portugal",
+        "players": 26,
+        "verified": 19,
+        "verifiedPct": 73,
+        "photos": 19,
+        "photoPct": 73,
+        "clubs": 14,
+        "clubPct": 54,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 9,
+        "marketValuePct": 35,
+        "unlinked": 7,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    },
+    {
+      "country": "Germany",
+      "link": {
+        "scanned": 11,
+        "verified": 5,
+        "needsReview": 0,
+        "possibleMatch": 0,
+        "rejected": 0,
+        "noCandidates": 6,
+        "records": [
+          {
+            "playerId": "11994183-c9fa-4bc2-8ce7-eaf75e540c19",
+            "name": "Felix Kalu Nmecha",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "verified",
+            "score": 105,
+            "provider": "thesportsdb",
+            "candidateName": "Felix Nmecha",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "1775f919-701e-4880-b00a-c46edbabb832",
+            "name": "Jamie Leweling",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "1b11f74e-b1a3-499a-bdbe-2faaf8a5d11c",
+            "name": "Leroy Sané",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "1b35d03c-858f-4f36-928f-8a485a19d7c5",
+            "name": "Lennart Karl",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "2b58f4ed-f95b-411b-a5f3-fea8fc9bca8c",
+            "name": "David Raum",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "2df7ec07-c3e7-4dfc-be40-91531f474dfc",
+            "name": "Nico Schlotterbeck",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "8eeeb902-3875-47c0-9a81-8257f9865317",
+            "name": "Aleksandar Pavlović",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "909fde8b-5b71-4cdd-a8f5-d967aebddaf6",
+            "name": "Nick Woltemade",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Nick Woltemade",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "a19071f9-9d6b-49f6-8659-bfd5926e5f5b",
+            "name": "Florian Wirtz",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Florian Wirtz",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "a8394a3b-2548-44b7-a2e9-8bfa6e194706",
+            "name": "Malick Thiaw",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Malick Thiaw",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "b0df657b-a711-42bf-98b0-350c7eebfc20",
+            "name": "Joshua Kimmich",
+            "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+            "status": "verified",
+            "score": 115,
+            "provider": "thesportsdb",
+            "candidateName": "Joshua Kimmich",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "country",
+              "position"
+            ],
+            "conflictedFields": []
+          }
+        ]
+      },
+      "enrich": {
+        "scanned": 20,
+        "enriched": 6,
+        "conflicts": 0,
+        "skipped": 14,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "photos": {
+        "scanned": 6,
+        "enriched": 2,
+        "conflicts": 0,
+        "skipped": 4,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "team": {
+        "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+        "teamName": "Germany",
+        "players": 24,
+        "verified": 18,
+        "verifiedPct": 75,
+        "photos": 14,
+        "photoPct": 58,
+        "clubs": 12,
+        "clubPct": 50,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 2,
+        "marketValuePct": 8,
+        "unlinked": 6,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    },
+    {
+      "country": "Netherlands",
+      "link": {
+        "scanned": 14,
+        "verified": 8,
+        "needsReview": 0,
+        "possibleMatch": 0,
+        "rejected": 0,
+        "noCandidates": 6,
+        "records": [
+          {
+            "playerId": "1f20206b-2361-4bb7-afb9-2e61cfb0354f",
+            "name": "Wout Weghorst",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "verified",
+            "score": 95,
+            "provider": "thesportsdb",
+            "candidateName": "Wout Weghorst",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "1fd8e893-4e9e-43f0-8f79-c8a25173fb00",
+            "name": "Jan Paul van Hecke",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "verified",
+            "score": 95,
+            "provider": "thesportsdb",
+            "candidateName": "Jan Paul van Hecke",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "27b30fe0-201e-464f-b8f9-73fe2da8e7a1",
+            "name": "Robin Roefs",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "verified",
+            "score": 95,
+            "provider": "thesportsdb",
+            "candidateName": "Robin Roefs",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "2d3f5f73-4dee-46fd-8ad1-e575a83530f4",
+            "name": "Brian Brobbey",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "verified",
+            "score": 95,
+            "provider": "thesportsdb",
+            "candidateName": "Brian Brobbey",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "36779cad-ac56-4bbf-876a-5042d0c710ba",
+            "name": "Ryan Gravenberch",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "verified",
+            "score": 95,
+            "provider": "thesportsdb",
+            "candidateName": "Ryan Gravenberch",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "3e43820d-65d6-4891-8596-0afdc58ada5a",
+            "name": "Justin Kluivert",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "verified",
+            "score": 85,
+            "provider": "thesportsdb",
+            "candidateName": "Justin Kluivert",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "4575a9ad-d2ed-4cea-ac4b-7e34963eaef7",
+            "name": "Frenkie de Jong",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "4c83850c-2111-41f8-9f4c-a3763cdadcdc",
+            "name": "Tijjani Reijnders",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "b24b2ac6-abac-411f-bb0d-5b9c51e765a8",
+            "name": "Nathan Aké",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "bde98ce2-40c4-482a-9364-4805ac35936c",
+            "name": "Virgil van Dijk",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "c4dcb5a3-bee0-4684-8aec-21aca35ca63b",
+            "name": "Memphis Depay",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "d00cc153-e52c-4a14-b007-33c50b62a536",
+            "name": "Jurrien Timber",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "verified",
+            "score": 95,
+            "provider": "thesportsdb",
+            "candidateName": "Jurriën Timber",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "efdfc8da-91e5-4260-afb0-d0dc505a2cda",
+            "name": "Jorrel Hato",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "verified",
+            "score": 95,
+            "provider": "thesportsdb",
+            "candidateName": "Jorrel Hato",
+            "matchedFields": [
+              "name",
+              "date_of_birth",
+              "nationality",
+              "position"
+            ],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "efef0f78-cad6-4b07-9d72-b42bb491e6c3",
+            "name": "Mickey van de Ven",
+            "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          }
+        ]
+      },
+      "enrich": {
+        "scanned": 20,
+        "enriched": 8,
+        "conflicts": 0,
+        "skipped": 12,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "photos": {
+        "scanned": 6,
+        "enriched": 0,
+        "conflicts": 0,
+        "skipped": 6,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "team": {
+        "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+        "teamName": "Netherlands",
+        "players": 9,
+        "verified": 8,
+        "verifiedPct": 89,
+        "photos": 4,
+        "photoPct": 44,
+        "clubs": 4,
+        "clubPct": 44,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 0,
+        "marketValuePct": 0,
+        "unlinked": 1,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    },
+    {
+      "country": "Uruguay",
+      "link": {
+        "scanned": 11,
+        "verified": 0,
+        "needsReview": 0,
+        "possibleMatch": 0,
+        "rejected": 0,
+        "noCandidates": 11,
+        "records": [
+          {
+            "playerId": "3621655f-935f-4dff-8066-f35877264a10",
+            "name": "Juan Sanabria",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "39ae561c-feb5-4195-9383-a1672dc52541",
+            "name": "Rodrigo Aguirre",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "3e556aa8-407e-46d4-84f3-27ef60636626",
+            "name": "Guillermo Varela",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "40e5960a-6ed3-4a7d-b053-2ef19d60db5f",
+            "name": "Facundo Pellistri",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "55afbb05-1e4b-4cae-813b-36d2504b6ffa",
+            "name": "Matías Viña",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "61f9708a-5076-45ee-83e1-c1889f9312b4",
+            "name": "Emiliano Martínez",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "cfe64799-5ab7-458c-8023-317c9346ed3c",
+            "name": "Sergio Rochet",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "d225c3d5-cefc-462b-b644-3cb20b5470ae",
+            "name": "José Giménez",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "d8bdb846-23cf-44b3-8c66-d8b1e83c13d8",
+            "name": "Manuel Ugarte",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "e6fd653f-fd23-4050-8956-d13a84fbc772",
+            "name": "Rodrigo Bentancur",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "f12fa8fc-c7b9-49a3-9172-05358a527bec",
+            "name": "Brian Rodríguez",
+            "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          }
+        ]
+      },
+      "enrich": {
+        "scanned": 15,
+        "enriched": 0,
+        "conflicts": 0,
+        "skipped": 15,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "photos": {
+        "scanned": 4,
+        "enriched": 0,
+        "conflicts": 0,
+        "skipped": 4,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "team": {
+        "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+        "teamName": "Uruguay",
+        "players": 11,
+        "verified": 0,
+        "verifiedPct": 0,
+        "photos": 0,
+        "photoPct": 0,
+        "clubs": 0,
+        "clubPct": 0,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 0,
+        "marketValuePct": 0,
+        "unlinked": 11,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    },
+    {
+      "country": "Belgium",
+      "link": {
+        "scanned": 18,
+        "verified": 0,
+        "needsReview": 0,
+        "possibleMatch": 0,
+        "rejected": 0,
+        "noCandidates": 18,
+        "records": [
+          {
+            "playerId": "04818009-70d4-432b-87c8-2b2b001de7cf",
+            "name": "Charles De Ketelaere",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "072ec226-7343-4c93-9e40-483b1814b138",
+            "name": "Axel Witsel",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "0c3efcf3-05a7-4a5d-a1c5-aefba83f976a",
+            "name": "Maxim De Cuyper",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "0d663896-4b5a-40dc-ba45-a8b05a1c5030",
+            "name": "Arthur Theate",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "14f80544-7515-465a-967e-24d5ec4a6edc",
+            "name": "Amadou Onana",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "2a136498-23a6-4965-9563-933ce35666e6",
+            "name": "Brandon Mechele",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "a795a145-b2e1-449b-8ad4-fd891cff9ebc",
+            "name": "Timothy Castagne",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "aa55f6be-b4f3-4613-8cb5-4cd14481854d",
+            "name": "Matias Fernandez-Pardo",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "ac16d8f2-e62d-4c50-bd8b-b77262f40b57",
+            "name": "Leandro Trossard",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "b5974b24-8307-4e3c-ab65-213159a316db",
+            "name": "Youri Tielemans",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "b90297c8-19fd-4c23-80ea-f8d18db611df",
+            "name": "Thibaut Courtois",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "d2875fab-b82f-4a4b-82c2-aa8e2c22c355",
+            "name": "Joaquin Seys",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "d9b8e685-42da-41bf-a54f-9f9ee762857f",
+            "name": "Jeremy Doku",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "dbf847fe-650d-468d-b57e-2100baeeea43",
+            "name": "Kevin De Bruyne",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "e6b0029f-585c-4ebf-b0f3-1d820766889d",
+            "name": "Nathan Ngoy",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "efdcc098-1a27-42c4-a0ec-1a2a28992db6",
+            "name": "Romelu Lukaku",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "f3f67ea8-75ce-4e2d-a168-d8f2462e750b",
+            "name": "Hans Vanaken",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          },
+          {
+            "playerId": "fdb86bc4-b61a-48c3-89ca-6ab8c017b063",
+            "name": "Koni De Winter",
+            "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+            "status": "no_candidates",
+            "score": 0,
+            "provider": null,
+            "candidateName": null,
+            "matchedFields": [],
+            "conflictedFields": []
+          }
+        ]
+      },
+      "enrich": {
+        "scanned": 8,
+        "enriched": 0,
+        "conflicts": 0,
+        "skipped": 8,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "photos": {
+        "scanned": 8,
+        "enriched": 0,
+        "conflicts": 0,
+        "skipped": 8,
+        "errors": 0,
+        "conflictDetails": [],
+        "errorDetails": []
+      },
+      "team": {
+        "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+        "teamName": "Belgium",
+        "players": 14,
+        "verified": 0,
+        "verifiedPct": 0,
+        "photos": 0,
+        "photoPct": 0,
+        "clubs": 0,
+        "clubPct": 0,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 0,
+        "marketValuePct": 0,
+        "unlinked": 14,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    }
+  ],
+  "global": {
+    "total": 1000,
+    "verified": 82,
+    "needsReview": 1,
+    "possibleMatch": 0,
+    "conflict": 0,
+    "rejected": 5,
+    "unlinked": 912,
+    "withPhoto": 96,
+    "withClub": 87,
+    "withMarketValue": 31,
+    "verifiedPct": 8.2,
+    "photoPct": 9.6,
+    "clubPct": 8.7,
+    "marketValuePct": 3.1,
+    "enrichmentPending": 918
+  },
+  "priority": {
+    "totalPriority": 10,
+    "tracked": 10,
+    "readyCount": 0,
+    "allReady": false,
+    "teams": [
+      {
+        "teamId": "09f42c00-65ed-47f2-9391-d47f879d1a75",
+        "teamName": "Argentina",
+        "players": 11,
+        "verified": 7,
+        "verifiedPct": 64,
+        "photos": 6,
+        "photoPct": 55,
+        "clubs": 6,
+        "clubPct": 55,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 4,
+        "marketValuePct": 36,
+        "unlinked": 3,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      },
+      {
+        "teamId": "f9585cd4-de8d-4467-9715-a7fc00a8c025",
+        "teamName": "Belgium",
+        "players": 14,
+        "verified": 0,
+        "verifiedPct": 0,
+        "photos": 0,
+        "photoPct": 0,
+        "clubs": 0,
+        "clubPct": 0,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 0,
+        "marketValuePct": 0,
+        "unlinked": 14,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      },
+      {
+        "teamId": "518413de-7725-48c5-a17e-c3a8d2d0368e",
+        "teamName": "Brazil",
+        "players": 15,
+        "verified": 7,
+        "verifiedPct": 47,
+        "photos": 4,
+        "photoPct": 27,
+        "clubs": 3,
+        "clubPct": 20,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 2,
+        "marketValuePct": 13,
+        "unlinked": 7,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      },
+      {
+        "teamId": "8d8a9c00-18b0-4778-b6e2-600700a1d916",
+        "teamName": "England",
+        "players": 17,
+        "verified": 9,
+        "verifiedPct": 53,
+        "photos": 9,
+        "photoPct": 53,
+        "clubs": 7,
+        "clubPct": 41,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 4,
+        "marketValuePct": 24,
+        "unlinked": 7,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      },
+      {
+        "teamId": "a76e48e6-7dbd-4d99-90e6-d795aedc3674",
+        "teamName": "France",
+        "players": 8,
+        "verified": 3,
+        "verifiedPct": 38,
+        "photos": 1,
+        "photoPct": 13,
+        "clubs": 1,
+        "clubPct": 13,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 0,
+        "marketValuePct": 0,
+        "unlinked": 4,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      },
+      {
+        "teamId": "b11040ed-0acf-43c2-932f-478baf0c22f7",
+        "teamName": "Germany",
+        "players": 24,
+        "verified": 18,
+        "verifiedPct": 75,
+        "photos": 14,
+        "photoPct": 58,
+        "clubs": 12,
+        "clubPct": 50,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 2,
+        "marketValuePct": 8,
+        "unlinked": 6,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      },
+      {
+        "teamId": "e64eb032-7ef8-4e3a-989d-93abeb1fb179",
+        "teamName": "Netherlands",
+        "players": 9,
+        "verified": 8,
+        "verifiedPct": 89,
+        "photos": 4,
+        "photoPct": 44,
+        "clubs": 4,
+        "clubPct": 44,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 0,
+        "marketValuePct": 0,
+        "unlinked": 1,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      },
+      {
+        "teamId": "82032bc1-b59c-493a-b604-88628df78627",
+        "teamName": "Portugal",
+        "players": 26,
+        "verified": 19,
+        "verifiedPct": 73,
+        "photos": 19,
+        "photoPct": 73,
+        "clubs": 14,
+        "clubPct": 54,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 9,
+        "marketValuePct": 35,
+        "unlinked": 7,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      },
+      {
+        "teamId": "944474ac-2102-4033-9275-195ff11c9b4b",
+        "teamName": "Spain",
+        "players": 21,
+        "verified": 11,
+        "verifiedPct": 52,
+        "photos": 10,
+        "photoPct": 48,
+        "clubs": 6,
+        "clubPct": 29,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 4,
+        "marketValuePct": 19,
+        "unlinked": 8,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      },
+      {
+        "teamId": "2c14696e-6656-4cd7-86c3-a1a3cf19ee5f",
+        "teamName": "Uruguay",
+        "players": 11,
+        "verified": 0,
+        "verifiedPct": 0,
+        "photos": 0,
+        "photoPct": 0,
+        "clubs": 0,
+        "clubPct": 0,
+        "ratings": 0,
+        "ratingPct": 0,
+        "marketValues": 0,
+        "marketValuePct": 0,
+        "unlinked": 11,
+        "uiReadiness": "IN_PROGRESS",
+        "isPriority": true
+      }
+    ],
+    "readyTeams": [],
+    "pendingTeams": [
+      "Argentina",
+      "Belgium",
+      "Brazil",
+      "England",
+      "France",
+      "Germany",
+      "Netherlands",
+      "Portugal",
+      "Spain",
+      "Uruguay"
+    ]
+  }
+}
