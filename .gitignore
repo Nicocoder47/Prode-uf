@@ -14,6 +14,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+!.env.cloud.example
 
 # Debug API dumps (no commitear respuestas)
 debug/football-data/*.json
