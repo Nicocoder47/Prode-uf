@@ -19,6 +19,11 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation()
   const variant = useMemo(() => resolveVariant(pathname), [pathname])
 
+  // Login controla su propio fondo — evita capas globales que lo vuelven blanco
+  if (pathname === '/invite') {
+    return <>{children}</>
+  }
+
   return (
     <BackgroundContext.Provider value={{ variant }}>
       <div className="wc26-bg-root">
