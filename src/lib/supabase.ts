@@ -14,6 +14,8 @@ const stubSupabase = {
     getSession: async () => ({ data: { session: null }, error: null }),
     onAuthStateChange: (_: unknown) => ({ data: { subscription: { unsubscribe: () => {} } } }),
     signInWithOtp: async (_: unknown) => ({ data: null, error: new Error('Supabase not configured') }),
+    signUp: async (_: unknown) => ({ data: null, error: new Error('Supabase not configured') }),
+    signInWithPassword: async (_: unknown) => ({ data: null, error: new Error('Supabase not configured') }),
     signOut: async () => ({ data: null, error: null }),
   },
   from: (_table: string) => ({

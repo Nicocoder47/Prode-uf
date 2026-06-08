@@ -104,59 +104,24 @@ export function mapRegistrationError(code: string): string {
   }
 }
 
-const OTP_COOLDOWN_MS = 30_000
-const OTP_COOLDOWN_KEY = 'prode_otp_sent_at'
-
-export function markOtpSent() {
-  sessionStorage.setItem(OTP_COOLDOWN_KEY, String(Date.now()))
-}
-
-export function clearOtpCooldown() {
-  sessionStorage.removeItem(OTP_COOLDOWN_KEY)
-}
-
-export function getOtpCooldownSeconds(): number {
-  try {
-    const raw = sessionStorage.getItem(OTP_COOLDOWN_KEY)
-    if (!raw) return 0
-    const remaining = Math.ceil((OTP_COOLDOWN_MS - (Date.now() - Number(raw))) / 1000)
-    return remaining > 0 ? remaining : 0
-  } catch {
-    return 0
+export function mapSignInError(message: string): string {
+  const m = message.toLowerCase()
+  if (m.includes('invalid login credentials') || m.includes('invalid credentials')) {
+    return 'Email o DNI incorrectos.'
   }
-}
-
-export function resetAuthAttempt() {
-  clearAuthPending()
-  clearOtpCooldown()
-}
-
-export async function verifyEmailOtp(
-  supabaseClient: { auth: { verifyOtp: (params: { email: string; token: string; type: string }) => Promise<{ data: { session: unknown } | null; error: { message: string } | null }> } },
-  email: string,
-  token: string,
-) {
-  const types = ['email', 'signup', 'magiclink'] as const
-  let lastError: { message: string } | null = null
-
-  for (const type of types) {
-    const { data, error } = await supabaseClient.auth.verifyOtp({ email, token, type })
-    if (!error && data.session) {
-      return { data, error: null }
-    }
-    lastError = error
+  if (m.includes('email not confirmed')) {
+    return 'Tenés que confirmar tu email antes de ingresar.'
   }
-
-  return { data: null, error: lastError }
+  if (m.includes('user already registered') || m.includes('already been registered')) {
+    return mapRegistrationError('email_taken')
+  }
+  return message
 }
 
 export function mapAuthError(message: string): string {
   const m = message.toLowerCase()
-  if (m.includes('expired') || m.includes('invalid') || m.includes('otp')) {
-    return 'Código incorrecto o vencido. Pedí uno nuevo.'
-  }
-  if (m.includes('rate limit') || m.includes('over_email_send_rate_limit') || m.includes('429')) {
-    return 'Límite de envíos alcanzado. Si ya te llegó un código por email, ingresalo abajo.'
+  if (m.includes('invalid login credentials') || m.includes('invalid credentials')) {
+    return 'Email o DNI incorrectos.'
   }
   return message
 }

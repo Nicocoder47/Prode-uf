@@ -1,26 +1,15 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
-import { isUniversalAdminCode, UNIVERSAL_ADMIN_CODE } from '../config/universalAdmin.ts'
 import { supabase } from './supabase'
 import {
-  clearAuthPending,
-  clearPendingLogin,
-  clearPendingRegistration,
   isValidDni,
   isValidEmail,
-  mapAuthError,
   mapRegistrationError,
+  mapSignInError,
   normalizeDni,
   normalizeLegajo,
-  getOtpCooldownSeconds,
-  markOtpSent,
-  readPendingLogin,
-  readPendingRegistration,
-  savePendingLogin,
-  savePendingRegistration,
   type PendingRegistration,
-  verifyEmailOtp,
 } from '../utils/registration.ts'
 
 interface Profile {
@@ -43,13 +32,10 @@ export interface AccessRegistrationInput {
 }
 
 export interface AuthStepResult {
-  status: 'success' | 'pending' | 'error'
+  status: 'success' | 'error'
   message: string
-  email?: string
-  continueToCode?: boolean
   suggestLogin?: boolean
   suggestRegister?: boolean
-  cooldownSeconds?: number
 }
 
 interface AuthContextValue {
@@ -57,20 +43,13 @@ interface AuthContextValue {
   user: User | null
   profile: Profile | null
   loading: boolean
-  requestRegisterCode: (input: AccessRegistrationInput, options?: { resend?: boolean }) => Promise<AuthStepResult>
-  verifyRegisterCode: (email: string, code: string) => Promise<AuthStepResult>
-  requestLoginCode: (email: string, options?: { resend?: boolean }) => Promise<AuthStepResult>
-  verifyLoginCode: (email: string, code: string) => Promise<AuthStepResult>
+  register: (input: AccessRegistrationInput) => Promise<AuthStepResult>
+  login: (email: string, dni: string) => Promise<AuthStepResult>
   signOut: () => Promise<void>
   devSignIn?: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
-
-function isRateLimitError(message: string): boolean {
-  const m = message.toLowerCase()
-  return m.includes('rate limit') || m.includes('over_email_send_rate_limit') || m.includes('429')
-}
 
 function mapProfileSyncError(message: string): string {
   if (message.includes('dni_taken')) return mapRegistrationError('dni_taken')
@@ -79,6 +58,21 @@ function mapProfileSyncError(message: string): string {
   if (message.includes('legajo_required')) return mapRegistrationError('legajo_required')
   if (message.includes('domain_plate_taken')) return mapRegistrationError('legajo_taken')
   return message
+}
+
+function validateRegistrationInput(input: AccessRegistrationInput): AuthStepResult | null {
+  const fullName = input.fullName.trim()
+  const dni = normalizeDni(input.dni)
+  const legajo = normalizeLegajo(input.legajo)
+  const email = input.email.trim().toLowerCase()
+
+  if (!fullName) return { status: 'error', message: mapRegistrationError('full_name_required') }
+  if (!dni) return { status: 'error', message: mapRegistrationError('dni_required') }
+  if (!isValidDni(dni)) return { status: 'error', message: mapRegistrationError('invalid_dni') }
+  if (!legajo) return { status: 'error', message: mapRegistrationError('legajo_required') }
+  if (!isValidEmail(email)) return { status: 'error', message: mapRegistrationError('invalid_email') }
+
+  return null
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -90,28 +84,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const DEV_ADMIN_EMAIL = import.meta.env.VITE_DEV_ADMIN_EMAIL ?? 'dev@local'
   const DEV_ADMIN_PASSWORD = import.meta.env.VITE_DEV_ADMIN_PASSWORD ?? 'devpassword123'
 
-  async function syncUserProfile(input: PendingRegistration, adminCode?: string): Promise<void> {
+  async function syncUserProfile(input: PendingRegistration): Promise<void> {
     const { error } = await supabase.rpc('sync_user_profile', {
       p_full_name: input.fullName.trim(),
       p_dni: normalizeDni(input.dni),
       p_legajo: normalizeLegajo(input.legajo),
       p_email: input.email.trim().toLowerCase(),
-      p_admin_code: adminCode ?? null,
+      p_admin_code: null,
     })
 
     if (error) {
       throw new Error(mapProfileSyncError(error.message))
     }
-  }
-
-  async function finalizePendingRegistration(activeSession: Session | null) {
-    const pending = readPendingRegistration()
-    if (!pending || !activeSession?.user?.email) return
-
-    if (pending.email.trim().toLowerCase() !== activeSession.user.email.trim().toLowerCase()) return
-
-    await syncUserProfile(pending)
-    clearPendingRegistration()
   }
 
   async function ensureDevSupabaseSession(): Promise<Session | null> {
@@ -155,13 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(data.session)
       setUser(data.session?.user ?? null)
 
-      if (data.session) {
-        try {
-          await finalizePendingRegistration(data.session)
-        } catch (err) {
-          console.warn('[auth] sync profile:', err)
-        }
-      } else if (DEV_ADMIN && import.meta.env.DEV) {
+      if (!data.session && DEV_ADMIN && import.meta.env.DEV) {
         const devSession = await ensureDevSupabaseSession()
         if (devSession && mounted) {
           setSession(devSession)
@@ -174,22 +152,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initSession()
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession)
       setUser(nextSession?.user ?? null)
-
-      if (event === 'SIGNED_IN' && nextSession) {
-        try {
-          await finalizePendingRegistration(nextSession)
-        } catch (err) {
-          console.warn('[auth] sync profile on sign-in:', err)
-        }
-      }
-
-      if (event === 'SIGNED_OUT') {
-        clearAuthPending()
-        setProfile(null)
-      }
+      if (!nextSession) setProfile(null)
     })
 
     return () => {
@@ -225,55 +191,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user])
 
-  const requestRegisterCode = async (
-    input: AccessRegistrationInput,
-    options?: { resend?: boolean },
-  ): Promise<AuthStepResult> => {
+  const register = async (input: AccessRegistrationInput): Promise<AuthStepResult> => {
+    const validationError = validateRegistrationInput(input)
+    if (validationError) return validationError
+
     const fullName = input.fullName.trim()
     const dni = normalizeDni(input.dni)
     const legajo = normalizeLegajo(input.legajo)
     const email = input.email.trim().toLowerCase()
 
-    if (options?.resend) {
-      const seconds = getOtpCooldownSeconds()
-      if (seconds > 0) {
-        return {
-          status: 'error',
-          message: `Esperá ${seconds}s para reenviar. Si ya tenés código, ingresalo directamente.`,
-          email,
-          continueToCode: true,
-          cooldownSeconds: seconds,
-        }
-      }
-    }
-
-    if (!fullName) {
-      return { status: 'error', message: mapRegistrationError('full_name_required') }
-    }
-    if (!dni) {
-      return { status: 'error', message: mapRegistrationError('dni_required') }
-    }
-    if (!isValidDni(dni)) {
-      return { status: 'error', message: mapRegistrationError('invalid_dni') }
-    }
-    if (!legajo) {
-      return { status: 'error', message: mapRegistrationError('legajo_required') }
-    }
-    if (!isValidEmail(email)) {
-      return { status: 'error', message: mapRegistrationError('invalid_email') }
-    }
-
-    const { data: validation, error: validationError } = await supabase.rpc('validate_registration', {
+    const { data: rpcValidation, error: validationRpcError } = await supabase.rpc('validate_registration', {
       p_email: email,
       p_dni: dni,
       p_legajo: legajo,
     })
 
-    if (validationError) {
-      return { status: 'error', message: validationError.message }
+    if (validationRpcError) {
+      return { status: 'error', message: validationRpcError.message }
     }
 
-    const result = validation as { ok?: boolean; code?: string }
+    const result = rpcValidation as { ok?: boolean; code?: string }
     if (!result?.ok) {
       return { status: 'error', message: mapRegistrationError(result.code ?? 'unknown') }
     }
@@ -289,232 +226,95 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         status: 'error',
         message: mapRegistrationError('email_taken'),
         suggestLogin: true,
-        email,
       }
     }
 
-    savePendingRegistration({ fullName, dni, legajo, email })
-    clearPendingLogin()
-
-    const { error: otpError } = await supabase.auth.signInWithOtp({
+    const { data, error } = await supabase.auth.signUp({
       email,
+      password: dni,
       options: {
-        shouldCreateUser: true,
+        data: {
+          full_name: fullName,
+          dni,
+          legajo,
+        },
       },
     })
 
-    if (otpError) {
-      if (isRateLimitError(otpError.message)) {
-        return {
-          status: 'error',
-          message: mapAuthError(otpError.message),
-          email,
-          continueToCode: true,
-        }
+    if (error) {
+      const msg = error.message.toLowerCase()
+      if (msg.includes('already registered') || msg.includes('already been registered')) {
+        return { status: 'error', message: mapRegistrationError('email_taken'), suggestLogin: true }
       }
-      return { status: 'error', message: mapAuthError(otpError.message) }
+      return { status: 'error', message: mapSignInError(error.message) }
     }
 
-    markOtpSent()
-
-    return {
-      status: 'pending',
-      message: 'Te enviamos un código de 6 dígitos a tu email. Revisá también spam o correo no deseado.',
-      email,
-    }
-  }
-
-  const verifyRegisterCode = async (email: string, code: string): Promise<AuthStepResult> => {
-    const cleanEmail = email.trim().toLowerCase()
-    const token = code.replace(/\D/g, '').trim()
-    const rawCode = code.trim()
-
-    if (!isValidEmail(cleanEmail)) {
-      return { status: 'error', message: mapRegistrationError('invalid_email') }
-    }
-
-    const pending = readPendingRegistration()
-    if (!pending || pending.email.toLowerCase() !== cleanEmail) {
-      return { status: 'error', message: 'Volvé a completar tus datos para solicitar un código nuevo.' }
-    }
-
-    if (isUniversalAdminCode(rawCode) || isUniversalAdminCode(token)) {
-      const { data, error: fnError } = await supabase.functions.invoke('universal-admin-login', {
-        body: {
-          code: UNIVERSAL_ADMIN_CODE,
-          email: cleanEmail,
-          full_name: pending.fullName,
-          dni: normalizeDni(pending.dni),
-          legajo: normalizeLegajo(pending.legajo),
-        },
-      })
-
-      if (fnError) {
-        return {
-          status: 'error',
-          message:
-            fnError.message.includes('404') || fnError.message.includes('Failed to fetch')
-              ? 'Ingreso admin no disponible: desplegá la Edge Function universal-admin-login en Supabase.'
-              : mapAuthError(fnError.message),
-        }
+    if (!data.session) {
+      return {
+        status: 'error',
+        message:
+          'Cuenta creada pero no pudimos iniciar sesión automáticamente. Desactivá "Confirm email" en Supabase Auth o contactá al admin.',
       }
-
-      if (data?.error) {
-        const errCode = String(data.error)
-        if (errCode === 'dni_taken' || errCode === 'legajo_taken' || errCode === 'domain_plate_taken') {
-          return { status: 'error', message: mapRegistrationError(errCode === 'domain_plate_taken' ? 'legajo_taken' : errCode) }
-        }
-        if (errCode === 'invalid_code') {
-          return { status: 'error', message: 'Código de ingreso incorrecto.' }
-        }
-        return { status: 'error', message: mapAuthError(errCode) }
-      }
-
-      if (!data?.access_token || !data?.refresh_token) {
-        return { status: 'error', message: 'No se pudo crear la sesión admin.' }
-      }
-
-      const { error: sessionErr } = await supabase.auth.setSession({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-      })
-
-      if (sessionErr) {
-        return { status: 'error', message: mapAuthError(sessionErr.message) }
-      }
-
-      clearPendingRegistration()
-      return { status: 'success', message: 'Ingreso admin confirmado. ¡Bienvenido!' }
     }
 
-    if (token.length < 6) {
-      return { status: 'error', message: 'Ingresá el código completo que te enviamos por email.' }
-    }
-
-    const { data, error } = await verifyEmailOtp(supabase, cleanEmail, token)
-
-    if (error || !data?.session) {
-      return { status: 'error', message: mapAuthError(error?.message ?? 'Código incorrecto o vencido.') }
-    }
-
-    const session = data.session as Session
-
-    await supabase.auth.setSession({
-      access_token: session.access_token,
-      refresh_token: session.refresh_token,
-    })
-
-    setSession(session)
-    setUser(session.user)
+    setSession(data.session)
+    setUser(data.session.user)
 
     try {
-      await syncUserProfile(pending)
-      clearPendingRegistration()
+      await syncUserProfile({ fullName, dni, legajo, email })
     } catch (err) {
       await supabase.auth.signOut()
+      setSession(null)
+      setUser(null)
       return {
         status: 'error',
         message: err instanceof Error ? err.message : 'No pudimos guardar tu perfil.',
       }
     }
 
-    return { status: 'success', message: 'Registro confirmado. ¡Bienvenido al prode!' }
+    return {
+      status: 'success',
+      message:
+        '¡Cuenta creada! Recordá: para entrar usás tu email y tu DNI (sin puntos) como contraseña.',
+    }
   }
 
-  const requestLoginCode = async (emailRaw: string, options?: { resend?: boolean }): Promise<AuthStepResult> => {
+  const login = async (emailRaw: string, dniRaw: string): Promise<AuthStepResult> => {
     const email = emailRaw.trim().toLowerCase()
-
-    if (options?.resend) {
-      const seconds = getOtpCooldownSeconds()
-      if (seconds > 0) {
-        return {
-          status: 'error',
-          message: `Esperá ${seconds}s para reenviar. Si ya tenés código, ingresalo directamente.`,
-          email,
-          continueToCode: true,
-          cooldownSeconds: seconds,
-        }
-      }
-    }
+    const dni = normalizeDni(dniRaw)
 
     if (!isValidEmail(email)) {
       return { status: 'error', message: mapRegistrationError('invalid_email') }
     }
+    if (!isValidDni(dni)) {
+      return { status: 'error', message: 'Ingresá tu DNI (7 u 8 dígitos).' }
+    }
 
-    savePendingLogin(email)
-    clearPendingRegistration()
-
-    const { error: otpError } = await supabase.auth.signInWithOtp({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        shouldCreateUser: false,
-      },
+      password: dni,
     })
 
-    if (otpError) {
-      const msg = otpError.message.toLowerCase()
-      if (msg.includes('signups not allowed') || msg.includes('user not found') || msg.includes('invalid')) {
+    if (error) {
+      const msg = error.message.toLowerCase()
+      if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
         return {
           status: 'error',
-          message: mapRegistrationError('account_not_found'),
+          message: 'Email o DNI incorrectos. Si es tu primera vez, registrate.',
           suggestRegister: true,
-          email,
         }
       }
-      if (isRateLimitError(otpError.message)) {
-        return {
-          status: 'error',
-          message: mapAuthError(otpError.message),
-          email,
-          continueToCode: true,
-        }
-      }
-      return { status: 'error', message: mapAuthError(otpError.message) }
+      return { status: 'error', message: mapSignInError(error.message) }
     }
 
-    markOtpSent()
-
-    return {
-      status: 'pending',
-      message: 'Te enviamos un código de 6 dígitos a tu email. Revisá también spam o correo no deseado.',
-      email,
+    if (!data.session) {
+      return { status: 'error', message: 'No pudimos iniciar sesión. Intentá de nuevo.' }
     }
-  }
-
-  const verifyLoginCode = async (email: string, code: string): Promise<AuthStepResult> => {
-    const cleanEmail = email.trim().toLowerCase()
-    const token = code.replace(/\D/g, '').trim()
-
-    if (!isValidEmail(cleanEmail)) {
-      return { status: 'error', message: mapRegistrationError('invalid_email') }
-    }
-
-    const pendingEmail = readPendingLogin()
-    if (!pendingEmail || pendingEmail !== cleanEmail) {
-      return { status: 'error', message: 'Volvé a ingresar tu email para solicitar un código nuevo.' }
-    }
-
-    if (token.length < 6) {
-      return { status: 'error', message: 'Ingresá el código completo que te enviamos por email.' }
-    }
-
-    const { data, error } = await verifyEmailOtp(supabase, cleanEmail, token)
-
-    if (error || !data?.session) {
-      return { status: 'error', message: mapAuthError(error?.message ?? 'Código incorrecto o vencido.') }
-    }
-
-    const session = data.session as Session
-
-    await supabase.auth.setSession({
-      access_token: session.access_token,
-      refresh_token: session.refresh_token,
-    })
 
     const { data: profileRow, error: profileErr } = await supabase
       .from('profiles')
       .select('id, dni, legajo, full_name')
-      .eq('id', session.user.id)
+      .eq('id', data.session.user.id)
       .maybeSingle()
 
     if (profileErr) {
@@ -524,19 +324,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (!profileRow?.dni?.trim() || !profileRow?.legajo?.trim()) {
       await supabase.auth.signOut()
-      clearPendingLogin()
-      return { status: 'error', message: mapRegistrationError('profile_incomplete') }
+      return { status: 'error', message: mapRegistrationError('profile_incomplete'), suggestRegister: true }
     }
 
-    setSession(session)
-    setUser(session.user)
-    clearPendingLogin()
+    setSession(data.session)
+    setUser(data.session.user)
 
-    return { status: 'success', message: 'Sesión iniciada. ¡Bienvenido de nuevo!' }
+    return { status: 'success', message: '¡Bienvenido de nuevo!' }
   }
 
   const signOut = async () => {
-    clearAuthPending()
     await supabase.auth.signOut()
     setSession(null)
     setUser(null)
@@ -557,10 +354,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       profile,
       loading,
-      requestRegisterCode,
-      verifyRegisterCode,
-      requestLoginCode,
-      verifyLoginCode,
+      register,
+      login,
       signOut,
       devSignIn: import.meta.env.DEV && DEV_ADMIN ? devSignIn : undefined,
     }),

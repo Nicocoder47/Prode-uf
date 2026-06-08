@@ -129,7 +129,7 @@ export function MatchPredictionModal({
         exactScore: { home: homeScore, away: awayScore },
       })
       showToast('✔ Predicción guardada')
-      setSaved(true)
+      onClose()
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : 'No se pudo guardar la predicción.')
     } finally {

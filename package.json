@@ -78,6 +78,7 @@
     "audit:cloud:all": "npm run audit:cloud && npm run audit:vercel && npm run audit:supabase-health && npm run audit:worker-health && npm run audit:live-events && npm run audit:player-coverage && npm run audit:team-coverage && npm run audit:production",
     "sync:photos:cloud": "tsx scripts/runPhotoSyncCloud.ts",
     "sync:cloud:all": "tsx scripts/runCloudSync.ts",
+    "reset:auth": "tsx scripts/resetAuthUsers.ts",
     "db:push:cloud": "tsx scripts/pushCloudMigrations.ts",
     "setup:github-secrets": "tsx scripts/setupGithubSecrets.ts",
     "cloud:complete": "powershell -ExecutionPolicy Bypass -File scripts/runCloudComplete.ps1",
