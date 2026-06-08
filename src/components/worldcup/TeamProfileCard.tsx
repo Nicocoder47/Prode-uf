@@ -117,7 +117,15 @@ export function TeamProfileCard({
 
   const header = (
     <>
-      <TeamCrest flag={team.flag} code={team.code} name={team.name} size={expanded ? 'lg' : 'md'} />
+      <div className="wc26-team-profile__crest-slot">
+        <TeamCrest
+          flag={team.flag}
+          code={team.code}
+          name={team.name}
+          size={expanded ? 'lg' : 'md'}
+          premium
+        />
+      </div>
       <div className="min-w-0 flex-1 text-left">
         <h3 className={`wc26-team-profile__name${expanded ? '' : ' wc26-team-profile__name--compact'}`}>{team.name}</h3>
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
