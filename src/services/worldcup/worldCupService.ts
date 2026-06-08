@@ -464,7 +464,7 @@ export const worldCupService = {
 
       .from('leaderboard')
 
-      .select('user_id,rank,points,wins,draws,losses, profiles(full_name, avatar_url)')
+      .select('user_id,rank,points,wins,draws,losses, profiles(full_name, legajo, avatar_url)')
 
       .order('points', { ascending: false });
 

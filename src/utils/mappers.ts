@@ -213,6 +213,7 @@ export function mapDbLeaderboardEntry(row: Record<string, unknown>): Leaderboard
     profile: profile
       ? {
           fullName: (profile.full_name as string | undefined) ?? undefined,
+          legajo: (profile.legajo as string | undefined) ?? undefined,
           avatarUrl: (profile.avatar_url as string | undefined) ?? undefined,
         }
       : null,

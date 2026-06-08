@@ -11,6 +11,7 @@ import {
   WorldCupHero,
   MobileHomeHeader,
   QuickActionGrid,
+  HomeRankingGrid,
 } from '../../components/worldcup'
 import { useWorldCupMatches, useLeaderboard, usePredictions } from '../../useWorldCupData'
 import { useAuth } from '../../lib/auth'
@@ -32,7 +33,7 @@ export default function DashboardPage() {
 
   const { data: matches = [] } = useWorldCupMatches()
   const { data: dbPredictions = [] } = usePredictions(currentUserId)
-  const { data: dbLeaderboard = [] } = useLeaderboard()
+  const { data: dbLeaderboard = [], isLoading: leaderboardLoading } = useLeaderboard()
 
   const predictionSet = useMemo(() => new Set(dbPredictions.map(p => p.matchId)), [dbPredictions])
   const groupProgress = useMemo(
@@ -126,6 +127,12 @@ export default function DashboardPage() {
               />
             </section>
 
+            <HomeRankingGrid
+              entries={dbLeaderboard}
+              currentUserId={currentUserId}
+              isLoading={leaderboardLoading}
+            />
+
             <motion.section {...MOTION.enter} className="mb-5">
               <p className="wc26-section-title">Jugá ahora</p>
               <QuickActionGrid compact />
@@ -176,6 +183,13 @@ export default function DashboardPage() {
             />
           )}
         </div>
+
+        <HomeRankingGrid
+          entries={dbLeaderboard}
+          currentUserId={currentUserId}
+          isLoading={leaderboardLoading}
+          maxRows={15}
+        />
 
         {currentUserId && (
           <>

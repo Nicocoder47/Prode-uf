@@ -210,5 +210,5 @@ export interface LeaderboardEntry {
   wins: number;
   draws: number;
   losses: number;
-  profile?: { fullName?: string; avatarUrl?: string } | null;
+  profile?: { fullName?: string; legajo?: string; avatarUrl?: string } | null;
 }

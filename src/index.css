@@ -809,6 +809,32 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   text-align: center;
 }
 
+.wc26-login-page__brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.wc26-login-page__logo {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 9999px;
+  object-fit: cover;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (min-width: 768px) {
+  .wc26-login-page__brand {
+    justify-content: flex-start;
+  }
+
+  .wc26-login-page__logo {
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+}
+
 @media (min-width: 768px) {
   .wc26-login-page__hero {
     justify-content: center;
@@ -3543,3 +3569,240 @@ body.wc26-modal-open {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
+
+/* ─── Home ranking grid ─── */
+.wc26-home-ranking__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.wc26-home-ranking__kicker {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.wc26-home-ranking__title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wc26-yellow);
+  line-height: 1.2;
+}
+
+.wc26-home-ranking__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  transition: color 0.15s ease;
+}
+
+.wc26-home-ranking__link:hover {
+  color: var(--wc26-yellow);
+}
+
+.wc26-home-ranking__podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+.wc26-home-ranking__podium-card {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.65rem 0.45rem 0.7rem;
+  text-align: center;
+  min-width: 0;
+}
+
+.wc26-home-ranking__podium-card--gold {
+  border-color: rgba(255, 215, 0, 0.45);
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.18) 0%, rgba(255, 255, 255, 0.05) 100%);
+  box-shadow: 0 0 24px rgba(255, 215, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.wc26-home-ranking__podium-card--silver {
+  border-color: rgba(192, 192, 192, 0.35);
+  background: linear-gradient(180deg, rgba(192, 192, 192, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+}
+
+.wc26-home-ranking__podium-card--bronze {
+  border-color: rgba(205, 127, 50, 0.35);
+  background: linear-gradient(180deg, rgba(205, 127, 50, 0.14) 0%, rgba(255, 255, 255, 0.04) 100%);
+}
+
+.wc26-home-ranking__podium-card.is-me {
+  outline: 2px solid rgba(255, 59, 48, 0.55);
+  outline-offset: 1px;
+}
+
+.wc26-home-ranking__podium-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--wc26-yellow);
+  margin-bottom: 0.25rem;
+}
+
+.wc26-home-ranking__podium-name {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wc26-home-ranking__podium-last {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.2rem;
+}
+
+.wc26-home-ranking__podium-legajo {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.wc26-home-ranking__podium-points {
+  margin-top: 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--wc26-yellow);
+}
+
+.wc26-home-ranking__panel {
+  border-radius: 22px;
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  box-shadow:
+    0 10px 32px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.wc26-home-ranking__empty {
+  padding: 1.25rem 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.wc26-home-ranking__grid {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr 1fr 4.5rem 2.8rem;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.75rem;
+}
+
+.wc26-home-ranking__grid--head {
+  border-bottom: 1px solid rgba(255, 215, 0, 0.14);
+  background: rgba(0, 0, 0, 0.18);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 215, 0, 0.85);
+}
+
+.wc26-home-ranking__body .wc26-home-ranking__row:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.wc26-home-ranking__row {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.88);
+  transition: background 0.15s ease;
+}
+
+.wc26-home-ranking__row--gold .wc26-home-ranking__pos {
+  color: #ffd700;
+}
+
+.wc26-home-ranking__row--silver .wc26-home-ranking__pos {
+  color: #c0c0c0;
+}
+
+.wc26-home-ranking__row--bronze .wc26-home-ranking__pos {
+  color: #cd7f32;
+}
+
+.wc26-home-ranking__row.is-me {
+  background: rgba(255, 59, 48, 0.12) !important;
+  box-shadow: inset 3px 0 0 #ff3b30;
+}
+
+.wc26-home-ranking__pos {
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.wc26-home-ranking__first {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wc26-home-ranking__last {
+  color: rgba(255, 255, 255, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wc26-home-ranking__legajo {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wc26-home-ranking__points {
+  text-align: right;
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: var(--wc26-yellow);
+}
+
+@media (max-width: 380px) {
+  .wc26-home-ranking__grid {
+    grid-template-columns: 1.8rem 1fr 1fr 3.8rem 2.4rem;
+    padding-inline: 0.55rem;
+    font-size: 0.72rem;
+  }
+
+  .wc26-home-ranking__podium-name {
+    font-size: 0.72rem;
+  }
+}
+
