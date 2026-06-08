@@ -3,12 +3,15 @@ import type { Session, User } from '@supabase/supabase-js'
 import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
 import { supabase } from './supabase'
 import {
+  clearPendingRegistration,
   isValidDni,
   isValidEmail,
   mapRegistrationError,
   mapSignInError,
   normalizeDni,
   normalizeLegajo,
+  readPendingRegistration,
+  savePendingRegistration,
   type PendingRegistration,
 } from '../utils/registration.ts'
 
@@ -32,7 +35,7 @@ export interface AccessRegistrationInput {
 }
 
 export interface AuthStepResult {
-  status: 'success' | 'error'
+  status: 'success' | 'error' | 'pending'
   message: string
   suggestLogin?: boolean
   suggestRegister?: boolean
@@ -98,6 +101,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function finalizePendingRegistration(activeSession: Session | null) {
+    if (!activeSession?.user?.email) return
+
+    const email = activeSession.user.email.trim().toLowerCase()
+    const pending = readPendingRegistration()
+    const payload =
+      pending?.email.toLowerCase() === email ? pending : pendingFromMetadata(activeSession)
+
+    if (!payload?.dni || !payload?.legajo) return
+
+    await syncUserProfile(payload)
+    clearPendingRegistration()
+  }
+
+  function pendingFromMetadata(session: Session): PendingRegistration | null {
+    const meta = session.user.user_metadata as Record<string, string | undefined>
+    const email = session.user.email?.trim().toLowerCase()
+    if (!email || !meta?.dni || !meta?.legajo) return null
+    return {
+      fullName: String(meta.full_name ?? meta.fullName ?? '').trim(),
+      dni: normalizeDni(String(meta.dni)),
+      legajo: normalizeLegajo(String(meta.legajo)),
+      email,
+    }
+  }
+
+  async function ensureProfileComplete(session: Session, email: string): Promise<AuthStepResult | null> {
+    const { data: profileRow, error: profileErr } = await supabase
+      .from('profiles')
+      .select('id, dni, legajo, full_name')
+      .eq('id', session.user.id)
+      .maybeSingle()
+
+    if (profileErr) {
+      await supabase.auth.signOut()
+      return { status: 'error', message: profileErr.message }
+    }
+
+    if (profileRow?.dni?.trim() && profileRow?.legajo?.trim()) {
+      return null
+    }
+
+    const pending = readPendingRegistration()
+    const payload =
+      pending?.email.toLowerCase() === email.toLowerCase() ? pending : pendingFromMetadata(session)
+
+    if (!payload?.dni || !payload?.legajo) {
+      await supabase.auth.signOut()
+      return { status: 'error', message: mapRegistrationError('profile_incomplete'), suggestRegister: true }
+    }
+
+    try {
+      await syncUserProfile(payload)
+      clearPendingRegistration()
+      return null
+    } catch (err) {
+      await supabase.auth.signOut()
+      return {
+        status: 'error',
+        message: err instanceof Error ? err.message : 'No pudimos guardar tu perfil.',
+      }
+    }
+  }
+
   async function ensureDevSupabaseSession(): Promise<Session | null> {
     const { data: existing } = await supabase.auth.getSession()
     if (existing.session) return existing.session
@@ -139,7 +206,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(data.session)
       setUser(data.session?.user ?? null)
 
-      if (!data.session && DEV_ADMIN && import.meta.env.DEV) {
+      if (data.session) {
+        try {
+          await finalizePendingRegistration(data.session)
+        } catch (err) {
+          console.warn('[auth] sync profile:', err)
+        }
+      } else if (!data.session && DEV_ADMIN && import.meta.env.DEV) {
         const devSession = await ensureDevSupabaseSession()
         if (devSession && mounted) {
           setSession(devSession)
@@ -152,10 +225,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initSession()
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
       setSession(nextSession)
       setUser(nextSession?.user ?? null)
-      if (!nextSession) setProfile(null)
+      if (!nextSession) {
+        setProfile(null)
+        return
+      }
+
+      if (event === 'SIGNED_IN' && nextSession?.user?.email) {
+        try {
+          await finalizePendingRegistration(nextSession)
+          const email = nextSession.user.email.trim().toLowerCase()
+          await ensureProfileComplete(nextSession, email)
+        } catch (err) {
+          console.warn('[auth] sync profile on sign-in:', err)
+        }
+      }
     })
 
     return () => {
@@ -229,10 +315,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
+    savePendingRegistration({ fullName, dni, legajo, email })
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password: dni,
       options: {
+        emailRedirectTo: `${window.location.origin}/login`,
         data: {
           full_name: fullName,
           dni,
@@ -251,9 +340,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (!data.session) {
       return {
-        status: 'error',
+        status: 'pending',
         message:
-          'Cuenta creada pero no pudimos iniciar sesión automáticamente. Desactivá "Confirm email" en Supabase Auth o contactá al admin.',
+          'Te enviamos un email de confirmación. Abrilo, confirmá tu cuenta y después entrá con tu email y DNI.',
+        suggestLogin: true,
       }
     }
 
@@ -262,6 +352,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       await syncUserProfile({ fullName, dni, legajo, email })
+      clearPendingRegistration()
     } catch (err) {
       await supabase.auth.signOut()
       setSession(null)
@@ -297,10 +388,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (error) {
       const msg = error.message.toLowerCase()
+      if (msg.includes('email not confirmed')) {
+        return {
+          status: 'error',
+          message: 'Confirmá tu email primero (revisá tu bandeja y spam). Después entrá con email + DNI.',
+        }
+      }
       if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
         return {
           status: 'error',
-          message: 'Email o DNI incorrectos. Si es tu primera vez, registrate.',
+          message: 'Email o DNI incorrectos. Si es tu primera vez, registrate y confirmá el email.',
           suggestRegister: true,
         }
       }
@@ -311,21 +408,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { status: 'error', message: 'No pudimos iniciar sesión. Intentá de nuevo.' }
     }
 
-    const { data: profileRow, error: profileErr } = await supabase
-      .from('profiles')
-      .select('id, dni, legajo, full_name')
-      .eq('id', data.session.user.id)
-      .maybeSingle()
-
-    if (profileErr) {
-      await supabase.auth.signOut()
-      return { status: 'error', message: profileErr.message }
-    }
-
-    if (!profileRow?.dni?.trim() || !profileRow?.legajo?.trim()) {
-      await supabase.auth.signOut()
-      return { status: 'error', message: mapRegistrationError('profile_incomplete'), suggestRegister: true }
-    }
+    const profileError = await ensureProfileComplete(data.session, email)
+    if (profileError) return profileError
 
     setSession(data.session)
     setUser(data.session.user)

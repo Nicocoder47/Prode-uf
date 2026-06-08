@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 import { NavLink, useLocation, Link } from 'react-router-dom'
-import { Bell, CalendarDays, Home, ShieldCheck, Shield, Target, Trophy, User } from 'lucide-react'
+import { Bell, CalendarDays, Home, ShieldCheck, Shield, Target, User } from 'lucide-react'
 import { useAuth } from '../../lib/auth.tsx'
 import { BottomNavigation } from '../worldcup/BottomNavigation'
+import { SeccionalLogo } from '../brand/SeccionalLogo'
 
 const navItems = [
   { to: '/', label: 'Inicio', icon: Home, tone: 'home' },
@@ -28,11 +29,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             isFixture ? 'border border-amber-400/20' : ''
           } ${isHome ? 'hidden' : ''}`}
         >
-          <div>
-            <p className="text-sm font-extrabold tracking-tight text-white">PRODEMUNDIAL</p>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75">
-              {isFixture ? 'Centro del juego' : 'Mundial 2026'}
-            </p>
+          <div className="flex min-w-0 items-center gap-2.5">
+            <SeccionalLogo size="header" />
+            <div className="min-w-0">
+              <p className="text-sm font-extrabold tracking-tight text-white">PRODEMUNDIAL</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75">
+                {isFixture ? 'Centro del juego' : 'Mundial 2026'}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button type="button" className="wc26-header-icon-btn" aria-label="Notificaciones">
@@ -47,9 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="mb-4 hidden rounded-[32px] wc26-glass p-5 md:block">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-wc26-green600 to-wc26-green800 text-white shadow-wc26-float">
-                <Trophy className="h-6 w-6" />
-              </div>
+              <SeccionalLogo size="desktop" />
               <div>
                 <p className="text-[10px] font-extrabold uppercase tracking-widest text-wc26-yellow">PRODEMUNDIAL 2026</p>
                 <h1 className="text-xl font-extrabold text-white lg:text-2xl">Viví el Mundial. Jugá el Prode.</h1>

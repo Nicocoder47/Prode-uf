@@ -960,6 +960,45 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   margin-bottom: 1rem;
 }
 
+.wc26-seccional-logo {
+  flex-shrink: 0;
+  border-radius: 9999px;
+  object-fit: cover;
+  background: #fff;
+}
+
+.wc26-seccional-logo--header {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+.wc26-seccional-logo--desktop {
+  width: 3rem;
+  height: 3rem;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
+}
+
+.wc26-seccional-logo--login {
+  width: 5.5rem;
+  height: 5.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+}
+
+@media (min-width: 768px) {
+  .wc26-login-page__brand {
+    justify-content: flex-start;
+  }
+
+  .wc26-seccional-logo--login {
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+}
+
 .wc26-login-page__logo {
   width: 5.5rem;
   height: 5.5rem;
@@ -970,10 +1009,6 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 }
 
 @media (min-width: 768px) {
-  .wc26-login-page__brand {
-    justify-content: flex-start;
-  }
-
   .wc26-login-page__logo {
     width: 6.5rem;
     height: 6.5rem;

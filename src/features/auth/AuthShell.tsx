@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, Mail } from 'lucide-react'
+import { SeccionalLogo } from '../../components/brand/SeccionalLogo'
 
 type UiStatus = 'idle' | 'loading' | 'error' | 'pending' | 'success'
 
@@ -18,6 +19,9 @@ export function AuthShell({ title, subtitle, steps, children }: AuthShellProps) 
 
       <div className="wc26-login-page__layout">
         <header className="wc26-login-page__hero">
+          <div className="wc26-login-page__brand">
+            <SeccionalLogo size="login" />
+          </div>
           <p className="wc26-login-page__kicker">PRODEMUNDIAL 2026</p>
           <h1 className="wc26-login-page__title">{title}</h1>
           <p className="wc26-login-page__subtitle">{subtitle}</p>
@@ -80,6 +84,11 @@ export function AuthStatusMessage({ status, message }: { status: UiStatus; messa
       role="status"
       className={`rounded-2xl border px-4 py-3 text-sm ${tone}`}
     >
+      {status === 'pending' && (
+        <div className="mb-1 flex items-center gap-2 font-semibold">
+          <Mail className="h-4 w-4" /> Revisá tu email
+        </div>
+      )}
       {message}
       {status === 'success' && (
         <div className="mt-2 flex items-center gap-2 font-semibold">

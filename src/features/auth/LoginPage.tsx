@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { KeyRound, ShieldCheck } from 'lucide-react'
+import { KeyRound, Mail, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../lib/auth.tsx'
-import { normalizeDni, normalizeLegajo } from '../../utils/registration.ts'
+import { supabase } from '../../lib/supabase.ts'
+import { normalizeDni, normalizeLegajo, mapSignInError } from '../../utils/registration.ts'
 import { AuthField, AuthShell, AuthStatusMessage, type UiStatus } from './AuthShell.tsx'
 
 type AuthMode = 'register' | 'login'
@@ -22,6 +23,67 @@ export default function LoginPage() {
   const cleanEmail = email.trim().toLowerCase()
   const normalizedDniPreview = useMemo(() => (dni.trim() ? normalizeDni(dni) : ''), [dni])
   const normalizedLegajoPreview = useMemo(() => (legajo.trim() ? normalizeLegajo(legajo) : ''), [legajo])
+
+  useEffect(() => {
+    let mounted = true
+
+    async function handleEmailConfirmRedirect() {
+      const params = new URLSearchParams(window.location.search)
+      const authError = params.get('error_description') ?? params.get('error')
+
+      if (authError) {
+        setStatus('error')
+        setMessage(decodeURIComponent(authError.replace(/\+/g, ' ')))
+        window.history.replaceState({}, document.title, '/login')
+        return
+      }
+
+      const code = params.get('code')
+      if (code) {
+        setStatus('loading')
+        setMessage('Confirmando tu email…')
+
+        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        if (!mounted) return
+
+        if (error) {
+          setStatus('error')
+          setMessage(mapSignInError(error.message))
+          window.history.replaceState({}, document.title, '/login')
+          return
+        }
+
+        window.history.replaceState({}, document.title, '/login')
+        setMode('login')
+        setStatus('success')
+        setMessage('¡Email confirmado! Ya podés entrar con tu email y DNI.')
+        setTimeout(() => navigate('/', { replace: true }), 900)
+        return
+      }
+
+      if (window.location.hash.includes('access_token')) {
+        const { data, error } = await supabase.auth.getSession()
+        if (!mounted || error || !data.session) return
+        window.history.replaceState({}, document.title, '/login')
+        navigate('/', { replace: true })
+      }
+    }
+
+    handleEmailConfirmRedirect()
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted || !session) return
+      if (event === 'SIGNED_IN' && (window.location.search.includes('code=') || window.location.hash.includes('access_token'))) {
+        window.history.replaceState({}, document.title, '/login')
+        navigate('/', { replace: true })
+      }
+    })
+
+    return () => {
+      mounted = false
+      authListener.subscription.unsubscribe()
+    }
+  }, [navigate])
 
   const switchMode = (next: AuthMode) => {
     if (next === mode) return
@@ -48,7 +110,7 @@ export default function LoginPage() {
     if (result.suggestLogin) setMode('login')
     if (result.suggestRegister) setMode('register')
 
-    setStatus(result.status)
+    setStatus(result.status === 'pending' ? 'pending' : result.status)
     setMessage(result.message)
 
     if (result.status === 'success') {
@@ -58,7 +120,7 @@ export default function LoginPage() {
 
   const heroSteps =
     mode === 'register'
-      ? ['Completá tus datos', 'Tu DNI = tu contraseña', 'Listo para predecir']
+      ? ['Completá tus datos', 'Confirmá tu email', 'Entrás con email + DNI']
       : ['Tu email', 'Tu DNI (contraseña)', 'Entrás al prode']
 
   return (
@@ -66,7 +128,7 @@ export default function LoginPage() {
       title="Entrá al Prode"
       subtitle={
         mode === 'register'
-          ? 'Registrate una vez. Después entrás solo con email y DNI.'
+          ? 'Registrate con email real. Confirmás por mail y después entrás con email + DNI.'
           : 'Ingresá con el email y el DNI con el que te registraste.'
       }
       steps={heroSteps}
@@ -97,14 +159,24 @@ export default function LoginPage() {
       </div>
 
       {mode === 'register' ? (
-        <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-wc26-yellow/35 bg-wc26-yellow/10 px-3.5 py-3">
-          <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-wc26-yellow" />
-          <div className="text-xs leading-relaxed text-white/85">
-            <p className="font-bold text-wc26-yellow">Tu DNI es tu contraseña</p>
-            <p className="mt-1">
-              No te mandamos códigos por email. Guardá tu DNI: lo vas a usar siempre para entrar (solo números, sin
-              puntos).
-            </p>
+        <div className="mb-4 space-y-2">
+          <div className="flex items-start gap-2.5 rounded-2xl border border-sky-400/30 bg-sky-500/10 px-3.5 py-3">
+            <Mail className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
+            <div className="text-xs leading-relaxed text-white/85">
+              <p className="font-bold text-sky-200">Confirmación por email</p>
+              <p className="mt-1">
+                Te mandamos un link para verificar que el email es tuyo. Así evitamos registros falsos.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2.5 rounded-2xl border border-wc26-yellow/35 bg-wc26-yellow/10 px-3.5 py-3">
+            <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-wc26-yellow" />
+            <div className="text-xs leading-relaxed text-white/85">
+              <p className="font-bold text-wc26-yellow">Tu DNI es tu contraseña</p>
+              <p className="mt-1">
+                Después de confirmar el email, entrás siempre con email + DNI (solo números, sin puntos).
+              </p>
+            </div>
           </div>
         </div>
       ) : null}
@@ -201,7 +273,7 @@ export default function LoginPage() {
           {status === 'loading'
             ? 'Procesando…'
             : mode === 'register'
-              ? 'Crear cuenta'
+              ? 'Registrarme y confirmar email'
               : 'Entrar al prode'}
         </button>
 
@@ -212,8 +284,8 @@ export default function LoginPage() {
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
         <span>
           {mode === 'register'
-            ? 'Al crear la cuenta, quedás adentro al toque. La próxima vez: misma pestaña Iniciar sesión + email + DNI.'
-            : '¿Primera vez acá? Andá a Registrarme y cargá tus datos.'}
+            ? 'Paso 1: registrate. Paso 2: abrí el mail y confirmá. Paso 3: Iniciar sesión con email + DNI.'
+            : '¿No confirmaste el email? Revisá spam. Después entrá con email + DNI.'}
         </span>
       </div>
 
