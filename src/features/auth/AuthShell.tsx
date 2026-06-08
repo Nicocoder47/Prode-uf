@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Mail } from 'lucide-react'
 import { SeccionalLogo } from '../../components/layout/SeccionalLogo'
@@ -13,17 +13,38 @@ type AuthShellProps = {
 }
 
 export function AuthShell({ title, subtitle, steps, children }: AuthShellProps) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    video.muted = true
+    const tryPlay = () => {
+      void video.play().catch(() => {})
+    }
+
+    tryPlay()
+    video.addEventListener('loadeddata', tryPlay)
+    video.addEventListener('canplay', tryPlay)
+
+    return () => {
+      video.removeEventListener('loadeddata', tryPlay)
+      video.removeEventListener('canplay', tryPlay)
+    }
+  }, [])
+
   return (
     <div className="wc26-login-page">
       <div className="wc26-login-page__backdrop" aria-hidden="true">
         <video
+          ref={videoRef}
           className="wc26-login-page__backdrop-video"
           autoPlay
           loop
           muted
           playsInline
-          preload="metadata"
-          poster="/fondo%20vertical.png"
+          preload="auto"
         >
           <source src="/videosec.mp4" type="video/mp4" />
         </video>

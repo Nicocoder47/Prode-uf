@@ -889,22 +889,25 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 .wc26-login-page__backdrop-video {
   position: absolute;
   inset: 0;
+  z-index: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center center;
 }
 
 .wc26-login-page__backdrop::before {
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 1;
+  pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(2, 29, 19, 0.25) 0%,
-    rgba(2, 29, 19, 0.55) 38%,
-    rgba(2, 29, 19, 0.92) 72%,
-    rgba(2, 29, 19, 0.98) 100%
+    rgba(2, 29, 19, 0.12) 0%,
+    rgba(2, 29, 19, 0.28) 35%,
+    rgba(2, 29, 19, 0.62) 70%,
+    rgba(2, 29, 19, 0.82) 100%
   );
 }
 
@@ -927,6 +930,8 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 2;
+  pointer-events: none;
   height: 4px;
   background: linear-gradient(
     90deg,
