@@ -15,7 +15,19 @@ type AuthShellProps = {
 export function AuthShell({ title, subtitle, steps, children }: AuthShellProps) {
   return (
     <div className="wc26-login-page">
-      <div className="wc26-login-page__backdrop" aria-hidden="true" />
+      <div className="wc26-login-page__backdrop" aria-hidden="true">
+        <video
+          className="wc26-login-page__backdrop-video"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          poster="/fondo%20vertical.png"
+        >
+          <source src="/videosec.mp4" type="video/mp4" />
+        </video>
+      </div>
 
       <div className="wc26-login-page__layout">
         <header className="wc26-login-page__hero">

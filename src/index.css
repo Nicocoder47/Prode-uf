@@ -883,10 +883,16 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   inset: 0;
   z-index: 0;
   background-color: #021d13;
-  background-image: url('/fondo%20vertical.png');
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.wc26-login-page__backdrop-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
 }
 
 .wc26-login-page__backdrop::before {
@@ -900,6 +906,19 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
     rgba(2, 29, 19, 0.92) 72%,
     rgba(2, 29, 19, 0.98) 100%
   );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc26-login-page__backdrop-video {
+    display: none;
+  }
+
+  .wc26-login-page__backdrop {
+    background-image: url('/fondo%20vertical.png');
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+  }
 }
 
 .wc26-login-page__backdrop::after {
