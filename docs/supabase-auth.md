@@ -11,15 +11,11 @@ Frontend: **https://prodemundialprode.vercel.app**
 4. Usuario ingresa el código → sesión creada
 5. RPC `sync_user_profile` guarda perfil con DNI y legajo vinculados
 
-## Supabase Dashboard — obligatorio
+## Supabase Dashboard — obligatorio (OTP de 6 dígitos)
 
-### Authentication → Providers → Email
+Sin esto el email manda un **link roto** en lugar del código.
 
-- Habilitar **Email**
-- Habilitar **Confirm email** (recomendado)
-- Tipo: **OTP** (magic link opcional como fallback; redirect `/login`)
-
-### Authentication → URL Configuration
+### 1. Authentication → URL Configuration
 
 | Campo | Valor |
 |-------|-------|
@@ -27,7 +23,30 @@ Frontend: **https://prodemundialprode.vercel.app**
 | **Redirect URLs** | `https://prodemundialprode.vercel.app/**` |
 | | `http://localhost:5174/**` (dev) |
 
-### SQL — aplicar migración
+### 2. Authentication → Providers → Email
+
+- Habilitar **Email**
+- **Desactivar "Confirm email"** (recomendado para flujo OTP simple)
+- OTP length: **6**
+
+### 3. Authentication → Email Templates
+
+Editar **Magic Link** y **Confirm signup**. Reemplazar el link por el código:
+
+```html
+<h2>Tu código para entrar al Prode</h2>
+<p>Ingresá este código de 6 dígitos en la app:</p>
+<p style="font-size:28px;font-weight:bold;letter-spacing:0.2em;">{{ .Token }}</p>
+```
+
+**No usar** `{{ .ConfirmationURL }}` — eso manda un link en vez del código.
+
+Plantillas de referencia en el repo:
+
+- `supabase/templates/magic_link.html`
+- `supabase/templates/confirmation.html`
+
+### 4. SQL — aplicar migración
 
 ```bash
 supabase db push

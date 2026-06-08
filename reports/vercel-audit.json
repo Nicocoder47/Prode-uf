@@ -1,0 +1,121 @@
+{
+  "generatedAt": "2026-06-06T23:53:12.961Z",
+  "url": "https://prodemundialprode.vercel.app",
+  "build": {
+    "successful": true,
+    "evidence": "index.html con shell SPA y assets Vite"
+  },
+  "reactRouter": {
+    "rewritesConfigured": true,
+    "note": "vercel.json rewrites → /index.html",
+    "routesLoad": true
+  },
+  "routes": [
+    {
+      "path": "/",
+      "url": "https://prodemundialprode.vercel.app/",
+      "httpStatus": 200,
+      "ok": true,
+      "spaShell": true,
+      "viteAssets": true,
+      "reactRouter": true
+    },
+    {
+      "path": "/fixture",
+      "url": "https://prodemundialprode.vercel.app/fixture",
+      "httpStatus": 200,
+      "ok": true,
+      "spaShell": true,
+      "viteAssets": true,
+      "reactRouter": true
+    },
+    {
+      "path": "/teams",
+      "url": "https://prodemundialprode.vercel.app/teams",
+      "httpStatus": 200,
+      "ok": true,
+      "spaShell": true,
+      "viteAssets": true,
+      "reactRouter": true
+    },
+    {
+      "path": "/players",
+      "url": "https://prodemundialprode.vercel.app/players",
+      "httpStatus": 200,
+      "ok": true,
+      "spaShell": true,
+      "viteAssets": true,
+      "reactRouter": true
+    },
+    {
+      "path": "/leaderboard",
+      "url": "https://prodemundialprode.vercel.app/leaderboard",
+      "httpStatus": 200,
+      "ok": true,
+      "spaShell": true,
+      "viteAssets": true,
+      "reactRouter": true
+    },
+    {
+      "path": "/predictions",
+      "url": "https://prodemundialprode.vercel.app/predictions",
+      "httpStatus": 200,
+      "ok": true,
+      "spaShell": true,
+      "viteAssets": true,
+      "reactRouter": true
+    },
+    {
+      "path": "/admin",
+      "url": "https://prodemundialprode.vercel.app/admin",
+      "httpStatus": 200,
+      "ok": true,
+      "spaShell": true,
+      "viteAssets": true,
+      "reactRouter": true
+    },
+    {
+      "path": "/admin/system",
+      "url": "https://prodemundialprode.vercel.app/admin/system",
+      "httpStatus": 200,
+      "ok": true,
+      "spaShell": true,
+      "viteAssets": true,
+      "reactRouter": true
+    },
+    {
+      "path": "/auth/callback",
+      "url": "https://prodemundialprode.vercel.app/auth/callback",
+      "httpStatus": 200,
+      "ok": true,
+      "spaShell": true,
+      "viteAssets": true,
+      "reactRouter": true
+    }
+  ],
+  "supabase": {
+    "connects": true,
+    "configured": true,
+    "reachable": true,
+    "httpStatus": 200
+  },
+  "features": {
+    "login": {
+      "status": "CONFIGURED",
+      "note": "Requiere Auth URLs en Supabase dashboard"
+    },
+    "leaderboard": {
+      "status": "ROUTE_OK"
+    },
+    "fixture": {
+      "status": "ROUTE_OK"
+    },
+    "teams": {
+      "status": "ROUTE_OK"
+    },
+    "players": {
+      "status": "ROUTE_OK"
+    }
+  },
+  "overall": "PASS"
+}

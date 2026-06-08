@@ -34,7 +34,12 @@ const stubSupabase = {
 
 const supabase: SupabaseClient =
   supabaseUrl && supabaseAnonKey
-    ? createClient(supabaseUrl, supabaseAnonKey)
+    ? createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          detectSessionInUrl: true,
+          flowType: 'pkce',
+        },
+      })
     : stubSupabase
 
 export { supabase }

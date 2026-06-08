@@ -1,0 +1,271 @@
+{
+  "generatedAt": "2026-06-06T23:53:22.218Z",
+  "source": "https://irklqwsnehlfcgehvscm.supabase.co",
+  "summary": {
+    "total": 49,
+    "complete": 46,
+    "completePct": 93.9,
+    "incomplete": 3,
+    "withCoach": 46,
+    "withConfederation": 49,
+    "withFlag": 48,
+    "withRanking": 0,
+    "withProvider": 49
+  },
+  "completeTeams": [
+    {
+      "id": "dceadc3c-a002-460b-a397-017ee9139328",
+      "name": "Uruguay",
+      "code": "URY"
+    },
+    {
+      "id": "6dfe267e-71ce-4a9e-acf3-83f814360edf",
+      "name": "Germany",
+      "code": "GER"
+    },
+    {
+      "id": "d2cd6de2-7e78-459b-981d-1491dee484fa",
+      "name": "Spain",
+      "code": "ESP"
+    },
+    {
+      "id": "93d6d400-a7e4-450d-b709-88963249b79f",
+      "name": "Paraguay",
+      "code": "PAR"
+    },
+    {
+      "id": "9308ef2e-4b9f-41c6-ba00-834a59fb11b0",
+      "name": "Argentina",
+      "code": "ARG"
+    },
+    {
+      "id": "f83c06a5-32f4-4192-8993-b1a621d5a199",
+      "name": "Ghana",
+      "code": "GHA"
+    },
+    {
+      "id": "274b6dcd-f7a0-4144-a9d8-c6a49d50cb79",
+      "name": "Brazil",
+      "code": "BRA"
+    },
+    {
+      "id": "a33bd675-ba67-45d8-b72e-fa1e645d0313",
+      "name": "Portugal",
+      "code": "POR"
+    },
+    {
+      "id": "9e035b37-ba4b-4ed5-bda8-cc38327b6546",
+      "name": "Japan",
+      "code": "JPN"
+    },
+    {
+      "id": "beaa247c-1300-4a9b-8018-c258bbf83f9b",
+      "name": "Mexico",
+      "code": "MEX"
+    },
+    {
+      "id": "3d1b889b-9fec-413e-8c70-c062e38e856a",
+      "name": "England",
+      "code": "ENG"
+    },
+    {
+      "id": "32b407ef-6b9f-4062-8c28-5858ea59438c",
+      "name": "United States",
+      "code": "USA"
+    },
+    {
+      "id": "e72bca0f-9453-4e0b-b184-f908eb27a2c9",
+      "name": "South Korea",
+      "code": "KOR"
+    },
+    {
+      "id": "f0448abb-c1da-4675-a111-db4cc5b9dd6c",
+      "name": "France",
+      "code": "FRA"
+    },
+    {
+      "id": "5772491a-c38c-4298-b94e-662e69a540b9",
+      "name": "South Africa",
+      "code": "RSA"
+    },
+    {
+      "id": "aaad1bc4-29fc-49a9-a562-5c34cf5f8cf4",
+      "name": "Algeria",
+      "code": "ALG"
+    },
+    {
+      "id": "db01d4f0-840f-4669-8b42-3a4e2d38e0a8",
+      "name": "Australia",
+      "code": "AUS"
+    },
+    {
+      "id": "eb1e3724-4825-41ce-9a6f-190f0328a358",
+      "name": "New Zealand",
+      "code": "NZL"
+    },
+    {
+      "id": "fe1348bd-6b10-4c36-ae66-a2f778447fdd",
+      "name": "Switzerland",
+      "code": "SUI"
+    },
+    {
+      "id": "8feb6d39-b667-4034-8411-d4626dea2a50",
+      "name": "Ecuador",
+      "code": "ECU"
+    },
+    {
+      "id": "d9643cd0-59b3-43dd-bbfc-95236184f0a3",
+      "name": "Sweden",
+      "code": "SWE"
+    },
+    {
+      "id": "c03528d3-cb30-4821-81be-d638f86bf6c7",
+      "name": "Czechia",
+      "code": "CZE"
+    },
+    {
+      "id": "6d5df8dd-3706-4a01-860f-5abef3c31009",
+      "name": "Croatia",
+      "code": "CRO"
+    },
+    {
+      "id": "2bf8420d-7a85-4038-82c6-3934dd21ae1b",
+      "name": "Saudi Arabia",
+      "code": "KSA"
+    },
+    {
+      "id": "394042f7-632d-407b-8427-f7be4777fe2f",
+      "name": "Tunisia",
+      "code": "TUN"
+    },
+    {
+      "id": "0eace966-660d-4922-aa0d-46905dae26d6",
+      "name": "Turkey",
+      "code": "TUR"
+    },
+    {
+      "id": "6712d655-3935-428b-b632-6fed89ac5592",
+      "name": "Belgium",
+      "code": "BEL"
+    },
+    {
+      "id": "7be4deba-5813-413d-bc8e-f16dc2f887e5",
+      "name": "Morocco",
+      "code": "MAR"
+    },
+    {
+      "id": "a79502b9-8b6d-45dc-b787-e1310cfe7ef6",
+      "name": "Austria",
+      "code": "AUT"
+    },
+    {
+      "id": "81c8783e-8dbb-4984-9dab-e5113680a854",
+      "name": "Colombia",
+      "code": "COL"
+    },
+    {
+      "id": "712460d7-4ad2-4eb4-b334-1d7ca03892d4",
+      "name": "Egypt",
+      "code": "EGY"
+    },
+    {
+      "id": "6543dbb2-bc6c-43a7-963f-486fab752f5f",
+      "name": "Canada",
+      "code": "CAN"
+    },
+    {
+      "id": "af9d3a7a-8a81-43e3-9ceb-b35105649f86",
+      "name": "Haiti",
+      "code": "HAI"
+    },
+    {
+      "id": "8ba5c905-caa4-47b8-ae6e-0eba48880b32",
+      "name": "Iran",
+      "code": "IRN"
+    },
+    {
+      "id": "ec49f64a-92e3-485d-b626-f2ff8a7b4a1a",
+      "name": "Bosnia-Herzegovina",
+      "code": "BIH"
+    },
+    {
+      "id": "d31608fe-dfe7-4ded-892e-58f40ac567fe",
+      "name": "Panama",
+      "code": "PAN"
+    },
+    {
+      "id": "8e8b90e5-6627-4843-9423-743eb1d6b4bf",
+      "name": "Cape Verde Islands",
+      "code": "CPV"
+    },
+    {
+      "id": "25823d6e-894c-4958-8260-f4540f23ab81",
+      "name": "Congo DR",
+      "code": "COD"
+    },
+    {
+      "id": "98a14ec8-682d-4447-8fa3-a8073574c1a6",
+      "name": "Ivory Coast",
+      "code": "CIV"
+    },
+    {
+      "id": "157e6730-b78d-4a8e-b4ba-1490cbfd17b9",
+      "name": "Qatar",
+      "code": "QAT"
+    },
+    {
+      "id": "39c0f64e-6cae-4839-a18f-7fe815fd44e3",
+      "name": "Iraq",
+      "code": "IRQ"
+    },
+    {
+      "id": "e879f9f5-0f3e-4b79-a629-b794cbc620b9",
+      "name": "Uzbekistan",
+      "code": "UZB"
+    },
+    {
+      "id": "519f68b6-0e7e-4802-af27-6c35c9885544",
+      "name": "Netherlands",
+      "code": "NED"
+    },
+    {
+      "id": "a2aa3060-6f06-4346-b5a7-6f3e3aa0a426",
+      "name": "Norway",
+      "code": "NOR"
+    },
+    {
+      "id": "a06c13e0-8973-4a0a-8299-64fc6bdd93cb",
+      "name": "Scotland",
+      "code": "SCO"
+    },
+    {
+      "id": "e7aabf9a-35f0-4661-b735-ae8e6cfde15f",
+      "name": "Curaçao",
+      "code": "CUW"
+    }
+  ],
+  "incompleteTeams": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Por definir",
+      "missing": [
+        "coach",
+        "flag_url"
+      ]
+    },
+    {
+      "id": "ebeb84c8-836f-4999-a349-0d8cc9f8ab81",
+      "name": "Senegal",
+      "missing": [
+        "coach"
+      ]
+    },
+    {
+      "id": "ec3ec977-e2e8-4f1c-bd50-abca528edba7",
+      "name": "Jordan",
+      "missing": [
+        "coach"
+      ]
+    }
+  ]
+}

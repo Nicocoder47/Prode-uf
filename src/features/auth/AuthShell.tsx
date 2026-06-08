@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Mail } from 'lucide-react'
 
@@ -10,10 +9,9 @@ type AuthShellProps = {
   subtitle: string
   steps: string[]
   children: ReactNode
-  footerLink?: { label: string; to: string; hint: string }
 }
 
-export function AuthShell({ title, subtitle, steps, children, footerLink }: AuthShellProps) {
+export function AuthShell({ title, subtitle, steps, children }: AuthShellProps) {
   return (
     <div className="wc26-login-page">
       <div className="wc26-login-page__backdrop" aria-hidden="true" />
@@ -34,17 +32,7 @@ export function AuthShell({ title, subtitle, steps, children, footerLink }: Auth
         </header>
 
         <section className="wc26-login-form-side w-full max-w-md">
-          <div className="wc26-login-panel">
-            {children}
-            {footerLink ? (
-              <p className="mt-4 text-center text-sm text-white/55">
-                {footerLink.hint}{' '}
-                <Link to={footerLink.to} className="font-bold text-wc26-yellow hover:underline">
-                  {footerLink.label}
-                </Link>
-              </p>
-            ) : null}
-          </div>
+          <div className="wc26-login-panel">{children}</div>
         </section>
       </div>
     </div>

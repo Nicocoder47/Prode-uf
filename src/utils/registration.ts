@@ -95,6 +95,8 @@ export function mapRegistrationError(code: string): string {
       return 'Ingresá tu nombre completo.'
     case 'account_not_found':
       return 'No encontramos una cuenta con ese email. Registrate primero.'
+    case 'email_taken':
+      return 'Ese email ya está registrado. Usá Iniciar sesión.'
     case 'profile_incomplete':
       return 'Tu cuenta está incompleta. Completá el registro con DNI y legajo.'
     default:
@@ -102,13 +104,59 @@ export function mapRegistrationError(code: string): string {
   }
 }
 
+const OTP_COOLDOWN_MS = 30_000
+const OTP_COOLDOWN_KEY = 'prode_otp_sent_at'
+
+export function markOtpSent() {
+  sessionStorage.setItem(OTP_COOLDOWN_KEY, String(Date.now()))
+}
+
+export function clearOtpCooldown() {
+  sessionStorage.removeItem(OTP_COOLDOWN_KEY)
+}
+
+export function getOtpCooldownSeconds(): number {
+  try {
+    const raw = sessionStorage.getItem(OTP_COOLDOWN_KEY)
+    if (!raw) return 0
+    const remaining = Math.ceil((OTP_COOLDOWN_MS - (Date.now() - Number(raw))) / 1000)
+    return remaining > 0 ? remaining : 0
+  } catch {
+    return 0
+  }
+}
+
+export function resetAuthAttempt() {
+  clearAuthPending()
+  clearOtpCooldown()
+}
+
+export async function verifyEmailOtp(
+  supabaseClient: { auth: { verifyOtp: (params: { email: string; token: string; type: string }) => Promise<{ data: { session: unknown } | null; error: { message: string } | null }> } },
+  email: string,
+  token: string,
+) {
+  const types = ['email', 'signup', 'magiclink'] as const
+  let lastError: { message: string } | null = null
+
+  for (const type of types) {
+    const { data, error } = await supabaseClient.auth.verifyOtp({ email, token, type })
+    if (!error && data.session) {
+      return { data, error: null }
+    }
+    lastError = error
+  }
+
+  return { data: null, error: lastError }
+}
+
 export function mapAuthError(message: string): string {
   const m = message.toLowerCase()
   if (m.includes('expired') || m.includes('invalid') || m.includes('otp')) {
     return 'Código incorrecto o vencido. Pedí uno nuevo.'
   }
-  if (m.includes('rate limit')) {
-    return 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.'
+  if (m.includes('rate limit') || m.includes('over_email_send_rate_limit') || m.includes('429')) {
+    return 'Límite de envíos alcanzado. Si ya te llegó un código por email, ingresalo abajo.'
   }
   return message
 }

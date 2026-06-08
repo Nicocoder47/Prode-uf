@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-06-06T23:53:11.885Z",
+  "overall": "PARTIAL",
+  "services": {
+    "frontend": "online",
+    "backend": "unknown",
+    "worker": "unknown",
+    "db": "online",
+    "auth": "online",
+    "realtime": "online"
+  },
+  "details": {
+    "frontend": {
+      "url": "https://prodemundialprode.vercel.app",
+      "httpStatus": 200,
+      "reachable": true
+    },
+    "backend": {
+      "url": null,
+      "httpStatus": 0,
+      "reachable": false,
+      "note": "Oracle no desplegado — configurar VITE_API_BASE_URL"
+    },
+    "worker": {
+      "lastHeartbeatAt": null,
+      "expectedIntervalSec": 60
+    },
+    "db": {
+      "url": "https://irklqwsnehlfcgehvscm.supabase.co",
+      "httpStatus": 200,
+      "probe": "teams?select=id&limit=1"
+    },
+    "auth": {},
+    "realtime": {
+      "httpStatus": 403,
+      "note": "Endpoint /realtime/v1/ responde si Realtime está habilitado"
+    }
+  },
+  "infrastructure": {
+    "github": {
+      "repo": "https://github.com/Nicocoder47/Prode-uf",
+      "connected": true
+    },
+    "vercel": {
+      "project": "prodemundialprode",
+      "url": "https://prodemundialprode.vercel.app"
+    },
+    "supabase": {
+      "projectRef": "irklqwsnehlfcgehvscm",
+      "url": "https://irklqwsnehlfcgehvscm.supabase.co"
+    },
+    "oracle": {
+      "deployed": false,
+      "apiUrl": null
+    }
+  },
+  "environment": {
+    "envCloudFile": true,
+    "viteSupabaseUrl": true,
+    "viteSupabaseAnonKey": true,
+    "supabaseServiceRole": true,
+    "footballDataApiKey": true,
+    "corsOrigin": "https://prodemundialprode.vercel.app"
+  }
+}

@@ -1,22 +1,22 @@
 {
-  "generatedAt": "2026-06-05T18:01:18.144Z",
+  "generatedAt": "2026-06-06T23:53:13.681Z",
   "configured": {
     "url": true,
     "serviceRole": true,
     "anonKey": true
   },
   "rest": {
-    "ok": true,
-    "status": 200
+    "ok": false,
+    "status": 401
   },
   "auth": {
     "ok": true
   },
   "tables": {
-    "matches": 72,
-    "predictions": 1,
+    "matches": 104,
+    "predictions": 0,
     "leaderboard": 0,
-    "profiles": 1,
+    "profiles": 0,
     "standings": 48,
     "events": 0
   },

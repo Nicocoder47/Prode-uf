@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-06-06T23:53:23.131Z",
+  "overall": "PARTIAL",
+  "components": {
+    "Frontend": "READY",
+    "Backend": "MISSING",
+    "Worker": "MISSING",
+    "Supabase": "READY",
+    "Realtime": "READY",
+    "Predicciones": "READY",
+    "Scoring": "READY",
+    "Live": "PARTIAL",
+    "Auth": "READY",
+    "Admin": "PARTIAL"
+  },
+  "blockers": [
+    "Backend Oracle no desplegado — configurar VITE_API_BASE_URL y PM2",
+    "Worker sin heartbeat reciente en system_snapshots"
+  ],
+  "nextSteps": [
+    "Seguir docs/oracle-deploy.md",
+    "pm2 start ecosystem.config.js en Oracle"
+  ],
+  "sources": {
+    "cloudStatus": true,
+    "vercelAudit": true,
+    "playerCoverage": true,
+    "teamCoverage": true,
+    "liveEvents": true,
+    "workerHealth": true
+  },
+  "workerHealth": {
+    "status": "unknown",
+    "lastHeartbeatAt": null,
+    "lastCycle": null,
+    "snapshotType": "worker_heartbeat",
+    "expectedIntervalSec": 60
+  }
+}

@@ -13,11 +13,14 @@ import {
   mapRegistrationError,
   normalizeDni,
   normalizeLegajo,
+  getOtpCooldownSeconds,
+  markOtpSent,
   readPendingLogin,
   readPendingRegistration,
   savePendingLogin,
   savePendingRegistration,
   type PendingRegistration,
+  verifyEmailOtp,
 } from '../utils/registration.ts'
 
 interface Profile {
@@ -43,6 +46,10 @@ export interface AuthStepResult {
   status: 'success' | 'pending' | 'error'
   message: string
   email?: string
+  continueToCode?: boolean
+  suggestLogin?: boolean
+  suggestRegister?: boolean
+  cooldownSeconds?: number
 }
 
 interface AuthContextValue {
@@ -50,15 +57,20 @@ interface AuthContextValue {
   user: User | null
   profile: Profile | null
   loading: boolean
-  requestRegisterCode: (input: AccessRegistrationInput) => Promise<AuthStepResult>
+  requestRegisterCode: (input: AccessRegistrationInput, options?: { resend?: boolean }) => Promise<AuthStepResult>
   verifyRegisterCode: (email: string, code: string) => Promise<AuthStepResult>
-  requestLoginCode: (email: string) => Promise<AuthStepResult>
+  requestLoginCode: (email: string, options?: { resend?: boolean }) => Promise<AuthStepResult>
   verifyLoginCode: (email: string, code: string) => Promise<AuthStepResult>
   signOut: () => Promise<void>
   devSignIn?: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+
+function isRateLimitError(message: string): boolean {
+  const m = message.toLowerCase()
+  return m.includes('rate limit') || m.includes('over_email_send_rate_limit') || m.includes('429')
+}
 
 function mapProfileSyncError(message: string): string {
   if (message.includes('dni_taken')) return mapRegistrationError('dni_taken')
@@ -213,11 +225,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user])
 
-  const requestRegisterCode = async (input: AccessRegistrationInput): Promise<AuthStepResult> => {
+  const requestRegisterCode = async (
+    input: AccessRegistrationInput,
+    options?: { resend?: boolean },
+  ): Promise<AuthStepResult> => {
     const fullName = input.fullName.trim()
     const dni = normalizeDni(input.dni)
     const legajo = normalizeLegajo(input.legajo)
     const email = input.email.trim().toLowerCase()
+
+    if (options?.resend) {
+      const seconds = getOtpCooldownSeconds()
+      if (seconds > 0) {
+        return {
+          status: 'error',
+          message: `Esperá ${seconds}s para reenviar. Si ya tenés código, ingresalo directamente.`,
+          email,
+          continueToCode: true,
+          cooldownSeconds: seconds,
+        }
+      }
+    }
 
     if (!fullName) {
       return { status: 'error', message: mapRegistrationError('full_name_required') }
@@ -250,6 +278,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { status: 'error', message: mapRegistrationError(result.code ?? 'unknown') }
     }
 
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .ilike('email', email)
+      .maybeSingle()
+
+    if (existingProfile) {
+      return {
+        status: 'error',
+        message: mapRegistrationError('email_taken'),
+        suggestLogin: true,
+        email,
+      }
+    }
+
     savePendingRegistration({ fullName, dni, legajo, email })
     clearPendingLogin()
 
@@ -257,22 +300,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${window.location.origin}/registro`,
-        data: {
-          full_name: fullName,
-          dni,
-          legajo,
-        },
       },
     })
 
     if (otpError) {
+      if (isRateLimitError(otpError.message)) {
+        return {
+          status: 'error',
+          message: mapAuthError(otpError.message),
+          email,
+          continueToCode: true,
+        }
+      }
       return { status: 'error', message: mapAuthError(otpError.message) }
     }
 
+    markOtpSent()
+
     return {
       status: 'pending',
-      message: 'Te enviamos un código a tu email. Revisá también spam o correo no deseado.',
+      message: 'Te enviamos un código de 6 dígitos a tu email. Revisá también spam o correo no deseado.',
       email,
     }
   }
@@ -344,23 +391,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { status: 'error', message: 'Ingresá el código completo que te enviamos por email.' }
     }
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      email: cleanEmail,
-      token,
-      type: 'email',
-    })
+    const { data, error } = await verifyEmailOtp(supabase, cleanEmail, token)
 
-    if (error || !data.session) {
+    if (error || !data?.session) {
       return { status: 'error', message: mapAuthError(error?.message ?? 'Código incorrecto o vencido.') }
     }
 
+    const session = data.session as Session
+
     await supabase.auth.setSession({
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
     })
 
-    setSession(data.session)
-    setUser(data.session.user)
+    setSession(session)
+    setUser(session.user)
 
     try {
       await syncUserProfile(pending)
@@ -376,8 +421,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { status: 'success', message: 'Registro confirmado. ¡Bienvenido al prode!' }
   }
 
-  const requestLoginCode = async (emailRaw: string): Promise<AuthStepResult> => {
+  const requestLoginCode = async (emailRaw: string, options?: { resend?: boolean }): Promise<AuthStepResult> => {
     const email = emailRaw.trim().toLowerCase()
+
+    if (options?.resend) {
+      const seconds = getOtpCooldownSeconds()
+      if (seconds > 0) {
+        return {
+          status: 'error',
+          message: `Esperá ${seconds}s para reenviar. Si ya tenés código, ingresalo directamente.`,
+          email,
+          continueToCode: true,
+          cooldownSeconds: seconds,
+        }
+      }
+    }
 
     if (!isValidEmail(email)) {
       return { status: 'error', message: mapRegistrationError('invalid_email') }
@@ -390,21 +448,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       options: {
         shouldCreateUser: false,
-        emailRedirectTo: `${window.location.origin}/login`,
       },
     })
 
     if (otpError) {
       const msg = otpError.message.toLowerCase()
       if (msg.includes('signups not allowed') || msg.includes('user not found') || msg.includes('invalid')) {
-        return { status: 'error', message: mapRegistrationError('account_not_found') }
+        return {
+          status: 'error',
+          message: mapRegistrationError('account_not_found'),
+          suggestRegister: true,
+          email,
+        }
+      }
+      if (isRateLimitError(otpError.message)) {
+        return {
+          status: 'error',
+          message: mapAuthError(otpError.message),
+          email,
+          continueToCode: true,
+        }
       }
       return { status: 'error', message: mapAuthError(otpError.message) }
     }
 
+    markOtpSent()
+
     return {
       status: 'pending',
-      message: 'Te enviamos un código a tu email. Revisá también spam o correo no deseado.',
+      message: 'Te enviamos un código de 6 dígitos a tu email. Revisá también spam o correo no deseado.',
       email,
     }
   }
@@ -426,25 +498,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { status: 'error', message: 'Ingresá el código completo que te enviamos por email.' }
     }
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      email: cleanEmail,
-      token,
-      type: 'email',
-    })
+    const { data, error } = await verifyEmailOtp(supabase, cleanEmail, token)
 
-    if (error || !data.session) {
+    if (error || !data?.session) {
       return { status: 'error', message: mapAuthError(error?.message ?? 'Código incorrecto o vencido.') }
     }
 
+    const session = data.session as Session
+
     await supabase.auth.setSession({
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
     })
 
     const { data: profileRow, error: profileErr } = await supabase
       .from('profiles')
       .select('id, dni, legajo, full_name')
-      .eq('id', data.session.user.id)
+      .eq('id', session.user.id)
       .maybeSingle()
 
     if (profileErr) {
@@ -458,8 +528,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { status: 'error', message: mapRegistrationError('profile_incomplete') }
     }
 
-    setSession(data.session)
-    setUser(data.session.user)
+    setSession(session)
+    setUser(session.user)
     clearPendingLogin()
 
     return { status: 'success', message: 'Sesión iniciada. ¡Bienvenido de nuevo!' }
