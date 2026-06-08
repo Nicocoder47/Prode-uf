@@ -107,6 +107,10 @@ export const useTeamPlayers = (teamId?: string) => {
 
     queryFn: () => worldCupService.getTeamPlayers(teamId!),
 
+    staleTime: 1000 * 60 * 30,
+
+    retry: 1,
+
   });
 
 };

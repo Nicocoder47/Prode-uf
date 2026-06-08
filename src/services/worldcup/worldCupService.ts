@@ -47,11 +47,14 @@ import { WC26_GROUP_NAMES, normalizeGroupId } from '../../constants/groups';
 
 
 const TEAM_COLS =
-
   'id,name,code,short_name,country_code,flag_url,crest_url,group_label,fifa_ranking,coach,confederation';
 
+/** Columnas seguras para listados (plantel, fixtures). Sin stats agregadas en tabla players. */
+const PLAYER_LIST_COLS =
+  'id,team_id,name,position,detailed_position,shirt_number,date_of_birth,birth_place,nationality,market_value,market_value_eur,photo_url,club,height,weight,preferred_foot,rating';
+
 const PLAYER_COLS =
-  'id,team_id,name,position,detailed_position,shirt_number,date_of_birth,birth_place,nationality,market_value,market_value_eur,photo_url,club,height,weight,preferred_foot,rating,data_quality_score,data_sources,last_enriched_at,enrichment_status,verification_status,identity_confidence_score';
+  `${PLAYER_LIST_COLS},data_quality_score,data_sources,last_enriched_at,enrichment_status,verification_status,identity_confidence_score`;
 
 const MATCH_SELECT =
   '*, home_team:home_team_id(' + TEAM_COLS + '), away_team:away_team_id(' + TEAM_COLS + ')';
@@ -151,16 +154,7 @@ export const worldCupService = {
   getTeamPlayers: async (teamId: string): Promise<Player[]> =>
     withFootballApi(
       async () => (await footballApiClient.getTeamPlayers(teamId)).map(normalizeApiPlayer),
-      async () => {
-        const { data, error } = await supabase
-          .from('players')
-          .select(PLAYER_COLS + ', team:team_id(' + TEAM_COLS + ')')
-          .eq('team_id', teamId)
-          .order('shirt_number', { ascending: true, nullsFirst: false })
-          .order('name');
-        if (error) throw error;
-        return (data ?? []).map(row => mapDbPlayerToPlayer(asDbRow(row)));
-      }
+      async () => fetchTeamPlayersFromSupabase(teamId),
     ),
 
 
@@ -581,6 +575,41 @@ export const worldCupService = {
 };
 
 
+
+async function fetchTeamPlayersFromSupabase(teamId: string): Promise<Player[]> {
+  const attempts = [
+    PLAYER_LIST_COLS,
+    'id,team_id,name,position,shirt_number,date_of_birth,nationality,photo_url,club',
+  ];
+
+  for (let pass = 0; pass < 2; pass++) {
+    let lastError: unknown = null;
+
+    for (const cols of attempts) {
+      const { data, error } = await supabase
+        .from('players')
+        .select(cols)
+        .eq('team_id', teamId)
+        .order('shirt_number', { ascending: true })
+        .order('name');
+
+      if (!error) {
+        return (data ?? []).map(row => mapDbPlayerToPlayer(asDbRow(row)));
+      }
+      lastError = error;
+    }
+
+    const code = (lastError as { code?: string } | null)?.code;
+    if (pass === 0 && (code === 'PGRST301' || code === 'PGRST303')) {
+      await supabase.auth.refreshSession();
+      continue;
+    }
+
+    throw lastError;
+  }
+
+  return [];
+}
 
 async function aggregatePlayerStats(
 
