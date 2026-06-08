@@ -4,6 +4,8 @@ import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
 import { isUniversalAdminCode, UNIVERSAL_ADMIN_CODE } from '../config/universalAdmin.ts'
 import { supabase } from './supabase'
 import {
+  clearAuthPending,
+  clearPendingLogin,
   clearPendingRegistration,
   isValidDni,
   isValidEmail,
@@ -11,7 +13,9 @@ import {
   mapRegistrationError,
   normalizeDni,
   normalizeLegajo,
+  readPendingLogin,
   readPendingRegistration,
+  savePendingLogin,
   savePendingRegistration,
   type PendingRegistration,
 } from '../utils/registration.ts'
@@ -46,8 +50,10 @@ interface AuthContextValue {
   user: User | null
   profile: Profile | null
   loading: boolean
-  requestAccessCode: (input: AccessRegistrationInput) => Promise<AuthStepResult>
-  verifyAccessCode: (email: string, code: string) => Promise<AuthStepResult>
+  requestRegisterCode: (input: AccessRegistrationInput) => Promise<AuthStepResult>
+  verifyRegisterCode: (email: string, code: string) => Promise<AuthStepResult>
+  requestLoginCode: (email: string) => Promise<AuthStepResult>
+  verifyLoginCode: (email: string, code: string) => Promise<AuthStepResult>
   signOut: () => Promise<void>
   devSignIn?: () => void
 }
@@ -169,7 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (event === 'SIGNED_OUT') {
-        clearPendingRegistration()
+        clearAuthPending()
         setProfile(null)
       }
     })
@@ -207,7 +213,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user])
 
-  const requestAccessCode = async (input: AccessRegistrationInput): Promise<AuthStepResult> => {
+  const requestRegisterCode = async (input: AccessRegistrationInput): Promise<AuthStepResult> => {
     const fullName = input.fullName.trim()
     const dni = normalizeDni(input.dni)
     const legajo = normalizeLegajo(input.legajo)
@@ -245,12 +251,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     savePendingRegistration({ fullName, dni, legajo, email })
+    clearPendingLogin()
 
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${window.location.origin}/login`,
+        emailRedirectTo: `${window.location.origin}/registro`,
         data: {
           full_name: fullName,
           dni,
@@ -270,7 +277,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const verifyAccessCode = async (email: string, code: string): Promise<AuthStepResult> => {
+  const verifyRegisterCode = async (email: string, code: string): Promise<AuthStepResult> => {
     const cleanEmail = email.trim().toLowerCase()
     const token = code.replace(/\D/g, '').trim()
     const rawCode = code.trim()
@@ -347,6 +354,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { status: 'error', message: mapAuthError(error?.message ?? 'Código incorrecto o vencido.') }
     }
 
+    await supabase.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    })
+
     setSession(data.session)
     setUser(data.session.user)
 
@@ -361,11 +373,100 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    return { status: 'success', message: 'Ingreso confirmado. ¡Bienvenido al prode!' }
+    return { status: 'success', message: 'Registro confirmado. ¡Bienvenido al prode!' }
+  }
+
+  const requestLoginCode = async (emailRaw: string): Promise<AuthStepResult> => {
+    const email = emailRaw.trim().toLowerCase()
+
+    if (!isValidEmail(email)) {
+      return { status: 'error', message: mapRegistrationError('invalid_email') }
+    }
+
+    savePendingLogin(email)
+    clearPendingRegistration()
+
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
+    })
+
+    if (otpError) {
+      const msg = otpError.message.toLowerCase()
+      if (msg.includes('signups not allowed') || msg.includes('user not found') || msg.includes('invalid')) {
+        return { status: 'error', message: mapRegistrationError('account_not_found') }
+      }
+      return { status: 'error', message: mapAuthError(otpError.message) }
+    }
+
+    return {
+      status: 'pending',
+      message: 'Te enviamos un código a tu email. Revisá también spam o correo no deseado.',
+      email,
+    }
+  }
+
+  const verifyLoginCode = async (email: string, code: string): Promise<AuthStepResult> => {
+    const cleanEmail = email.trim().toLowerCase()
+    const token = code.replace(/\D/g, '').trim()
+
+    if (!isValidEmail(cleanEmail)) {
+      return { status: 'error', message: mapRegistrationError('invalid_email') }
+    }
+
+    const pendingEmail = readPendingLogin()
+    if (!pendingEmail || pendingEmail !== cleanEmail) {
+      return { status: 'error', message: 'Volvé a ingresar tu email para solicitar un código nuevo.' }
+    }
+
+    if (token.length < 6) {
+      return { status: 'error', message: 'Ingresá el código completo que te enviamos por email.' }
+    }
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: cleanEmail,
+      token,
+      type: 'email',
+    })
+
+    if (error || !data.session) {
+      return { status: 'error', message: mapAuthError(error?.message ?? 'Código incorrecto o vencido.') }
+    }
+
+    await supabase.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    })
+
+    const { data: profileRow, error: profileErr } = await supabase
+      .from('profiles')
+      .select('id, dni, legajo, full_name')
+      .eq('id', data.session.user.id)
+      .maybeSingle()
+
+    if (profileErr) {
+      await supabase.auth.signOut()
+      return { status: 'error', message: profileErr.message }
+    }
+
+    if (!profileRow?.dni?.trim() || !profileRow?.legajo?.trim()) {
+      await supabase.auth.signOut()
+      clearPendingLogin()
+      return { status: 'error', message: mapRegistrationError('profile_incomplete') }
+    }
+
+    setSession(data.session)
+    setUser(data.session.user)
+    clearPendingLogin()
+
+    return { status: 'success', message: 'Sesión iniciada. ¡Bienvenido de nuevo!' }
   }
 
   const signOut = async () => {
-    clearPendingRegistration()
+    clearAuthPending()
     await supabase.auth.signOut()
     setSession(null)
     setUser(null)
@@ -386,8 +487,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       profile,
       loading,
-      requestAccessCode,
-      verifyAccessCode,
+      requestRegisterCode,
+      verifyRegisterCode,
+      requestLoginCode,
+      verifyLoginCode,
       signOut,
       devSignIn: import.meta.env.DEV && DEV_ADMIN ? devSignIn : undefined,
     }),

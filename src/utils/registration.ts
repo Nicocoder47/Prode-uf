@@ -54,6 +54,25 @@ export function clearPendingRegistration() {
   sessionStorage.removeItem(PENDING_KEY)
 }
 
+const PENDING_LOGIN_KEY = 'prode_pending_login'
+
+export function savePendingLogin(email: string) {
+  sessionStorage.setItem(PENDING_LOGIN_KEY, email.trim().toLowerCase())
+}
+
+export function readPendingLogin(): string | null {
+  return sessionStorage.getItem(PENDING_LOGIN_KEY)
+}
+
+export function clearPendingLogin() {
+  sessionStorage.removeItem(PENDING_LOGIN_KEY)
+}
+
+export function clearAuthPending() {
+  clearPendingRegistration()
+  clearPendingLogin()
+}
+
 export function mapRegistrationError(code: string): string {
   switch (code) {
     case 'dni_taken':
@@ -74,6 +93,10 @@ export function mapRegistrationError(code: string): string {
       return 'Ingresá un email válido.'
     case 'full_name_required':
       return 'Ingresá tu nombre completo.'
+    case 'account_not_found':
+      return 'No encontramos una cuenta con ese email. Registrate primero.'
+    case 'profile_incomplete':
+      return 'Tu cuenta está incompleta. Completá el registro con DNI y legajo.'
     default:
       return 'No pudimos validar tus datos. Intentá de nuevo.'
   }

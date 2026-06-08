@@ -22,7 +22,8 @@ const GroupsPage = lazy(() => import('./features/groups/GroupsPage.tsx'))
 const GroupDetailPage = lazy(() => import('./features/groups/GroupDetailPage.tsx'))
 const PredictionsPage = lazy(() => import('./features/predictions/PredictionsPage.tsx'))
 const ProfilePage = lazy(() => import('./features/auth/ProfilePage.tsx'))
-const AccessLoginPage = lazy(() => import('./features/auth/AccessLoginPage.tsx'))
+const LoginPage = lazy(() => import('./features/auth/LoginPage.tsx'))
+const RegisterPage = lazy(() => import('./features/auth/RegisterPage.tsx'))
 const AdminPage = lazy(() => import('./features/admin/AdminPageNew.tsx'))
 const AdminDataQualityPage = lazy(() => import('./features/admin/AdminDataQualityPage.tsx'))
 const AdminSystemPage = lazy(() => import('./features/admin/AdminSystemPage.tsx'))
@@ -42,8 +43,10 @@ function App() {
       <ToastProvider>
         <Suspense fallback={<PageLoader />}>
           <Routes>
-        <Route path="/login" element={<AccessLoginPage />} />
-        <Route path="/invite" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/registro" element={<RegisterPage />} />
+        <Route path="/register" element={<Navigate to="/registro" replace />} />
+        <Route path="/invite" element={<Navigate to="/registro" replace />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell><Outlet /></AppShell>}>
