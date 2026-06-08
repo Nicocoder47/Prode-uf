@@ -22,7 +22,8 @@ const recentMatches = [
 export default function ProfilePage() {
   const { profile, user } = useAuth()
   const displayName = profile?.full_name ?? user?.email?.split('@')[0] ?? 'Jugador'
-  const plate = profile?.domain_plate ?? '—'
+  const dni = profile?.dni ?? '—'
+  const legajo = profile?.legajo ?? profile?.domain_plate ?? '—'
   const email = profile?.email ?? user?.email ?? ''
 
   return (
@@ -44,7 +45,8 @@ export default function ProfilePage() {
             <h1 className="text-4xl font-bold text-white">{displayName}</h1>
             <p className="text-sm text-slate-400">
               {email}
-              {plate !== '—' ? ` · Patente ${plate}` : ''}
+              {dni !== '—' ? ` · DNI ${dni}` : ''}
+              {legajo !== '—' ? ` · Legajo ${legajo}` : ''}
             </p>
             <div className="flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-semibold text-cyan-200">

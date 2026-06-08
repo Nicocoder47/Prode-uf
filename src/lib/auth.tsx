@@ -5,10 +5,12 @@ import { isUniversalAdminCode, UNIVERSAL_ADMIN_CODE } from '../config/universalA
 import { supabase } from './supabase'
 import {
   clearPendingRegistration,
+  isValidDni,
   isValidEmail,
   mapAuthError,
   mapRegistrationError,
-  normalizeDomainPlate,
+  normalizeDni,
+  normalizeLegajo,
   readPendingRegistration,
   savePendingRegistration,
   type PendingRegistration,
@@ -18,6 +20,8 @@ interface Profile {
   id: string
   email: string
   full_name: string
+  dni: string | null
+  legajo: string | null
   domain_plate: string | null
   role: string
   token_balance: number
@@ -26,7 +30,8 @@ interface Profile {
 
 export interface AccessRegistrationInput {
   fullName: string
-  domainPlate: string
+  dni: string
+  legajo: string
   email: string
 }
 
@@ -49,6 +54,15 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
+function mapProfileSyncError(message: string): string {
+  if (message.includes('dni_taken')) return mapRegistrationError('dni_taken')
+  if (message.includes('legajo_taken')) return mapRegistrationError('legajo_taken')
+  if (message.includes('dni_required')) return mapRegistrationError('dni_required')
+  if (message.includes('legajo_required')) return mapRegistrationError('legajo_required')
+  if (message.includes('domain_plate_taken')) return mapRegistrationError('legajo_taken')
+  return message
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
@@ -61,16 +75,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function syncUserProfile(input: PendingRegistration, adminCode?: string): Promise<void> {
     const { error } = await supabase.rpc('sync_user_profile', {
       p_full_name: input.fullName.trim(),
-      p_domain_plate: normalizeDomainPlate(input.domainPlate),
+      p_dni: normalizeDni(input.dni),
+      p_legajo: normalizeLegajo(input.legajo),
       p_email: input.email.trim().toLowerCase(),
       p_admin_code: adminCode ?? null,
     })
 
     if (error) {
-      if (error.message.includes('domain_plate_taken')) {
-        throw new Error(mapRegistrationError('domain_plate_taken'))
-      }
-      throw new Error(error.message)
+      throw new Error(mapProfileSyncError(error.message))
     }
   }
 
@@ -179,7 +191,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function fetchProfile() {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, email, full_name, domain_plate, role, token_balance, is_active')
+        .select('id, email, full_name, dni, legajo, domain_plate, role, token_balance, is_active')
         .eq('id', user.id)
         .single()
 
@@ -197,14 +209,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const requestAccessCode = async (input: AccessRegistrationInput): Promise<AuthStepResult> => {
     const fullName = input.fullName.trim()
-    const domainPlate = normalizeDomainPlate(input.domainPlate)
+    const dni = normalizeDni(input.dni)
+    const legajo = normalizeLegajo(input.legajo)
     const email = input.email.trim().toLowerCase()
 
     if (!fullName) {
       return { status: 'error', message: mapRegistrationError('full_name_required') }
     }
-    if (!domainPlate) {
-      return { status: 'error', message: mapRegistrationError('domain_plate_required') }
+    if (!dni) {
+      return { status: 'error', message: mapRegistrationError('dni_required') }
+    }
+    if (!isValidDni(dni)) {
+      return { status: 'error', message: mapRegistrationError('invalid_dni') }
+    }
+    if (!legajo) {
+      return { status: 'error', message: mapRegistrationError('legajo_required') }
     }
     if (!isValidEmail(email)) {
       return { status: 'error', message: mapRegistrationError('invalid_email') }
@@ -212,7 +231,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: validation, error: validationError } = await supabase.rpc('validate_registration', {
       p_email: email,
-      p_domain_plate: domainPlate,
+      p_dni: dni,
+      p_legajo: legajo,
     })
 
     if (validationError) {
@@ -224,7 +244,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { status: 'error', message: mapRegistrationError(result.code ?? 'unknown') }
     }
 
-    savePendingRegistration({ fullName, domainPlate, email })
+    savePendingRegistration({ fullName, dni, legajo, email })
 
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
@@ -233,7 +253,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         emailRedirectTo: `${window.location.origin}/login`,
         data: {
           full_name: fullName,
-          domain_plate: domainPlate,
+          dni,
+          legajo,
         },
       },
     })
@@ -264,13 +285,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (isUniversalAdminCode(rawCode) || isUniversalAdminCode(token)) {
-      const adminCode = UNIVERSAL_ADMIN_CODE
       const { data, error: fnError } = await supabase.functions.invoke('universal-admin-login', {
         body: {
-          code: adminCode,
+          code: UNIVERSAL_ADMIN_CODE,
           email: cleanEmail,
           full_name: pending.fullName,
-          domain_plate: normalizeDomainPlate(pending.domainPlate),
+          dni: normalizeDni(pending.dni),
+          legajo: normalizeLegajo(pending.legajo),
         },
       })
 
@@ -286,8 +307,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (data?.error) {
         const errCode = String(data.error)
-        if (errCode === 'domain_plate_taken') {
-          return { status: 'error', message: mapRegistrationError('domain_plate_taken') }
+        if (errCode === 'dni_taken' || errCode === 'legajo_taken' || errCode === 'domain_plate_taken') {
+          return { status: 'error', message: mapRegistrationError(errCode === 'domain_plate_taken' ? 'legajo_taken' : errCode) }
         }
         if (errCode === 'invalid_code') {
           return { status: 'error', message: 'Código de ingreso incorrecto.' }

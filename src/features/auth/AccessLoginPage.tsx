@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, CheckCircle2, Mail, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../lib/auth.tsx'
-import { normalizeDomainPlate } from '../../utils/registration.ts'
+import { normalizeDni, normalizeLegajo } from '../../utils/registration.ts'
 
 type Step = 'form' | 'code'
 type UiStatus = 'idle' | 'loading' | 'error' | 'pending' | 'success'
@@ -14,27 +14,29 @@ export default function AccessLoginPage() {
 
   const [step, setStep] = useState<Step>('form')
   const [fullName, setFullName] = useState('')
-  const [domainPlate, setDomainPlate] = useState('')
+  const [dni, setDni] = useState('')
+  const [legajo, setLegajo] = useState('')
   const [email, setEmail] = useState('')
   const [otpCode, setOtpCode] = useState('')
   const [status, setStatus] = useState<UiStatus>('idle')
   const [message, setMessage] = useState('')
 
-  const normalizedPlatePreview = useMemo(
-    () => (domainPlate.trim() ? normalizeDomainPlate(domainPlate) : ''),
-    [domainPlate],
-  )
+  const normalizedDniPreview = useMemo(() => (dni.trim() ? normalizeDni(dni) : ''), [dni])
+  const normalizedLegajoPreview = useMemo(() => (legajo.trim() ? normalizeLegajo(legajo) : ''), [legajo])
+
+  const registrationPayload = () => ({
+    fullName: fullName.trim(),
+    dni: normalizeDni(dni),
+    legajo: normalizeLegajo(legajo),
+    email: email.trim().toLowerCase(),
+  })
 
   const handleRequestCode = async (event: React.FormEvent) => {
     event.preventDefault()
     setStatus('loading')
     setMessage('')
 
-    const result = await requestAccessCode({
-      fullName: fullName.trim(),
-      domainPlate: normalizeDomainPlate(domainPlate),
-      email: email.trim().toLowerCase(),
-    })
+    const result = await requestAccessCode(registrationPayload())
 
     setStatus(result.status)
     setMessage(result.message)
@@ -73,7 +75,7 @@ export default function AccessLoginPage() {
           </p>
           <div className="wc26-login-page__steps">
             {[
-              'Nombre, patente y email',
+              'Nombre completo, DNI y legajo',
               'Código de ingreso por email',
               'Predicciones y ranking en vivo',
             ].map((label, i) => (
@@ -104,22 +106,41 @@ export default function AccessLoginPage() {
                     />
                   </Field>
 
-                  <Field label="Dominio / patente" id="domain-plate" required>
+                  <Field label="DNI" id="dni" required>
                     <input
-                      id="domain-plate"
+                      id="dni"
                       type="text"
-                      value={domainPlate}
-                      onChange={e => setDomainPlate(e.target.value.toUpperCase())}
-                      placeholder="Ej: ABC123"
+                      inputMode="numeric"
+                      value={dni}
+                      onChange={e => setDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                      placeholder="Ej: 30123456"
+                      autoComplete="off"
+                      className="wc26-login-input font-mono tracking-wider"
+                      required
+                    />
+                    {normalizedDniPreview ? (
+                      <p className="mt-1 text-[11px] font-medium text-white/45">
+                        DNI: <span className="text-wc26-yellow">{normalizedDniPreview}</span>
+                      </p>
+                    ) : null}
+                  </Field>
+
+                  <Field label="Legajo" id="legajo" required>
+                    <input
+                      id="legajo"
+                      type="text"
+                      value={legajo}
+                      onChange={e => setLegajo(e.target.value.toUpperCase())}
+                      placeholder="Ej: 12345"
                       autoComplete="off"
                       autoCapitalize="characters"
                       spellCheck={false}
                       className="wc26-login-input font-mono tracking-wider"
                       required
                     />
-                    {normalizedPlatePreview ? (
+                    {normalizedLegajoPreview ? (
                       <p className="mt-1 text-[11px] font-medium text-white/45">
-                        Se guardará como: <span className="text-wc26-yellow">{normalizedPlatePreview}</span>
+                        Legajo: <span className="text-wc26-yellow">{normalizedLegajoPreview}</span>
                       </p>
                     ) : null}
                   </Field>
@@ -191,11 +212,7 @@ export default function AccessLoginPage() {
                     disabled={status === 'loading'}
                     onClick={async () => {
                       setStatus('loading')
-                      const result = await requestAccessCode({
-                        fullName: fullName.trim(),
-                        domainPlate: normalizeDomainPlate(domainPlate),
-                        email: email.trim().toLowerCase(),
-                      })
+                      const result = await requestAccessCode(registrationPayload())
                       setStatus(result.status)
                       setMessage(result.message || 'Te enviamos un código nuevo.')
                     }}
@@ -223,7 +240,7 @@ export default function AccessLoginPage() {
 
             <div className="mt-5 flex items-start gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-[11px] text-white/50">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-              <span>Tu patente queda vinculada a tu cuenta. No compartimos tu email con otros jugadores.</span>
+              <span>Tu DNI y legajo quedan vinculados a tu cuenta. No compartimos tu email con otros jugadores.</span>
             </div>
           </div>
         </section>

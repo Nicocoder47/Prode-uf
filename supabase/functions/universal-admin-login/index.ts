@@ -10,7 +10,11 @@ function normalizeCode(code: string): string {
   return code.replace(/\D/g, '');
 }
 
-function normalizePlate(raw: string): string {
+function normalizeDni(raw: string): string {
+  return raw.replace(/\D/g, '');
+}
+
+function normalizeLegajo(raw: string): string {
   return raw.trim().toUpperCase().replace(/[\s-]+/g, '');
 }
 
@@ -42,7 +46,8 @@ serve(async (req: Request) => {
     const code = String(body.code ?? '');
     const email = String(body.email ?? '').trim().toLowerCase();
     const fullName = String(body.full_name ?? body.fullName ?? '').trim();
-    const domainPlate = normalizePlate(String(body.domain_plate ?? body.domainPlate ?? ''));
+    const dni = normalizeDni(String(body.dni ?? ''));
+    const legajo = normalizeLegajo(String(body.legajo ?? body.domain_plate ?? body.domainPlate ?? ''));
 
     if (normalizeCode(code) !== normalizeCode(expectedCode)) {
       return new Response(JSON.stringify({ error: 'invalid_code' }), {
@@ -65,8 +70,15 @@ serve(async (req: Request) => {
       });
     }
 
-    if (!domainPlate) {
-      return new Response(JSON.stringify({ error: 'domain_plate_required' }), {
+    if (!dni || dni.length < 7) {
+      return new Response(JSON.stringify({ error: 'dni_required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!legajo) {
+      return new Response(JSON.stringify({ error: 'legajo_required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -78,7 +90,8 @@ serve(async (req: Request) => {
 
     const { data: validation } = await admin.rpc('validate_registration', {
       p_email: email,
-      p_domain_plate: domainPlate,
+      p_dni: dni,
+      p_legajo: legajo,
     });
 
     if (validation && validation.ok === false) {
@@ -92,7 +105,7 @@ serve(async (req: Request) => {
       type: 'magiclink',
       email,
       options: {
-        data: { full_name: fullName, domain_plate: domainPlate },
+        data: { full_name: fullName, dni, legajo },
       },
     });
 
@@ -145,7 +158,8 @@ serve(async (req: Request) => {
     const { error: profileErr } = await admin.rpc('sync_user_profile_admin', {
       p_user_id: session.user.id,
       p_full_name: fullName,
-      p_domain_plate: domainPlate,
+      p_dni: dni,
+      p_legajo: legajo,
       p_email: email,
     });
 

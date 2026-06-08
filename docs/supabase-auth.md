@@ -6,10 +6,10 @@ Frontend: **https://prodemundialprode.vercel.app**
 ## Flujo de acceso
 
 1. Usuario va a `/login`
-2. Completa: **nombre completo**, **dominio/patente**, **email**
+2. Completa: **nombre completo**, **DNI**, **legajo** y **email**
 3. Supabase envía **código OTP** al email (6 dígitos)
 4. Usuario ingresa el código → sesión creada
-5. RPC `sync_user_profile` guarda perfil con patente vinculada
+5. RPC `sync_user_profile` guarda perfil con DNI y legajo vinculados
 
 ## Supabase Dashboard — obligatorio
 
