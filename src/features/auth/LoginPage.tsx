@@ -131,21 +131,8 @@ export default function LoginPage() {
     }
   }
 
-  const heroSteps =
-    mode === 'register'
-      ? ['Completá tus datos', 'Confirmá tu email', 'Entrás con email + DNI']
-      : ['Tu email', 'Tu DNI (contraseña)', 'Entrás al prode']
-
   return (
-    <AuthShell
-      title="Entrá al Prode"
-      subtitle={
-        mode === 'register'
-          ? 'Completá tus datos para jugar el prode.'
-          : 'Email y DNI para entrar.'
-      }
-      steps={heroSteps}
-    >
+    <AuthShell>
       <div className="mb-3 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/20 p-1">
         <button
           type="button"

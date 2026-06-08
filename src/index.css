@@ -954,20 +954,31 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   display: flex;
   min-height: 100dvh;
   flex-direction: column;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
   padding: 1rem 1rem max(1.25rem, env(safe-area-inset-bottom));
 }
 
 @media (min-width: 768px) {
   .wc26-login-page__layout {
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: center;
-    gap: 2rem;
-    max-width: 980px;
-    margin: 0 auto;
     padding: 2.5rem 1.5rem;
   }
+}
+
+.wc26-login-panel__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.wc26-login-panel__kicker {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .wc26-login-page__hero {

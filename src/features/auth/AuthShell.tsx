@@ -6,13 +6,10 @@ import { SeccionalLogo } from '../../components/layout/SeccionalLogo'
 type UiStatus = 'idle' | 'loading' | 'error' | 'pending' | 'success'
 
 type AuthShellProps = {
-  title: string
-  subtitle: string
-  steps: string[]
   children: ReactNode
 }
 
-export function AuthShell({ title, subtitle, steps, children }: AuthShellProps) {
+export function AuthShell({ children }: AuthShellProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -51,25 +48,14 @@ export function AuthShell({ title, subtitle, steps, children }: AuthShellProps) 
       </div>
 
       <div className="wc26-login-page__layout">
-        <header className="wc26-login-page__hero">
-          <div className="wc26-login-page__brand">
-            <SeccionalLogo size="lg" />
-          </div>
-          <p className="wc26-login-page__kicker">PRODEMUNDIAL 2026</p>
-          <h1 className="wc26-login-page__title">{title}</h1>
-          <p className="wc26-login-page__subtitle">{subtitle}</p>
-          <div className="wc26-login-page__steps">
-            {steps.map((label, i) => (
-              <div key={label} className="wc26-login-page__step">
-                <span className="wc26-login-page__step-num">{i + 1}</span>
-                <span>{label}</span>
-              </div>
-            ))}
-          </div>
-        </header>
-
         <section className="wc26-login-form-side w-full max-w-md">
-          <div className="wc26-login-panel">{children}</div>
+          <div className="wc26-login-panel">
+            <div className="wc26-login-panel__brand">
+              <SeccionalLogo size="md" />
+              <p className="wc26-login-panel__kicker">PRODEMUNDIAL 2026</p>
+            </div>
+            {children}
+          </div>
         </section>
       </div>
     </div>
