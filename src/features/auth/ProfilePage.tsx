@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { Flame, Star, Trophy, TrendingUp } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Flame, LogOut, Star, Trophy, TrendingUp } from 'lucide-react'
 import { PremiumCard, StatsPill } from '../../components/ui/PremiumCard.tsx'
 import { DataState } from '../../components/ui/DataState.tsx'
 import { useAuth } from '../../lib/auth.tsx'
@@ -9,13 +9,21 @@ function formatNumber(value: number) {
   return value.toLocaleString('es-AR')
 }
 
+function splitName(fullName: string) {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean)
+  if (parts.length <= 1) return { first: parts[0] ?? 'Jugador', last: '' }
+  return { first: parts[0], last: parts.slice(1).join(' ') }
+}
+
 export default function ProfilePage() {
-  const { profile, user } = useAuth()
+  const navigate = useNavigate()
+  const { profile, user, signOut } = useAuth()
   const { data: leaderboard = [], isLoading: leaderboardLoading } = useLeaderboard()
   const { data: predictions = [], isLoading: predictionsLoading } = usePredictions(user?.id)
   const { data: matches = [] } = useWorldCupMatches()
 
-  const displayName = profile?.full_name ?? user?.email?.split('@')[0] ?? 'Jugador'
+  const fullName = profile?.full_name?.trim() || user?.email?.split('@')[0] || 'Jugador'
+  const { first, last } = splitName(fullName)
   const dni = profile?.dni ?? '—'
   const legajo = profile?.legajo ?? profile?.domain_plate ?? '—'
   const email = profile?.email ?? user?.email ?? ''
@@ -30,49 +38,71 @@ export default function ProfilePage() {
 
   const isLoading = leaderboardLoading || predictionsLoading
 
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-8 shadow-glassCard backdrop-blur-xl">
-        <div className="absolute -right-32 -top-32 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
+      <section className="wc26-profile-rank-card">
+        <div className="wc26-profile-rank-card__glow" aria-hidden="true" />
 
-        <div className="relative grid gap-6 lg:grid-cols-[auto_1fr]">
-          <div className="flex h-24 w-24 items-center justify-center rounded-[20px] bg-gradient-to-br from-cyan-500 to-violet-500 text-4xl font-black text-white">
-            {(displayName.charAt(0) || 'J').toUpperCase()}
+        <div className="wc26-profile-rank-card__top">
+          {me?.rank ? (
+            <span className="wc26-profile-rank-card__rank-badge">
+              <Trophy className="h-4 w-4" />
+              #{me.rank} en el ranking
+            </span>
+          ) : (
+            <span className="wc26-profile-rank-card__rank-badge wc26-profile-rank-card__rank-badge--muted">
+              <Trophy className="h-4 w-4" />
+              Sin posición aún
+            </span>
+          )}
+        </div>
+
+        <div className="wc26-profile-rank-card__stats">
+          <div className="wc26-profile-rank-card__stat wc26-profile-rank-card__stat--legajo">
+            <p className="wc26-profile-rank-card__label">Legajo</p>
+            <p className="wc26-profile-rank-card__legajo">{legajo}</p>
           </div>
 
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold text-white">{displayName}</h1>
-            <p className="text-sm text-slate-400">
-              {email}
-              {dni !== '—' ? ` · DNI ${dni}` : ''}
-              {legajo !== '—' ? ` · Legajo ${legajo}` : ''}
+          <div className="wc26-profile-rank-card__stat wc26-profile-rank-card__stat--name">
+            <p className="wc26-profile-rank-card__label">Nombre completo</p>
+            <p className="wc26-profile-rank-card__name">{first}</p>
+            {last ? <p className="wc26-profile-rank-card__lastname">{last}</p> : null}
+          </div>
+
+          <div className="wc26-profile-rank-card__stat wc26-profile-rank-card__stat--points">
+            <p className="wc26-profile-rank-card__label">Puntos</p>
+            <p className="wc26-profile-rank-card__points">
+              {formatNumber(totalPoints)}
+              <span className="wc26-profile-rank-card__points-unit">pts</span>
             </p>
-            <div className="flex flex-wrap gap-2">
-              {me?.rank ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-200">
-                  <Trophy className="h-4 w-4" /> #{me.rank} en el ranking
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/70">
-                  <Trophy className="h-4 w-4" /> Sin posición aún
-                </span>
-              )}
-              <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-semibold text-cyan-200">
-                <Star className="h-4 w-4" /> {formatNumber(totalPoints)} pts
-              </span>
-              {accuracy !== null ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-200">
-                  <TrendingUp className="h-4 w-4" /> {accuracy}% precisión
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/70">
-                  <Flame className="h-4 w-4" /> Sin partidos puntuados
-                </span>
-              )}
-            </div>
           </div>
         </div>
-      </div>
+
+        <div className="wc26-profile-rank-card__meta">
+          {email ? <span>{email}</span> : null}
+          {dni !== '—' ? <span>DNI {dni}</span> : null}
+        </div>
+
+        <div className="wc26-profile-rank-card__chips">
+          {accuracy !== null ? (
+            <span className="wc26-profile-rank-card__chip wc26-profile-rank-card__chip--ok">
+              <TrendingUp className="h-3.5 w-3.5" /> {accuracy}% precisión
+            </span>
+          ) : (
+            <span className="wc26-profile-rank-card__chip">
+              <Flame className="h-3.5 w-3.5" /> Sin partidos puntuados
+            </span>
+          )}
+          <span className="wc26-profile-rank-card__chip">
+            <Star className="h-3.5 w-3.5" /> {formatNumber(tokens)} tokens
+          </span>
+        </div>
+      </section>
 
       <DataState isLoading={isLoading} loadingMessage="Cargando tu perfil…">
         <div className="grid gap-6 lg:grid-cols-3">
@@ -168,6 +198,14 @@ export default function ProfilePage() {
               >
                 Ver ranking
               </Link>
+              <button
+                type="button"
+                onClick={() => void handleSignOut()}
+                className="wc26-profile-logout"
+              >
+                <LogOut className="h-4 w-4" />
+                Cerrar sesión
+              </button>
             </div>
           </div>
         </div>

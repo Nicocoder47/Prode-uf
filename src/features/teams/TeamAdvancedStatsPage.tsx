@@ -7,7 +7,6 @@ import { PremiumGate } from '../../components/premium/PremiumGate';
 import { TeamIntelligencePanel } from '../../components/premium/IntelligencePanel';
 import { FormBreakdownCard, FormStrip, StatBar } from '../../components/premium/StatVisualizations';
 import { TeamHeroCard } from '../../components/premium/TeamHeroCard';
-import { IntelligenceLink } from '../../components/premium/IntelligenceLink';
 import { DataState } from '../../components/ui/DataState';
 import { useTeamIntelligence } from '../../hooks/useIntelligence';
 import { useTeamPlayers, useTeamStanding, useWorldCupTeam } from '../../useWorldCupData';
@@ -78,8 +77,6 @@ export default function TeamAdvancedStatsPage() {
         coach={team.coach}
         form={intelligence?.form ?? []}
       />
-
-      <IntelligenceLink type="team" id={team.id} label="Centro de Inteligencia completo" />
 
       <PremiumGate
         feature="advancedStats"

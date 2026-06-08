@@ -52,8 +52,8 @@ function Metric({
 }) {
   return (
     <div className="wc26-team-metric">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-white/45" />
-      <div className="min-w-0">
+      <Icon className="h-3.5 w-3.5 shrink-0 text-white/45" aria-hidden="true" />
+      <div className="min-w-0 text-center">
         <p className="wc26-team-metric__value">{value}</p>
         <p className="wc26-team-metric__label">{label}</p>
       </div>
@@ -118,7 +118,7 @@ export function TeamProfileCard({
   }
 
   const header = (
-    <>
+    <div className="wc26-team-profile__header-inner">
       <div className="wc26-team-profile__crest-slot">
         <TeamCrest
           flag={team.flag}
@@ -129,26 +129,24 @@ export function TeamProfileCard({
           premium
         />
       </div>
-      <div className="min-w-0 flex-1 text-left">
-        <h3 className={`wc26-team-profile__name${expanded ? '' : ' wc26-team-profile__name--compact'}`}>{team.name}</h3>
-        <div className="mt-1 flex flex-wrap items-center gap-1.5">
-          {groupId !== '—' && <span className="wc26-team-tag wc26-team-tag--group">Grupo {groupId}</span>}
-          {confederation && <span className="wc26-team-tag">{confederation}</span>}
-        </div>
+      <h3 className={`wc26-team-profile__name${expanded ? '' : ' wc26-team-profile__name--compact'}`}>{team.name}</h3>
+      <div className="wc26-team-profile__tags">
+        {groupId !== '—' && <span className="wc26-team-tag wc26-team-tag--group">Grupo {groupId}</span>}
+        {confederation && <span className="wc26-team-tag">{confederation}</span>}
+        {team.fifaRanking != null && (
+          <span className="wc26-team-rank">
+            <Trophy className="h-3 w-3" />
+            <span>#{team.fifaRanking}</span>
+          </span>
+        )}
       </div>
-      {team.fifaRanking != null && (
-        <div className="wc26-team-rank">
-          <Trophy className="h-3 w-3" />
-          <span>#{team.fifaRanking}</span>
-        </div>
-      )}
       {collapsible && (
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-white/45 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+          className={`wc26-team-profile__chevron h-5 w-5 text-white/45 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
           aria-hidden="true"
         />
       )}
-    </>
+    </div>
   )
 
   const details = (
@@ -187,10 +185,19 @@ export function TeamProfileCard({
       {destacados.length > 0 && (
         <div className="wc26-team-stars">
           <p className="wc26-team-stars__label">Jugadores destacados</p>
-          <div className="flex gap-2">
+          <div className="wc26-team-stars__row">
             {destacados.map(player => (
               <Link key={player.id} to={`/players/${player.id}`} className="wc26-team-star">
-                <PlayerAvatar photo={player.photo} photoUrl={player.photoUrl} name={player.name} size="sm" />
+                <PlayerAvatar
+                  photo={player.photo}
+                  photoUrl={player.photoUrl}
+                  provider={player.provider}
+                  providerPlayerId={player.providerPlayerId}
+                  apiFootballId={player.apiFootballId}
+                  theSportsDbId={player.theSportsDbId}
+                  name={player.name}
+                  size="sm"
+                />
                 <span className="wc26-team-star__name">{player.name}</span>
               </Link>
             ))}
@@ -230,12 +237,12 @@ export function TeamProfileCard({
             type="button"
             onClick={onToggle}
             aria-expanded={expanded}
-            className="wc26-team-profile-toggle relative flex w-full items-center gap-3"
+            className="wc26-team-profile-toggle relative w-full"
           >
             {header}
           </button>
         ) : (
-          <header className="relative flex items-center gap-3">{header}</header>
+          <header className="relative">{header}</header>
         )}
 
         {collapsible ? (
@@ -249,12 +256,12 @@ export function TeamProfileCard({
                 transition={{ duration: 0.28, ease: [0.2, 0.8, 0.2, 1] }}
                 className="wc26-team-profile__details overflow-hidden"
               >
-                <div className="flex flex-col gap-[0.85rem] pt-3">{details}</div>
+                <div className="wc26-team-profile__details-inner">{details}</div>
               </motion.div>
             )}
           </AnimatePresence>
         ) : (
-          details
+          <div className="wc26-team-profile__details-inner">{details}</div>
         )}
       </article>
     </motion.div>

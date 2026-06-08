@@ -66,7 +66,9 @@ export function TeamHeroCard({
         {meta && <p className="mt-1.5 text-sm font-semibold tracking-wide text-white/70">{meta}</p>}
 
         {stats.length > 0 && (
-          <div className={`wc26-hero-stats ${stats.length >= 4 ? 'wc26-hero-stats--four' : ''}`}>
+          <div
+            className={`wc26-hero-stats${stats.length >= 4 ? ' wc26-hero-stats--four' : ''}${stats.length <= 2 ? ' wc26-hero-stats--compact' : ''}`}
+          >
             {stats.map(stat => (
               <div key={stat.label} className="wc26-hero-stat">
                 <p className="wc26-hero-stat__label">{stat.label}</p>

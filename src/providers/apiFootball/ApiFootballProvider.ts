@@ -553,9 +553,26 @@ export class ApiFootballProvider {
     if (!this.isConfigured()) return 0;
     const players = await this.syncAllSquads();
     if (players.length === 0) return 0;
+
+    const playerMap = await getPlayerUuidMap();
     let updated = 0;
+
     for (const p of players) {
-      if (!p.photo_url || !p.team_id) continue;
+      if (!p.photo_url) continue;
+
+      const providerId = p.provider_player_id ? String(p.provider_player_id) : null;
+      const playerUuid = providerId ? playerMap.get(providerId) : null;
+
+      if (playerUuid) {
+        const { error } = await supabase
+          .from('players')
+          .update({ photo_url: p.photo_url, updated_at: new Date().toISOString() })
+          .eq('id', playerUuid);
+        if (!error) updated += 1;
+        continue;
+      }
+
+      if (!p.team_id || !p.name) continue;
       const { error } = await supabase
         .from('players')
         .update({ photo_url: p.photo_url, updated_at: new Date().toISOString() })
@@ -563,6 +580,7 @@ export class ApiFootballProvider {
         .eq('name', p.name);
       if (!error) updated += 1;
     }
+
     return updated;
   }
 

@@ -48,6 +48,10 @@ export interface Player {
   name: string;
   photo: string | null;   // <- players.photo_url
   photoUrl?: string | null; // alias API
+  provider?: string | null;
+  providerPlayerId?: string | null;
+  apiFootballId?: string | null;
+  theSportsDbId?: string | null;
   teamId: string;         // <- players.team_id
   team?: Team;
   position: string | null;

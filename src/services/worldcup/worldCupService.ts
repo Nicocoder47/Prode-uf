@@ -51,7 +51,7 @@ const TEAM_COLS =
 
 /** Columnas seguras para listados (plantel, fixtures). Sin stats agregadas en tabla players. */
 const PLAYER_LIST_COLS =
-  'id,team_id,name,position,detailed_position,shirt_number,date_of_birth,birth_place,nationality,market_value,market_value_eur,photo_url,club,height,weight,preferred_foot,rating';
+  'id,team_id,name,position,detailed_position,shirt_number,date_of_birth,birth_place,nationality,market_value,market_value_eur,photo_url,club,height,weight,preferred_foot,rating,provider,provider_player_id,api_football_id,thesportsdb_id';
 
 const PLAYER_COLS =
   `${PLAYER_LIST_COLS},data_quality_score,data_sources,last_enriched_at,enrichment_status,verification_status,identity_confidence_score`;

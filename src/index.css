@@ -27,6 +27,7 @@
   --wc26-yellow: #F8B91E;
   --wc26-red: #E63946;
   --wc26-blue: #0057B8;
+  --wc26-argentina-sky: #74ACDF;
   --wc26-white: #FFFFFF;
   --wc26-cream: #F8F5EF;
   --wc26-text: #F4F7FA;
@@ -320,23 +321,37 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 }
 
 .wc26-hero-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 0.5rem;
-  margin-top: 1.25rem;
+  margin: 1.25rem auto 0;
+  max-width: 22rem;
+}
+
+.wc26-hero-stats--compact {
+  max-width: 16rem;
 }
 
 .wc26-hero-stats--four {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 100%;
+}
+
+.wc26-hero-stats--four .wc26-hero-stat {
+  flex: 0 1 calc(50% - 0.25rem);
+  min-width: 5.75rem;
 }
 
 @media (min-width: 480px) {
-  .wc26-hero-stats--four {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .wc26-hero-stats--four .wc26-hero-stat {
+    flex: 0 1 calc(25% - 0.4rem);
   }
 }
 
 .wc26-hero-stat {
+  flex: 0 1 6.25rem;
+  min-width: 5.75rem;
+  text-align: center;
   border-radius: 18px;
   padding: 0.65rem 0.5rem;
   background: rgba(255, 255, 255, 0.08);
@@ -935,15 +950,8 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   height: 4px;
   background: linear-gradient(
     90deg,
-    var(--wc26-red) 0%,
-    var(--wc26-red) 20%,
-    var(--wc26-white) 20%,
-    var(--wc26-white) 40%,
-    var(--wc26-blue) 40%,
-    var(--wc26-blue) 60%,
-    var(--wc26-gold) 60%,
-    var(--wc26-gold) 80%,
-    var(--wc26-green) 80%,
+    var(--wc26-green) 0%,
+    var(--wc26-green-light) 50%,
     var(--wc26-green) 100%
   );
 }
@@ -956,7 +964,7 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem 1rem max(1.25rem, env(safe-area-inset-bottom));
+  padding: 0.65rem 0.85rem max(0.85rem, env(safe-area-inset-bottom));
 }
 
 @media (min-width: 768px) {
@@ -969,16 +977,44 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
+  gap: 0.3rem;
+  margin-bottom: 0.75rem;
+}
+
+.wc26-login-panel__brand .wc26-brand-logo {
+  width: 5.5rem;
+  height: 5.5rem;
 }
 
 .wc26-login-panel__kicker {
+  margin: 0;
   font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.24em;
+  font-weight: 900;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  background: linear-gradient(
+    90deg,
+    var(--wc26-argentina-sky) 0%,
+    var(--wc26-argentina-sky) 18%,
+    var(--wc26-white) 18%,
+    var(--wc26-white) 36%,
+    var(--wc26-argentina-sky) 36%,
+    var(--wc26-argentina-sky) 54%,
+    var(--wc26-white) 54%,
+    var(--wc26-white) 72%,
+    var(--wc26-argentina-sky) 72%,
+    var(--wc26-argentina-sky) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.wc26-login-tab--active {
+  background: linear-gradient(180deg, var(--wc26-green-light), var(--wc26-green));
+  color: #ffffff;
+  box-shadow: 0 8px 22px rgba(0, 107, 63, 0.38);
 }
 
 .wc26-login-page__hero {
@@ -1107,14 +1143,14 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 
 .wc26-login-page .wc26-login-panel {
   width: 100%;
-  max-width: 26rem;
+  max-width: 24rem;
   margin: 0 auto;
-  background: rgba(4, 20, 24, 0.78);
+  background: rgba(4, 20, 24, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 28px;
-  padding: 1.1rem 1rem 1rem;
+  border-radius: 24px;
+  padding: 0.85rem 0.8rem 0.8rem;
   box-shadow:
-    0 24px 64px rgba(0, 0, 0, 0.45),
+    0 20px 52px rgba(0, 0, 0, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -1130,24 +1166,24 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 
 .wc26-login-page .wc26-login-label {
   display: block;
-  margin-bottom: 0.45rem;
-  font-size: 0.68rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.6rem;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.78);
 }
 
 .wc26-login-page .wc26-login-input {
   width: 100%;
-  border-radius: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.38);
+  border-radius: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.32);
   background: rgba(0, 0, 0, 0.42);
   color: #ffffff;
-  padding: 0.8rem 1rem;
-  font-size: 1rem;
+  padding: 0.62rem 0.85rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
 
 .wc26-login-page .wc26-login-input::placeholder {
@@ -1157,8 +1193,8 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 
 .wc26-login-page .wc26-login-input:focus {
   outline: none;
-  border-color: #ffd447;
-  box-shadow: 0 0 0 4px rgba(255, 212, 71, 0.25);
+  border-color: var(--wc26-green-light);
+  box-shadow: 0 0 0 3px rgba(14, 138, 74, 0.28);
 }
 
 .wc26-login-page .wc26-login-primary {
@@ -1166,15 +1202,15 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   width: 100%;
   align-items: center;
   justify-content: center;
-  margin-top: 0.25rem;
-  padding: 0.95rem 1rem;
+  margin-top: 0.15rem;
+  padding: 0.72rem 0.9rem;
   border: none;
   border-radius: 9999px;
-  background: linear-gradient(180deg, #ef233c, #c92a36);
+  background: linear-gradient(180deg, var(--wc26-green-light), var(--wc26-green));
   color: #ffffff;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   font-weight: 800;
-  box-shadow: 0 12px 32px rgba(239, 35, 60, 0.35);
+  box-shadow: 0 10px 26px rgba(0, 107, 63, 0.38);
 }
 
 .wc26-login-page .wc26-login-secondary {
@@ -1232,9 +1268,9 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 }
 
 .wc26-login-page .wc26-login-heading {
-  margin: 0 0 1rem;
+  margin: 0;
   color: #ffffff;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 800;
 }
 
@@ -2478,6 +2514,38 @@ body.wc26-modal-open {
   transform: translateX(320%) rotate(8deg);
 }
 
+.wc26-team-profile__header-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  text-align: center;
+}
+
+.wc26-team-profile__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.wc26-team-profile__chevron {
+  margin-top: 0.15rem;
+}
+
+.wc26-team-profile__details-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding-top: 0.75rem;
+  text-align: center;
+}
+
 .wc26-team-profile__name {
   font-size: 1.35rem;
   line-height: 1.1;
@@ -2523,19 +2591,26 @@ body.wc26-modal-open {
 }
 
 .wc26-team-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .wc26-team-metric {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: center;
+  gap: 0.3rem;
+  flex: 0 1 calc(33.333% - 0.35rem);
+  min-width: 5.5rem;
   border-radius: 16px;
-  padding: 0.55rem 0.55rem;
+  padding: 0.55rem 0.45rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
 }
 
 .wc26-team-metric__value {
@@ -2559,9 +2634,11 @@ body.wc26-modal-open {
 
 .wc26-team-form {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
   border-radius: 16px;
   padding: 0.55rem 0.7rem;
   background: rgba(0, 0, 0, 0.18);
@@ -2601,12 +2678,15 @@ body.wc26-modal-open {
 
 .wc26-team-coach {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.45rem;
+  width: 100%;
   border-radius: 16px;
   padding: 0.55rem 0.7rem;
   background: linear-gradient(120deg, color-mix(in srgb, var(--team-accent) 16%, transparent), rgba(255, 255, 255, 0.03));
   border: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
 }
 
 .wc26-team-coach__icon {
@@ -2634,6 +2714,17 @@ body.wc26-modal-open {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.wc26-team-stars {
+  width: 100%;
+  text-align: center;
+}
+
+.wc26-team-stars__row {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .wc26-team-stars__label {
@@ -2683,6 +2774,7 @@ body.wc26-modal-open {
   gap: 0.5rem;
   margin-top: auto;
   padding-top: 0.2rem;
+  width: 100%;
 }
 
 .wc26-team-cta__primary {
@@ -4058,5 +4150,227 @@ body.wc26-modal-open {
   .wc26-home-ranking__podium-name {
     font-size: 0.72rem;
   }
+}
+
+/* ─── Perfil / ranking card del usuario ─── */
+.wc26-profile-rank-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 215, 0, 0.22);
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(255, 215, 0, 0.14) 0%, transparent 55%),
+    radial-gradient(90% 70% at 0% 100%, rgba(0, 107, 63, 0.28) 0%, transparent 58%),
+    linear-gradient(155deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
+  padding: 1.1rem 1rem 1rem;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.wc26-profile-rank-card__glow {
+  position: absolute;
+  right: -2rem;
+  top: -2rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.18), transparent 68%);
+  pointer-events: none;
+}
+
+.wc26-profile-rank-card__top {
+  position: relative;
+  margin-bottom: 0.85rem;
+}
+
+.wc26-profile-rank-card__rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--wc26-yellow);
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.28);
+}
+
+.wc26-profile-rank-card__rank-badge--muted {
+  color: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.wc26-profile-rank-card__stats {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 0.9fr) minmax(0, 1.4fr) minmax(4.5rem, 0.85fr);
+  gap: 0.65rem;
+  align-items: stretch;
+}
+
+.wc26-profile-rank-card__stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  border-radius: 18px;
+  padding: 0.7rem 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wc26-profile-rank-card__stat--legajo {
+  border-color: rgba(255, 215, 0, 0.35);
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.12) 0%, rgba(0, 0, 0, 0.22) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.wc26-profile-rank-card__stat--points {
+  border-color: rgba(14, 138, 74, 0.35);
+  background: linear-gradient(180deg, rgba(14, 138, 74, 0.16) 0%, rgba(0, 0, 0, 0.22) 100%);
+}
+
+.wc26-profile-rank-card__label {
+  margin: 0 0 0.25rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.wc26-profile-rank-card__legajo {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(1.35rem, 5vw, 1.75rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--wc26-yellow);
+  text-shadow: 0 0 18px rgba(255, 215, 0, 0.22);
+}
+
+.wc26-profile-rank-card__name {
+  margin: 0;
+  font-size: clamp(1rem, 3.8vw, 1.2rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wc26-profile-rank-card__lastname {
+  margin: 0.15rem 0 0;
+  font-size: clamp(0.82rem, 3vw, 0.95rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: rgba(255, 255, 255, 0.78);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wc26-profile-rank-card__points {
+  margin: 0;
+  font-size: clamp(1.35rem, 5vw, 1.75rem);
+  font-weight: 900;
+  line-height: 1;
+  color: #fff;
+}
+
+.wc26-profile-rank-card__points-unit {
+  margin-left: 0.15rem;
+  font-size: 0.72em;
+  font-weight: 800;
+  color: var(--wc26-green-light);
+}
+
+.wc26-profile-rank-card__meta {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.wc26-profile-rank-card__chips {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+}
+
+.wc26-profile-rank-card__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wc26-profile-rank-card__chip--ok {
+  color: #86efac;
+  background: rgba(14, 138, 74, 0.14);
+  border-color: rgba(14, 138, 74, 0.28);
+}
+
+@media (max-width: 520px) {
+  .wc26-profile-rank-card__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .wc26-profile-rank-card__stat--legajo,
+  .wc26-profile-rank-card__stat--points {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .wc26-profile-rank-card__stat--legajo .wc26-profile-rank-card__label,
+  .wc26-profile-rank-card__stat--points .wc26-profile-rank-card__label {
+    margin: 0;
+  }
+}
+
+.wc26-profile-logout {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 20px;
+  border: 1px solid rgba(239, 35, 60, 0.35);
+  background: rgba(239, 35, 60, 0.1);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #ffb4bc;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.wc26-profile-logout:hover {
+  background: rgba(239, 35, 60, 0.16);
+  border-color: rgba(239, 35, 60, 0.5);
+}
+
+.wc26-profile-logout:active {
+  transform: scale(0.99);
 }
 

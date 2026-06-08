@@ -6,7 +6,6 @@ import { motion } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
 import { COLORS } from '../../constants/design'
 import { MatchTimeline, MatchPredictionModal } from '../../components/worldcup'
-import { IntelligenceLink } from '../../components/premium/IntelligenceLink'
 import { useWorldCupMatch, useMatchEvents, useMatchStats, usePredictions, usePlayerLiveStatus } from '../../useWorldCupData'
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
@@ -78,10 +77,6 @@ export default function MatchDetailPage() {
           </button>
         </div>
       </motion.div>
-
-      <div className="max-w-6xl mx-auto px-4 py-4">
-        {id && <IntelligenceLink type="match" id={id} label="Inteligencia del partido" />}
-      </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         <motion.div

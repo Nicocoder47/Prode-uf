@@ -25,7 +25,16 @@ export function SquadPlayerCard({ player }: SquadPlayerCardProps) {
       to={`/players/${player.id}`}
       className="flex items-center gap-3 px-4 py-3 transition hover:bg-wc26-green/5 active:scale-[0.99]"
     >
-      <PlayerAvatar photo={player.photo} photoUrl={player.photoUrl} name={player.name} size="sm" />
+      <PlayerAvatar
+        photo={player.photo}
+        photoUrl={player.photoUrl}
+        provider={player.provider}
+        providerPlayerId={player.providerPlayerId}
+        apiFootballId={player.apiFootballId}
+        theSportsDbId={player.theSportsDbId}
+        name={player.name}
+        size="sm"
+      />
 
       <div className="min-w-0 flex-1">
         <p className="truncate font-black text-wc26-text">{player.name}</p>

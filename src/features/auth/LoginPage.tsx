@@ -133,14 +133,12 @@ export default function LoginPage() {
 
   return (
     <AuthShell>
-      <div className="mb-3 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/20 p-1">
+      <div className="mb-2 grid grid-cols-2 gap-1.5 rounded-2xl border border-white/10 bg-black/20 p-1">
         <button
           type="button"
           onClick={() => switchMode('register')}
-          className={`rounded-xl px-3 py-2.5 text-sm font-bold transition-all ${
-            mode === 'register'
-              ? 'bg-wc26-red text-white shadow-lg'
-              : 'text-white/55 hover:text-white'
+          className={`wc26-login-tab rounded-xl px-3 py-2 text-sm font-bold transition-all ${
+            mode === 'register' ? 'wc26-login-tab--active' : 'text-white/55 hover:text-white'
           }`}
         >
           Registrarme
@@ -148,21 +146,19 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={() => switchMode('login')}
-          className={`rounded-xl px-3 py-2.5 text-sm font-bold transition-all ${
-            mode === 'login'
-              ? 'bg-wc26-red text-white shadow-lg'
-              : 'text-white/55 hover:text-white'
+          className={`wc26-login-tab rounded-xl px-3 py-2 text-sm font-bold transition-all ${
+            mode === 'login' ? 'wc26-login-tab--active' : 'text-white/55 hover:text-white'
           }`}
         >
           Iniciar sesión
         </button>
       </div>
 
-      <h2 className="wc26-login-heading mb-3">
+      <h2 className="wc26-login-heading mb-2">
         {mode === 'register' ? 'Crear cuenta' : 'Ya tengo cuenta'}
       </h2>
 
-      <form className="space-y-2.5" onSubmit={handleSubmit}>
+      <form className="space-y-2" onSubmit={handleSubmit}>
         {mode === 'register' ? (
           <>
             <AuthField label="Nombre completo" id="full-name" required>

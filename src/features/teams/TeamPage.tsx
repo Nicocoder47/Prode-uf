@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import { MOTION } from '../../constants/design'
 import { normalizeGroupId } from '../../constants/groups'
 import { TeamHeroCard } from '../../components/premium/TeamHeroCard'
-import { IntelligenceLink } from '../../components/premium/IntelligenceLink'
 import { PremiumTabs } from '../../components/premium/PremiumTabs'
 import { StatBar, FormBreakdownCard } from '../../components/premium/StatVisualizations'
 import { AiInsights } from '../../components/premium/AiInsights'
@@ -124,8 +123,6 @@ export default function TeamPage() {
         coach={team.coach}
         form={form}
       />
-
-      <IntelligenceLink type="team" id={team.id} />
 
       <Link
         to={`/teams/${team.id}/advanced-stats`}

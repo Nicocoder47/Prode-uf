@@ -6,7 +6,6 @@ import { MOTION } from '../../constants/design'
 import { PlayerHeroCard } from '../../components/premium/PlayerHeroCard'
 import { PlayerStatsSections } from '../../components/premium/PlayerStatsSections'
 import { PlayerVerificationBadges } from '../../components/premium/PlayerVerificationBadges'
-import { IntelligenceLink } from '../../components/premium/IntelligenceLink'
 import { PremiumTabs } from '../../components/premium/PremiumTabs'
 import { usePlayer, usePlayerLiveStatusForPlayer } from '../../useWorldCupData'
 import { DataState } from '../../components/ui/DataState'
@@ -92,8 +91,6 @@ export default function PlayerPage() {
         verificationStatus={player.verificationStatus}
         dataQualityScore={player.dataQualityScore}
       />
-
-      <IntelligenceLink type="player" id={player.id} />
 
       <PremiumTabs<Tab> tabs={TABS} active={tab} onChange={setTab} />
 
