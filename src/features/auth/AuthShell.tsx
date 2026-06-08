@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Mail } from 'lucide-react'
-import { SeccionalLogo } from '../../components/brand/SeccionalLogo'
+import { SeccionalLogo } from '../../components/layout/SeccionalLogo'
 
 type UiStatus = 'idle' | 'loading' | 'error' | 'pending' | 'success'
 
@@ -20,7 +20,7 @@ export function AuthShell({ title, subtitle, steps, children }: AuthShellProps) 
       <div className="wc26-login-page__layout">
         <header className="wc26-login-page__hero">
           <div className="wc26-login-page__brand">
-            <SeccionalLogo size="login" />
+            <SeccionalLogo size="lg" />
           </div>
           <p className="wc26-login-page__kicker">PRODEMUNDIAL 2026</p>
           <h1 className="wc26-login-page__title">{title}</h1>

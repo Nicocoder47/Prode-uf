@@ -3,7 +3,7 @@ import { NavLink, useLocation, Link } from 'react-router-dom'
 import { Bell, CalendarDays, Home, ShieldCheck, Shield, Target, User } from 'lucide-react'
 import { useAuth } from '../../lib/auth.tsx'
 import { BottomNavigation } from '../worldcup/BottomNavigation'
-import { SeccionalLogo } from '../brand/SeccionalLogo'
+import { SeccionalLogo } from './SeccionalLogo'
 
 const navItems = [
   { to: '/', label: 'Inicio', icon: Home, tone: 'home' },
@@ -30,9 +30,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           } ${isHome ? 'hidden' : ''}`}
         >
           <div className="flex min-w-0 items-center gap-2.5">
-            <SeccionalLogo size="header" />
+            <SeccionalLogo size="sm" />
             <div className="min-w-0">
-              <p className="text-sm font-extrabold tracking-tight text-white">PRODEMUNDIAL</p>
+              <p className="truncate text-sm font-extrabold tracking-tight text-white">PRODEMUNDIAL</p>
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75">
                 {isFixture ? 'Centro del juego' : 'Mundial 2026'}
               </p>
@@ -51,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="mb-4 hidden rounded-[32px] wc26-glass p-5 md:block">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <SeccionalLogo size="desktop" />
+              <SeccionalLogo size="md" />
               <div>
                 <p className="text-[10px] font-extrabold uppercase tracking-widest text-wc26-yellow">PRODEMUNDIAL 2026</p>
                 <h1 className="text-xl font-extrabold text-white lg:text-2xl">Viví el Mundial. Jugá el Prode.</h1>

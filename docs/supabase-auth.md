@@ -5,10 +5,11 @@ Frontend: **https://prodemundialprode.vercel.app**
 
 ## Flujo de acceso
 
-1. Usuario va a `/login`
-2. **Registro (una vez):** nombre, DNI, legajo y email → el **DNI queda como contraseña**
-3. **Login (siempre):** email + DNI → entra directo, sin email ni códigos
-4. RPC `sync_user_profile` guarda perfil con DNI y legajo vinculados
+1. Usuario va a `/login` → **Registrarme**
+2. Completa nombre, DNI, legajo y email → el **DNI queda como contraseña**
+3. Supabase envía **email de confirmación** (link)
+4. Usuario confirma el mail → **Iniciar sesión** con email + DNI
+5. RPC `sync_user_profile` guarda perfil con DNI y legajo vinculados
 
 ## Supabase Dashboard — obligatorio
 
@@ -24,8 +25,18 @@ Frontend: **https://prodemundialprode.vercel.app**
 
 - Habilitar **Email**
 - Habilitar **Email + Password**
-- **Desactivar "Confirm email"** (entrada inmediata al registrarse)
-- No hace falta configurar plantillas OTP
+- **Activar "Confirm email"** (evita registros falsos con emails inventados)
+- Site URL y Redirect URLs apuntando a `https://prodemundialprode.vercel.app/login`
+
+### Authentication → Email Templates → Confirm signup
+
+Usar link de confirmación (plantilla `supabase/templates/confirmation.html`):
+
+```html
+<a href="{{ .ConfirmationURL }}">Confirmar mi email</a>
+```
+
+Tras confirmar, el usuario entra con **email + DNI** (sin códigos OTP).
 
 ### Reiniciar usuarios (cuando cambiás de OTP a DNI)
 
@@ -48,7 +59,7 @@ VITE_PUBLIC_DEMO=false
 
 | Mensaje | Causa |
 |---------|--------|
-| Email o DNI incorrectos | Datos mal ingresados o cuenta vieja (OTP) sin contraseña |
+| Email o DNI incorrectos | Datos mal ingresados |
+| Confirmá tu email primero | Falta abrir el link del mail de registro |
 | Ese email ya está registrado | Usar Iniciar sesión |
-| Cuenta creada pero no inicia sesión | Activar desactivar "Confirm email" en Supabase |
 | `validate_registration` not found | Migración SQL no aplicada |

@@ -2,7 +2,7 @@ import { Bell, Menu, User } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { MOTION } from '../../constants/design'
-import { SeccionalLogo } from '../brand/SeccionalLogo'
+import { SeccionalLogo } from '../layout/SeccionalLogo'
 
 export function MobileHomeHeader() {
   return (
@@ -11,7 +11,7 @@ export function MobileHomeHeader() {
       className="wc26-mobile-header-glass relative z-30 mx-3 mt-[max(0.5rem,env(safe-area-inset-top))] flex items-center justify-between px-3 py-2"
     >
       <div className="flex min-w-0 items-center gap-2.5">
-        <SeccionalLogo size="header" />
+        <SeccionalLogo size="sm" />
         <div className="min-w-0 text-left">
           <p className="truncate text-sm font-extrabold tracking-wide text-white">PRODEMUNDIAL</p>
           <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-wc26-yellow">Mundial 2026</p>

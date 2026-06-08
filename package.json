@@ -79,6 +79,7 @@
     "sync:photos:cloud": "tsx scripts/runPhotoSyncCloud.ts",
     "sync:cloud:all": "tsx scripts/runCloudSync.ts",
     "reset:auth": "tsx scripts/resetAuthUsers.ts",
+    "admin:create-master": "tsx scripts/createMasterAdmin.ts",
     "db:push:cloud": "tsx scripts/pushCloudMigrations.ts",
     "setup:github-secrets": "tsx scripts/setupGithubSecrets.ts",
     "cloud:complete": "powershell -ExecutionPolicy Bypass -File scripts/runCloudComplete.ps1",
