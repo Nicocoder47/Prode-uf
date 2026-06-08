@@ -51,7 +51,7 @@ const TEAM_COLS =
   'id,name,code,short_name,country_code,flag_url,crest_url,group_label,fifa_ranking,coach,confederation';
 
 const PLAYER_COLS =
-  'id,team_id,name,position,detailed_position,shirt_number,date_of_birth,birth_place,nationality,market_value,market_value_eur,photo_url,club,height,weight,preferred_foot,rating,goals,assists,appearances,data_quality_score,data_sources,last_enriched_at,enrichment_status,verification_status,identity_confidence_score';
+  'id,team_id,name,position,detailed_position,shirt_number,date_of_birth,birth_place,nationality,market_value,market_value_eur,photo_url,club,height,weight,preferred_foot,rating,data_quality_score,data_sources,last_enriched_at,enrichment_status,verification_status,identity_confidence_score';
 
 const MATCH_SELECT =
   '*, home_team:home_team_id(' + TEAM_COLS + '), away_team:away_team_id(' + TEAM_COLS + ')';
