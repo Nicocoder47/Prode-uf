@@ -286,6 +286,7 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 .wc26-crest-premium__inner {
   display: grid;
   place-items: center;
+  overflow: hidden;
   border-radius: 999px;
   background:
     radial-gradient(circle at 30% 20%, #ffffff 0%, #f4f4f4 55%, #e8e8e8 100%);
@@ -2405,6 +2406,25 @@ body.wc26-modal-open {
   transform: translateY(-4px);
   border-color: color-mix(in srgb, var(--team-accent) 55%, rgba(255, 255, 255, 0.12));
   box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42), 0 0 0 1px color-mix(in srgb, var(--team-accent) 30%, transparent);
+}
+
+.wc26-team-profile__flag-watermark {
+  position: absolute;
+  right: -4%;
+  top: 50%;
+  z-index: 0;
+  width: 38%;
+  min-width: 5.5rem;
+  height: 78%;
+  transform: translateY(-50%);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center right;
+  opacity: 0.28;
+  filter: saturate(1.15);
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to left, #000 15%, transparent 88%);
+  mask-image: linear-gradient(to left, #000 15%, transparent 88%);
 }
 
 .wc26-team-profile__shine {

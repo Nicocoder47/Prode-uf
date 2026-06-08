@@ -1,9 +1,10 @@
-import { isLikelyImageUrl, resolveTeamImageUrl, teamAbbreviation } from '../../utils/teamDisplay'
+import { isLikelyImageUrl, resolveTeamFlagUrl, teamAbbreviation } from '../../utils/teamDisplay'
 
 interface TeamCrestProps {
   flag?: string | null
   code?: string
   name?: string
+  countryCode?: string | null
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
   premium?: boolean
@@ -16,9 +17,17 @@ const sizes = {
   xl: 'h-[5.5rem] w-[5.5rem] text-lg',
 }
 
-export function TeamCrest({ flag, code, name, size = 'md', className = '', premium = false }: TeamCrestProps) {
-  const imageUrl = resolveTeamImageUrl(flag)
-  const emojiFlag = flag && !isLikelyImageUrl(flag) ? flag : null
+export function TeamCrest({
+  flag,
+  code,
+  name,
+  countryCode,
+  size = 'md',
+  className = '',
+  premium = false,
+}: TeamCrestProps) {
+  const imageUrl = resolveTeamFlagUrl(flag, flag, countryCode, code)
+  const emojiFlag = flag && !isLikelyImageUrl(flag) && flag !== '🏳️' ? flag : null
   const innerSize = sizes[size]
 
   const content = imageUrl ? (
@@ -26,10 +35,11 @@ export function TeamCrest({ flag, code, name, size = 'md', className = '', premi
       src={imageUrl}
       alt={name || code || 'Equipo'}
       loading="lazy"
-      className="h-[76%] w-[76%] object-contain drop-shadow-sm"
+      decoding="async"
+      className="h-full w-full rounded-full object-cover"
     />
   ) : (
-    <span className="font-black text-wc26-blue" aria-hidden>
+    <span className="text-[1.35em] leading-none" aria-hidden>
       {emojiFlag || teamAbbreviation(code, name)}
     </span>
   )

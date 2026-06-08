@@ -56,7 +56,7 @@ export function mapDbTeamToTeam(dbTeam: Record<string, unknown>): Team {
     name: String(dbTeam.name ?? 'Equipo por definir'),
     code: String(dbTeam.code ?? dbTeam.short_name ?? 'TBD'),
     shortName: String(dbTeam.code ?? dbTeam.short_name ?? 'TBD'),
-    countryCode: String(dbTeam.code ?? dbTeam.country_code ?? ''),
+    countryCode: String(dbTeam.country_code ?? dbTeam.code ?? ''),
     flag: String(dbTeam.flag_url ?? dbTeam.crest_url ?? dbTeam.flag ?? '🏳️'),
     group: String(dbTeam.group_label ?? dbTeam.group ?? ''),
     fifaRanking: (dbTeam.fifa_ranking as number | null) ?? null,

@@ -11,6 +11,7 @@ import {
   formBreakdown,
   topPlayersForTeam,
 } from '../../utils/teamAnalytics'
+import { resolveTeamFlagUrl } from '../../utils/teamDisplay'
 import { TeamCrest } from './TeamCrest'
 import { PlayerAvatar } from './PlayerAvatar'
 
@@ -100,6 +101,7 @@ export function TeamProfileCard({
   const confederation = confederationLabel(team.confederation)
   const marketLabel = fmtMarketCompact(squadValue)
   const collapsible = onToggle != null
+  const flagImageUrl = resolveTeamFlagUrl(team.flag, team.flag, team.countryCode, team.code)
 
   const metrics: MetricItem[] = []
   if (players.length > 0) metrics.push({ icon: Users, label: 'Plantel', value: `${players.length}` })
@@ -122,6 +124,7 @@ export function TeamProfileCard({
           flag={team.flag}
           code={team.code}
           name={team.name}
+          countryCode={team.countryCode}
           size={expanded ? 'lg' : 'md'}
           premium
         />
@@ -214,6 +217,13 @@ export function TeamProfileCard({
         style={{ '--team-accent': accent } as React.CSSProperties}
       >
         <span className="wc26-team-profile__shine" aria-hidden="true" />
+        {flagImageUrl ? (
+          <span
+            className="wc26-team-profile__flag-watermark"
+            style={{ backgroundImage: `url("${flagImageUrl}")` }}
+            aria-hidden="true"
+          />
+        ) : null}
 
         {collapsible ? (
           <button
