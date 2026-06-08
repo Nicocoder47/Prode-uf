@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       port: 5174,
       strictPort: true,
-      // Proxy solo en desarrollo local — producción usa VITE_API_BASE_URL (Vercel → Oracle)
+      // Proxy solo en desarrollo local — producción $0 lee directo de Supabase
       proxy:
         mode === 'development'
           ? {

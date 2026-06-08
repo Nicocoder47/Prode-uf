@@ -1,8 +1,13 @@
 import { Navigate, Outlet } from 'react-router-dom'
+import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
 import { useAuth } from '../lib/auth.tsx'
 
 export default function AdminRoute() {
   const { profile, loading } = useAuth()
+
+  if (PUBLIC_DEMO_ACCESS) {
+    return <Outlet />
+  }
 
   if (loading) {
     return (
@@ -15,7 +20,7 @@ export default function AdminRoute() {
   }
 
   if (!profile) {
-    return <Navigate to="/invite" replace />
+    return <Navigate to="/login" replace />
   }
 
   if (profile.role !== 'admin') {

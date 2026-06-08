@@ -105,6 +105,12 @@ export const footballDataService = {
     return data ? mapDbTeamToTeam(asDbRow(data)) : null;
   },
 
+  async getAllTeams(): Promise<Team[]> {
+    const { data, error } = await supabase.from('teams').select(TEAM_COLS).order('name');
+    if (error) throw error;
+    return (data ?? []).map(row => mapDbTeamToTeam(asDbRow(row)));
+  },
+
   async getAllPlayers(): Promise<Player[]> {
     const rows = await fetchAllFromTable<Record<string, unknown>>(supabase, 'players', `${PLAYER_COLS}, team:team_id(${TEAM_COLS})`, {
       column: 'name',
@@ -194,6 +200,12 @@ export const footballDataService = {
     }
 
     return matches;
+  },
+
+  async getMatchById(id: string): Promise<Match | null> {
+    const { data, error } = await supabase.from('matches').select(MATCH_SELECT).eq('id', id).maybeSingle();
+    if (error) throw error;
+    return data ? mapDbMatchToMatch(asDbRow(data)) : null;
   },
 
   async getStandings(groupLabel?: string): Promise<Standing[]> {

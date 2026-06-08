@@ -17,6 +17,7 @@ function loadEnvFile(path: string) {
   }
 }
 
+loadEnvFile('.env.cloud');
 loadEnvFile('.env');
 loadEnvFile('.env.local');
 
@@ -40,8 +41,8 @@ app.get('/api/health', async (_req, res) => {
     redis: { ok: false, detail: 'optional' },
   };
 
-  const sbUrl = process.env.SUPABASE_URL;
-  const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  const sbUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (sbUrl && sbKey) {
     try {
       const r = await fetch(`${sbUrl.replace(/\/$/, '')}/rest/v1/`, {
@@ -52,7 +53,7 @@ app.get('/api/health', async (_req, res) => {
       checks.supabase = { ok: false, detail: e instanceof Error ? e.message : 'unreachable' };
     }
   } else {
-    checks.supabase = { ok: false, detail: 'SUPABASE_URL/key missing' };
+    checks.supabase = { ok: false, detail: 'SUPABASE_SERVICE_ROLE_KEY missing (never use anon key on API)' };
   }
 
   const redisUrl = process.env.REDIS_URL?.trim();
@@ -79,6 +80,7 @@ app.get('/api/health', async (_req, res) => {
 
   const ok = checks.process.ok && checks.supabase.ok && (checks.redis.ok || !redisUrl);
   res.status(ok ? 200 : 503).json({
+    status: ok ? 'ok' : 'error',
     ok,
     service: 'prodemundial-api',
     version: process.env.npm_package_version ?? '0.0.0',

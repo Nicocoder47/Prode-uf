@@ -1,24 +1,11 @@
 /**
- * Worker health — npm run audit:worker-health → reports/worker-health.json
+ * Worker health — npm run audit:worker-health → worker-health.json (raíz) + reports/
  */
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
+import { loadCloudEnv } from './lib/loadCloudEnv.js';
 
-function loadEnvFile(path: string) {
-  if (!existsSync(path)) return;
-  for (const line of readFileSync(path, 'utf8').split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eq = trimmed.indexOf('=');
-    if (eq === -1) continue;
-    const key = trimmed.slice(0, eq).trim();
-    const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
-    if (!process.env[key]) process.env[key] = val;
-  }
-}
-
-loadEnvFile('.env');
-loadEnvFile('.env.local');
+loadCloudEnv();
 
 function workerStatus(lastAt: string | null): string {
   if (!lastAt) return 'unknown';
@@ -36,6 +23,11 @@ async function main() {
     generatedAt: new Date().toISOString(),
     host: process.env.WORKER_HOST || process.env.HOSTNAME || 'unknown',
     nodeEnv: process.env.NODE_ENV || 'development',
+    pm2Processes: [
+      { name: 'prodem-api', script: 'server/index.ts', autorestart: true },
+      { name: 'prodem-worker', script: 'src/workers/scheduler.ts', autorestart: true },
+      { name: 'prodem-worker-live', script: 'src/workers/liveWorker.ts', autorestart: true, heartbeatIntervalSec: 60 },
+    ],
     scheduler: {
       script: 'src/workers/scheduler.ts',
       liveIntervalSec: 30,
@@ -47,6 +39,8 @@ async function main() {
       status: 'unknown' as string,
       lastHeartbeatAt: null as string | null,
       lastCycle: null as Record<string, unknown> | null,
+      snapshotType: 'worker_heartbeat',
+      expectedIntervalSec: 60,
     },
     sync: {
       lastLiveMatches: null as { at: string; status: string } | null,
@@ -97,12 +91,14 @@ async function main() {
   }
 
   writeReport(report);
-  console.log(`Worker: ${report.worker.status} → reports/worker-health.json`);
+  console.log(`Worker: ${report.worker.status} → worker-health.json + reports/worker-health.json`);
 }
 
 function writeReport(report: unknown) {
+  const json = JSON.stringify(report, null, 2);
+  writeFileSync('worker-health.json', json);
   mkdirSync('reports', { recursive: true });
-  writeFileSync('reports/worker-health.json', JSON.stringify(report, null, 2));
+  writeFileSync('reports/worker-health.json', json);
 }
 
 main().catch(err => {

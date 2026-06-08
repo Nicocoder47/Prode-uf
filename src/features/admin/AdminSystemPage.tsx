@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, AlertTriangle, CheckCircle2, Clock, RefreshCw, Server, Users, Zap } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, Clock, RefreshCw, Server, Shield, Users, Zap } from 'lucide-react';
 import { DataState } from '../../components/ui/DataState';
 import { PremiumCard } from '../../components/ui/PremiumCard';
 import { adminFetch } from '../../lib/adminApi';
@@ -30,6 +30,17 @@ type SystemHealthReport = {
     withApiFootballId: number;
     verified: number;
     coveragePct: number;
+    withPhoto?: number;
+    withClub?: number;
+    withAge?: number;
+  };
+  teams?: {
+    total: number;
+    complete: number;
+    incomplete: number;
+    coveragePct: number;
+    withCoach: number;
+    withConfederation: number;
   };
   live: {
     liveMatches: number;
@@ -225,10 +236,30 @@ export default function AdminSystemPage() {
                 </div>
                 <ul className="mt-3 space-y-1 text-sm text-white/70">
                   <li>Total: {report.players.total}</li>
+                  <li>Con foto: {report.players.withPhoto ?? '—'}</li>
+                  <li>Con edad: {report.players.withAge ?? '—'}</li>
+                  <li>Con club: {report.players.withClub ?? '—'}</li>
                   <li>API-Football ID: {report.players.withApiFootballId}</li>
                   <li>Verificados: {report.players.verified}</li>
                 </ul>
               </PremiumCard>
+
+              {report.teams && (
+                <PremiumCard title="Cobertura equipos">
+                  <div className="flex items-center gap-2 text-white">
+                    <Shield className="h-5 w-5 text-worldcup-gold" />
+                    <span className="text-2xl font-black">{report.teams.coveragePct}%</span>
+                    <span className="text-sm text-white/50">completos</span>
+                  </div>
+                  <ul className="mt-3 space-y-1 text-sm text-white/70">
+                    <li>Total: {report.teams.total}</li>
+                    <li>Completos: {report.teams.complete}</li>
+                    <li>Incompletos: {report.teams.incomplete}</li>
+                    <li>Con DT: {report.teams.withCoach}</li>
+                    <li>Con confederación: {report.teams.withConfederation}</li>
+                  </ul>
+                </PremiumCard>
+              )}
             </div>
 
             <PremiumCard title="Eventos recientes">

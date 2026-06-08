@@ -3,12 +3,10 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CalendarDays, Clock, X, Search, Check, Trophy, ArrowRight, Minus, Plus } from 'lucide-react'
+import { CalendarDays, Clock, X, Check, Trophy, ArrowRight, Minus, Plus } from 'lucide-react'
 import { TeamCrest } from './TeamCrest'
-import { PlayerAvatar } from './PlayerAvatar'
-import type { Match, Player, Prediction } from '../../types/worldcup'
+import type { Match, Prediction } from '../../types/worldcup'
 import type { PredictionResult } from '../../types/api'
-import { useMatchPlayers } from '../../useWorldCupData'
 import { useAppToast } from '../ui/ToastProvider'
 import { MAX_POINTS_PER_MATCH } from '../../utils/predictionProgress'
 import {
@@ -16,40 +14,8 @@ import {
   getWinnerFromScore,
 } from '../../utils/predictionValidation'
 
-type Step = 'score' | 'scorer' | 'mvp' | 'review'
-const STEPS: Step[] = ['score', 'scorer', 'mvp', 'review']
-
-const PENDING_HOME = 'pending-home'
-const PENDING_AWAY = 'pending-away'
-
-/** Solo los IDs reales se persisten; los placeholders quedan como undefined. */
-const isRealPlayerId = (id: string) => !!id && id !== PENDING_HOME && id !== PENDING_AWAY
-
-function attackRank(pos: string | null): number {
-  const p = (pos ?? '').toLowerCase()
-  if (p.includes('strik') || p.includes('forward') || p.includes('delant') || /\b(cf|st)\b/.test(p)) return 0
-  if (p.includes('wing') || p.includes('extrem') || /\b(lw|rw)\b/.test(p)) return 1
-  if ((p.includes('att') || p.includes('ofens')) && p.includes('mid')) return 2
-  if (p.includes('mid') || p.includes('medio')) return 3
-  if (p.includes('def') || p.includes('back')) return 4
-  if (p.includes('goal') || p.includes('keeper') || p.includes('arquer') || /\bgk\b/.test(p)) return 5
-  return 3
-}
-
-function scorerSort(a: Player, b: Player): number {
-  const ra = attackRank(a.position)
-  const rb = attackRank(b.position)
-  if (ra !== rb) return ra - rb
-  if ((b.goals ?? 0) !== (a.goals ?? 0)) return (b.goals ?? 0) - (a.goals ?? 0)
-  return (b.rating ?? 0) - (a.rating ?? 0)
-}
-
-function mvpSort(a: Player, b: Player): number {
-  if ((b.rating ?? 0) !== (a.rating ?? 0)) return (b.rating ?? 0) - (a.rating ?? 0)
-  if ((b.goals ?? 0) !== (a.goals ?? 0)) return (b.goals ?? 0) - (a.goals ?? 0)
-  if ((b.marketValue ?? 0) !== (a.marketValue ?? 0)) return (b.marketValue ?? 0) - (a.marketValue ?? 0)
-  return (b.appearances ?? 0) - (a.appearances ?? 0)
-}
+type Step = 'score' | 'review'
+const STEPS: Step[] = ['score', 'review']
 
 interface MatchPredictionModalProps {
   match: Match
@@ -63,40 +29,6 @@ interface MatchPredictionModalProps {
     mvp?: string
   }) => Promise<void>
   existingPrediction?: Partial<Prediction>
-}
-
-function FallbackOption({
-  active,
-  label,
-  hint,
-  onClick,
-}: {
-  active: boolean
-  label: string
-  hint?: string
-  onClick: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex w-full items-center justify-between gap-3 rounded-xl px-3.5 py-3 text-left transition-all ${
-        active
-          ? 'bg-sky-500/15 ring-2 ring-sky-400 shadow-[0_0_18px_rgba(56,189,248,0.25)]'
-          : 'bg-white/5 ring-1 ring-white/10 hover:bg-white/10'
-      }`}
-    >
-      <div className="min-w-0">
-        <p className="truncate text-sm font-bold text-white">{label}</p>
-        {hint && <p className="truncate text-[11px] font-medium text-white/45">{hint}</p>}
-      </div>
-      {active && (
-        <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-sky-400 text-night-900">
-          <Check className="h-3.5 w-3.5 text-[#04121f]" />
-        </span>
-      )}
-    </button>
-  )
 }
 
 function ScoreDial({
@@ -142,216 +74,6 @@ function ScoreDial({
   )
 }
 
-function PlayerRow({
-  player,
-  teamCode,
-  selected,
-  onSelect,
-}: {
-  player: Player
-  teamCode: string
-  selected: boolean
-  onSelect: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${
-        selected
-          ? 'bg-sky-500/15 ring-2 ring-sky-400 shadow-[0_0_18px_rgba(56,189,248,0.25)]'
-          : 'bg-white/5 ring-1 ring-white/10 hover:bg-white/10'
-      }`}
-    >
-      <PlayerAvatar photo={player.photo} photoUrl={player.photoUrl} name={player.name} size="sm" />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-bold text-white">{player.name}</p>
-        <p className="truncate text-[11px] font-medium text-white/50">
-          {teamCode}
-          {player.position ? ` · ${player.position}` : ''}
-        </p>
-      </div>
-      {player.shirtNumber != null && (
-        <span className="shrink-0 text-xs font-black text-white/40">#{player.shirtNumber}</span>
-      )}
-      {selected && (
-        <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-sky-400">
-          <Check className="h-3.5 w-3.5 text-[#04121f]" />
-        </span>
-      )}
-    </button>
-  )
-}
-
-function PlayerPicker({
-  players,
-  loading,
-  selectedId,
-  onSelect,
-  mode,
-  homeTeamId,
-  homeCode,
-  awayCode,
-}: {
-  players: Player[]
-  loading: boolean
-  selectedId: string
-  onSelect: (id: string) => void
-  mode: 'scorer' | 'mvp'
-  homeTeamId: string
-  homeCode: string
-  awayCode: string
-}) {
-  const [query, setQuery] = useState('')
-  const [filter, setFilter] = useState<'all' | 'home' | 'away'>('all')
-
-  const codeOf = (p: Player) => (p.teamId === homeTeamId ? homeCode : awayCode)
-  const noneLabel = mode === 'scorer' ? 'Sin goleador / No elegir' : 'No elegir MVP'
-
-  if (loading) {
-    return <p className="p-4 text-center text-sm text-white/50">Cargando planteles...</p>
-  }
-
-  if (players.length === 0) {
-    const opts =
-      mode === 'scorer'
-        ? [
-            { id: '', label: 'Sin goleador', hint: 'No predecir goleador' },
-            { id: PENDING_HOME, label: 'Goleador local por definir', hint: homeCode },
-            { id: PENDING_AWAY, label: 'Goleador visitante por definir', hint: awayCode },
-          ]
-        : [
-            { id: '', label: 'No elegir MVP', hint: 'Dejar sin elegir' },
-            { id: PENDING_HOME, label: 'MVP local por definir', hint: homeCode },
-            { id: PENDING_AWAY, label: 'MVP visitante por definir', hint: awayCode },
-          ]
-    return (
-      <div className="space-y-2">
-        {opts.map(o => (
-          <FallbackOption
-            key={o.id || 'none'}
-            active={selectedId === o.id}
-            label={o.label}
-            hint={o.hint}
-            onClick={() => onSelect(o.id)}
-          />
-        ))}
-        <p className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-[12px] font-medium leading-relaxed text-white/55">
-          {mode === 'scorer'
-            ? 'Cuando el plantel esté disponible podrás elegir un jugador específico.'
-            : 'El MVP es opcional. Podés dejarlo sin elegir.'}
-        </p>
-      </div>
-    )
-  }
-
-  const q = query.trim().toLowerCase()
-  const matchQuery = (p: Player) =>
-    !q ||
-    p.name.toLowerCase().includes(q) ||
-    (p.position ?? '').toLowerCase().includes(q) ||
-    codeOf(p).toLowerCase().includes(q)
-
-  const searchBar = (
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
-      <input
-        value={query}
-        onChange={e => setQuery(e.target.value)}
-        placeholder="Buscar jugador..."
-        className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/35 focus:border-sky-400/50 focus:outline-none"
-      />
-    </div>
-  )
-
-  const noneOption = (
-    <FallbackOption active={selectedId === ''} label={noneLabel} onClick={() => onSelect('')} />
-  )
-
-  if (mode === 'scorer') {
-    const homePlayers = players.filter(p => p.teamId === homeTeamId && matchQuery(p)).sort(scorerSort)
-    const awayPlayers = players.filter(p => p.teamId !== homeTeamId && matchQuery(p)).sort(scorerSort)
-    const renderGroup = (label: string, list: Player[]) =>
-      list.length > 0 ? (
-        <div key={label}>
-          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-white/40">{label}</p>
-          <div className="space-y-1.5">
-            {list.map(p => (
-              <PlayerRow
-                key={p.id}
-                player={p}
-                teamCode={codeOf(p)}
-                selected={selectedId === p.id}
-                onSelect={() => onSelect(p.id)}
-              />
-            ))}
-          </div>
-        </div>
-      ) : null
-
-    return (
-      <div className="space-y-3">
-        {searchBar}
-        {noneOption}
-        <div className="wc26-player-scroll max-h-[320px] space-y-3 overflow-y-auto overflow-x-hidden pr-1">
-          {renderGroup(homeCode, homePlayers)}
-          {renderGroup(awayCode, awayPlayers)}
-          {homePlayers.length === 0 && awayPlayers.length === 0 && (
-            <p className="p-4 text-center text-sm text-white/45">Sin resultados para “{query}”.</p>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  let list = players.filter(matchQuery)
-  if (filter === 'home') list = list.filter(p => p.teamId === homeTeamId)
-  if (filter === 'away') list = list.filter(p => p.teamId !== homeTeamId)
-  list = [...list].sort(mvpSort)
-
-  const filters: { id: typeof filter; label: string }[] = [
-    { id: 'all', label: 'Todos' },
-    { id: 'home', label: homeCode },
-    { id: 'away', label: awayCode },
-  ]
-
-  return (
-    <div className="space-y-3">
-      {searchBar}
-      <div className="flex gap-1.5">
-        {filters.map(f => (
-          <button
-            key={f.id}
-            type="button"
-            onClick={() => setFilter(f.id)}
-            className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-bold transition-all ${
-              filter === f.id ? 'bg-sky-500/20 text-white ring-1 ring-sky-400/50' : 'bg-white/5 text-white/55'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-      {noneOption}
-      <div className="wc26-player-scroll max-h-[320px] space-y-1.5 overflow-y-auto overflow-x-hidden pr-1">
-        {list.length === 0 ? (
-          <p className="p-4 text-center text-sm text-white/45">Sin resultados.</p>
-        ) : (
-          list.map(p => (
-            <PlayerRow
-              key={p.id}
-              player={p}
-              teamCode={codeOf(p)}
-              selected={selectedId === p.id}
-              onSelect={() => onSelect(p.id)}
-            />
-          ))
-        )}
-      </div>
-    </div>
-  )
-}
-
 export function MatchPredictionModal({
   match,
   isOpen,
@@ -369,17 +91,10 @@ export function MatchPredictionModal({
   const [awayScore, setAwayScore] = useState(
     existingPrediction?.exactScore?.away ?? existingPrediction?.predictedAwayScore ?? 0
   )
-  const [firstScorerId, setFirstScorerId] = useState(existingPrediction?.predictedFirstScorerId || '')
-  const [mvpId, setMvpId] = useState(existingPrediction?.predictedMvpId || '')
   const [isLoading, setIsLoading] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const navigate = useNavigate()
-
-  const { data: matchPlayers = [], isLoading: playersLoading } = useMatchPlayers(
-    match.homeTeamId,
-    match.awayTeamId
-  )
 
   const { showToast } = useAppToast()
 
@@ -399,12 +114,6 @@ export function MatchPredictionModal({
 
   if (!homeTeam || !awayTeam) return null
 
-  const describeSelection = (id: string, kind: 'scorer' | 'mvp') => {
-    if (id === PENDING_HOME) return `Por definir (${homeTeam.code})`
-    if (id === PENDING_AWAY) return `Por definir (${awayTeam.code})`
-    if (!id) return kind === 'scorer' ? 'Sin goleador' : 'Sin elegir'
-    return matchPlayers.find(p => p.id === id)?.name ?? 'Sin elegir'
-  }
   const stepIndex = STEPS.indexOf(step)
   const kickoffDate = new Date(match.kickoff)
   const fmtDate = kickoffDate.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })
@@ -418,8 +127,6 @@ export function MatchPredictionModal({
         matchId: match.id,
         result: derivedResult,
         exactScore: { home: homeScore, away: awayScore },
-        firstScorer: isRealPlayerId(firstScorerId) ? firstScorerId : undefined,
-        mvp: isRealPlayerId(mvpId) ? mvpId : undefined,
       })
       showToast('✔ Predicción guardada')
       setSaved(true)
@@ -546,18 +253,6 @@ export function MatchPredictionModal({
                         <span className="text-white/55">Resultado</span>
                         <span className="font-bold text-white">{getResultLabel(derivedResult, homeTeam.code, awayTeam.code)}</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/55">Primer goleador</span>
-                        <span className={`font-bold ${isRealPlayerId(firstScorerId) ? 'text-white' : 'text-white/50'}`}>
-                          {describeSelection(firstScorerId, 'scorer')}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/55">MVP</span>
-                        <span className={`font-bold ${isRealPlayerId(mvpId) ? 'text-white' : 'text-white/50'}`}>
-                          {describeSelection(mvpId, 'mvp')}
-                        </span>
-                      </div>
                     </div>
 
                     <div className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400/15 to-yellow-500/10 px-4 py-3 ring-1 ring-amber-400/25">
@@ -664,44 +359,6 @@ export function MatchPredictionModal({
                   </motion.div>
                 )}
 
-                {step === 'scorer' && (
-                  <motion.div key="scorer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                    <div>
-                      <h3 className="mb-2 text-lg font-extrabold text-white">Primer goleador</h3>
-                      <p className="text-sm text-white/60">Elegí quién anota primero (opcional)</p>
-                    </div>
-                    <PlayerPicker
-                      players={matchPlayers}
-                      loading={playersLoading}
-                      selectedId={firstScorerId}
-                      onSelect={setFirstScorerId}
-                      mode="scorer"
-                      homeTeamId={match.homeTeamId}
-                      homeCode={homeTeam.code}
-                      awayCode={awayTeam.code}
-                    />
-                  </motion.div>
-                )}
-
-                {step === 'mvp' && (
-                  <motion.div key="mvp" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                    <div>
-                      <h3 className="mb-2 text-lg font-extrabold text-white">Jugador destacado (MVP)</h3>
-                      <p className="text-sm text-white/60">Elegí el mejor jugador del partido (opcional)</p>
-                    </div>
-                    <PlayerPicker
-                      players={matchPlayers}
-                      loading={playersLoading}
-                      selectedId={mvpId}
-                      onSelect={setMvpId}
-                      mode="mvp"
-                      homeTeamId={match.homeTeamId}
-                      homeCode={homeTeam.code}
-                      awayCode={awayTeam.code}
-                    />
-                  </motion.div>
-                )}
-
                 {step === 'review' && (
                   <motion.div key="review" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                     <h3 className="text-lg font-extrabold text-white">Confirmá tu predicción</h3>
@@ -714,18 +371,6 @@ export function MatchPredictionModal({
                         <span className="text-white/60">Resultado:</span>
                         <span className="font-bold text-green-300">
                           {getResultLabel(derivedResult, homeTeam.code, awayTeam.code)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">Primer goleador:</span>
-                        <span className={`font-bold ${isRealPlayerId(firstScorerId) ? 'text-white' : 'text-white/50'}`}>
-                          {describeSelection(firstScorerId, 'scorer')}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">MVP:</span>
-                        <span className={`font-bold ${isRealPlayerId(mvpId) ? 'text-white' : 'text-white/50'}`}>
-                          {describeSelection(mvpId, 'mvp')}
                         </span>
                       </div>
                     </div>

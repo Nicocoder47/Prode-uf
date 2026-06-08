@@ -1,9 +1,14 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
 import { useAuth } from '../lib/auth.tsx'
 
 export default function ProtectedRoute() {
   const { session, loading } = useAuth()
   const location = useLocation()
+
+  if (PUBLIC_DEMO_ACCESS) {
+    return <Outlet />
+  }
 
   if (loading) {
     return (
@@ -16,7 +21,7 @@ export default function ProtectedRoute() {
   }
 
   if (!session) {
-    return <Navigate to="/invite" state={{ from: location }} replace />
+    return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   return <Outlet />

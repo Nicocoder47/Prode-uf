@@ -1,5 +1,7 @@
 # PRODEMUNDIAL 2026 — Deploy Frontend en Vercel (Free)
 
+Modo recomendado: **producción $0 Supabase-only** — ver [production-zero-cost.md](./production-zero-cost.md).
+
 ## 1. Subir repo a GitHub
 
 ```bash
@@ -24,31 +26,40 @@ git push -u origin main
 |----------|-------|
 | `VITE_SUPABASE_URL` | `https://xxxxx.supabase.co` |
 | `VITE_SUPABASE_ANON_KEY` | anon key del proyecto Supabase |
-| `VITE_API_BASE_URL` | `https://api.tudominio.com` (Oracle) |
-| `VITE_USE_FOOTBALL_API` | `true` |
+| `VITE_USE_FOOTBALL_API` | `false` |
+| `VITE_PUBLIC_DEMO` | `false` (o omitir) |
 
-**No** configurar `SUPABASE_SERVICE_ROLE_KEY` en Vercel (solo backend Oracle).
+**No** configurar en Vercel:
 
-## 4. Deploy automático
+- `VITE_API_BASE_URL` (no hay backend Express en producción $0)
+- `SUPABASE_SERVICE_ROLE_KEY` (solo GitHub Actions / scripts locales)
+- `FOOTBALL_DATA_API_KEY` (solo GitHub Actions)
+
+## 4. GitHub Actions (sync automático)
+
+Configurar secrets en GitHub → ver [production-zero-cost.md](./production-zero-cost.md).
+
+## 5. Deploy automático
 
 Cada push a `main` dispara build + deploy.
 
 Preview deployments en PRs.
 
-## 5. Supabase Auth redirect
+## 6. Supabase Auth redirect
 
 En Supabase Dashboard → Authentication → URL Configuration:
 
 - **Site URL:** `https://tu-app.vercel.app`
 - **Redirect URLs:** `https://tu-app.vercel.app/**`
 
-## 6. Verificar
+## 7. Verificar
 
 - App carga sin errores de env
-- Login / invite funciona
-- Admin `/admin/system` muestra estado worker (requiere API Oracle online)
+- Login OTP en `/login` funciona
+- Partidos cargan desde Supabase (sin API Oracle)
 - Predicciones guardan en Supabase
+- Leaderboard actualiza tras partidos `finished`
 
-## 7. vercel.json
+## 8. vercel.json
 
 El proyecto incluye `vercel.json` con SPA rewrites y cache de assets.

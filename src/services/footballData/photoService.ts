@@ -1,5 +1,5 @@
 import { supabase } from '../../database/supabaseClient';
-import { TheSportsDbProvider } from '../../providers/theSportsDb/TheSportsDbProvider';
+import { TheSportsDbPlayerProvider } from './providers/TheSportsDbPlayerProvider.js';
 import { WikimediaPhotoProvider } from '../../providers/wikimedia/WikimediaPhotoProvider';
 
 export type PhotoSource = 'provider' | 'wikimedia' | 'thesportsdb' | 'none';
@@ -18,7 +18,8 @@ export async function resolvePlayerPhotoUrl(
     return { photoUrl: wiki, source: 'wikimedia' };
   }
 
-  const sportsDb = await TheSportsDbProvider.fetchPlayerPhoto(playerName);
+  const candidates = await TheSportsDbPlayerProvider.searchCandidates(playerName, nationality);
+  const sportsDb = candidates.find(c => c.photoUrl)?.photoUrl ?? null;
   if (sportsDb) {
     return { photoUrl: sportsDb, source: 'thesportsdb' };
   }

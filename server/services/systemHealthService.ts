@@ -29,6 +29,17 @@ export type SystemHealthReport = {
     withApiFootballId: number;
     verified: number;
     coveragePct: number;
+    withPhoto: number;
+    withClub: number;
+    withAge: number;
+  };
+  teams: {
+    total: number;
+    complete: number;
+    incomplete: number;
+    coveragePct: number;
+    withCoach: number;
+    withConfederation: number;
   };
   live: {
     liveMatches: number;
@@ -122,6 +133,7 @@ export async function getSystemHealthReport(): Promise<SystemHealthReport> {
     lastLivePipeline,
     recentErrorRows,
     playersRes,
+    teamsRes,
     liveMatchesRes,
     eventsRes,
     goalEventsRes,
@@ -140,7 +152,8 @@ export async function getSystemHealthReport(): Promise<SystemHealthReport> {
       .eq('status', 'error')
       .order('finished_at', { ascending: false })
       .limit(10),
-    supabase.from('players').select('id,provider_player_id,api_football_id,verification_status', { count: 'exact', head: false }).limit(5000),
+    supabase.from('players').select('id,provider_player_id,api_football_id,verification_status,photo_url,club,date_of_birth', { count: 'exact', head: false }).limit(5000),
+    supabase.from('teams').select('id,name,code,coach,confederation,flag_url', { count: 'exact', head: false }).limit(200),
     supabase.from('matches').select('id', { count: 'exact', head: true }).in('status', ['live', '1H', '2H', 'HT', 'ET', 'P']),
     supabase.from('events').select('id', { count: 'exact', head: true }),
     supabase.from('events').select('id', { count: 'exact', head: true }).in('event_type', ['Goal', 'goal', 'Penalty', 'penalty', 'Own Goal', 'own goal']),
@@ -163,6 +176,17 @@ export async function getSystemHealthReport(): Promise<SystemHealthReport> {
   const withProviderId = players.filter(p => p.provider_player_id).length;
   const withApiFootballId = players.filter(p => p.api_football_id).length;
   const verified = players.filter(p => p.verification_status === 'verified').length;
+  const withPhoto = players.filter(p => p.photo_url?.trim()).length;
+  const withClub = players.filter(p => p.club?.trim()).length;
+  const withAge = players.filter(p => p.date_of_birth).length;
+
+  const teamRows = teamsRes.data ?? [];
+  const totalTeams = teamsRes.count ?? teamRows.length;
+  const teamComplete = teamRows.filter(
+    t => t.name && t.code && t.coach?.trim() && t.confederation?.trim() && t.flag_url?.trim()
+  ).length;
+  const withCoach = teamRows.filter(t => t.coach?.trim()).length;
+  const withConfederation = teamRows.filter(t => t.confederation?.trim()).length;
 
   const totalEvents = eventsRes.count ?? 0;
   const goalEvents = goalEventsRes.count ?? 0;
@@ -227,6 +251,17 @@ export async function getSystemHealthReport(): Promise<SystemHealthReport> {
       withApiFootballId,
       verified,
       coveragePct: totalPlayers > 0 ? Math.round((withProviderId / totalPlayers) * 100) : 0,
+      withPhoto,
+      withClub,
+      withAge,
+    },
+    teams: {
+      total: totalTeams,
+      complete: teamComplete,
+      incomplete: Math.max(0, totalTeams - teamComplete),
+      coveragePct: totalTeams > 0 ? Math.round((teamComplete / totalTeams) * 100) : 0,
+      withCoach,
+      withConfederation,
     },
     live: {
       liveMatches: liveMatchesRes.count ?? 0,

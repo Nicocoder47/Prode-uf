@@ -172,6 +172,8 @@ export async function getPredictionAuditReport(): Promise<PredictionAuditReport>
       correctResult: 3,
       firstScorerBonus: 2,
       mvpBonus: 2,
+      maxPerMatchUi: 5,
+      maxPerMatchEngine: 9,
       exclusiveExactOrResult: true,
     },
   }
@@ -181,4 +183,14 @@ export async function runMatchScoring(matchId: string) {
   const { data, error } = await supabase.rpc('score_match_predictions', { p_match_id: matchId })
   if (error) throw error
   return { predictionsScored: data as number }
+}
+
+export async function runMatchRescore(matchId: string, oldScoreHome: number, oldScoreAway: number) {
+  const { data, error } = await supabase.rpc('rescore_match_predictions', {
+    p_match_id: matchId,
+    p_old_score_home: oldScoreHome,
+    p_old_score_away: oldScoreAway,
+  })
+  if (error) throw error
+  return { predictionsRescored: data as number }
 }

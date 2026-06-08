@@ -1,48 +1,38 @@
 /**
  * sync:players:enrich
  *
- * 1. Sincroniza planteles desde el proveedor ya integrado (API-Football / football-data)
- * 2. Enriquece campos faltantes con los providers existentes
- * 3. Genera reports/players-enrichment-report.json
+ * Por defecto: solo enriquece (sin re-sync de planteles), modo rápido, lote de 20.
  *
  * Uso:
  *   npm run sync:players:enrich
- *   npm run sync:players:enrich -- 120
- *   npm run sync:players:enrich -- 120 <teamId>
- *   npm run sync:players:enrich -- --skip-sync 120
+ *   npm run sync:players:enrich -- 50
+ *   npm run sync:players:enrich -- --with-sync 50
+ *   npm run sync:players:enrich -- --full 10   (incluye TheSportsDB/Wikimedia)
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { supabase } from '../src/database/supabaseClient.js';
 import { enrichPlayersBatch } from '../src/services/footballData/playerEnrichmentService.js';
 import { resolveSportsDataProvider } from '../src/services/sync/DataProviderManager.js';
 import { SyncEngine } from '../src/services/sync/SyncEngine.js';
-import { fetchAllFromTable } from '../src/utils/supabasePaginate.js';
+
+// Modo rápido por defecto — evita horas de APIs externas
+if (!process.env.PLAYER_ENRICH_FAST && !process.argv.includes('--full')) {
+  process.env.PLAYER_ENRICH_FAST = '1';
+}
+if (!process.env.PLAYER_ENRICH_DELAY_MS) {
+  process.env.PLAYER_ENRICH_DELAY_MS = '0';
+}
 
 const REPORT_PATH = 'reports/players-enrichment-report.json';
 
-type CoverageRow = {
-  id: string;
-  name: string;
-  team_id: string | null;
-  photo_url: string | null;
-  date_of_birth: string | null;
-  club: string | null;
-  enrichment_status: string | null;
-  verification_status: string | null;
-  enrichment_error: string | null;
-};
-
-function isBlank(v: unknown): boolean {
-  return v == null || (typeof v === 'string' && v.trim() === '');
-}
-
 function parseArgs(argv: string[]) {
-  const skipSync = argv.includes('--skip-sync');
+  const withSync = argv.includes('--with-sync');
+  const skipSync = argv.includes('--skip-sync') || !withSync;
   const nums = argv.filter(a => /^\d+$/.test(a));
-  const limit = Number(nums[0] || process.env.ENRICH_PLAYERS_LIMIT || 100);
+  const limit = Number(nums[0] || process.env.ENRICH_PLAYERS_LIMIT || 20);
   const teamId = argv.find((a, i) => i > 0 && !a.startsWith('--') && !/^\d+$/.test(a) && argv[i - 1] !== '--team')
     ?? (argv.includes('--team') ? argv[argv.indexOf('--team') + 1] : undefined);
-  return { skipSync, limit, teamId };
+  return { skipSync, limit, teamId, fast: !argv.includes('--full') };
 }
 
 async function syncSquadsFromProvider() {
@@ -66,47 +56,45 @@ async function syncSquadsFromProvider() {
 }
 
 async function buildCoverage() {
-  const rows = await fetchAllFromTable<CoverageRow>(
-    supabase,
-    'players',
-    'id,name,team_id,photo_url,date_of_birth,club,enrichment_status,verification_status,enrichment_error',
-    { column: 'name', ascending: true },
-  );
+  console.log('\n▶ Calculando cobertura…');
+  const t0 = Date.now();
 
-  const withoutPhoto: string[] = [];
-  const withoutAge: string[] = [];
-  const withoutClub: string[] = [];
-  const conflicts: { id: string; name: string; reason: string }[] = [];
-  const apiErrors: { id: string; name: string; error: string }[] = [];
+  const [totalRes, photoRes, ageRes, clubRes, conflictRes, errorRes] = await Promise.all([
+    supabase.from('players').select('id', { count: 'exact', head: true }),
+    supabase.from('players').select('id', { count: 'exact', head: true }).is('photo_url', null),
+    supabase.from('players').select('id', { count: 'exact', head: true }).is('date_of_birth', null),
+    supabase.from('players').select('id', { count: 'exact', head: true }).is('club', null),
+    supabase
+      .from('players')
+      .select('id', { count: 'exact', head: true })
+      .in('enrichment_status', ['needs_review', 'rejected']),
+    supabase.from('players').select('id', { count: 'exact', head: true }).eq('enrichment_status', 'error'),
+  ]);
 
-  for (const p of rows) {
-    if (isBlank(p.photo_url)) withoutPhoto.push(p.name);
-    if (isBlank(p.date_of_birth)) withoutAge.push(p.name);
-    if (isBlank(p.club)) withoutClub.push(p.name);
-    if (p.enrichment_status === 'needs_review' || p.enrichment_status === 'rejected') {
-      conflicts.push({ id: p.id, name: p.name, reason: p.enrichment_error ?? p.enrichment_status });
-    }
-    if (p.enrichment_status === 'error' && p.enrichment_error) {
-      apiErrors.push({ id: p.id, name: p.name, error: p.enrichment_error });
-    }
-  }
+  const total = totalRes.count ?? 0;
+  console.log(`  Cobertura calculada en ${Date.now() - t0}ms`);
 
   return {
-    total: rows.length,
-    withoutPhoto,
-    withoutAge,
-    withoutClub,
-    conflicts,
-    apiErrors,
+    total,
+    withoutPhoto: photoRes.count ?? 0,
+    withoutAge: ageRes.count ?? 0,
+    withoutClub: clubRes.count ?? 0,
+    conflicts: conflictRes.count ?? 0,
+    apiErrors: errorRes.count ?? 0,
+    withoutPhotoNames: [] as string[],
+    withoutAgeNames: [] as string[],
+    withoutClubNames: [] as string[],
+    conflictRows: [] as { id: string; name: string; reason: string }[],
+    apiErrorRows: [] as { id: string; name: string; error: string }[],
   };
 }
 
 async function main() {
-  const { skipSync, limit, teamId } = parseArgs(process.argv.slice(2));
+  const { skipSync, limit, teamId, fast } = parseArgs(process.argv.slice(2));
 
   console.log('PRODEMUNDIAL · sync:players:enrich');
-  console.log(`Enriquecimiento: API-Football + fallbacks ya integrados`);
-  console.log(`Límite enrich: ${limit}${teamId ? ` · equipo: ${teamId}` : ''}${skipSync ? ' · sin sync previo' : ''}`);
+  console.log(`Modo: ${fast ? 'rápido (solo API-Football/Sportmonks)' : 'completo (todas las APIs)'}`);
+  console.log(`Límite: ${limit}${teamId ? ` · equipo: ${teamId}` : ''}${skipSync ? ' · sin re-sync planteles' : ' · con re-sync planteles'}`);
 
   let syncResult: { provider: string; upserted: number } | null = null;
   let syncError: string | null = null;
@@ -124,7 +112,7 @@ async function main() {
   let runError: string | null = null;
   try {
     console.log('\n▶ Enriqueciendo jugadores...');
-    run = await enrichPlayersBatch({ limit, teamId, maxPerRun: limit });
+    run = await enrichPlayersBatch({ limit, teamId, maxPerRun: limit, delayMs: Number(process.env.PLAYER_ENRICH_DELAY_MS || 0) });
   } catch (err) {
     runError = err instanceof Error ? err.message : String(err);
     console.error('⚠ Error durante el enriquecimiento:', runError);
@@ -151,18 +139,18 @@ async function main() {
     },
     coverage: {
       totalPlayers: coverage.total,
-      withoutPhoto: coverage.withoutPhoto.length,
-      withoutAge: coverage.withoutAge.length,
-      withoutClub: coverage.withoutClub.length,
-      conflicts: coverage.conflicts.length,
-      apiErrors: coverage.apiErrors.length,
+      withoutPhoto: coverage.withoutPhoto,
+      withoutAge: coverage.withoutAge,
+      withoutClub: coverage.withoutClub,
+      conflicts: coverage.conflicts,
+      apiErrors: coverage.apiErrors,
     },
     details: {
-      withoutPhoto: coverage.withoutPhoto.slice(0, 50),
-      withoutAge: coverage.withoutAge.slice(0, 50),
-      withoutClub: coverage.withoutClub.slice(0, 50),
-      conflicts: coverage.conflicts.slice(0, 30),
-      apiErrors: coverage.apiErrors.slice(0, 30),
+      withoutPhoto: coverage.withoutPhotoNames.slice(0, 50),
+      withoutAge: coverage.withoutAgeNames.slice(0, 50),
+      withoutClub: coverage.withoutClubNames.slice(0, 50),
+      conflicts: coverage.conflictRows.slice(0, 30),
+      apiErrors: coverage.apiErrorRows.slice(0, 30),
     },
   };
 
@@ -176,10 +164,10 @@ async function main() {
   console.log(`Errores enrich: ${run.errors}`);
   console.log('');
   console.log(`Cobertura total: ${coverage.total} jugadores`);
-  console.log(`  Sin foto: ${coverage.withoutPhoto.length}`);
-  console.log(`  Sin edad: ${coverage.withoutAge.length}`);
-  console.log(`  Sin club: ${coverage.withoutClub.length}`);
-  console.log(`  Conflictos: ${coverage.conflicts.length}`);
+  console.log(`  Sin foto: ${coverage.withoutPhoto}`);
+  console.log(`  Sin edad: ${coverage.withoutAge}`);
+  console.log(`  Sin club: ${coverage.withoutClub}`);
+  console.log(`  Conflictos: ${coverage.conflicts}`);
   console.log(`\n📄 Reporte: ${REPORT_PATH}`);
 }
 

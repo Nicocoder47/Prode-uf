@@ -2,7 +2,7 @@ import { Router } from 'express';
 import footballDataService from '../../src/services/footballData/footballDataService.js';
 import linkingAdminService from '../../src/services/footballData/linkingAdminService.js';
 import { relinkSinglePlayer } from '../../src/services/footballData/playerIdentityLinkingService.js';
-import { getPredictionAuditReport, runMatchScoring } from '../services/predictionAuditService.js';
+import { getPredictionAuditReport, runMatchScoring, runMatchRescore } from '../services/predictionAuditService.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
 
 const router = Router();
@@ -212,6 +212,19 @@ router.get('/predictions/audit', async (_req, res, next) => {
 router.post('/predictions/score/:matchId', async (req, res, next) => {
   try {
     res.json(await runMatchScoring(req.params.matchId));
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/predictions/rescore/:matchId', async (req, res, next) => {
+  try {
+    const { oldScoreHome, oldScoreAway } = req.body as { oldScoreHome: number; oldScoreAway: number };
+    if (oldScoreHome == null || oldScoreAway == null) {
+      res.status(400).json({ error: 'oldScoreHome y oldScoreAway requeridos' });
+      return;
+    }
+    res.json(await runMatchRescore(req.params.matchId, oldScoreHome, oldScoreAway));
   } catch (err) {
     next(err);
   }

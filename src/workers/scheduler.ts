@@ -1,4 +1,5 @@
 import cron from 'node-cron';
+import '../database/supabaseClient.js';
 import { SyncEngine } from '../services/sync/SyncEngine';
 import { resolveSportsDataProvider } from '../services/sync/DataProviderManager';
 import { runLiveSyncCycle, registerWorkerStartup } from '../services/sync/liveWorkerService';

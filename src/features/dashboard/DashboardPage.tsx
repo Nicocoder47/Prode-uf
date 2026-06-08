@@ -84,7 +84,7 @@ export default function DashboardPage() {
 
   const openPredict = (match: Match) => {
     if (!currentUserId) {
-      navigate('/invite')
+      navigate('/login')
       return
     }
     setPredictMatch(match)

@@ -1,6 +1,5 @@
-/**
- * Worker LIVE — ciclo completo cada 30s (partidos + events + ratings + MVP).
- */
+/** Carga env cloud/local antes del ciclo live */
+import '../database/supabaseClient.js';
 import { runLiveSyncCycle } from '../services/sync/liveWorkerService';
 import { SyncEngine } from '../services/sync/SyncEngine';
 

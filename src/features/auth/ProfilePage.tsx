@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Flame, Star, Trophy, TrendingUp } from 'lucide-react'
 import { PremiumCard, StatsPill } from '../../components/ui/PremiumCard.tsx'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
+import { useAuth } from '../../lib/auth.tsx'
 
 const achievements = [
   { id: 1, name: 'First Prediction', description: 'Realiza tu primera predicción', icon: '🎯', unlocked: true },
@@ -19,6 +20,11 @@ const recentMatches = [
 ]
 
 export default function ProfilePage() {
+  const { profile, user } = useAuth()
+  const displayName = profile?.full_name ?? user?.email?.split('@')[0] ?? 'Jugador'
+  const plate = profile?.domain_plate ?? '—'
+  const email = profile?.email ?? user?.email ?? ''
+
   return (
     <div className="space-y-6">
       {/* HEADER */}
@@ -35,8 +41,11 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-3">
-            <h1 className="text-4xl font-bold text-white">Nico</h1>
-            <p className="text-sm text-slate-400">Miembro desde 15 de mayo • Nivel 8 • Ranked #1</p>
+            <h1 className="text-4xl font-bold text-white">{displayName}</h1>
+            <p className="text-sm text-slate-400">
+              {email}
+              {plate !== '—' ? ` · Patente ${plate}` : ''}
+            </p>
             <div className="flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/15 px-3 py-1 text-xs font-semibold text-cyan-200">
                 <Flame className="h-4 w-4" /> Racha 12d

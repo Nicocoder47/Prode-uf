@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import ws from 'ws';
 import { readFileSync, existsSync } from 'node:fs';
-
 function loadEnvFile(path: string) {
   if (!existsSync(path)) return;
   for (const line of readFileSync(path, 'utf8').split('\n')) {
@@ -14,6 +14,7 @@ function loadEnvFile(path: string) {
   }
 }
 
+loadEnvFile('.env.cloud');
 loadEnvFile('.env');
 loadEnvFile('.env.local');
 
@@ -31,4 +32,5 @@ if (!supabaseUrl || !serviceRoleKey) {
 
 export const supabase = createClient(supabaseUrl ?? '', serviceRoleKey ?? '', {
   auth: { persistSession: false, autoRefreshToken: false },
+  realtime: { transport: ws as unknown as typeof WebSocket },
 });

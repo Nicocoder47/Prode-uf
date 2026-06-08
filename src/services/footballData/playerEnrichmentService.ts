@@ -98,6 +98,19 @@ function sleep(ms: number) {
   return new Promise(r => setTimeout(r, ms));
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timeout ${ms}ms`)), ms),
+    ),
+  ]);
+}
+
+function enrichFastMode(): boolean {
+  return process.env.PLAYER_ENRICH_FAST === '1' || process.env.PLAYER_ENRICH_FAST === 'true';
+}
+
 function loadProgress(): { lastPlayerId?: string } {
   if (!existsSync(PROGRESS_PATH)) return {};
   try {
@@ -113,22 +126,61 @@ function saveProgress(data: Record<string, unknown>) {
 }
 
 async function gatherCandidates(player: DbPlayerEnrichRow): Promise<ExternalPlayerCandidate[]> {
-  const all: ExternalPlayerCandidate[] = [];
+  const providerTimeout = Number(process.env.PLAYER_ENRICH_PROVIDER_TIMEOUT_MS || 8_000);
+  const fast = enrichFastMode();
+  const tasks: Promise<ExternalPlayerCandidate[]>[] = [];
 
   if (ApiFootballPlayerProvider.isConfigured()) {
-    all.push(...(await ApiFootballPlayerProvider.searchCandidates(player.name, player.nationality)));
+    tasks.push(
+      withTimeout(
+        ApiFootballPlayerProvider.searchCandidates(player.name, player.nationality),
+        providerTimeout,
+        'api-football',
+      ).catch(() => []),
+    );
   }
 
-  all.push(...(await SportmonksPlayerProvider.searchCandidates(player.name, player.nationality)));
-  all.push(...(await TheSportsDbPlayerProvider.searchCandidates(player.name, player.nationality)));
-  all.push(...(await WikimediaPlayerProvider.searchCandidates(player.name, player.nationality)));
+  if (SportmonksPlayerProvider.isConfigured()) {
+    tasks.push(
+      withTimeout(
+        SportmonksPlayerProvider.searchCandidates(player.name, player.nationality),
+        providerTimeout,
+        'sportmonks',
+      ).catch(() => []),
+    );
+  }
+
+  if (!fast) {
+    tasks.push(
+      withTimeout(
+        TheSportsDbPlayerProvider.searchCandidates(player.name, player.nationality),
+        providerTimeout,
+        'thesportsdb',
+      ).catch(() => []),
+    );
+    tasks.push(
+      withTimeout(
+        WikimediaPlayerProvider.searchCandidates(player.name, player.nationality),
+        providerTimeout,
+        'wikimedia',
+      ).catch(() => []),
+    );
+  }
 
   if (TransfermarktPlayerProvider.isConfigured() && player.provider_player_id) {
-    const tm = await TransfermarktPlayerProvider.lookupByProviderId(String(player.provider_player_id));
-    if (tm) all.push(tm);
+    tasks.push(
+      withTimeout(
+        TransfermarktPlayerProvider.lookupByProviderId(String(player.provider_player_id)).then(tm =>
+          tm ? [tm] : [],
+        ),
+        providerTimeout,
+        'transfermarkt',
+      ).catch(() => []),
+    );
   }
 
-  return all;
+  const settled = await Promise.all(tasks);
+  return settled.flat();
 }
 
 function buildPatchFromCandidate(
@@ -320,8 +372,12 @@ async function processPlayer(
 export async function enrichPlayersBatch(options: EnrichOptions = {}): Promise<EnrichRunResult> {
   const batchSize = options.batchSize ?? Number(process.env.PLAYER_ENRICH_BATCH_SIZE || 25);
   const maxPerRun = options.maxPerRun ?? Number(process.env.PLAYER_ENRICH_MAX_PER_RUN || 200);
-  const delayMs = options.delayMs ?? Number(process.env.PLAYER_ENRICH_DELAY_MS || 800);
+  const delayMs = options.delayMs ?? Number(process.env.PLAYER_ENRICH_DELAY_MS || 0);
   const limit = Math.min(options.limit ?? maxPerRun, maxPerRun);
+  const fast = enrichFastMode();
+
+  console.log('  Consultando jugadores pendientes…');
+  const queryStart = Date.now();
 
   let query = supabase
     .from('players')
@@ -335,7 +391,9 @@ export async function enrichPlayersBatch(options: EnrichOptions = {}): Promise<E
   if (options.onlyMissingMarketValues) query = query.is('market_value', null);
 
   if (!options.playerId) {
-    query = query.or('enrichment_status.eq.pending,enrichment_status.eq.error,data_quality_score.lt.80');
+    query = fast
+      ? query.in('enrichment_status', ['pending', 'error'])
+      : query.or('enrichment_status.eq.pending,enrichment_status.eq.error,data_quality_score.lt.80');
   }
 
   const progress = options.resume ? loadProgress() : {};
@@ -347,6 +405,12 @@ export async function enrichPlayersBatch(options: EnrichOptions = {}): Promise<E
   if (error) throw error;
 
   const players = (data ?? []) as DbPlayerEnrichRow[];
+  console.log(`  ${players.length} jugadores en cola (${Date.now() - queryStart}ms)`);
+
+  if (players.length === 0) {
+    console.log('  Nada pendiente — omitiendo APIs externas.');
+    return { scanned: 0, updated: 0, needsReview: 0, rejected: 0, skipped: 0, errors: 0 };
+  }
   const result: EnrichRunResult = {
     scanned: 0,
     updated: 0,
@@ -360,6 +424,7 @@ export async function enrichPlayersBatch(options: EnrichOptions = {}): Promise<E
     const chunk = players.slice(i, i + batchSize);
     for (const player of chunk) {
       result.scanned++;
+      const t0 = Date.now();
       try {
         const r = await processPlayer(player, delayMs);
         if (r.updated) result.updated++;
@@ -368,8 +433,16 @@ export async function enrichPlayersBatch(options: EnrichOptions = {}): Promise<E
         else result.skipped++;
 
         saveProgress({ lastPlayerId: player.id, ...result });
-      } catch {
+        const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+        console.log(
+          `  [${result.scanned}/${players.length}] ${player.name} → ${r.status} (${elapsed}s)`,
+        );
+      } catch (err) {
         result.errors++;
+        console.warn(
+          `  [${result.scanned}/${players.length}] ${player.name} → error:`,
+          err instanceof Error ? err.message : err,
+        );
       }
     }
   }

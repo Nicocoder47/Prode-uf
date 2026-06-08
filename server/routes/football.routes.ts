@@ -38,6 +38,15 @@ router.get('/players', async (_req, res, next) => {
   }
 });
 
+router.get('/teams', async (_req, res, next) => {
+  try {
+    const teams = await footballDataService.getAllTeams();
+    res.json(teams);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get('/teams/:id', async (req, res, next) => {
   try {
     const team = await footballDataService.getTeamById(req.params.id);
@@ -81,6 +90,19 @@ router.get('/players/:id/stats', async (req, res, next) => {
       return;
     }
     res.json(stats);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/fixtures/:id', async (req, res, next) => {
+  try {
+    const match = await footballDataService.getMatchById(req.params.id);
+    if (!match) {
+      res.status(404).json({ error: 'Partido no encontrado' });
+      return;
+    }
+    res.json(match);
   } catch (err) {
     next(err);
   }

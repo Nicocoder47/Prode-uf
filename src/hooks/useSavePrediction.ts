@@ -19,20 +19,25 @@ export function useSavePrediction(userId?: string) {
 
   return useMutation({
     mutationFn: async (input: SavePredictionInput) => {
-      if (!userId) throw new Error('Debes iniciar sesión para predecir.')
+      if (!userId || !/^[0-9a-f-]{36}$/i.test(userId)) {
+        throw new Error('Debes iniciar sesión con tu email para predecir.')
+      }
 
       const coherenceError = validatePredictionCoherence(input.result, input.homeScore, input.awayScore)
       if (coherenceError) throw new Error(coherenceError)
 
       const { data: match, error: matchErr } = await supabase
         .from('matches')
-        .select('status,is_locked')
+        .select('status,is_locked,kick_off')
         .eq('id', input.matchId)
         .single()
 
       if (matchErr) throw matchErr
       if (match.is_locked || match.status !== 'scheduled') {
         throw new Error('Las predicciones están cerradas para este partido.')
+      }
+      if (match.kick_off && new Date(match.kick_off) <= new Date()) {
+        throw new Error('El plazo para predecir este partido ya cerró (inicio del partido).')
       }
 
       const { data, error } = await supabase

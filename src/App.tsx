@@ -7,7 +7,6 @@ import ProtectedRoute from './routes/ProtectedRoute.tsx'
 import AdminRoute from './routes/AdminRoute.tsx'
 
 const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage.tsx'))
-const InviteLoginPage = lazy(() => import('./features/auth/InviteLoginPage.tsx'))
 const LeaderboardPage = lazy(() => import('./features/leaderboard/LeaderboardPage.tsx'))
 const MatchesPage = lazy(() => import('./features/matches/MatchesPage.tsx'))
 const MatchDetailPage = lazy(() => import('./features/matches/MatchDetailPage.tsx'))
@@ -23,6 +22,7 @@ const GroupsPage = lazy(() => import('./features/groups/GroupsPage.tsx'))
 const GroupDetailPage = lazy(() => import('./features/groups/GroupDetailPage.tsx'))
 const PredictionsPage = lazy(() => import('./features/predictions/PredictionsPage.tsx'))
 const ProfilePage = lazy(() => import('./features/auth/ProfilePage.tsx'))
+const AccessLoginPage = lazy(() => import('./features/auth/AccessLoginPage.tsx'))
 const AdminPage = lazy(() => import('./features/admin/AdminPageNew.tsx'))
 const AdminDataQualityPage = lazy(() => import('./features/admin/AdminDataQualityPage.tsx'))
 const AdminSystemPage = lazy(() => import('./features/admin/AdminSystemPage.tsx'))
@@ -42,7 +42,8 @@ function App() {
       <ToastProvider>
         <Suspense fallback={<PageLoader />}>
           <Routes>
-        <Route path="/invite" element={<InviteLoginPage />} />
+        <Route path="/login" element={<AccessLoginPage />} />
+        <Route path="/invite" element={<Navigate to="/login" replace />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell><Outlet /></AppShell>}>
@@ -72,7 +73,7 @@ function App() {
           </Route>
         </Route>
 
-        <Route path="*" element={<Navigate to="/invite" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         </Suspense>
       </ToastProvider>

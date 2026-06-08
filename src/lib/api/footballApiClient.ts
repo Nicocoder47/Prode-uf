@@ -22,10 +22,15 @@ async function apiGet<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+/** Solo activo con VITE_USE_FOOTBALL_API=true y URL de backend Express (no usado en producción $0). */
 export const footballApiClient = {
-  isEnabled: () => import.meta.env.VITE_USE_FOOTBALL_API !== 'false',
+  isEnabled: () =>
+    import.meta.env.VITE_USE_FOOTBALL_API === 'true' &&
+    Boolean(String(import.meta.env.VITE_API_BASE_URL ?? '').trim()),
 
   getGroups: () => apiGet<GroupSummary[]>('/api/groups'),
+
+  getTeams: () => apiGet<Team[]>('/api/teams'),
 
   getGroupById: (id: string) => apiGet<GroupSummary>(`/api/groups/${encodeURIComponent(id)}`),
 
@@ -47,6 +52,8 @@ export const footballApiClient = {
     const suffix = qs.toString() ? `?${qs}` : '';
     return apiGet<Match[]>(`/api/fixtures${suffix}`);
   },
+
+  getFixtureById: (id: string) => apiGet<Match>(`/api/fixtures/${encodeURIComponent(id)}`),
 };
 
 export { FootballApiError };

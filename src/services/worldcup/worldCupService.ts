@@ -78,15 +78,15 @@ function normalizeApiPlayer<T extends { photo?: string | null; photoUrl?: string
 
 export const worldCupService = {
 
-  getTeams: async (): Promise<Team[]> => {
-
-    const { data, error } = await supabase.from('teams').select(TEAM_COLS).order('name');
-
-    if (error) throw error;
-
-    return (data ?? []).map(row => mapDbTeamToTeam(asDbRow(row)));
-
-  },
+  getTeams: async (): Promise<Team[]> =>
+    withFootballApi(
+      () => footballApiClient.getTeams(),
+      async () => {
+        const { data, error } = await supabase.from('teams').select(TEAM_COLS).order('name');
+        if (error) throw error;
+        return (data ?? []).map(row => mapDbTeamToTeam(asDbRow(row)));
+      },
+    ),
 
 
 
@@ -165,26 +165,34 @@ export const worldCupService = {
 
 
 
-  getPlayersByTeamIds: async (teamIds: string[]): Promise<Player[]> => {
+  getPlayersByTeamIds: async (teamIds: string[]): Promise<Player[]> =>
+    withFootballApi(
+      async () => {
+        const ids = teamIds.filter(Boolean);
+        if (ids.length === 0) return [];
+        const lists = await Promise.all(
+          ids.map(id => footballApiClient.getTeamPlayers(id).then(players => players.map(normalizeApiPlayer))),
+        );
+        return lists.flat();
+      },
+      async () => {
+        const ids = teamIds.filter(Boolean);
+        if (ids.length === 0) return [];
 
-    const ids = teamIds.filter(Boolean);
+        const rows = await fetchAllRows<Record<string, unknown>>((from, to) =>
+          supabase
+            .from('players')
+            .select(PLAYER_COLS + ', team:team_id(' + TEAM_COLS + ')')
+            .in('team_id', ids)
+            .order('team_id')
+            .order('shirt_number', { ascending: true, nullsFirst: false })
+            .order('name')
+            .range(from, to) as unknown as PromiseLike<{ data: Record<string, unknown>[] | null; error: unknown }>,
+        );
 
-    if (ids.length === 0) return [];
-
-    const rows = await fetchAllRows<Record<string, unknown>>((from, to) =>
-      supabase
-        .from('players')
-        .select(PLAYER_COLS + ', team:team_id(' + TEAM_COLS + ')')
-        .in('team_id', ids)
-        .order('team_id')
-        .order('shirt_number', { ascending: true, nullsFirst: false })
-        .order('name')
-        .range(from, to) as unknown as PromiseLike<{ data: Record<string, unknown>[] | null; error: unknown }>,
-    );
-
-    return rows.map(row => mapDbPlayerToPlayer(asDbRow(row)));
-
-  },
+        return rows.map(row => mapDbPlayerToPlayer(asDbRow(row)));
+      },
+    ),
 
 
 
@@ -216,15 +224,15 @@ export const worldCupService = {
 
 
 
-  getMatchById: async (id: string): Promise<Match> => {
-
-    const { data, error } = await supabase.from('matches').select(MATCH_SELECT).eq('id', id).single();
-
-    if (error) throw error;
-
-    return mapDbMatchToMatch(asDbRow(data));
-
-  },
+  getMatchById: async (id: string): Promise<Match> =>
+    withFootballApi(
+      () => footballApiClient.getFixtureById(id),
+      async () => {
+        const { data, error } = await supabase.from('matches').select(MATCH_SELECT).eq('id', id).single();
+        if (error) throw error;
+        return mapDbMatchToMatch(asDbRow(data));
+      },
+    ),
 
 
 

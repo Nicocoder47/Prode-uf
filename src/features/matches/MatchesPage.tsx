@@ -29,7 +29,7 @@ export default function MatchesPage() {
 
   const openPredict = (match: Match) => {
     if (!user?.id) {
-      navigate('/invite')
+      navigate('/login')
       return
     }
     setPredictMatch(match)
