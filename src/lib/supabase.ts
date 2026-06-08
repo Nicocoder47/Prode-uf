@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { resolveSupabaseClientConfig } from '../config/supabaseEnv.ts'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const { url: supabaseUrl, anonKey: supabaseAnonKey } = resolveSupabaseClientConfig()
 const missingSupabaseCredentials = !supabaseUrl || !supabaseAnonKey
 
 if (missingSupabaseCredentials) {

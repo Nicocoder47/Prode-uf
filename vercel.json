@@ -4,6 +4,12 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm ci",
+  "env": {
+    "VITE_SUPABASE_URL": "https://irklqwsnehlfcgehvscm.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlya2xxd3NuZWhsZmNnZWh2c2NtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NzIxMzcsImV4cCI6MjA5NjI0ODEzN30.IZdvjieoofr0G9V7WupI782jbKbB-A3l7AJ6JJID3UA",
+    "VITE_USE_FOOTBALL_API": "false",
+    "VITE_PUBLIC_DEMO": "false"
+  },
   "rewrites": [
     { "source": "/((?!assets/).*)", "destination": "/index.html" }
   ],

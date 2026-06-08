@@ -78,6 +78,8 @@
     "audit:cloud:all": "npm run audit:cloud && npm run audit:vercel && npm run audit:supabase-health && npm run audit:worker-health && npm run audit:live-events && npm run audit:player-coverage && npm run audit:team-coverage && npm run audit:production",
     "sync:photos:cloud": "tsx scripts/runPhotoSyncCloud.ts",
     "sync:cloud:all": "tsx scripts/runCloudSync.ts",
+    "db:push:cloud": "tsx scripts/pushCloudMigrations.ts",
+    "setup:github-secrets": "tsx scripts/setupGithubSecrets.ts",
     "cloud:complete": "powershell -ExecutionPolicy Bypass -File scripts/runCloudComplete.ps1",
     "dev:stack": "npm run services:up && npm run api:serve & npm run worker & npm run dev"
   },
@@ -118,6 +120,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "pg": "^8.21.0",
     "tsx": "^4.7.0",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.46.2",
