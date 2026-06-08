@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { KeyRound, Mail, ShieldCheck } from 'lucide-react'
+import { KeyRound, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../lib/auth.tsx'
 import { supabase } from '../../lib/supabase.ts'
 import { normalizeDni, normalizeLegajo, mapSignInError } from '../../utils/registration.ts'
@@ -160,15 +160,6 @@ export default function LoginPage() {
 
       {mode === 'register' ? (
         <div className="mb-4 space-y-2">
-          <div className="flex items-start gap-2.5 rounded-2xl border border-sky-400/30 bg-sky-500/10 px-3.5 py-3">
-            <Mail className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
-            <div className="text-xs leading-relaxed text-white/85">
-              <p className="font-bold text-sky-200">Confirmación por email</p>
-              <p className="mt-1">
-                Te mandamos un link para verificar que el email es tuyo. Así evitamos registros falsos.
-              </p>
-            </div>
-          </div>
           <div className="flex items-start gap-2.5 rounded-2xl border border-wc26-yellow/35 bg-wc26-yellow/10 px-3.5 py-3">
             <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-wc26-yellow" />
             <div className="text-xs leading-relaxed text-white/85">
@@ -273,7 +264,7 @@ export default function LoginPage() {
           {status === 'loading'
             ? 'Procesando…'
             : mode === 'register'
-              ? 'Registrarme y confirmar email'
+              ? 'Registrar'
               : 'Entrar al prode'}
         </button>
 
