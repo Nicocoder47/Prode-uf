@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { KeyRound, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../lib/auth.tsx'
 import { supabase } from '../../lib/supabase.ts'
 import { normalizeDni, normalizeLegajo, mapSignInError } from '../../utils/registration.ts'
@@ -21,8 +20,6 @@ export default function LoginPage() {
   const [message, setMessage] = useState('')
 
   const cleanEmail = email.trim().toLowerCase()
-  const normalizedDniPreview = useMemo(() => (dni.trim() ? normalizeDni(dni) : ''), [dni])
-  const normalizedLegajoPreview = useMemo(() => (legajo.trim() ? normalizeLegajo(legajo) : ''), [legajo])
 
   useEffect(() => {
     let mounted = true
@@ -144,12 +141,12 @@ export default function LoginPage() {
       title="Entrá al Prode"
       subtitle={
         mode === 'register'
-          ? 'Registrate con email real. Confirmás por mail y después entrás con email + DNI.'
-          : 'Ingresá con el email y el DNI con el que te registraste.'
+          ? 'Completá tus datos para jugar el prode.'
+          : 'Email y DNI para entrar.'
       }
       steps={heroSteps}
     >
-      <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/20 p-1">
+      <div className="mb-3 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/20 p-1">
         <button
           type="button"
           onClick={() => switchMode('register')}
@@ -174,25 +171,11 @@ export default function LoginPage() {
         </button>
       </div>
 
-      {mode === 'register' ? (
-        <div className="mb-4 space-y-2">
-          <div className="flex items-start gap-2.5 rounded-2xl border border-wc26-yellow/35 bg-wc26-yellow/10 px-3.5 py-3">
-            <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-wc26-yellow" />
-            <div className="text-xs leading-relaxed text-white/85">
-              <p className="font-bold text-wc26-yellow">Tu DNI es tu contraseña</p>
-              <p className="mt-1">
-                Después de confirmar el email, entrás siempre con email + DNI (solo números, sin puntos).
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      <h2 className="wc26-login-heading">
+      <h2 className="wc26-login-heading mb-3">
         {mode === 'register' ? 'Crear cuenta' : 'Ya tengo cuenta'}
       </h2>
 
-      <form className="space-y-3" onSubmit={handleSubmit}>
+      <form className="space-y-2.5" onSubmit={handleSubmit}>
         {mode === 'register' ? (
           <>
             <AuthField label="Nombre completo" id="full-name" required>
@@ -220,13 +203,6 @@ export default function LoginPage() {
                 className="wc26-login-input font-mono tracking-wider"
                 required
               />
-              {normalizedDniPreview ? (
-                <p className="mt-1 text-[11px] font-semibold text-wc26-yellow">
-                  Contraseña para entrar: {normalizedDniPreview}
-                </p>
-              ) : (
-                <p className="mt-1 text-[11px] text-white/45">Solo números, sin puntos ni espacios.</p>
-              )}
             </AuthField>
 
             <AuthField label="Legajo" id="legajo" required>
@@ -240,11 +216,6 @@ export default function LoginPage() {
                 className="wc26-login-input font-mono tracking-wider"
                 required
               />
-              {normalizedLegajoPreview ? (
-                <p className="mt-1 text-[11px] font-medium text-white/45">
-                  Legajo: <span className="text-wc26-yellow">{normalizedLegajoPreview}</span>
-                </p>
-              ) : null}
             </AuthField>
           </>
         ) : (
@@ -286,15 +257,6 @@ export default function LoginPage() {
 
         <AuthStatusMessage status={status} message={message} />
       </form>
-
-      <div className="mt-5 flex items-start gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-[11px] text-white/50">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
-        <span>
-          {mode === 'register'
-            ? 'Paso 1: registrate. Paso 2: abrí el mail y confirmá. Paso 3: Iniciar sesión con email + DNI.'
-            : '¿No confirmaste el email? Revisá spam. Después entrá con email + DNI.'}
-        </span>
-      </div>
 
       {import.meta.env.DEV && devSignIn ? (
         <button
