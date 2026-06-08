@@ -48,6 +48,7 @@ interface AuthContextValue {
   loading: boolean
   register: (input: AccessRegistrationInput) => Promise<AuthStepResult>
   login: (email: string, dni: string) => Promise<AuthStepResult>
+  finalizeSessionProfile: (session: Session) => Promise<AuthStepResult | null>
   signOut: () => Promise<void>
   devSignIn?: () => void
 }
@@ -165,6 +166,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function finalizeSessionProfile(session: Session): Promise<AuthStepResult | null> {
+    if (!session.user.email) return null
+
+    try {
+      await finalizePendingRegistration(session)
+      return await ensureProfileComplete(session, session.user.email.trim().toLowerCase())
+    } catch (err) {
+      return {
+        status: 'error',
+        message: err instanceof Error ? err.message : 'No pudimos guardar tu perfil.',
+      }
+    }
+  }
+
   async function ensureDevSupabaseSession(): Promise<Session | null> {
     const { data: existing } = await supabase.auth.getSession()
     if (existing.session) return existing.session
@@ -225,22 +240,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initSession()
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession)
       setUser(nextSession?.user ?? null)
       if (!nextSession) {
         setProfile(null)
-        return
-      }
-
-      if (event === 'SIGNED_IN' && nextSession?.user?.email) {
-        try {
-          await finalizePendingRegistration(nextSession)
-          const email = nextSession.user.email.trim().toLowerCase()
-          await ensureProfileComplete(nextSession, email)
-        } catch (err) {
-          console.warn('[auth] sync profile on sign-in:', err)
-        }
       }
     })
 
@@ -408,7 +412,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { status: 'error', message: 'No pudimos iniciar sesión. Intentá de nuevo.' }
     }
 
-    const profileError = await ensureProfileComplete(data.session, email)
+    const profileError = await finalizeSessionProfile(data.session)
     if (profileError) return profileError
 
     setSession(data.session)
@@ -440,6 +444,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       register,
       login,
+      finalizeSessionProfile,
       signOut,
       devSignIn: import.meta.env.DEV && DEV_ADMIN ? devSignIn : undefined,
     }),

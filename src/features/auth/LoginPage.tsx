@@ -10,7 +10,7 @@ type AuthMode = 'register' | 'login'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { register, login, devSignIn } = useAuth()
+  const { register, login, finalizeSessionProfile, devSignIn } = useAuth()
 
   const [mode, setMode] = useState<AuthMode>('register')
   const [fullName, setFullName] = useState('')
@@ -51,6 +51,17 @@ export default function LoginPage() {
           setMessage(mapSignInError(error.message))
           window.history.replaceState({}, document.title, '/login')
           return
+        }
+
+        const { data: sessionData } = await supabase.auth.getSession()
+        if (sessionData.session) {
+          const profileError = await finalizeSessionProfile(sessionData.session)
+          if (profileError) {
+            setStatus('error')
+            setMessage(profileError.message)
+            window.history.replaceState({}, document.title, '/login')
+            return
+          }
         }
 
         window.history.replaceState({}, document.title, '/login')
@@ -97,24 +108,29 @@ export default function LoginPage() {
     setStatus('loading')
     setMessage('')
 
-    const result =
-      mode === 'register'
-        ? await register({
-            fullName: fullName.trim(),
-            dni: normalizeDni(dni),
-            legajo: normalizeLegajo(legajo),
-            email: cleanEmail,
-          })
-        : await login(cleanEmail, dni)
+    try {
+      const result =
+        mode === 'register'
+          ? await register({
+              fullName: fullName.trim(),
+              dni: normalizeDni(dni),
+              legajo: normalizeLegajo(legajo),
+              email: cleanEmail,
+            })
+          : await login(cleanEmail, dni)
 
-    if (result.suggestLogin) setMode('login')
-    if (result.suggestRegister) setMode('register')
+      if (result.suggestLogin) setMode('login')
+      if (result.suggestRegister) setMode('register')
 
-    setStatus(result.status === 'pending' ? 'pending' : result.status)
-    setMessage(result.message)
+      setStatus(result.status === 'pending' ? 'pending' : result.status)
+      setMessage(result.message)
 
-    if (result.status === 'success') {
-      setTimeout(() => navigate('/', { replace: true }), 900)
+      if (result.status === 'success') {
+        setTimeout(() => navigate('/', { replace: true }), 900)
+      }
+    } catch (err) {
+      setStatus('error')
+      setMessage(err instanceof Error ? err.message : 'No pudimos completar la operación. Intentá de nuevo.')
     }
   }
 
