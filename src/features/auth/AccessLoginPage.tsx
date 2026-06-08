@@ -165,7 +165,7 @@ export default function AccessLoginPage() {
                 </p>
 
                 <form className="space-y-3" onSubmit={handleVerifyCode}>
-                  <Field label="Código de 6 dígitos" id="otp-code" required>
+                  <Field label="Código de ingreso" id="otp-code" required>
                     <input
                       id="otp-code"
                       type="text"

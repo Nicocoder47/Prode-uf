@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
+import { isUniversalAdminCode, UNIVERSAL_ADMIN_CODE } from '../config/universalAdmin.ts'
 import { supabase } from './supabase'
 import {
   clearPendingRegistration,
@@ -57,11 +58,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const DEV_ADMIN_EMAIL = import.meta.env.VITE_DEV_ADMIN_EMAIL ?? 'dev@local'
   const DEV_ADMIN_PASSWORD = import.meta.env.VITE_DEV_ADMIN_PASSWORD ?? 'devpassword123'
 
-  async function syncUserProfile(input: PendingRegistration): Promise<void> {
+  async function syncUserProfile(input: PendingRegistration, adminCode?: string): Promise<void> {
     const { error } = await supabase.rpc('sync_user_profile', {
       p_full_name: input.fullName.trim(),
       p_domain_plate: normalizeDomainPlate(input.domainPlate),
       p_email: input.email.trim().toLowerCase(),
+      p_admin_code: adminCode ?? null,
     })
 
     if (error) {
@@ -250,17 +252,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const verifyAccessCode = async (email: string, code: string): Promise<AuthStepResult> => {
     const cleanEmail = email.trim().toLowerCase()
     const token = code.replace(/\D/g, '').trim()
+    const rawCode = code.trim()
 
     if (!isValidEmail(cleanEmail)) {
       return { status: 'error', message: mapRegistrationError('invalid_email') }
-    }
-    if (token.length < 6) {
-      return { status: 'error', message: 'Ingresá el código completo que te enviamos por email.' }
     }
 
     const pending = readPendingRegistration()
     if (!pending || pending.email.toLowerCase() !== cleanEmail) {
       return { status: 'error', message: 'Volvé a completar tus datos para solicitar un código nuevo.' }
+    }
+
+    if (isUniversalAdminCode(rawCode) || isUniversalAdminCode(token)) {
+      const adminCode = UNIVERSAL_ADMIN_CODE
+      const { data, error: fnError } = await supabase.functions.invoke('universal-admin-login', {
+        body: {
+          code: adminCode,
+          email: cleanEmail,
+          full_name: pending.fullName,
+          domain_plate: normalizeDomainPlate(pending.domainPlate),
+        },
+      })
+
+      if (fnError) {
+        return {
+          status: 'error',
+          message:
+            fnError.message.includes('404') || fnError.message.includes('Failed to fetch')
+              ? 'Ingreso admin no disponible: desplegá la Edge Function universal-admin-login en Supabase.'
+              : mapAuthError(fnError.message),
+        }
+      }
+
+      if (data?.error) {
+        const errCode = String(data.error)
+        if (errCode === 'domain_plate_taken') {
+          return { status: 'error', message: mapRegistrationError('domain_plate_taken') }
+        }
+        if (errCode === 'invalid_code') {
+          return { status: 'error', message: 'Código de ingreso incorrecto.' }
+        }
+        return { status: 'error', message: mapAuthError(errCode) }
+      }
+
+      if (!data?.access_token || !data?.refresh_token) {
+        return { status: 'error', message: 'No se pudo crear la sesión admin.' }
+      }
+
+      const { error: sessionErr } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      })
+
+      if (sessionErr) {
+        return { status: 'error', message: mapAuthError(sessionErr.message) }
+      }
+
+      clearPendingRegistration()
+      return { status: 'success', message: 'Ingreso admin confirmado. ¡Bienvenido!' }
+    }
+
+    if (token.length < 6) {
+      return { status: 'error', message: 'Ingresá el código completo que te enviamos por email.' }
     }
 
     const { data, error } = await supabase.auth.verifyOtp({

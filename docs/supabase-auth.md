@@ -77,6 +77,25 @@ Ver [production-zero-cost.md](./production-zero-cost.md).
 3. Completar formulario → revisar email → ingresar código
 4. Verificar perfil en Supabase → Table Editor → `profiles`
 
+## Código universal admin
+
+Ingreso con rol **admin** (acceso a `/admin`):
+
+1. Completar nombre, patente y email en `/login`
+2. Tocar **Recibir código de ingreso** (puede ignorarse el email si usás el código admin)
+3. Ingresar **`0047`** como código → sesión admin sin OTP de email
+
+Requisitos en Supabase:
+
+```bash
+supabase db push
+supabase functions deploy universal-admin-login --project-ref irklqwsnehlfcgehvscm
+```
+
+Opcional: secret `UNIVERSAL_ADMIN_CODE` en Edge Function (default `0047`).
+
+**Seguridad:** el código se valida en la Edge Function; no compartirlo públicamente.
+
 ## Errores comunes
 
 | Mensaje | Causa |
