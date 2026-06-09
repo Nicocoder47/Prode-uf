@@ -24,7 +24,13 @@ const GroupDetailPage = lazy(() => import('./features/groups/GroupDetailPage.tsx
 const PredictionsPage = lazy(() => import('./features/predictions/PredictionsPage.tsx'))
 const ProfilePage = lazy(() => import('./features/auth/ProfilePage.tsx'))
 const LoginPage = lazy(() => import('./features/auth/LoginPage.tsx'))
-const AdminUnifiedPage = lazy(() => import('./features/admin/AdminUnifiedPage.tsx'))
+const AdminHashRedirect = lazy(() => import('./features/admin/AdminHashRedirect.tsx'))
+const AdminDashboardPage = lazy(() => import('./features/admin/AdminDashboardPage.tsx'))
+const AdminUsersPage = lazy(() => import('./features/admin/AdminUsersPage.tsx'))
+const AdminActivityPage = lazy(() => import('./features/admin/AdminActivityPage.tsx'))
+const AdminNotificationsPage = lazy(() => import('./features/admin/AdminNotificationsPage.tsx'))
+const AdminSystemOverviewPage = lazy(() => import('./features/admin/AdminSystemOverviewPage.tsx'))
+const AdminCardsPage = lazy(() => import('./features/admin/AdminCardsPage.tsx'))
 const NotificationsPage = lazy(() => import('./features/notifications/NotificationsPage.tsx'))
 
 function PageLoader() {
@@ -49,11 +55,13 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="admin" element={<AdminRoute />}>
             <Route element={<AdminShell />}>
-              <Route index element={<AdminUnifiedPage />} />
-              <Route path="users" element={<Navigate to="/admin#users" replace />} />
-              <Route path="activity" element={<Navigate to="/admin#activity" replace />} />
-              <Route path="notifications" element={<Navigate to="/admin#notifications" replace />} />
-              <Route path="cards" element={<Navigate to="/admin#cards" replace />} />
+              <Route index element={<AdminHashRedirect />} />
+              <Route path="dashboard" element={<AdminDashboardPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="activity" element={<AdminActivityPage />} />
+              <Route path="notifications" element={<AdminNotificationsPage />} />
+              <Route path="system" element={<AdminSystemOverviewPage />} />
+              <Route path="cards" element={<AdminCardsPage />} />
             </Route>
           </Route>
 

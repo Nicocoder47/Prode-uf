@@ -62,7 +62,7 @@ export default function LeaderboardPage() {
       )}
 
       {!isLoading && users.length > 0 && (
-        <FriendRanking users={users} currentUserId={user?.id ?? ''} maxShow={10} title="Top 10" />
+        <FriendRanking users={users} currentUserId={user?.id ?? ''} maxShow={5} title="Top 5" />
       )}
     </div>
   )

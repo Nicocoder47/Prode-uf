@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
-import { fetchAdminUsers } from '../../services/admin/adminService.ts'
+import { useAdminUsers, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
 import type { AdminUserRow, ReviewStatus } from '../../types/admin.ts'
 import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL, reviewRowClass } from '../../utils/reviewStatus.ts'
 import { AdminUserDetailDrawer } from './AdminUserDetailDrawer.tsx'
@@ -23,9 +23,8 @@ function ReviewBadge({ status }: { status?: ReviewStatus }) {
 }
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<AdminUserRow[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data: users = [], isLoading, error, refetch } = useAdminUsers()
+  const { invalidateUsers } = useInvalidateAdmin()
   const [detailUser, setDetailUser] = useState<AdminUserRow | null>(null)
 
   const [search, setSearch] = useState('')
@@ -33,18 +32,6 @@ export default function AdminUsersPage() {
   const [accountFilter, setAccountFilter] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
   const [predFilter, setPredFilter] = useState('')
-
-  const reload = useCallback(() => {
-    setLoading(true)
-    fetchAdminUsers()
-      .then(setUsers)
-      .catch(err => setError(err instanceof Error ? err.message : 'Error'))
-      .finally(() => setLoading(false))
-  }, [])
-
-  useEffect(() => {
-    reload()
-  }, [reload])
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -66,11 +53,21 @@ export default function AdminUsersPage() {
 
   const reviewCount = users.filter(u => u.review_status === 'review_required').length
 
+  function handleChanged() {
+    invalidateUsers()
+    refetch()
+  }
+
   return (
     <div className="space-y-6">
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Identidad</p>
+        <h2 className="text-xl font-extrabold text-white md:text-2xl">Usuarios</h2>
+      </div>
+
       {error && (
         <PremiumCard variant="dark">
-          <p className="text-red-300">{error}</p>
+          <p className="text-red-300">{error instanceof Error ? error.message : 'Error'}</p>
         </PremiumCard>
       )}
 
@@ -115,7 +112,7 @@ export default function AdminUsersPage() {
       </PremiumCard>
 
       <PremiumCard title="Usuarios" description="Revisión automática por DNI vs padrón Excel">
-        {loading ? (
+        {isLoading ? (
           <p className="text-white/60">Cargando…</p>
         ) : (
           <div className="overflow-x-auto">
@@ -176,7 +173,7 @@ export default function AdminUsersPage() {
         <AdminUserDetailDrawer
           user={detailUser}
           onClose={() => setDetailUser(null)}
-          onChanged={reload}
+          onChanged={handleChanged}
         />
       )}
     </div>

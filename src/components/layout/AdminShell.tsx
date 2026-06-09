@@ -1,36 +1,33 @@
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet } from 'react-router-dom'
 import {
   Activity,
   ArrowLeft,
   Bell,
   CreditCard,
   LayoutDashboard,
+  Server,
   ShieldCheck,
   Users,
 } from 'lucide-react'
 import { useAuth } from '../../lib/auth.tsx'
 import { signOut } from '../../lib/authActions.ts'
+import { AdminMigrationBanner } from '../../features/admin/AdminMigrationBanner.tsx'
 
 const nav = [
-  { hash: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { hash: 'users', label: 'Usuarios', icon: Users },
-  { hash: 'activity', label: 'Actividad', icon: Activity },
-  { hash: 'notifications', label: 'Notificaciones', icon: Bell },
-  { hash: 'cards', label: 'Cards', icon: CreditCard },
-]
+  { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/admin/users', label: 'Usuarios', icon: Users },
+  { to: '/admin/activity', label: 'Actividad', icon: Activity },
+  { to: '/admin/notifications', label: 'Notificaciones', icon: Bell },
+  { to: '/admin/system', label: 'Sistema', icon: Server },
+  { to: '/admin/cards', label: 'Cards', icon: CreditCard },
+] as const
+
+function navClassName(isActive: boolean, base: string) {
+  return isActive ? `${base} is-active` : base
+}
 
 export function AdminShell() {
   const { profile } = useAuth()
-  const location = useLocation()
-
-  function goSection(hash: string) {
-    if (location.pathname === '/admin') {
-      document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      window.history.replaceState(null, '', `/admin#${hash}`)
-    } else {
-      window.location.href = `/admin#${hash}`
-    }
-  }
 
   return (
     <div className="admin-shell min-h-screen bg-[#030712] text-white">
@@ -73,30 +70,34 @@ export function AdminShell() {
             Secciones
           </p>
           <nav className="space-y-1">
-            {nav.map(({ hash, label, icon: Icon }) => (
-              <button
-                key={hash}
-                type="button"
-                onClick={() => goSection(hash)}
-                className="admin-shell-nav-btn"
+            {nav.map(({ to, label, icon: Icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) => navClassName(isActive, 'admin-shell-nav-btn')}
               >
                 <Icon className="h-4 w-4 text-amber-300/80" />
                 {label}
-              </button>
+              </NavLink>
             ))}
           </nav>
         </aside>
 
         <nav className="flex gap-2 overflow-x-auto pb-1 md:hidden">
-          {nav.map(({ hash, label, icon: Icon }) => (
-            <button key={hash} type="button" onClick={() => goSection(hash)} className="admin-shell-chip">
+          {nav.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => navClassName(isActive, 'admin-shell-chip')}
+            >
               <Icon className="h-3.5 w-3.5" />
               {label}
-            </button>
+            </NavLink>
           ))}
         </nav>
 
-        <main className="min-w-0">
+        <main className="min-w-0 space-y-4 md:col-start-2">
+          <AdminMigrationBanner />
           <Outlet />
         </main>
       </div>

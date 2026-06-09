@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
-import { fetchAdminActivityLogs } from '../../services/admin/adminService.ts'
+import { useAdminActivityLogs, type AdminActivityFilters } from '../../hooks/useAdminQueries.ts'
 import type { ActivityLogType, AdminActivityRow } from '../../types/admin.ts'
 
 const ACTIVITY_TYPES: { value: string; label: string }[] = [
@@ -29,32 +29,31 @@ function formatDate(value: string) {
 }
 
 export default function AdminActivityPage() {
-  const [logs, setLogs] = useState<AdminActivityRow[]>([])
-  const [loading, setLoading] = useState(true)
   const [type, setType] = useState('')
   const [legajo, setLegajo] = useState('')
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
+  const [appliedFilters, setAppliedFilters] = useState<AdminActivityFilters>({ limit: 200 })
 
-  const reload = useCallback(() => {
-    setLoading(true)
-    fetchAdminActivityLogs({
+  const { data: logs = [], isLoading } = useAdminActivityLogs(appliedFilters)
+
+  function applyFilters() {
+    setAppliedFilters({
       type: type || undefined,
       legajo: legajo || undefined,
       from: from ? new Date(from).toISOString() : undefined,
       to: to ? new Date(to).toISOString() : undefined,
       limit: 200,
     })
-      .then(setLogs)
-      .finally(() => setLoading(false))
-  }, [type, legajo, from, to])
-
-  useEffect(() => {
-    reload()
-  }, [reload])
+  }
 
   return (
     <div className="space-y-6">
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Auditoría</p>
+        <h2 className="text-xl font-extrabold text-white md:text-2xl">Actividad</h2>
+      </div>
+
       <PremiumCard title="Filtros">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <select
@@ -84,12 +83,12 @@ export default function AdminActivityPage() {
             value={to}
             onChange={e => setTo(e.target.value)}
           />
-          <PremiumButton size="sm" onClick={reload}>Filtrar</PremiumButton>
+          <PremiumButton size="sm" onClick={applyFilters}>Filtrar</PremiumButton>
         </div>
       </PremiumCard>
 
       <PremiumCard title="Movimientos" description={`${logs.length} registros`}>
-        {loading ? (
+        {isLoading ? (
           <p className="text-white/60">Cargando…</p>
         ) : (
           <div className="overflow-x-auto">
@@ -105,7 +104,7 @@ export default function AdminActivityPage() {
                 </tr>
               </thead>
               <tbody>
-                {logs.map(log => (
+                {logs.map((log: AdminActivityRow) => (
                   <tr key={log.id} className="border-b border-white/5 align-top">
                     <td className="py-2 pr-3 text-xs text-white/50">{formatDate(log.created_at)}</td>
                     <td className="py-2 pr-3 text-white">{log.user_name ?? log.full_name ?? '—'}</td>

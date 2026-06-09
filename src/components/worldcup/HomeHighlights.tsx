@@ -62,7 +62,7 @@ export function HomeHighlights() {
     .sort((a, b) => b.goals - a.goals)
     .slice(0, 6)
 
-  const topRank = leaderboard.slice(0, 6)
+  const topRank = leaderboard.slice(0, 5)
 
   const hasData =
     topTeams.length > 0 || topPlayers.length > 0 || topScorers.length > 0 || topRank.length > 0

@@ -11,7 +11,7 @@ import { MobileTopHeader } from './MobileTopHeader'
 const navItems = [
   { to: '/', label: 'Inicio', icon: Home, tone: 'home' },
   { to: '/teams', label: 'Equipos', icon: Shield, tone: 'teams' },
-  { to: '/matches', label: 'Fixture', icon: CalendarDays, tone: 'fixture', featured: true },
+  { to: '/matches', label: 'Jugar', icon: CalendarDays, tone: 'fixture', featured: true },
   { to: '/predictions', label: 'Predicciones', icon: Target, tone: 'predictions' },
   { to: '/profile', label: 'Perfil', icon: User, tone: 'profile' },
   { to: '/admin', label: 'Admin', icon: ShieldCheck, tone: 'admin' },
@@ -69,16 +69,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 `inline-flex flex-1 items-center justify-center gap-2 rounded-2xl px-2 py-2.5 text-xs font-extrabold transition ${
                   featured
                     ? isActive
-                      ? 'wc26-nav-fixture-active scale-[1.03] text-[#1a1200] shadow-lg'
-                      : 'bg-gradient-to-b from-[#F5C451] to-[#FFD700] text-[#1a1200] shadow-md hover:brightness-105'
+                      ? 'wc26-nav-fixture-active scale-[1.03] shadow-lg'
+                      : 'bg-gradient-to-b from-[#F5C451] to-[#e8b84a] text-[#0c1220] shadow-md hover:brightness-105'
                     : isActive
-                      ? 'bg-gradient-to-b from-wc26-green600 to-wc26-green800 text-white shadow-lg'
+                      ? 'bg-gradient-to-b from-[#123B7A] to-[#08142A] text-white shadow-lg ring-1 ring-[#F5C451]/25'
                       : 'text-white/60 hover:bg-white/10 hover:text-white'
                 }`
               }
             >
               <Icon className="h-4 w-4" />
-              {label}
+              {featured ? 'Jugar' : label}
             </NavLink>
           ))}
         </nav>
@@ -86,8 +86,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main
           className={`flex-1 md:px-0 md:pb-6 ${
             isHome
-              ? 'px-0 pb-[calc(7rem+env(safe-area-inset-bottom))]'
-              : 'px-2 pb-[calc(6.75rem+env(safe-area-inset-bottom))]'
+              ? 'px-0 pb-[calc(8rem+env(safe-area-inset-bottom))]'
+              : 'px-2 pb-[calc(7.75rem+env(safe-area-inset-bottom))]'
           }`}
         >
           {children}

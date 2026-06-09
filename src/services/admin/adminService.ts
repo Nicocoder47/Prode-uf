@@ -246,6 +246,15 @@ export async function fetchActiveAdminCards(): Promise<AdminCard[]> {
   }, fetchAdminCardsFallback)
 }
 
+/** Todas las cards (activas e inactivas) para gestión admin. */
+export async function fetchAdminCardsManage(): Promise<AdminCard[]> {
+  const { data, error } = await supabase.from('admin_cards').select('*').order('order_index')
+  if (error) {
+    return fetchActiveAdminCards()
+  }
+  return unwrap<AdminCard[]>(data ?? [])
+}
+
 export async function logUserLogin() {
   const { error } = await supabase.rpc('log_user_login')
   if (error && !isRpcMissing(error)) throw error

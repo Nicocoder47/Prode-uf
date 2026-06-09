@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
-import { adminCreateNotification, fetchAdminNotifications, fetchAdminUsers } from '../../services/admin/adminService.ts'
-import type { AdminNotificationRow, AdminUserRow } from '../../types/admin.ts'
+import { useAppToast } from '../../components/ui/ToastProvider.tsx'
+import { adminCreateNotification } from '../../services/admin/adminService.ts'
+import { useAdminNotifications, useAdminUsers, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
 
 function formatDate(value: string | null) {
   if (!value) return '—'
@@ -10,9 +11,11 @@ function formatDate(value: string | null) {
 }
 
 export default function AdminNotificationsPage() {
-  const [items, setItems] = useState<AdminNotificationRow[]>([])
-  const [users, setUsers] = useState<AdminUserRow[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: items = [], isLoading, refetch } = useAdminNotifications()
+  const { data: allUsers = [] } = useAdminUsers()
+  const { invalidateNotifications } = useInvalidateAdmin()
+  const { showToast } = useAppToast()
+
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -23,20 +26,7 @@ export default function AdminNotificationsPage() {
   const [targetRole, setTargetRole] = useState('member')
   const [expiresAt, setExpiresAt] = useState('')
 
-  const reload = useCallback(async () => {
-    setLoading(true)
-    try {
-      const [notifs, userRows] = await Promise.all([fetchAdminNotifications(), fetchAdminUsers()])
-      setItems(notifs)
-      setUsers(userRows.filter(u => !u.deleted_at))
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    reload()
-  }, [reload])
+  const users = useMemo(() => allUsers.filter(u => !u.deleted_at), [allUsers])
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
@@ -54,7 +44,9 @@ export default function AdminNotificationsPage() {
       setTitle('')
       setMessage('')
       setExpiresAt('')
-      await reload()
+      invalidateNotifications()
+      await refetch()
+      showToast('Notificación creada')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error')
     } finally {
@@ -64,6 +56,11 @@ export default function AdminNotificationsPage() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Comunicación</p>
+        <h2 className="text-xl font-extrabold text-white md:text-2xl">Notificaciones</h2>
+      </div>
+
       <PremiumCard title="Nueva notificación">
         <form className="space-y-3" onSubmit={handleCreate}>
           <input
@@ -127,7 +124,7 @@ export default function AdminNotificationsPage() {
       </PremiumCard>
 
       <PremiumCard title="Notificaciones" description="Activas e históricas">
-        {loading ? (
+        {isLoading ? (
           <p className="text-white/60">Cargando…</p>
         ) : (
           <div className="overflow-x-auto">

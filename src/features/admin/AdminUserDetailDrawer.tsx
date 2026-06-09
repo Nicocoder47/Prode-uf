@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
+import { useAppToast } from '../../components/ui/ToastProvider.tsx'
 import {
   adminApproveUser,
   adminCreateNotification,
@@ -7,9 +8,9 @@ import {
   adminSetUserActive,
   adminSetUserRole,
   adminSoftDeleteUser,
-  fetchAdminUserDetail,
 } from '../../services/admin/adminService.ts'
-import type { AdminUserDetail, AdminUserRow } from '../../types/admin.ts'
+import { useAdminUserDetail, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
+import type { AdminUserRow } from '../../types/admin.ts'
 import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL } from '../../utils/reviewStatus.ts'
 
 type Tab = 'predictions' | 'activity' | 'notifications'
@@ -32,34 +33,29 @@ interface Props {
 }
 
 export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
-  const [detail, setDetail] = useState<AdminUserDetail | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data: detail, isLoading, error: queryError, refetch } = useAdminUserDetail(user.id)
+  const { invalidateUserDetail } = useInvalidateAdmin()
+  const { showToast } = useAppToast()
+
   const [tab, setTab] = useState<Tab>('predictions')
   const [actionReason, setActionReason] = useState('')
   const [notifyTitle, setNotifyTitle] = useState('')
   const [notifyMessage, setNotifyMessage] = useState('')
   const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    setLoading(true)
-    fetchAdminUserDetail(user.id)
-      .then(setDetail)
-      .catch(err => setError(err instanceof Error ? err.message : 'Error'))
-      .finally(() => setLoading(false))
-  }, [user.id])
-
-  async function runAction(action: () => Promise<void>) {
+  async function runAction(action: () => Promise<void>, successMessage: string) {
     setBusy(true)
     setError(null)
     try {
       await action()
       onChanged()
-      const refreshed = await fetchAdminUserDetail(user.id)
-      setDetail(refreshed)
+      invalidateUserDetail(user.id)
+      await refetch()
       setActionReason('')
       setNotifyTitle('')
       setNotifyMessage('')
+      showToast(successMessage)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error')
     } finally {
@@ -69,6 +65,7 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
 
   const u = detail?.user ?? user
   const padron = detail?.padron ?? null
+  const displayError = error ?? (queryError instanceof Error ? queryError.message : null)
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60" onClick={onClose}>
@@ -86,8 +83,8 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          {error && <p className="rounded-xl bg-red-500/20 px-3 py-2 text-sm text-red-200">{error}</p>}
-          {loading && <p className="text-white/60">Cargando detalle…</p>}
+          {displayError && <p className="rounded-xl bg-red-500/20 px-3 py-2 text-sm text-red-200">{displayError}</p>}
+          {isLoading && <p className="text-white/60">Cargando detalle…</p>}
 
           <div className="flex flex-wrap items-center gap-2">
             <span className={REVIEW_STATUS_CLASS[u.review_status ?? 'pending']}>
@@ -239,21 +236,21 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
               onChange={e => setActionReason(e.target.value)}
             />
             <div className="flex flex-wrap gap-2">
-              <PremiumButton size="sm" disabled={busy} onClick={() => runAction(() => adminApproveUser(u.id, actionReason || 'Aprobado manualmente'))}>
+              <PremiumButton size="sm" disabled={busy} onClick={() => runAction(() => adminApproveUser(u.id, actionReason || 'Aprobado manualmente'), 'Usuario aprobado')}>
                 Aprobar
               </PremiumButton>
-              <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => runAction(() => adminRejectUser(u.id, actionReason || 'Rechazado por admin'))}>
+              <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => runAction(() => adminRejectUser(u.id, actionReason || 'Rechazado por admin'), 'Usuario rechazado')}>
                 Rechazar
               </PremiumButton>
               {!u.deleted_at && (
-                <PremiumButton size="sm" disabled={busy} onClick={() => runAction(() => adminSetUserActive(u.id, !u.is_active))}>
+                <PremiumButton size="sm" disabled={busy} onClick={() => runAction(() => adminSetUserActive(u.id, !u.is_active), u.is_active ? 'Usuario bloqueado' : 'Usuario desbloqueado')}>
                   {u.is_active ? 'Bloquear' : 'Desbloquear'}
                 </PremiumButton>
               )}
-              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminSoftDeleteUser(u.id, actionReason || 'Eliminado por admin'))}>
+              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminSoftDeleteUser(u.id, actionReason || 'Eliminado por admin'), 'Usuario eliminado')}>
                 Eliminar lógico
               </PremiumButton>
-              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminSetUserRole(u.id, u.role === 'admin' ? 'member' : 'admin'))}>
+              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminSetUserRole(u.id, u.role === 'admin' ? 'member' : 'admin'), u.role === 'admin' ? 'Rol member asignado' : 'Promovido a admin')}>
                 {u.role === 'admin' ? 'Quitar admin' : 'Promover admin'}
               </PremiumButton>
             </div>
@@ -263,7 +260,7 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
             <p className="text-xs font-bold uppercase text-white/50">Notificación personal</p>
             <input className="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white" placeholder="Título" value={notifyTitle} onChange={e => setNotifyTitle(e.target.value)} />
             <textarea rows={2} className="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white" placeholder="Mensaje" value={notifyMessage} onChange={e => setNotifyMessage(e.target.value)} />
-            <PremiumButton size="sm" disabled={busy || !notifyTitle.trim() || !notifyMessage.trim()} onClick={() => runAction(() => adminCreateNotification({ title: notifyTitle, message: notifyMessage, targetType: 'user', targetUserId: u.id }))}>
+            <PremiumButton size="sm" disabled={busy || !notifyTitle.trim() || !notifyMessage.trim()} onClick={() => runAction(() => adminCreateNotification({ title: notifyTitle, message: notifyMessage, targetType: 'user', targetUserId: u.id }), 'Notificación enviada')}>
               Enviar
             </PremiumButton>
           </div>

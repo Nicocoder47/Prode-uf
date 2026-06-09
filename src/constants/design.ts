@@ -115,11 +115,19 @@ export const MOTION = {
   hover: { whileHover: { scale: 1.02 }, transition: { duration: 0.18 } },
 } as const;
 
+/** Bottom nav AAA — tokens CSS en :root --pm-nav-* */
+export const BOTTOM_NAV = {
+  deep: '#08142A',
+  fifa: '#123B7A',
+  gold: '#F5C451',
+  white: 'rgba(255, 255, 255, 0.94)',
+  positive: '#34C759',
+} as const;
+
 /** Assets estáticos en /public */
 export const WC26_ASSETS = {
   copita: '/copita.png',
   fondoVertical: '/fondo%20vertical.png',
-  /** Reservado para bottom nav futuro */
   fondoNav: '/fondo%20nav.png',
 } as const;
 

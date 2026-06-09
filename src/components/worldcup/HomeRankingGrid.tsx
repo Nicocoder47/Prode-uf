@@ -28,7 +28,7 @@ export function HomeRankingGrid({
   entries,
   currentUserId,
   isLoading = false,
-  maxRows = 10,
+  maxRows = 5,
 }: HomeRankingGridProps) {
   const rows = entries.slice(0, maxRows)
   const top3 = rows.filter(r => (r.rank ?? 0) <= 3).slice(0, 3)

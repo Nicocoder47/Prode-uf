@@ -1,28 +1,56 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
-import { adminUpdateCard, fetchActiveAdminCards } from '../../services/admin/adminService.ts'
+import { useAppToast } from '../../components/ui/ToastProvider.tsx'
+import { adminUpdateCard } from '../../services/admin/adminService.ts'
+import { useAdminCards, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
 import type { AdminCard } from '../../types/admin.ts'
 
 const STATUS_OPTIONS = ['neutral', 'success', 'warning', 'danger'] as const
 
+const statusBorder: Record<AdminCard['status'], string> = {
+  neutral: 'border-white/15',
+  success: 'border-emerald-400/30',
+  warning: 'border-amber-400/30',
+  danger: 'border-red-400/30',
+}
+
 export default function AdminCardsPage() {
-  const [cards, setCards] = useState<AdminCard[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: cards = [], isLoading, refetch } = useAdminCards()
+  const { invalidateCards, invalidateDashboard } = useInvalidateAdmin()
+  const { showToast } = useAppToast()
+
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState<AdminCard | null>(null)
 
-  const reload = useCallback(() => {
-    setLoading(true)
-    fetchActiveAdminCards()
-      .then(setCards)
-      .finally(() => setLoading(false))
-  }, [])
+  const activeCards = cards.filter(c => c.is_active)
 
-  useEffect(() => {
-    reload()
-  }, [reload])
+  async function toggleActive(card: AdminCard) {
+    setBusy(true)
+    setError(null)
+    try {
+      await adminUpdateCard({
+        key: card.key,
+        title: card.title,
+        value: card.value ?? undefined,
+        subtitle: card.subtitle ?? undefined,
+        description: card.description ?? undefined,
+        icon: card.icon ?? undefined,
+        status: card.status,
+        orderIndex: card.order_index,
+        isActive: !card.is_active,
+      })
+      invalidateCards()
+      invalidateDashboard()
+      await refetch()
+      showToast(card.is_active ? 'Card desactivada' : 'Card activada')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -42,7 +70,10 @@ export default function AdminCardsPage() {
         isActive: editing.is_active,
       })
       setEditing(null)
-      reload()
+      invalidateCards()
+      invalidateDashboard()
+      await refetch()
+      showToast('Card actualizada')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error')
     } finally {
@@ -52,28 +83,66 @@ export default function AdminCardsPage() {
 
   return (
     <div className="space-y-6">
-      <PremiumCard title="Cards de la app" description="Visibles en home/dashboard">
-        {loading ? (
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Contenido</p>
+        <h2 className="text-xl font-extrabold text-white md:text-2xl">Cards</h2>
+      </div>
+
+      <PremiumCard title="Vista previa en app" description="Así se ven las cards activas en el home">
+        {activeCards.length ? (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {activeCards.map(card => (
+              <div
+                key={card.id}
+                className={`rounded-2xl border bg-white/5 p-3 ${statusBorder[card.status] ?? statusBorder.neutral}`}
+              >
+                <p className="text-[10px] font-bold uppercase tracking-wider text-white/50">{card.title}</p>
+                <p className="mt-1 text-lg font-extrabold text-white">{card.value ?? '—'}</p>
+                {card.subtitle && <p className="text-[11px] text-white/55">{card.subtitle}</p>}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-white/50">No hay cards activas</p>
+        )}
+      </PremiumCard>
+
+      <PremiumCard title="Gestión de cards" description="Activar/desactivar y editar contenido">
+        {isLoading ? (
           <p className="text-white/60">Cargando…</p>
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
             {cards.map(card => (
-              <div key={card.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div
+                key={card.id}
+                className={`rounded-2xl border p-4 ${card.is_active ? 'border-white/10 bg-white/5' : 'border-white/5 bg-black/20 opacity-60'}`}
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-white/50">{card.key}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-white/50">{card.key}</p>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${card.is_active ? 'bg-emerald-400/15 text-emerald-200' : 'bg-white/10 text-white/40'}`}>
+                        {card.is_active ? 'Activa' : 'Inactiva'}
+                      </span>
+                    </div>
                     <p className="mt-1 text-xl font-extrabold text-white">{card.value ?? '—'}</p>
                     <p className="font-semibold text-white/90">{card.title}</p>
                     {card.subtitle && <p className="text-xs text-white/50">{card.subtitle}</p>}
                   </div>
-                  <PremiumButton size="sm" variant="ghost" onClick={() => setEditing({ ...card })}>
-                    Editar
-                  </PremiumButton>
+                  <div className="flex flex-col gap-1">
+                    <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => toggleActive(card)}>
+                      {card.is_active ? 'Desactivar' : 'Activar'}
+                    </PremiumButton>
+                    <PremiumButton size="sm" variant="ghost" onClick={() => setEditing({ ...card })}>
+                      Editar
+                    </PremiumButton>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
+        {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
       </PremiumCard>
 
       {editing && (

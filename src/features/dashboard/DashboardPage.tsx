@@ -185,7 +185,6 @@ export default function DashboardPage() {
           entries={dbLeaderboard}
           currentUserId={currentUserId}
           isLoading={leaderboardLoading}
-          maxRows={15}
         />
 
         {currentUserId && (

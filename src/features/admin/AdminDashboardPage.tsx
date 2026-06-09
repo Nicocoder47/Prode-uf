@@ -1,7 +1,5 @@
-import { useEffect, useState } from 'react'
 import { PremiumCard, StatsPill } from '../../components/ui/PremiumCard.tsx'
-import { fetchAdminDashboard } from '../../services/admin/adminService.ts'
-import type { AdminDashboard } from '../../types/admin.ts'
+import { useAdminDashboard } from '../../hooks/useAdminQueries.ts'
 
 function formatDate(value: string | null | undefined) {
   if (!value) return '—'
@@ -9,25 +7,16 @@ function formatDate(value: string | null | undefined) {
 }
 
 export default function AdminDashboardPage() {
-  const [data, setData] = useState<AdminDashboard | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { data, error, isLoading } = useAdminDashboard()
 
-  useEffect(() => {
-    fetchAdminDashboard()
-      .then(setData)
-      .catch(err => setError(err instanceof Error ? err.message : 'Error al cargar dashboard'))
-      .finally(() => setLoading(false))
-  }, [])
-
-  if (loading) {
+  if (isLoading) {
     return <p className="text-white/70">Cargando panel…</p>
   }
 
   if (error || !data) {
     return (
       <PremiumCard variant="dark" title="Error">
-        <p className="text-red-300">{error ?? 'Sin datos'}</p>
+        <p className="text-red-300">{error instanceof Error ? error.message : 'Sin datos'}</p>
       </PremiumCard>
     )
   }
@@ -55,6 +44,11 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Resumen</p>
+        <h2 className="text-xl font-extrabold text-white md:text-2xl">Dashboard</h2>
+      </div>
+
       <PremiumCard title="Usuarios" description="KPIs de cuentas y revisión">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
           {userKpis.map(kpi => (
