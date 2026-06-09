@@ -1,10 +1,8 @@
 import type { Match, Prediction, Team } from '../types/worldcup'
 import { normalizeGroupId, WC26_GROUP_NAMES } from '../constants/groups'
 
-/** Máximo por partido con UI actual (solo marcador): exacto 5 o resultado 3 */
+/** Máximo por partido: marcador exacto 5 o resultado 3 */
 export const MAX_POINTS_PER_MATCH = 5
-/** Techo histórico del motor DB (incluye goleador/MVP si se reactivan) */
-export const MAX_POINTS_PER_MATCH_ENGINE = 9
 
 export type MatchPredictUiStatus = 'available' | 'predicted' | 'closed' | 'scored' | 'missed'
 

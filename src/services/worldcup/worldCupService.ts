@@ -454,17 +454,69 @@ export const worldCupService = {
 
   getLeaderboard: async (): Promise<LeaderboardEntry[]> => {
 
-    const { data, error } = await supabase
+    const { data: rows, error } = await supabase
 
       .from('leaderboard')
 
-      .select('user_id,rank,points,wins,draws,losses, profiles(full_name, legajo, avatar_url)')
+      .select('user_id,rank,points,wins,draws,losses')
+
+      .eq('period', 'global')
 
       .order('points', { ascending: false });
 
     if (error) throw error;
 
-    return (data ?? []).map(row => mapDbLeaderboardEntry(asDbRow(row)));
+    const leaderboardRows = rows ?? [];
+
+    if (leaderboardRows.length === 0) return [];
+
+    const userIds = leaderboardRows.map(row => row.user_id as string);
+
+    const { data: profiles, error: profilesError } = await supabase
+
+      .from('public_leaderboard_profiles')
+
+      .select('id, display_name, legajo, avatar_url')
+
+      .in('id', userIds);
+
+    if (profilesError) throw profilesError;
+
+    const profileById = new Map(
+
+      (profiles ?? []).map(profile => [
+
+        profile.id as string,
+
+        {
+
+          full_name: profile.display_name as string | null,
+
+          legajo: profile.legajo as string | null,
+
+          avatar_url: profile.avatar_url as string | null,
+
+        },
+
+      ]),
+
+    );
+
+    return leaderboardRows.map(row =>
+
+      mapDbLeaderboardEntry(
+
+        asDbRow({
+
+          ...row,
+
+          profiles: profileById.get(row.user_id as string) ?? null,
+
+        }),
+
+      ),
+
+    );
 
   },
 

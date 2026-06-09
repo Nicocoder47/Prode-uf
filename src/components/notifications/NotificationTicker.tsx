@@ -21,7 +21,7 @@ const FALLBACK_ITEMS: TickerItem[] = [
   {
     id: 'tip',
     title: 'Tip',
-    message: 'Sumá puntos acertando resultados, goleador y MVP',
+    message: 'Sumá puntos acertando el marcador exacto (5) o el resultado (3)',
     isRead: true,
   },
 ]

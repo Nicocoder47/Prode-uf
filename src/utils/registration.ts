@@ -77,6 +77,8 @@ export function mapRegistrationError(code: string): string {
   switch (code) {
     case 'dni_taken':
       return 'Ese DNI ya está registrado por otro usuario.'
+    case 'registration_conflict':
+      return 'El DNI o legajo ya está registrado. Revisá tus datos o usá Iniciar sesión.'
     case 'legajo_taken':
       return 'Ese legajo ya está registrado por otro usuario.'
     case 'dni_required':

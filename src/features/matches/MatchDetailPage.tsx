@@ -231,11 +231,8 @@ export default function MatchDetailPage() {
         onSave={async (payload) => {
           await savePrediction.mutateAsync({
             matchId: match.id,
-            result: payload.result,
             homeScore: payload.exactScore.home,
             awayScore: payload.exactScore.away,
-            firstScorerId: payload.firstScorer,
-            mvpId: payload.mvp,
           })
           setShowPredictionModal(false)
         }}

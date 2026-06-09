@@ -70,8 +70,7 @@ export type PredictionAuditReport = {
     source: string
     exactScore: number
     correctResult: number
-    firstScorerBonus: number
-    mvpBonus: number
+    maxPerMatch: number
     exclusiveExactOrResult: boolean
   }
 }
@@ -167,13 +166,10 @@ export async function getPredictionAuditReport(): Promise<PredictionAuditReport>
     finishedWithoutScoring,
     inconsistent,
     scoringRules: {
-      source: 'score_match_predictions (Supabase migration v5)',
+      source: 'score_match_predictions (marcador only)',
       exactScore: 5,
       correctResult: 3,
-      firstScorerBonus: 2,
-      mvpBonus: 2,
-      maxPerMatchUi: 5,
-      maxPerMatchEngine: 9,
+      maxPerMatch: 5,
       exclusiveExactOrResult: true,
     },
   }

@@ -35,10 +35,7 @@ type AuditReport = {
     source: string
     exactScore: number
     correctResult: number
-    firstScorerBonus: number
-    mvpBonus: number
-    maxPerMatchUi?: number
-    maxPerMatchEngine?: number
+    maxPerMatch: number
     exclusiveExactOrResult: boolean
   }
 }
@@ -112,7 +109,7 @@ export default function PredictionsAuditPanel() {
         <div>
           <h2 className="text-lg font-extrabold text-white">Auditoría de Predicciones</h2>
           <p className="text-xs text-white/55">
-            Motor: {report.scoringRules.source} · UI máx {report.scoringRules.maxPerMatchUi ?? 5} pts/partido
+            Motor: {report.scoringRules.source} · máx {report.scoringRules.maxPerMatch} pts/partido
             (exacto {report.scoringRules.exactScore} · resultado {report.scoringRules.correctResult})
           </p>
         </div>

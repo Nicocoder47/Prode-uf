@@ -18,6 +18,9 @@ dist-ssr
 
 reports/master-admin-credentials.json
 data/*.xlsx
+public/datos usuarios.xlsx
+reports/*b64chunks*.json
+reports/migration150-chunks.json
 reports/migration*.b64*
 reports/dashboard-expr-*
 reports/cdp-chunks/

@@ -101,11 +101,8 @@ export default function DashboardPage() {
       onSave={async payload => {
         await savePrediction.mutateAsync({
           matchId: predictMatch.id,
-          result: (payload.result as 'home' | 'draw' | 'away') ?? 'home',
           homeScore: payload.exactScore?.home ?? 0,
           awayScore: payload.exactScore?.away ?? 0,
-          firstScorerId: payload.firstScorer,
-          mvpId: payload.mvp,
         })
       }}
     />

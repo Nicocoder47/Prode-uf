@@ -25,8 +25,6 @@ interface MatchPredictionModalProps {
     matchId: string
     result: PredictionResult
     exactScore: { home: number; away: number }
-    firstScorer?: string
-    mvp?: string
   }) => Promise<void>
   existingPrediction?: Partial<Prediction>
 }

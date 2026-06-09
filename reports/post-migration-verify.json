@@ -1,0 +1,96 @@
+{
+  "save_prediction": {
+    "success": false,
+    "error": {
+      "code": "P0001",
+      "details": null,
+      "hint": null,
+      "message": "match_not_found"
+    },
+    "data": null,
+    "count": null,
+    "status": 400,
+    "statusText": "Bad Request"
+  },
+  "score_svc": {
+    "success": false,
+    "error": {
+      "code": "42501",
+      "details": null,
+      "hint": null,
+      "message": "permission denied for function score_match_predictions"
+    },
+    "data": null,
+    "count": null,
+    "status": 403,
+    "statusText": "Forbidden"
+  },
+  "rescore_svc": {
+    "success": false,
+    "error": {
+      "code": "42501",
+      "details": null,
+      "hint": null,
+      "message": "permission denied for function rescore_match_predictions"
+    },
+    "data": null,
+    "count": null,
+    "status": 403,
+    "statusText": "Forbidden"
+  },
+  "view": {
+    "success": true,
+    "error": null,
+    "data": [],
+    "count": null,
+    "status": 200,
+    "statusText": "OK"
+  },
+  "auth_score": {
+    "success": false,
+    "error": {
+      "code": "42501",
+      "details": null,
+      "hint": null,
+      "message": "permission denied for function score_match_predictions"
+    },
+    "data": null,
+    "count": null,
+    "status": 403,
+    "statusText": "Forbidden"
+  },
+  "auth_rescore": {
+    "success": false,
+    "error": {
+      "code": "42501",
+      "details": null,
+      "hint": null,
+      "message": "permission denied for function rescore_match_predictions"
+    },
+    "data": null,
+    "count": null,
+    "status": 403,
+    "statusText": "Forbidden"
+  },
+  "anon_legajo": {
+    "success": false,
+    "error": {
+      "code": "42501",
+      "details": null,
+      "hint": null,
+      "message": "permission denied for function validate_member_legajo"
+    },
+    "data": null,
+    "count": null,
+    "status": 401,
+    "statusText": "Unauthorized"
+  },
+  "anon_prof": {
+    "success": true,
+    "error": null,
+    "data": [],
+    "count": null,
+    "status": 200,
+    "statusText": "OK"
+  }
+}

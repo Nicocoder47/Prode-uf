@@ -1,0 +1,133 @@
+{
+  "generatedAt": "2026-06-09T09:46:51.077Z",
+  "phases": {
+    "fase1": {
+      "save_prediction": {
+        "exists": false,
+        "probeError": "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache"
+      },
+      "score_match_predictions": {
+        "exists": true,
+        "probeError": null,
+        "data": 0
+      },
+      "rescore_match_predictions": {
+        "exists": true,
+        "probeError": null
+      },
+      "public_leaderboard_profiles": {
+        "exists": false,
+        "error": "Could not find the table 'public.public_leaderboard_profiles' in the schema cache",
+        "columnsRequested": [
+          "id",
+          "display_name",
+          "avatar_url",
+          "legajo"
+        ],
+        "columnsOk": false
+      },
+      "drift": [
+        "save_prediction NOT in PostgREST schema (migr. 190/200 likely not applied)",
+        "public_leaderboard_profiles NOT exposed (migr. 200 likely not applied)"
+      ],
+      "note": "schema_migrations_local not queried (DB password auth failed); object probes via PostgREST"
+    },
+    "fase2": {
+      "queries": [
+        "anon.from(profiles).select(email,dni,phone,role)",
+        "anon.rpc(validate_member_legajo)",
+        "authenticated.rpc(score_match_predictions)",
+        "authenticated.rpc(rescore_match_predictions)"
+      ],
+      "anon_profiles": {
+        "blocked": true,
+        "error": null,
+        "rows": 0
+      },
+      "anon_validate_member_legajo": {
+        "blocked": false,
+        "error": null
+      },
+      "authenticated_score": {
+        "blocked": false,
+        "error": null,
+        "code": null,
+        "unexpectedSuccess": true
+      },
+      "authenticated_rescore": {
+        "blocked": false,
+        "error": null,
+        "unexpectedSuccess": true
+      }
+    },
+    "fase3": {
+      "userA_create": {
+        "ok": false,
+        "error": "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache"
+      },
+      "userA_update": {
+        "ok": false,
+        "error": "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache"
+      },
+      "userB_readA": {
+        "blocked": true,
+        "rows": 0,
+        "error": null
+      },
+      "userB_modifyA": {
+        "blocked": true,
+        "error": "new row violates row-level security policy for table \"predictions\""
+      }
+    },
+    "fase4": {
+      "case1_open": {
+        "ok": false,
+        "error": "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache"
+      },
+      "case2_locked": {
+        "blocked": true,
+        "error": "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache"
+      },
+      "case3_kickoff": {
+        "blocked": true,
+        "error": "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache"
+      },
+      "case5_invalid": {
+        "blocked": true,
+        "error": "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache"
+      },
+      "case4_concurrent": {
+        "successes": 0,
+        "errors": [
+          "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache",
+          "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache",
+          "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache",
+          "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache",
+          "Could not find the function public.save_prediction(p_match_id, p_score_away, p_score_home) in the schema cache"
+        ],
+        "rowCount": 0,
+        "uniqueOk": false
+      }
+    },
+    "fase5": {
+      "score1": {
+        "data": 0,
+        "error": null
+      },
+      "prediction": null,
+      "leaderboardAfterFirst": null,
+      "score2": {
+        "data": 0,
+        "error": null
+      },
+      "leaderboardAfterSecond": null,
+      "noDuplicate": true,
+      "expectedPoints": null
+    },
+    "fase6": {
+      "exposedColumns": [],
+      "sensitiveLeaked": [],
+      "sample": null
+    }
+  }
+}

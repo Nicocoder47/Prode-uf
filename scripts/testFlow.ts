@@ -291,9 +291,12 @@ async function main() {
   if (predSelectErr) fail('predictions readable', predSelectErr.message);
   else pass('predictions readable');
 
-  const { error: lbErr } = await supabase.from('leaderboard').select('user_id,rank,points, profiles(full_name)').limit(5);
-  if (lbErr) fail('leaderboard join profiles', lbErr.message);
-  else pass('leaderboard join profiles');
+  const { error: lbErr } = await supabase
+    .from('public_leaderboard_profiles')
+    .select('id, display_name, legajo, avatar_url')
+    .limit(5);
+  if (lbErr) fail('public_leaderboard_profiles readable', lbErr.message);
+  else pass('public_leaderboard_profiles readable');
 
   // E2E: predictions upsert + scoring (requires service role + existing profile)
   const hasServiceRole = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
