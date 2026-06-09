@@ -4,6 +4,8 @@ import type { LeaderboardEntry, Match, Player, TopScorer } from '../types/worldc
 import type { LiveMatchStatRow } from '../services/worldcup/worldCupService'
 
 export const LIVE_INSIGHTS_CACHE_MS = 30 * 60 * 1000
+/** Mínimo de predicciones para mostrar tendencia como dato de comunidad. */
+export const MIN_TREND_PREDICTIONS = 3
 const LB_SNAPSHOT_KEY = 'wc26_live_lb_snapshot_v2'
 
 export type WorldCupLiveCardType =
@@ -37,6 +39,7 @@ export type CommunityTrendInsight = WorldCupLiveCard & {
   drawPct: number
   awayPct: number
   favoriteLabel: string
+  hasEnoughData: boolean
 }
 
 export type RankingMoveInsight = WorldCupLiveCard & {
@@ -48,11 +51,13 @@ export type PopularMatchInsight = WorldCupLiveCard & {
   type: 'popular_match'
   match: Match
   predictionCount: number
+  emptyMessage?: string
 }
 
 export type TopScorersInsight = WorldCupLiveCard & {
   type: 'top_scorers'
   scorers: { name: string; goals: number }[]
+  emptyMessage?: string
 }
 
 export type YourProgressInsight = WorldCupLiveCard & {
@@ -132,10 +137,11 @@ function buildRankingMoves(leaderboard: LeaderboardEntry[]): string[] {
   const lines: string[] = []
 
   if (leaderboard.length === 0) {
-    lines.push('El ranking se activa con los primeros puntos')
     writeLbSnapshot(leaderboard, bucket)
-    return lines
+    return ['Esperando movimientos']
   }
+
+  let hasMovement = false
 
   if (prev && prev.bucket < bucket && Object.keys(prev.ranks).length > 0) {
     for (const entry of leaderboard) {
@@ -143,6 +149,7 @@ function buildRankingMoves(leaderboard: LeaderboardEntry[]): string[] {
       if (prevRank == null) continue
       if (prevRank > 10 && entry.rank <= 10) {
         lines.push(`${displayName(entry)} ingresó al Top 10`)
+        hasMovement = true
       }
     }
 
@@ -157,15 +164,15 @@ function buildRankingMoves(leaderboard: LeaderboardEntry[]): string[] {
 
     for (const m of movers) {
       lines.push(`${m.name} subió ${m.delta} posiciones`)
+      hasMovement = true
     }
   }
 
-  if (lines.length === 0) {
+  if (!hasMovement) {
+    lines.push('Esperando movimientos')
     const leader = leaderboard[0]
-    if (leader) lines.push(`${displayName(leader)} lidera con ${leader.points} pts`)
-    const challenger = leaderboard[1]
-    if (challenger && leader) {
-      lines.push(`${displayName(challenger)} a ${leader.points - challenger.points} pts del líder`)
+    if (leader && leader.points > 0) {
+      lines.push(`${displayName(leader)} lidera con ${leader.points} pts`)
     }
   }
 
@@ -177,36 +184,46 @@ function statsMap(rows: LiveMatchStatRow[]): Map<string, LiveMatchStatRow> {
   return new Map(rows.map(r => [r.matchId, r]))
 }
 
-function favoriteTrendLabel(match: Match, homePct: number, drawPct: number, awayPct: number): string {
+function favoriteTrendLabel(
+  match: Match,
+  homePct: number,
+  drawPct: number,
+  awayPct: number,
+  hasEnoughData: boolean,
+): string {
+  if (!hasEnoughData) return 'Sin suficientes predicciones'
   const home = match.homeTeam?.name ?? 'Local'
   const away = match.awayTeam?.name ?? 'Visitante'
   const max = Math.max(homePct, drawPct, awayPct)
-  if (max === 0) return 'Sin predicciones aún'
   if (max === homePct) return `${homePct}% eligió ${shortTeamName(home)}`
   if (max === awayPct) return `${awayPct}% eligió ${shortTeamName(away)}`
   return `${drawPct}% eligió empate`
 }
 
-function buildScorersList(topScorers: TopScorer[], players: Player[]): { name: string; goals: number }[] {
+function buildScorersList(
+  topScorers: TopScorer[],
+  players: Player[],
+): { scorers: { name: string; goals: number }[]; emptyMessage?: string } {
   if (topScorers.length > 0) {
-    return topScorers.slice(0, 5).map(s => ({
-      name: shortTeamName(s.player.name),
-      goals: s.goals,
-    }))
+    return {
+      scorers: topScorers.slice(0, 5).map(s => ({
+        name: shortTeamName(s.player.name),
+        goals: s.goals,
+      })),
+    }
   }
   const fromPlayers = [...players]
     .filter(p => (p.goals ?? 0) > 0)
     .sort((a, b) => (b.goals ?? 0) - (a.goals ?? 0))
     .slice(0, 5)
     .map(p => ({ name: shortTeamName(p.name), goals: p.goals ?? 0 }))
-  if (fromPlayers.length > 0) return fromPlayers
-  return [
-    { name: 'Mbappé', goals: 0 },
-    { name: 'Haaland', goals: 0 },
-    { name: 'Julián', goals: 0 },
-    { name: 'Vinícius', goals: 0 },
-    { name: 'Kane', goals: 0 },
-  ]
+  if (fromPlayers.length > 0) {
+    return { scorers: fromPlayers }
+  }
+  return {
+    scorers: [],
+    emptyMessage: 'El torneo todavía no comenzó',
+  }
 }
 
 export function getNextRewardInsight(
@@ -245,10 +262,12 @@ export type BuildWorldCupLiveInsightsInput = {
   now?: number
 }
 
-function findPopularMatch(
+function pickTrendMatch(
+  nextMatch: Match | null,
   matches: Match[],
   stats: Map<string, LiveMatchStatRow>,
-): { match: Match; count: number } | null {
+): Match | null {
+  if (nextMatch?.homeTeam && nextMatch.awayTeam) return nextMatch
   let best: { match: Match; count: number } | null = null
   for (const row of stats.values()) {
     const match = matches.find(m => m.id === row.matchId)
@@ -257,135 +276,192 @@ function findPopularMatch(
       best = { match, count: row.predictionCount }
     }
   }
-  return best
+  return best?.match ?? null
 }
 
-export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput): WorldCupLiveInsightPayload[] {
-  const now = input.now ?? Date.now()
-  const stats = statsMap(input.matchStats)
-
-  const upcoming = input.matches
-    .filter(m => m.status === 'scheduled' && m.homeTeam && m.awayTeam)
-    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
-  const nextMatch = upcoming[0] ?? null
-
-  const cards: WorldCupLiveInsightPayload[] = []
-
-  if (nextMatch?.homeTeam && nextMatch.awayTeam) {
-    cards.push({
-      id: 'next-match',
-      type: 'next_match',
-      emoji: '⚽',
-      title: 'Próximo partido',
-      match: nextMatch,
-      countdownLabel: formatCountdownLabel(nextMatch.kickoff, now),
-      cta: { label: 'Predecir ahora', action: 'predict' },
-    })
-
-    const trend = stats.get(nextMatch.id)
-    const homePct = trend?.homePct ?? 0
-    const drawPct = trend?.drawPct ?? 0
-    const awayPct = trend?.awayPct ?? 0
-    cards.push({
-      id: 'community-trend',
-      type: 'community_trend',
-      emoji: '📈',
-      title: 'Tendencia de la comunidad',
-      subtitle:
-        trend && trend.predictionCount > 0
-          ? `${favoriteTrendLabel(nextMatch, homePct, drawPct, awayPct)}`
-          : 'Sé el primero en predecir',
-      match: nextMatch,
-      homePct,
-      drawPct,
-      awayPct,
-      favoriteLabel: favoriteTrendLabel(nextMatch, homePct, drawPct, awayPct),
-    })
+function findPopularMatch(
+  matches: Match[],
+  stats: Map<string, LiveMatchStatRow>,
+  fallbackMatch: Match | null,
+): PopularMatchInsight {
+  let best: { match: Match; count: number } | null = null
+  for (const row of stats.values()) {
+    const match = matches.find(m => m.id === row.matchId)
+    if (!match?.homeTeam || !match.awayTeam) continue
+    if (!best || row.predictionCount > best.count) {
+      best = { match, count: row.predictionCount }
+    }
   }
 
-  cards.push({
-    id: 'ranking-move',
-    type: 'ranking_move',
-    emoji: '🏆',
-    title: 'Movimiento del ranking',
-    lines: buildRankingMoves(input.leaderboard),
-    cta: { label: 'Ver ranking', action: 'leaderboard' },
-  })
-
-  const popular = findPopularMatch(input.matches, stats)
-  if (popular) {
-    cards.push({
+  if (best && best.count > 0) {
+    return {
       id: 'popular-match',
       type: 'popular_match',
       emoji: '🔥',
       title: 'Partido más popular',
-      match: popular.match,
-      predictionCount: popular.count,
-      subtitle: `${popular.count} predicciones`,
-    })
-  } else if (nextMatch?.homeTeam && nextMatch.awayTeam) {
-    cards.push({
-      id: 'popular-match-fallback',
-      type: 'popular_match',
-      emoji: '🔥',
-      title: 'Partido más popular',
-      match: nextMatch,
-      predictionCount: 0,
-      subtitle: '0 predicciones · Sé el primero',
-    })
+      match: best.match,
+      predictionCount: best.count,
+      subtitle: `${best.count} predicciones`,
+    }
   }
 
-  cards.push({
-    id: 'top-scorers',
-    type: 'top_scorers',
-    emoji: '👑',
-    title: 'Goleadores',
-    subtitle: 'Top 5 actualizado',
-    scorers: buildScorersList(input.topScorers, input.players),
-  })
+  const match =
+    fallbackMatch ??
+    matches.find(m => m.homeTeam && m.awayTeam) ??
+    matches[0]
+
+  return {
+    id: 'popular-match-empty',
+    type: 'popular_match',
+    emoji: '🔥',
+    title: 'Partido más popular',
+    match,
+    predictionCount: 0,
+    emptyMessage: 'Aún no hay actividad',
+    subtitle: 'Aún no hay actividad',
+  }
+}
+
+function resolveNextMatch(matches: Match[], now: number): NextMatchInsight | null {
+  const upcoming = matches
+    .filter(m => m.status === 'scheduled' && m.homeTeam && m.awayTeam)
+    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
+  const next = upcoming[0]
+  if (next?.homeTeam && next.awayTeam) {
+    return {
+      id: 'next-match',
+      type: 'next_match',
+      emoji: '⚽',
+      title: 'Próximo partido',
+      match: next,
+      countdownLabel: formatCountdownLabel(next.kickoff, now),
+      cta: { label: 'Predecir ahora', action: 'predict' },
+    }
+  }
+
+  const anyWithTeams = matches.find(m => m.homeTeam && m.awayTeam)
+  if (!anyWithTeams) return null
+
+  return {
+    id: 'next-match-fallback',
+    type: 'next_match',
+    emoji: '⚽',
+    title: 'Próximo partido',
+    match: anyWithTeams,
+    countdownLabel: 'Fixture en actualización',
+    subtitle: 'Próximamente nuevos partidos',
+    cta: { label: 'Ver fixture', action: 'matches' },
+  }
+}
+
+/** Siempre devuelve exactamente 7 tarjetas cuando hay al menos un partido en el fixture. */
+export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput): WorldCupLiveInsightPayload[] {
+  const now = input.now ?? Date.now()
+  const stats = statsMap(input.matchStats)
+
+  const nextCard = resolveNextMatch(input.matches, now)
+  const trendMatch = pickTrendMatch(nextCard?.match ?? null, input.matches, stats)
+  const scorersPayload = buildScorersList(input.topScorers, input.players)
+
+  if (!nextCard || !trendMatch) {
+    return []
+  }
+
+  const trendRow = stats.get(trendMatch.id)
+  const trendCount = trendRow?.predictionCount ?? 0
+  const hasEnoughTrend = trendCount >= MIN_TREND_PREDICTIONS
+  const homePct = hasEnoughTrend ? (trendRow?.homePct ?? 0) : 0
+  const drawPct = hasEnoughTrend ? (trendRow?.drawPct ?? 0) : 0
+  const awayPct = hasEnoughTrend ? (trendRow?.awayPct ?? 0) : 0
+
+  const cards: WorldCupLiveInsightPayload[] = [
+    nextCard,
+    {
+      id: 'community-trend',
+      type: 'community_trend',
+      emoji: '📈',
+      title: 'Tendencia de la comunidad',
+      subtitle: favoriteTrendLabel(trendMatch, homePct, drawPct, awayPct, hasEnoughTrend),
+      match: trendMatch,
+      homePct,
+      drawPct,
+      awayPct,
+      favoriteLabel: favoriteTrendLabel(trendMatch, homePct, drawPct, awayPct, hasEnoughTrend),
+      hasEnoughData: hasEnoughTrend,
+    },
+    {
+      id: 'ranking-move',
+      type: 'ranking_move',
+      emoji: '🏆',
+      title: 'Movimiento del ranking',
+      lines: buildRankingMoves(input.leaderboard),
+      cta: { label: 'Ver ranking', action: 'leaderboard' },
+    },
+    findPopularMatch(input.matches, stats, nextCard.match),
+    {
+      id: 'top-scorers',
+      type: 'top_scorers',
+      emoji: '👑',
+      title: 'Goleadores',
+      subtitle: scorersPayload.emptyMessage ?? 'Top 5 actualizado',
+      scorers: scorersPayload.scorers,
+      emptyMessage: scorersPayload.emptyMessage,
+    },
+  ]
 
   if (input.userId) {
-    cards.push({
-      id: 'your-progress',
-      type: 'your_progress',
-      emoji: '🎯',
-      title: 'Tu progreso',
-      predicted: input.overall.predicted,
-      total: input.overall.total,
-      percent: input.overall.percent,
-      points: input.points,
-      rank: input.rank,
-      cta: { label: 'Seguir prediciendo', action: 'matches' },
-    })
-
-    cards.push({
-      id: 'next-reward',
-      type: 'next_reward',
-      emoji: '🎁',
-      title: 'Próxima recompensa',
-      message: getNextRewardInsight(
-        input.overall,
-        input.groupProgress,
-        input.rank,
-        input.points,
-        input.leaderboard,
-      ),
-      cta: { label: 'Jugar ahora', action: 'matches' },
-    })
+    cards.push(
+      {
+        id: 'your-progress',
+        type: 'your_progress',
+        emoji: '🎯',
+        title: 'Tu progreso',
+        predicted: input.overall.predicted,
+        total: input.overall.total,
+        percent: input.overall.percent,
+        points: input.points,
+        rank: input.rank,
+        cta: { label: 'Seguir prediciendo', action: 'matches' },
+      },
+      {
+        id: 'next-reward',
+        type: 'next_reward',
+        emoji: '🎁',
+        title: 'Próxima recompensa',
+        message: getNextRewardInsight(
+          input.overall,
+          input.groupProgress,
+          input.rank,
+          input.points,
+          input.leaderboard,
+        ),
+        cta: { label: 'Jugar ahora', action: 'matches' },
+      },
+    )
   } else {
-    cards.push({
-      id: 'your-progress-guest',
-      type: 'your_progress',
-      emoji: '🎯',
-      title: 'Tu progreso',
-      subtitle: 'Registrate y empezá a predecir',
-      predicted: 0,
-      total: input.overall.total || 104,
-      percent: 0,
-      points: 0,
-      rank: null,
-      cta: { label: 'Crear cuenta', action: 'login' },
-    })
+    cards.push(
+      {
+        id: 'your-progress-guest',
+        type: 'your_progress',
+        emoji: '🎯',
+        title: 'Tu progreso',
+        subtitle: 'Registrate y empezá a predecir',
+        predicted: 0,
+        total: input.overall.total || 104,
+        percent: 0,
+        points: 0,
+        rank: null,
+        cta: { label: 'Crear cuenta', action: 'login' },
+      },
+      {
+        id: 'next-reward-guest',
+        type: 'next_reward',
+        emoji: '🎁',
+        title: 'Próxima recompensa',
+        message: 'Sumá puntos completando grupos y predicciones',
+        cta: { label: 'Jugar ahora', action: 'login' },
+      },
+    )
   }
 
   return cards

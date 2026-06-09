@@ -1,0 +1,51 @@
+{
+  "rpcExists": "EXISTS",
+  "migrationApplied": true,
+  "migrationAppliedNow": false,
+  "permissions": {
+    "anon": true,
+    "service": true
+  },
+  "securityDefiner": null,
+  "sampleRows": [
+    {
+      "match_id": "7e8e94f9-a5f9-42fb-ae99-fa8a43be46e5",
+      "prediction_count": 1,
+      "home_pct": 100,
+      "draw_pct": 0,
+      "away_pct": 0
+    },
+    {
+      "match_id": "755aedc3-5827-4520-a110-d8dee930e466",
+      "prediction_count": 1,
+      "home_pct": 0,
+      "draw_pct": 100,
+      "away_pct": 0
+    },
+    {
+      "match_id": "db9a3688-0bd0-472d-b202-39e1e4eda2f3",
+      "prediction_count": 4,
+      "home_pct": 75,
+      "draw_pct": 0,
+      "away_pct": 25
+    },
+    {
+      "match_id": "0ebb2d87-8535-41a3-ada5-6c8bbd335db0",
+      "prediction_count": 1,
+      "home_pct": 100,
+      "draw_pct": 0,
+      "away_pct": 0
+    },
+    {
+      "match_id": "4c138df7-0358-4155-b1f6-230ca16622fd",
+      "prediction_count": 1,
+      "home_pct": 100,
+      "draw_pct": 0,
+      "away_pct": 0
+    }
+  ],
+  "rowCount": 12,
+  "exposesPrivateFields": false,
+  "columnsOk": true,
+  "errors": []
+}

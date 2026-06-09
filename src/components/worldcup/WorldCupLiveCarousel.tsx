@@ -124,13 +124,15 @@ function CardBody({
       return (
         <>
           <p className="wc26-live-card__highlight">{card.favoriteLabel}</p>
-          <TrendBars
-            homeLabel={home}
-            awayLabel={away}
-            homePct={card.homePct}
-            drawPct={card.drawPct}
-            awayPct={card.awayPct}
-          />
+          {card.hasEnoughData ? (
+            <TrendBars
+              homeLabel={home}
+              awayLabel={away}
+              homePct={card.homePct}
+              drawPct={card.drawPct}
+              awayPct={card.awayPct}
+            />
+          ) : null}
         </>
       )
     }
@@ -155,12 +157,13 @@ function CardBody({
         <>
           <MatchFlags match={card.match} />
           <p className="wc26-live-card__highlight">
-            {card.predictionCount} {card.predictionCount === 1 ? 'predicción' : 'predicciones'}
+            {card.emptyMessage ??
+              `${card.predictionCount} ${card.predictionCount === 1 ? 'predicción' : 'predicciones'}`}
           </p>
         </>
       )
     case 'top_scorers':
-      return (
+      return card.scorers.length > 0 ? (
         <ol className="wc26-live-card__scorers">
           {card.scorers.map((s, i) => (
             <li key={`${s.name}-${i}`}>
@@ -170,10 +173,13 @@ function CardBody({
             </li>
           ))}
         </ol>
+      ) : (
+        <p className="wc26-live-card__highlight">{card.emptyMessage ?? 'El torneo todavía no comenzó'}</p>
       )
     case 'your_progress':
       return (
         <>
+          {card.subtitle ? <p className="wc26-live-card__meta">{card.subtitle}</p> : null}
           <p className="wc26-live-card__big">
             <strong>{card.predicted}</strong> / {card.total} partidos · {card.percent}%
           </p>

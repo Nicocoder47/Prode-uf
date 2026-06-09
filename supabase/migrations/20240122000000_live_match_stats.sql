@@ -33,6 +33,7 @@ AS $$
     END AS away_pct
   FROM public.predictions p
   WHERE p.status IN ('pending', 'locked', 'scored')
+    AND p.predicted_winner IN ('home', 'draw', 'away')
   GROUP BY p.match_id;
 $$;
 
