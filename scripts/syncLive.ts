@@ -8,8 +8,15 @@ import { runLiveSyncCycle } from '../src/services/sync/liveWorkerService.js';
 loadCloudEnv();
 
 async function main() {
+  if (!process.env.SUPABASE_URL?.trim() && process.env.VITE_SUPABASE_URL?.trim()) {
+    process.env.SUPABASE_URL = process.env.VITE_SUPABASE_URL.trim();
+  }
   if (!process.env.SUPABASE_URL?.trim() || !process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()) {
     console.error('Configurar SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY (GitHub Secrets o .env.cloud)');
+    process.exit(1);
+  }
+  if (!process.env.FOOTBALL_DATA_API_KEY?.trim() && !process.env.API_FOOTBALL_KEY?.trim()) {
+    console.error('Configurar FOOTBALL_DATA_API_KEY o API_FOOTBALL_KEY (GitHub Secrets o .env.cloud)');
     process.exit(1);
   }
   if (/localhost|127\.0\.0\.1|:54321/.test(process.env.SUPABASE_URL)) {

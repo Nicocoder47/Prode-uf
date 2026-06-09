@@ -23,11 +23,21 @@ jobs:
 
       - run: npm ci
 
+      - name: Validate sync environment
+        shell: bash
+        env:
+          INPUT_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          INPUT_VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          INPUT_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          INPUT_FOOTBALL_DATA: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+          INPUT_API_FOOTBALL: ${{ secrets.API_FOOTBALL_KEY }}
+        run: bash scripts/ci/prepare-sync-env.sh
+
       - name: Full cloud sync (teams, squads, fixtures, standings)
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          FOOTBALL_DATA_API_KEY: ${{ secrets.FOOTBALL_DATA_API_KEY }}
-          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          SUPABASE_URL: ${{ env.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
+          FOOTBALL_DATA_API_KEY: ${{ env.FOOTBALL_DATA_API_KEY }}
+          API_FOOTBALL_KEY: ${{ env.API_FOOTBALL_KEY }}
           SKIP_PLAYER_ENRICH: '1'
         run: npm run sync:cloud:all
