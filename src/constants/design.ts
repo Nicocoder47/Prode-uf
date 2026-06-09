@@ -136,6 +136,21 @@ export const MUNDIAL_NIGHT = {
   accentGreen: '#1B7A43',
 } as const;
 
+/** Fixture Game Center — Centro del Juego (/matches) */
+export const FIXTURE_GAME_CENTER = {
+  ...MUNDIAL_NIGHT,
+  competitiveGreen: '#22C55E',
+  groupBlue: '#1D4ED8',
+  stadiumBg:
+    'radial-gradient(ellipse 120% 80% at 50% -20%, rgba(0,87,184,0.12), transparent 55%), linear-gradient(180deg, #041418 0%, #0B1220 100%)',
+  glass: 'rgba(11, 18, 32, 0.78)',
+  glassEdge: 'rgba(34, 197, 94, 0.18)',
+  goldGradient: 'linear-gradient(90deg, #D4AF37 0%, #F8B91E 55%, #FFE08A 100%)',
+  greenGradient: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
+  greenPositive: '#22C55E',
+  blueDepth: '#1D4ED8',
+} as const;
+
 /** Home Premium — Mundial Night surfaces (Fase 2) */
 export const HOME_PREMIUM = {
   ...MUNDIAL_NIGHT,

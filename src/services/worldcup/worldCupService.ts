@@ -43,6 +43,7 @@ import type {
 } from '../../types/worldcup';
 
 import { WC26_GROUP_NAMES, normalizeGroupId } from '../../constants/groups';
+import { filterActiveLeaderboard } from '../../utils/leaderboardDisplay';
 
 
 
@@ -502,22 +503,16 @@ export const worldCupService = {
 
     );
 
-    return leaderboardRows.map(row =>
-
+    const entries = leaderboardRows.map(row =>
       mapDbLeaderboardEntry(
-
         asDbRow({
-
           ...row,
-
           profiles: profileById.get(row.user_id as string) ?? null,
-
         }),
-
       ),
-
     );
 
+    return filterActiveLeaderboard(entries);
   },
 
 

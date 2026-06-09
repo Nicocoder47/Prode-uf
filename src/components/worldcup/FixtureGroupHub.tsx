@@ -1,18 +1,20 @@
 import { Link } from 'react-router-dom'
 
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, Check, ChevronLeft, Clock, Star } from 'lucide-react'
 
 import { CompactMatchCard } from './CompactMatchCard'
 
-import { GroupTeamFlags } from './HomeGameHub'
+import { TeamCrest } from './TeamCrest'
 
 import { groupColor } from '../../constants/groups'
 
 import { MOTION } from '../../constants/design'
 
-import type { Match, Prediction } from '../../types/worldcup'
+import type { Match, Prediction, Team } from '../../types/worldcup'
+
+import { teamAbbreviation } from '../../utils/teamDisplay'
 
 import {
 
@@ -20,7 +22,17 @@ import {
 
   computeGroupProgress,
 
-  computeRemainingPoints,
+  formatPredictionClose,
+
+  getGroupCardState,
+
+  getGroupMaxPoints,
+
+  getGroupPointsEarned,
+
+  getGroupPredictionClose,
+
+  getGroupStatusLabel,
 
   getGroupTeams,
 
@@ -46,9 +58,37 @@ type FixtureGroupHubProps = {
 
   selectedGroup: string | null
 
+  recommendedGroupId?: string | null
+
   onSelectGroup: (groupId: string | null) => void
 
   onPredict: (match: Match) => void
+
+}
+
+
+
+function TeamCodesRow({ teams }: { teams: Team[] }) {
+
+  return (
+
+    <div className="wc26-fgc-group-card__teams">
+
+      {teams.map(team => (
+
+        <div key={team.id} className="wc26-fgc-group-card__team">
+
+          <TeamCrest flag={team.flag} code={team.code} size="md" premium />
+
+          <span>{teamAbbreviation(team.code, team.name)}</span>
+
+        </div>
+
+      ))}
+
+    </div>
+
+  )
 
 }
 
@@ -62,71 +102,190 @@ function GroupCard({
 
   matches,
 
-  predictionSet,
+  predictions,
 
-  onClick,
+  recommendedGroupId,
+
+  onPlay,
 
 }: {
 
   progress: GroupProgress
 
-  teams: ReturnType<typeof getGroupTeams>
+  teams: Team[]
 
   matches: Match[]
 
-  predictionSet: Set<string>
+  predictions: Prediction[]
 
-  onClick: () => void
+  recommendedGroupId?: string | null
+
+  onPlay: () => void
 
 }) {
 
-  const done = progress.predicted
+  const reduceMotion = useReducedMotion()
 
-  const pct = progress.total > 0 ? Math.round((done / progress.total) * 100) : 0
+  const pct = progress.total > 0 ? Math.round((progress.predicted / progress.total) * 100) : 0
 
-  const remainingPts = computeRemainingPoints(matches, predictionSet, progress.groupId)
+  const earnedPts = getGroupPointsEarned(predictions, matches, progress.groupId)
+
+  const maxPts = getGroupMaxPoints(progress.total)
+
+  const cardState = getGroupCardState(progress, recommendedGroupId ?? null)
+
+  const statusLabel = getGroupStatusLabel(cardState)
+
+  const closeDate = getGroupPredictionClose(matches, progress.groupId)
+
+
+
+  const ctaLabel =
+
+    cardState === 'not_started'
+
+      ? `JUGAR GRUPO ${progress.groupId}`
+
+      : cardState === 'complete'
+
+        ? 'VER GRUPO'
+
+        : 'CONTINUAR'
 
 
 
   return (
-    <motion.button
-      type="button"
-      {...MOTION.tap}
-      onClick={onClick}
-      className="wc26-fixture-group-card text-left"
+
+    <article
+
+      id={`fixture-group-${progress.groupId}`}
+
+      className={`wc26-fgc-group-card wc26-fgc-group-card--${cardState}`}
+
       style={{ '--group-color': groupColor(progress.groupId) } as React.CSSProperties}
+
     >
-      <div className="wc26-fixture-group-card__head">
-        <span className="wc26-fixture-group-card__badge">{progress.groupId}</span>
-        <div className="wc26-fixture-group-card__title-wrap">
-          <p className="wc26-fixture-group-card__title">Grupo {progress.groupId}</p>
-          <p className="wc26-fixture-group-card__meta">{progress.total} partidos</p>
+
+      <div className="wc26-fgc-group-card__head">
+
+        <span className="wc26-fgc-group-card__letter">{progress.groupId}</span>
+
+        <div className="wc26-fgc-group-card__title-wrap">
+
+          <p className="wc26-fgc-group-card__title">Grupo {progress.groupId}</p>
+
+          <span className={`wc26-fgc-group-card__status wc26-fgc-group-card__status--${cardState}`}>
+
+            {statusLabel}
+
+          </span>
+
         </div>
-        <ChevronRight className="wc26-fixture-group-card__chevron" aria-hidden="true" />
+
+        <span className="wc26-fgc-group-card__max-badge">MÁX. {maxPts} PTS</span>
+
       </div>
 
-      <GroupTeamFlags teams={teams} premium compact />
 
-      <div className="wc26-fixture-group-card__stats">
-        <p className="wc26-fixture-group-card__progress-text">
-          {done} predichos · {progress.pending} pendientes
-        </p>
-        {progress.pending > 0 && (
-          <p className="wc26-fixture-group-card__points">Máximo posible: {remainingPts} pts</p>
-        )}
+
+      <TeamCodesRow teams={teams} />
+
+
+
+      <ul className="wc26-fgc-group-card__stats">
+
+        <li>
+
+          <Check className="h-3 w-3" aria-hidden="true" />
+
+          {progress.predicted} / {progress.total} predichos
+
+        </li>
+
+        <li>
+
+          <Clock className="h-3 w-3" aria-hidden="true" />
+
+          {progress.pending} pendientes
+
+        </li>
+
+        <li>
+
+          <Star className="h-3 w-3" aria-hidden="true" />
+
+          {earnedPts} pts ganados
+
+        </li>
+
+      </ul>
+
+
+
+      <div className="wc26-fgc-group-card__bar">
+
+        <motion.div
+
+          className="wc26-fgc-group-card__bar-fill"
+
+          initial={reduceMotion ? false : { width: 0 }}
+
+          animate={{ width: `${pct}%` }}
+
+          transition={{ duration: reduceMotion ? 0 : 0.55 }}
+
+        />
+
       </div>
 
-      <div className="wc26-fixture-group-card__bar">
-        <div className="wc26-fixture-group-card__bar-fill" style={{ width: `${pct}%` }} />
-      </div>
+      <div className="wc26-fgc-group-card__progress-foot">
 
-      {progress.pending > 0 && (
-        <span className="wc26-fixture-group-card__cta">
-          Continuar
-          <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+        <span>
+
+          {progress.predicted} / {progress.total} partidos
+
         </span>
-      )}
-    </motion.button>
+
+        <span>{pct}% completado</span>
+
+      </div>
+
+
+
+      {closeDate ? (
+
+        <p className="wc26-fgc-group-card__close">
+
+          <Clock className="h-3 w-3" aria-hidden="true" />
+
+          Cierre: {formatPredictionClose(closeDate)}
+
+        </p>
+
+      ) : null}
+
+
+
+      <motion.button
+
+        type="button"
+
+        {...MOTION.tap}
+
+        onClick={onPlay}
+
+        className={`wc26-fgc-group-card__play wc26-fgc-group-card__play--${cardState}`}
+
+      >
+
+        {ctaLabel}
+
+        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+
+      </motion.button>
+
+    </article>
+
   )
 
 }
@@ -170,6 +329,8 @@ export function FixtureGroupHub({
   predictions,
 
   selectedGroup,
+
+  recommendedGroupId,
 
   onSelectGroup,
 
@@ -239,7 +400,7 @@ export function FixtureGroupHub({
 
         </div>
 
-        <GroupTeamFlags teams={teams} premium />
+        <TeamCodesRow teams={teams} />
 
         <div className="mt-4 space-y-3">
 
@@ -305,25 +466,39 @@ export function FixtureGroupHub({
 
   return (
 
-    <div className="wc26-fixture-groups-grid">
+    <div className="wc26-fgc-groups-grid">
 
-      {cards.map(progress => (
+      {cards.map((progress, index) => (
 
-        <GroupCard
+        <motion.div
 
           key={progress.groupId}
 
-          progress={progress}
+          initial={{ opacity: 0, y: 12 }}
 
-          teams={getGroupTeams(matches, progress.groupId)}
+          animate={{ opacity: 1, y: 0 }}
 
-          matches={matches}
+          transition={{ delay: index * 0.04 }}
 
-          predictionSet={predictionSet}
+        >
 
-          onClick={() => onSelectGroup(progress.groupId)}
+          <GroupCard
 
-        />
+            progress={progress}
+
+            teams={getGroupTeams(matches, progress.groupId)}
+
+            matches={matches}
+
+            predictions={predictions}
+
+            recommendedGroupId={recommendedGroupId}
+
+            onPlay={() => onSelectGroup(progress.groupId)}
+
+          />
+
+        </motion.div>
 
       ))}
 

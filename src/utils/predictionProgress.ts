@@ -255,11 +255,120 @@ export function getRecommendedGroup(progress: GroupProgress[]): GroupProgress | 
 
 export function getFixtureMotivation(overall: OverallProgress): string {
   if (overall.total <= 0) return 'Cuando haya partidos disponibles, empezá a predecir.'
+  if (overall.percent >= 100) return '¡Mundial completo! Ahora a sumar puntos con cada partido.'
   if (overall.percent >= 85) return 'Vas muy bien. Estás cerca de completar el Mundial.'
   if (overall.predicted === 0 || overall.percent < 35) {
     return 'Comenzá a completar tus grupos para no perder puntos.'
   }
-  return 'Seguí completando grupos para maximizar tus puntos.'
+  return 'Seguí sumando y alcanzá la gloria.'
+}
+
+export function getGroupMaxPoints(totalMatches: number): number {
+  return totalMatches * MAX_POINTS_PER_MATCH
+}
+
+export function getGroupPointsEarned(
+  predictions: Prediction[],
+  matches: Match[],
+  groupId: string
+): number {
+  const groupMatchIds = new Set(groupMatches(matches, groupId).map(m => m.id))
+  return predictions
+    .filter(p => groupMatchIds.has(p.matchId))
+    .reduce((sum, p) => sum + (p.points ?? 0), 0)
+}
+
+export type GroupCardState = 'complete' | 'recommended' | 'in_progress' | 'not_started'
+
+export function getGroupCardState(
+  progress: GroupProgress,
+  recommendedGroupId: string | null
+): GroupCardState {
+  if (progress.complete || (progress.pending === 0 && progress.predicted > 0)) return 'complete'
+  if (recommendedGroupId === progress.groupId) return 'recommended'
+  if (progress.predicted > 0) return 'in_progress'
+  return 'not_started'
+}
+
+export function getGroupMotivation(progress: GroupProgress): string {
+  const maxPts = getGroupMaxPoints(progress.total)
+  if (progress.complete || (progress.pending === 0 && progress.predicted > 0)) {
+    return 'Grupo completo. ¡Buen trabajo!'
+  }
+  return `Completá este grupo y sumá hasta ${maxPts} puntos.`
+}
+
+export function getTotalMaxPoints(totalMatches: number): number {
+  return totalMatches * MAX_POINTS_PER_MATCH
+}
+
+export function getNextRewardMilestone(percent: number): number {
+  const milestones = [25, 50, 75, 100]
+  return milestones.find(m => m > percent) ?? 100
+}
+
+export type PlayStep = { id: string; label: string; state: 'done' | 'active' | 'upcoming' }
+
+export function getPlaySteps(overall: OverallProgress, predictions: Prediction[]): PlayStep[] {
+  const hasScored = predictions.some(p => p.status === 'scored')
+  const hasPredictions = predictions.length > 0
+  const steps: PlayStep[] = [
+    { id: 'group', label: 'Elegí grupo', state: 'upcoming' },
+    { id: 'predict', label: 'Predecí', state: 'upcoming' },
+    { id: 'points', label: 'Sumá puntos', state: 'upcoming' },
+  ]
+
+  if (hasScored) {
+    steps.forEach(s => { s.state = 'done' })
+    return steps
+  }
+  if (overall.pending === 0 && overall.predicted > 0) {
+    steps[0].state = 'done'
+    steps[1].state = 'done'
+    steps[2].state = 'active'
+    return steps
+  }
+  if (hasPredictions) {
+    steps[0].state = 'done'
+    steps[1].state = 'active'
+    return steps
+  }
+  steps[0].state = 'active'
+  return steps
+}
+
+export function getGroupStatusLabel(state: GroupCardState): string {
+  if (state === 'complete') return 'COMPLETO'
+  if (state === 'recommended' || state === 'in_progress') return 'EN CURSO'
+  return 'PENDIENTE'
+}
+
+export function getGroupPredictionClose(matches: Match[], groupId: string): Date | null {
+  const upcoming = groupMatches(matches, groupId)
+    .filter(m => m.status === 'scheduled' && !m.isLocked)
+    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
+  if (upcoming.length === 0) return null
+  return new Date(upcoming[0].kickoff)
+}
+
+export function formatPredictionClose(date: Date): string {
+  return date.toLocaleString('es-AR', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).replace('.', '').toUpperCase()
+}
+
+export function getDaysUntilNextMatch(matches: Match[]): number | null {
+  const now = Date.now()
+  const next = matches
+    .filter(m => m.status === 'scheduled' && new Date(m.kickoff).getTime() > now)
+    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())[0]
+  if (!next) return null
+  const diff = new Date(next.kickoff).getTime() - now
+  return Math.max(0, Math.ceil(diff / 86_400_000))
 }
 
 export type FixtureTimelineStep = {
@@ -280,8 +389,8 @@ export function getFixtureTimelineSteps(
 
   const steps: FixtureTimelineStep[] = [
     { id: 'group', label: 'Elegí grupo', state: 'upcoming' },
-    { id: 'predict', label: 'Completá predicciones', state: 'upcoming' },
-    { id: 'wait', label: 'Esperá los partidos', state: 'upcoming' },
+    { id: 'predict', label: 'Hacé predicciones', state: 'upcoming' },
+    { id: 'wait', label: 'Se juegan partidos', state: 'upcoming' },
     { id: 'points', label: 'Sumá puntos', state: 'upcoming' },
   ]
 
