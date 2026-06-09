@@ -5,6 +5,7 @@ import {
   Bell,
   CreditCard,
   LayoutDashboard,
+  LifeBuoy,
   Server,
   ShieldCheck,
   Users,
@@ -19,6 +20,7 @@ const nav = [
   { to: '/admin/activity', label: 'Actividad', icon: Activity },
   { to: '/admin/notifications', label: 'Notificaciones', icon: Bell },
   { to: '/admin/system', label: 'Sistema', icon: Server },
+  { to: '/admin/support', label: 'Soporte', icon: LifeBuoy },
   { to: '/admin/cards', label: 'Cards', icon: CreditCard },
 ] as const
 

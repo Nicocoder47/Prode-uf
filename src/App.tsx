@@ -31,6 +31,7 @@ const AdminActivityPage = lazy(() => import('./features/admin/AdminActivityPage.
 const AdminNotificationsPage = lazy(() => import('./features/admin/AdminNotificationsPage.tsx'))
 const AdminSystemOverviewPage = lazy(() => import('./features/admin/AdminSystemOverviewPage.tsx'))
 const AdminCardsPage = lazy(() => import('./features/admin/AdminCardsPage.tsx'))
+const AdminSupportPage = lazy(() => import('./features/admin/AdminSupportPage.tsx'))
 const NotificationsPage = lazy(() => import('./features/notifications/NotificationsPage.tsx'))
 
 function PageLoader() {
@@ -62,6 +63,7 @@ function App() {
               <Route path="notifications" element={<AdminNotificationsPage />} />
               <Route path="system" element={<AdminSystemOverviewPage />} />
               <Route path="cards" element={<AdminCardsPage />} />
+              <Route path="support" element={<AdminSupportPage />} />
             </Route>
           </Route>
 

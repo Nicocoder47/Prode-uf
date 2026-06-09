@@ -73,6 +73,63 @@ export function computeAchievements(predictions: Prediction[], rank: number | nu
   ]
 }
 
+export type ProfileCompetitiveStats = {
+  totalPoints: number
+  predictionsCount: number
+  hits: number
+  exactHits: number
+  drawHits: number
+  misses: number
+  accuracy: number | null
+}
+
+export function computeProfileStats(
+  predictions: Prediction[],
+  matches: Match[],
+  leaderboardPoints?: number,
+  leaderboardDraws?: number
+): ProfileCompetitiveStats {
+  const scored = predictions.filter(p => p.status === 'scored')
+  const matchMap = new Map(matches.map(m => [m.id, m]))
+  let exactHits = 0
+  let misses = 0
+  let hits = 0
+
+  for (const p of scored) {
+    const match = matchMap.get(p.matchId)
+    const home = p.predictedHomeScore ?? p.exactScore?.home ?? null
+    const away = p.predictedAwayScore ?? p.exactScore?.away ?? null
+
+    if ((p.points ?? 0) <= 0) {
+      misses++
+      continue
+    }
+
+    hits++
+
+    const isExact =
+      match != null &&
+      match.homeScore != null &&
+      match.awayScore != null &&
+      home != null &&
+      away != null &&
+      home === match.homeScore &&
+      away === match.awayScore
+
+    if (isExact) exactHits++
+  }
+
+  return {
+    totalPoints: leaderboardPoints ?? predictions.reduce((sum, p) => sum + (p.points ?? 0), 0),
+    predictionsCount: predictions.length,
+    hits,
+    exactHits,
+    drawHits: leaderboardDraws ?? 0,
+    misses,
+    accuracy: scored.length > 0 ? Math.round((hits / scored.length) * 100) : null,
+  }
+}
+
 export function computeStreaks(predictions: Prediction[], matches: Match[]): StreakInfo {
   const predictedIds = new Set(predictions.map(p => p.matchId))
 
