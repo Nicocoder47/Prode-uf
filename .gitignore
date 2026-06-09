@@ -25,6 +25,9 @@ reports/migration*.b64*
 reports/dashboard-expr-*
 reports/cdp-chunks/
 
+# Supabase CLI (artefactos locales al link/db push)
+supabase/.temp/
+
 # Debug API dumps (no commitear respuestas)
 debug/football-data/*.json
 
