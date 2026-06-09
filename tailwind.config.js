@@ -5,9 +5,9 @@ export default {
     extend: {
       colors: {
         wc26: {
-          greenDark: '#003D25',
-          greenBrand: '#006B3F',
-          greenLight: '#0E8A4A',
+          greenDark: '#145A32',
+          greenBrand: '#1B7A43',
+          greenLight: '#249458',
           creamHome: '#F8F5EF',
           night950: '#021d13',
           night900: '#053820',

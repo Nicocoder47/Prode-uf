@@ -243,6 +243,74 @@ export function getIncompleteGroups(progress: GroupProgress[]): GroupProgress[] 
   return progress.filter(g => g.pending > 0).sort((a, b) => b.pending - a.pending)
 }
 
+export function getRecommendedGroup(progress: GroupProgress[]): GroupProgress | null {
+  const incomplete = progress.filter(g => g.pending > 0)
+  if (incomplete.length === 0) return null
+  return [...incomplete].sort((a, b) => {
+    const scoreA = a.predicted > 0 ? a.pending : a.pending + 1000
+    const scoreB = b.predicted > 0 ? b.pending : b.pending + 1000
+    return scoreA - scoreB
+  })[0]
+}
+
+export function getFixtureMotivation(overall: OverallProgress): string {
+  if (overall.total <= 0) return 'Cuando haya partidos disponibles, empezá a predecir.'
+  if (overall.percent >= 85) return 'Vas muy bien. Estás cerca de completar el Mundial.'
+  if (overall.predicted === 0 || overall.percent < 35) {
+    return 'Comenzá a completar tus grupos para no perder puntos.'
+  }
+  return 'Seguí completando grupos para maximizar tus puntos.'
+}
+
+export type FixtureTimelineStep = {
+  id: string
+  label: string
+  state: 'done' | 'active' | 'upcoming'
+}
+
+export function getFixtureTimelineSteps(
+  overall: OverallProgress,
+  predictions: Prediction[],
+  matches: Match[]
+): FixtureTimelineStep[] {
+  const hasPredictions = predictions.length > 0
+  const allOpenPredicted = overall.total > 0 && overall.pending === 0
+  const hasLiveOrFinished = matches.some(m => m.status !== 'scheduled')
+  const hasScored = predictions.some(p => p.status === 'scored')
+
+  const steps: FixtureTimelineStep[] = [
+    { id: 'group', label: 'Elegí grupo', state: 'upcoming' },
+    { id: 'predict', label: 'Completá predicciones', state: 'upcoming' },
+    { id: 'wait', label: 'Esperá los partidos', state: 'upcoming' },
+    { id: 'points', label: 'Sumá puntos', state: 'upcoming' },
+  ]
+
+  if (hasScored) {
+    steps[0].state = 'done'
+    steps[1].state = 'done'
+    steps[2].state = 'done'
+    steps[3].state = 'done'
+    return steps
+  }
+
+  if (allOpenPredicted) {
+    steps[0].state = 'done'
+    steps[1].state = 'done'
+    steps[2].state = hasLiveOrFinished ? 'active' : 'done'
+    steps[3].state = 'upcoming'
+    return steps
+  }
+
+  if (hasPredictions) {
+    steps[0].state = 'done'
+    steps[1].state = 'active'
+    return steps
+  }
+
+  steps[0].state = 'active'
+  return steps
+}
+
 export function groupMatches(matches: Match[], groupId: string): Match[] {
   const id = normalizeGroupId(groupId)
   return matches

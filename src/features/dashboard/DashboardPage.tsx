@@ -6,12 +6,12 @@ import {
   HomeNextMatchCard,
   MatchPredictionModal,
   HomeContinuePredicting,
-  HomePersonalRank,
   HomeGamificationPanel,
   WorldCupHero,
   MobileHomeHeader,
   QuickActionGrid,
   HomeRankingGrid,
+  HomeActivityCard,
 } from '../../components/worldcup'
 import { useWorldCupMatches, useLeaderboard, usePredictions } from '../../useWorldCupData'
 import { useAuth } from '../../lib/auth'
@@ -53,6 +53,12 @@ export default function DashboardPage() {
     [dbPredictions, meLeaderboard?.rank]
   )
   const streaks = useMemo(() => computeStreaks(dbPredictions, matches), [dbPredictions, matches])
+
+  const hits = useMemo(
+    () => dbPredictions.filter(p => (p.points ?? 0) > 0).length,
+    [dbPredictions]
+  )
+  const pendingPredictions = overallProgress.total - overallProgress.predicted
 
   const upcoming = useMemo(
     () =>
@@ -111,11 +117,16 @@ export default function DashboardPage() {
   return (
     <>
       <div className="md:hidden">
-        <div className="wc26-scroll-content -mx-2">
+        <div className="wc26-scroll-content wc26-home-premium -mx-2">
           <MobileHomeHeader />
-          <WorldCupHero variant="mobile" countdown={countdown} />
+          <WorldCupHero
+            variant="mobile"
+            countdown={countdown}
+            onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
+            hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
+          />
 
-          <div className="wc26-content-sheet mt-1 px-3 pb-3 pt-5">
+          <div className="wc26-content-sheet wc26-content-sheet--home mt-1 px-3 pb-3 pt-5">
             <section className="mb-5">
               <HomeNextMatchCard
                 match={nextMatch}
@@ -123,6 +134,16 @@ export default function DashboardPage() {
                 onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
               />
             </section>
+
+            {currentUserId && (
+              <HomeActivityCard
+                predictionsCount={overallProgress.predicted}
+                pendingPredictions={pendingPredictions}
+                hits={hits}
+                totalPoints={meLeaderboard?.points ?? 0}
+                rank={meLeaderboard?.rank ?? null}
+              />
+            )}
 
             <HomeRankingGrid
               entries={dbLeaderboard}
@@ -137,11 +158,6 @@ export default function DashboardPage() {
 
             {currentUserId && (
               <>
-                <HomePersonalRank
-                  rank={meLeaderboard?.rank ?? null}
-                  points={meLeaderboard?.points ?? 0}
-                  totalPlayers={dbLeaderboard.length}
-                />
                 <HomeContinuePredicting
                   groups={groupProgress}
                   matches={matches}
@@ -172,13 +188,15 @@ export default function DashboardPage() {
             hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
             onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
           />
-          {currentUserId && (
-            <HomePersonalRank
+          {currentUserId ? (
+            <HomeActivityCard
+              predictionsCount={overallProgress.predicted}
+              pendingPredictions={pendingPredictions}
+              hits={hits}
+              totalPoints={meLeaderboard?.points ?? 0}
               rank={meLeaderboard?.rank ?? null}
-              points={meLeaderboard?.points ?? 0}
-              totalPlayers={dbLeaderboard.length}
             />
-          )}
+          ) : null}
         </div>
 
         <HomeRankingGrid

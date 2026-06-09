@@ -147,7 +147,7 @@ export function HomeGlobalProgressBar({
       </p>
       <div className="mx-auto mb-2 h-2 max-w-xs overflow-hidden rounded-full bg-white/10">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-[#008E5B] to-[#00C878]"
+          className="wc26-progress-fill"
           style={{ width: `${pct}%` }}
         />
       </div>

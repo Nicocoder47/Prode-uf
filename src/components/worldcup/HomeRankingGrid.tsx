@@ -11,6 +11,8 @@ type HomeRankingGridProps = {
   maxRows?: number
 }
 
+const PODIUM_ORDER = [2, 1, 3] as const
+
 function splitName(fullName?: string) {
   const parts = (fullName ?? 'Jugador').trim().split(/\s+/).filter(Boolean)
   if (parts.length <= 1) return { first: parts[0] ?? 'Jugador', last: '—' }
@@ -31,13 +33,16 @@ export function HomeRankingGrid({
   maxRows = 5,
 }: HomeRankingGridProps) {
   const rows = entries.slice(0, maxRows)
-  const top3 = rows.filter(r => (r.rank ?? 0) <= 3).slice(0, 3)
+  const top3ByRank = new Map(rows.filter(r => (r.rank ?? 0) <= 3).map(entry => [entry.rank, entry]))
+  const podiumEntries = PODIUM_ORDER.map(rank => top3ByRank.get(rank)).filter(
+    (entry): entry is LeaderboardEntry => entry != null
+  )
 
   return (
     <motion.section {...MOTION.enter} className="wc26-home-ranking mb-5">
       <div className="wc26-home-ranking__header">
         <div className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-wc26-yellow" />
+          <Trophy className="h-5 w-5 text-[#F8B91E]" />
           <div>
             <p className="wc26-home-ranking__kicker">Lo más importante</p>
             <h2 className="wc26-home-ranking__title">Ranking de jugadores</h2>
@@ -57,15 +62,21 @@ export function HomeRankingGrid({
         </div>
       ) : (
         <>
-          {top3.length > 0 && (
-            <div className="wc26-home-ranking__podium">
-              {top3.map(entry => {
+          {podiumEntries.length > 0 && (
+            <motion.div
+              initial={MOTION.stagger.initial}
+              animate={MOTION.stagger.animate}
+              className="wc26-home-ranking__podium"
+            >
+              {podiumEntries.map(entry => {
                 const { first, last } = splitName(entry.profile?.fullName)
                 const tone = rankTone(entry.rank)
                 const isMe = entry.userId === currentUserId
+
                 return (
-                  <div
+                  <motion.div
                     key={entry.userId}
+                    variants={MOTION.enterScale}
                     className={`wc26-home-ranking__podium-card wc26-home-ranking__podium-card--${tone}${isMe ? ' is-me' : ''}`}
                   >
                     <span className="wc26-home-ranking__podium-rank">
@@ -75,10 +86,10 @@ export function HomeRankingGrid({
                     <p className="wc26-home-ranking__podium-last">{last}</p>
                     <p className="wc26-home-ranking__podium-legajo">{entry.profile?.legajo ?? '—'}</p>
                     <p className="wc26-home-ranking__podium-points">{entry.points} pts</p>
-                  </div>
+                  </motion.div>
                 )
               })}
-            </div>
+            </motion.div>
           )}
 
           <div className="wc26-home-ranking__panel">

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { GRADIENTS, MOTION } from '../../constants/design'
+import { HOME_PREMIUM, MOTION } from '../../constants/design'
 import { TrophyIllustration } from './TrophyIllustration'
 
 interface WorldCupHeroProps {
@@ -57,31 +57,43 @@ export function WorldCupHero({
     return (
       <motion.div
         {...MOTION.enter}
-        className="wc26-hero-desktop relative overflow-hidden rounded-[36px] p-8 shadow-wc26-glow"
-        style={{ background: GRADIENTS.hero }}
+        className="wc26-hero-desktop relative overflow-hidden rounded-[36px] p-8"
+        style={{ background: HOME_PREMIUM.heroGradient }}
       >
-        <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-white/10" />
+        <div className="wc26-hero-desktop__glow wc26-hero-desktop__glow--left" aria-hidden="true" />
+        <div className="wc26-hero-desktop__glow wc26-hero-desktop__glow--right" aria-hidden="true" />
         <div className="relative z-10 flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-5">
             <TrophyIllustration variant="hero" className="!h-28 !w-24" />
             <div>
-              <p className="text-sm font-black uppercase tracking-widest text-wc26-yellow">PRODEMUNDIAL</p>
-              <h1 className="text-4xl font-black text-white">MUNDIAL 2026</h1>
-              <p className="mt-1 text-base font-medium text-white/80">Viví el Mundial. Jugá el Prode.</p>
+              <p className="text-sm font-black uppercase tracking-widest text-[#F8B91E]">PRODEMUNDIAL</p>
+              <h1 className="text-4xl font-black text-[#F4F7FA]">MUNDIAL 2026</h1>
+              <p className="mt-1 text-base font-medium text-[#F4F7FA]/80">Viví el Mundial. Jugá el Prode.</p>
             </div>
           </div>
           {countdown && (
-            <div className="wc26-glass flex gap-3 rounded-[28px] px-5 py-4">
+            <div className="wc26-countdown-panel wc26-countdown-panel--desktop">
+              <p className="wc26-countdown-title mb-3 text-center">Próximo partido</p>
               <CountdownUnits countdown={countdown} />
             </div>
           )}
           <div className="flex gap-3">
-            <button type="button" onClick={onPredict} className="wc26-btn-predict px-8 py-3 text-sm">
-              {hasPrediction ? 'Editar predicción' : 'Predicción rápida'}
-            </button>
-            <button type="button" onClick={onFixture} className="wc26-btn-fixture px-8 py-3 text-sm">
+            <motion.button
+              type="button"
+              onClick={onPredict}
+              className="wc26-home-hero__cta"
+              {...MOTION.tap}
+            >
+              {hasPrediction ? 'Editar predicción' : 'Predecir ahora'}
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={onFixture}
+              className="wc26-btn-fixture px-8 py-3 text-sm"
+              {...MOTION.tap}
+            >
               Ver fixture
-            </button>
+            </motion.button>
           </div>
         </div>
       </motion.div>
@@ -90,17 +102,18 @@ export function WorldCupHero({
 
   return (
     <motion.section {...MOTION.slideUp} className="wc26-home-hero relative px-4 pb-3 pt-1 text-center">
+      <div className="wc26-home-hero__aurora" aria-hidden="true" />
       <div className="relative mx-auto flex w-full max-w-sm flex-col items-center">
         <p className="w-full text-center text-[10px] font-black uppercase tracking-[0.32em] text-[#F8B91E] drop-shadow-sm">
           PRODEMUNDIAL 2026
         </p>
         <h1
-          className="mt-2 w-full text-center font-black uppercase leading-[0.95] tracking-tight text-white drop-shadow-lg"
+          className="mt-2 w-full text-center font-black uppercase leading-[0.95] tracking-tight text-[#F4F7FA] drop-shadow-lg"
           style={{ fontSize: 'clamp(1.5rem, 6.5vw, 2rem)' }}
         >
           VIVÍ EL MUNDIAL 2026
         </h1>
-        <p className="mt-1.5 w-full text-center text-sm font-semibold text-white/90 drop-shadow-sm">
+        <p className="mt-1.5 w-full text-center text-sm font-semibold text-[#F4F7FA]/90 drop-shadow-sm">
           Viví el Mundial. Jugá el Prode.
         </p>
 
@@ -110,11 +123,20 @@ export function WorldCupHero({
 
         {countdown && (
           <motion.div {...MOTION.fadeIn} className="wc26-countdown-panel mx-auto w-full max-w-[22rem]">
-            <p className="wc26-countdown-title mb-3 text-center">
-              Falta para el próximo partido
-            </p>
+            <p className="wc26-countdown-title mb-3 text-center">Falta para el próximo partido</p>
             <CountdownUnits countdown={countdown} compact />
           </motion.div>
+        )}
+
+        {onPredict && (
+          <motion.button
+            type="button"
+            onClick={onPredict}
+            className="wc26-home-hero__cta wc26-home-hero__cta--mobile mx-auto mt-4 w-full max-w-[22rem]"
+            {...MOTION.tap}
+          >
+            {hasPrediction ? 'Editar predicción' : 'Predecir ahora'}
+          </motion.button>
         )}
       </div>
     </motion.section>

@@ -136,6 +136,15 @@ export const MUNDIAL_NIGHT = {
   accentGreen: '#1B7A43',
 } as const;
 
+/** Home Premium — Mundial Night surfaces (Fase 2) */
+export const HOME_PREMIUM = {
+  ...MUNDIAL_NIGHT,
+  heroGradient:
+    'radial-gradient(circle at 14% 0%, rgba(248,185,30,0.22), transparent 42%), radial-gradient(circle at 88% 12%, rgba(0,87,184,0.28), transparent 38%), linear-gradient(165deg, #041418 0%, #0B1220 52%, #0f1a2e 100%)',
+  sheetBg: 'rgba(11, 18, 32, 0.72)',
+  sheetEdge: 'rgba(212, 175, 55, 0.14)',
+} as const;
+
 /** Assets estáticos en /public */
 export const WC26_ASSETS = {
   copita: '/copita.png',
