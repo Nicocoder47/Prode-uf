@@ -6,6 +6,7 @@ import {
   fetchAdminNotifications,
   fetchAdminUserDetail,
   fetchAdminUsers,
+  fetchMatchPredictionCounts,
   getAdminDataMode,
 } from '../services/admin/adminService'
 import type { AdminActivityRow, AdminDashboard, AdminNotificationRow, AdminUserDetail, AdminUserRow } from '../types/admin'
@@ -19,6 +20,7 @@ export const adminKeys = {
   notifications: () => [...adminKeys.all, 'notifications'] as const,
   cards: () => [...adminKeys.all, 'cards'] as const,
   rpcMode: () => [...adminKeys.all, 'rpc-mode'] as const,
+  matchPredictionCounts: (ids: string) => [...adminKeys.all, 'match-prediction-counts', ids] as const,
 }
 
 export function useAdminDashboard() {
@@ -91,6 +93,16 @@ export function useAdminRpcMode() {
       return getAdminDataMode()
     },
     staleTime: 5 * 60_000,
+  })
+}
+
+export function useMatchPredictionCounts(matchIds: string[]) {
+  const key = matchIds.slice().sort().join(',')
+  return useQuery<Record<string, number>>({
+    queryKey: adminKeys.matchPredictionCounts(key),
+    queryFn: () => fetchMatchPredictionCounts(matchIds),
+    enabled: matchIds.length > 0,
+    staleTime: 30_000,
   })
 }
 

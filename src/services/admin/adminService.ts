@@ -255,6 +255,20 @@ export async function fetchAdminCardsManage(): Promise<AdminCard[]> {
   return unwrap<AdminCard[]>(data ?? [])
 }
 
+export async function fetchMatchPredictionCounts(matchIds: string[]): Promise<Record<string, number>> {
+  if (matchIds.length === 0) return {}
+
+  const { data, error } = await supabase.from('predictions').select('match_id').in('match_id', matchIds)
+  if (error) throw error
+
+  const counts = Object.fromEntries(matchIds.map(id => [id, 0]))
+  for (const row of data ?? []) {
+    const matchId = (row as { match_id: string }).match_id
+    counts[matchId] = (counts[matchId] ?? 0) + 1
+  }
+  return counts
+}
+
 export async function logUserLogin() {
   const { error } = await supabase.rpc('log_user_login')
   if (error && !isRpcMissing(error)) throw error
