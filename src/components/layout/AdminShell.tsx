@@ -32,10 +32,10 @@ export function AdminShell() {
   const { profile } = useAuth()
 
   return (
-    <div className="admin-shell min-h-screen bg-[#030712] text-white">
+    <div className="admin-shell min-h-screen bg-transparent text-white">
       <div className="admin-shell-glow pointer-events-none fixed inset-0" aria-hidden />
 
-      <header className="admin-shell-header sticky top-0 z-40 border-b border-amber-400/15 bg-[rgba(3,7,18,0.92)] backdrop-blur-xl">
+      <header className="admin-shell-header sticky top-0 z-40 border-b border-amber-400/15 bg-white/[0.04] backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 md:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <div className="admin-shell-badge grid h-11 w-11 place-items-center rounded-2xl">

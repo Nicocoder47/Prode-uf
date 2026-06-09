@@ -143,7 +143,7 @@ export const FIXTURE_GAME_CENTER = {
   groupBlue: '#1D4ED8',
   stadiumBg:
     'radial-gradient(ellipse 120% 80% at 50% -20%, rgba(0,87,184,0.12), transparent 55%), linear-gradient(180deg, #041418 0%, #0B1220 100%)',
-  glass: 'rgba(11, 18, 32, 0.78)',
+  glass: 'rgba(255, 255, 255, 0.04)',
   glassEdge: 'rgba(34, 197, 94, 0.18)',
   goldGradient: 'linear-gradient(90deg, #D4AF37 0%, #F8B91E 55%, #FFE08A 100%)',
   greenGradient: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
@@ -156,8 +156,17 @@ export const HOME_PREMIUM = {
   ...MUNDIAL_NIGHT,
   heroGradient:
     'radial-gradient(circle at 14% 0%, rgba(248,185,30,0.22), transparent 42%), radial-gradient(circle at 88% 12%, rgba(0,87,184,0.28), transparent 38%), linear-gradient(165deg, #041418 0%, #0B1220 52%, #0f1a2e 100%)',
-  sheetBg: 'rgba(11, 18, 32, 0.72)',
+  sheetBg: 'transparent',
   sheetEdge: 'rgba(212, 175, 55, 0.14)',
+} as const;
+
+/** Mundial En Vivo — home carousel (cache 30 min) */
+export const LIVE_INSIGHTS = {
+  ...MUNDIAL_NIGHT,
+  competitiveGreen: '#22C55E',
+  glass: 'rgba(255, 255, 255, 0.04)',
+  glassEdge: 'rgba(34, 197, 94, 0.16)',
+  goldBright: '#F8B91E',
 } as const;
 
 /** Assets estáticos en /public */
@@ -165,6 +174,7 @@ export const WC26_ASSETS = {
   copita: '/copita.png',
   fondoVertical: '/fondo%20vertical.png',
   fondoNav: '/fondo%20nav.png',
+  fondoJugar: '/fondo-jugar.png',
 } as const;
 
 export const BREAKPOINTS = { sm: 640, md: 768, lg: 1024, xl: 1280 };

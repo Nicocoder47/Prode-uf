@@ -22,8 +22,8 @@ export function PremiumCard({
 }: PremiumCardProps) {
   const variants = {
     default: 'border border-white/10 bg-[rgba(255,255,255,0.05)] backdrop-blur-xl shadow-glass',
-    dark: 'border border-white/10 bg-[rgba(4,8,24,0.85)] backdrop-blur-xl shadow-glass',
-    elevated: 'border border-white/10 bg-[rgba(8,18,44,0.76)] backdrop-blur-xl shadow-glassCard',
+    dark: 'border border-white/10 bg-white/[0.04] backdrop-blur-xl shadow-glass',
+    elevated: 'border border-white/10 bg-white/[0.06] backdrop-blur-xl shadow-glassCard',
     premium: 'border border-[rgba(37,99,235,0.25)] bg-gradient-to-br from-[rgba(37,99,235,0.08)] to-[rgba(245,196,81,0.08)] backdrop-blur-xl shadow-[0_0_40px_rgba(37,99,235,0.12)]',
   }
 

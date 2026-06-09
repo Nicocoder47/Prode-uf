@@ -94,7 +94,7 @@ export function AuthStatusMessage({ status, message }: { status: UiStatus; messa
         ? 'border-sky-400/40 bg-sky-500/15 text-sky-100'
         : status === 'error'
           ? 'border-red-400/40 bg-red-500/15 text-red-100'
-          : 'border-white/20 bg-black/25 text-white/80'
+          : 'border-white/20 bg-white/[0.04] text-white/80'
 
   return (
     <motion.div

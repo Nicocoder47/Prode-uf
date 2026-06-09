@@ -54,7 +54,7 @@ function TicketRow({
         rows={3}
         value={response}
         onChange={e => setResponse(e.target.value)}
-        className="mt-4 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white"
+        className="mt-4 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white backdrop-blur-xl"
         placeholder="Respuesta para el usuario"
       />
 

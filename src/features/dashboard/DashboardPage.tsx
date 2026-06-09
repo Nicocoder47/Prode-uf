@@ -11,9 +11,10 @@ import {
   MobileHomeHeader,
   QuickActionGrid,
   HomeRankingGrid,
-  HomeActivityCard,
+  WorldCupLiveCarousel,
 } from '../../components/worldcup'
-import { useWorldCupMatches, useLeaderboard, usePredictions } from '../../useWorldCupData'
+import { useWorldCupLiveInsights } from '../../hooks/useWorldCupLiveInsights'
+import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers, useAllPlayers } from '../../useWorldCupData'
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
 import {
@@ -34,6 +35,8 @@ export default function DashboardPage() {
   const { data: matches = [] } = useWorldCupMatches()
   const { data: dbPredictions = [] } = usePredictions(currentUserId)
   const { data: dbLeaderboard = [], isLoading: leaderboardLoading } = useLeaderboard()
+  const { data: topScorers = [] } = useTopScorers()
+  const { data: allPlayers = [] } = useAllPlayers()
 
   const predictionSet = useMemo(() => new Set(dbPredictions.map(p => p.matchId)), [dbPredictions])
   const groupProgress = useMemo(
@@ -54,12 +57,6 @@ export default function DashboardPage() {
   )
   const streaks = useMemo(() => computeStreaks(dbPredictions, matches), [dbPredictions, matches])
 
-  const hits = useMemo(
-    () => dbPredictions.filter(p => (p.points ?? 0) > 0).length,
-    [dbPredictions]
-  )
-  const pendingPredictions = overallProgress.total - overallProgress.predicted
-
   const upcoming = useMemo(
     () =>
       matches
@@ -69,6 +66,18 @@ export default function DashboardPage() {
   )
 
   const nextMatch = upcoming[0] ?? null
+
+  const { cards: liveCards } = useWorldCupLiveInsights({
+    matches,
+    leaderboard: dbLeaderboard,
+    topScorers,
+    players: allPlayers,
+    overall: overallProgress,
+    groupProgress,
+    userId: currentUserId,
+    points: meLeaderboard?.points ?? 0,
+    rank: meLeaderboard?.rank ?? null,
+  })
 
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -127,23 +136,10 @@ export default function DashboardPage() {
           />
 
           <div className="wc26-content-sheet wc26-content-sheet--home mt-1 px-3 pb-3 pt-5">
-            <section className="mb-5">
-              <HomeNextMatchCard
-                match={nextMatch}
-                hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
-                onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
-              />
-            </section>
-
-            {currentUserId && (
-              <HomeActivityCard
-                predictionsCount={overallProgress.predicted}
-                pendingPredictions={pendingPredictions}
-                hits={hits}
-                totalPoints={meLeaderboard?.points ?? 0}
-                rank={meLeaderboard?.rank ?? null}
-              />
-            )}
+            <WorldCupLiveCarousel
+              cards={liveCards}
+              onPredict={openPredict}
+            />
 
             <HomeRankingGrid
               entries={dbLeaderboard}
@@ -182,22 +178,13 @@ export default function DashboardPage() {
           onFixture={() => navigate('/matches')}
         />
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <HomeNextMatchCard
-            match={nextMatch}
-            hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
-            onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
-          />
-          {currentUserId ? (
-            <HomeActivityCard
-              predictionsCount={overallProgress.predicted}
-              pendingPredictions={pendingPredictions}
-              hits={hits}
-              totalPoints={meLeaderboard?.points ?? 0}
-              rank={meLeaderboard?.rank ?? null}
-            />
-          ) : null}
-        </div>
+        <WorldCupLiveCarousel cards={liveCards} onPredict={openPredict} />
+
+        <HomeNextMatchCard
+          match={nextMatch}
+          hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
+          onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
+        />
 
         <HomeRankingGrid
           entries={dbLeaderboard}

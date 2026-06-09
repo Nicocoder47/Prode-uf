@@ -115,7 +115,7 @@ export default function AdminCardsPage() {
             {cards.map(card => (
               <div
                 key={card.id}
-                className={`rounded-2xl border p-4 ${card.is_active ? 'border-white/10 bg-white/5' : 'border-white/5 bg-black/20 opacity-60'}`}
+                className={`rounded-2xl border p-4 ${card.is_active ? 'border-white/10 bg-white/5' : 'border-white/5 bg-white/[0.03] opacity-60'}`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>

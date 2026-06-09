@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import { useLocation } from 'react-router-dom'
 
-export type BackgroundVariant = 'default' | 'home' | 'hero' | 'none'
+export type BackgroundVariant = 'default' | 'home' | 'hero' | 'play' | 'none'
 
 type BackgroundContextValue = {
   variant: BackgroundVariant
@@ -11,8 +11,13 @@ const BackgroundContext = createContext<BackgroundContextValue>({ variant: 'defa
 
 function resolveVariant(pathname: string): BackgroundVariant {
   if (pathname === '/') return 'home'
+  if (pathname === '/matches' || pathname.startsWith('/matches/')) return 'play'
   if (pathname === '/login' || pathname === '/registro' || pathname === '/register' || pathname === '/invite') return 'hero'
   return 'default'
+}
+
+function isPlayRoute(pathname: string) {
+  return pathname === '/matches' || pathname.startsWith('/matches/')
 }
 
 export function BackgroundProvider({ children }: { children: ReactNode }) {
@@ -26,11 +31,14 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
 
   return (
     <BackgroundContext.Provider value={{ variant }}>
-      <div className="wc26-bg-root">
+      <div className={`wc26-bg-root${isPlayRoute(pathname) ? ' wc26-bg-root--play' : ''}`}>
         <div className="wc26-bg-base" aria-hidden="true" />
         <div className="wc26-bg-gradient" aria-hidden="true" />
         <div className="wc26-bg-noise" aria-hidden="true" />
-        {variant === 'home' && <div className="wc26-bg-mural md:hidden" aria-hidden="true" />}
+        <div
+          className={`wc26-bg-mural${isPlayRoute(pathname) ? ' wc26-bg-mural--play' : ''}`}
+          aria-hidden="true"
+        />
         <div className="wc26-bg-content">{children}</div>
       </div>
     </BackgroundContext.Provider>

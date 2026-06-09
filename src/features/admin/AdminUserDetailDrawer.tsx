@@ -95,7 +95,7 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
               <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/50">Datos declarados</p>
               <ul className="space-y-1 text-sm text-white/85">
                 <li><strong>Nombre:</strong> {u.full_name}</li>
@@ -107,7 +107,7 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
                 <li><strong>Motivo revisión:</strong> {u.review_reason ?? '—'}</li>
               </ul>
             </div>
-            <div className={`rounded-2xl border p-4 ${padron ? 'border-white/10 bg-black/20' : 'border-red-400/30 bg-red-500/10'}`}>
+            <div className={`rounded-2xl border p-4 ${padron ? 'border-white/10 bg-white/[0.04] backdrop-blur-xl' : 'border-red-400/30 bg-red-500/10'}`}>
               <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/50">Padrón de referencia</p>
               {padron ? (
                 <ul className="space-y-1 text-sm text-white/85">
@@ -230,7 +230,7 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
           <div className="rounded-2xl border border-white/10 bg-white/5 p-3 space-y-2">
             <label className="block text-xs font-bold uppercase text-white/50">Motivo / notas</label>
             <input
-              className="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white backdrop-blur-xl"
               placeholder="Motivo de la acción (opcional)"
               value={actionReason}
               onChange={e => setActionReason(e.target.value)}
@@ -258,8 +258,8 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
 
           <div className="rounded-2xl border border-white/10 bg-white/5 p-3 space-y-2">
             <p className="text-xs font-bold uppercase text-white/50">Notificación personal</p>
-            <input className="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white" placeholder="Título" value={notifyTitle} onChange={e => setNotifyTitle(e.target.value)} />
-            <textarea rows={2} className="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white" placeholder="Mensaje" value={notifyMessage} onChange={e => setNotifyMessage(e.target.value)} />
+            <input className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white backdrop-blur-xl" placeholder="Título" value={notifyTitle} onChange={e => setNotifyTitle(e.target.value)} />
+            <textarea rows={2} className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white backdrop-blur-xl" placeholder="Mensaje" value={notifyMessage} onChange={e => setNotifyMessage(e.target.value)} />
             <PremiumButton size="sm" disabled={busy || !notifyTitle.trim() || !notifyMessage.trim()} onClick={() => runAction(() => adminCreateNotification({ title: notifyTitle, message: notifyMessage, targetType: 'user', targetUserId: u.id }), 'Notificación enviada')}>
               Enviar
             </PremiumButton>

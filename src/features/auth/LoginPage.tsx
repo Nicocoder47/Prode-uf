@@ -145,7 +145,7 @@ export default function LoginPage() {
 
   return (
     <AuthShell>
-      <div className="mb-2 grid grid-cols-2 gap-1.5 rounded-2xl border border-white/10 bg-black/20 p-1">
+      <div className="mb-2 grid grid-cols-2 gap-1.5 rounded-2xl border border-white/10 bg-white/[0.04] p-1 backdrop-blur-xl">
         <button
           type="button"
           onClick={() => switchMode('register')}

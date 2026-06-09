@@ -34,7 +34,7 @@ export function MatchCard({
     open: 'border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.05)]',
     live: 'border-[rgba(239,68,68,0.28)] bg-[rgba(239,68,68,0.10)] shadow-[0_0_40px_rgba(239,68,68,0.18)]',
     locking: 'border-[rgba(245,196,81,0.30)] bg-[rgba(245,196,81,0.10)]',
-    finished: 'border-[rgba(148,163,184,0.18)] bg-[rgba(15,23,42,0.70)]',
+    finished: 'border-[rgba(148,163,184,0.18)] bg-white/[0.04]',
   }
 
   const statusLabel = {
@@ -146,7 +146,7 @@ export function PlayerCard({
     >
       <div className="space-y-3">
         {/* Photo / Avatar */}
-        <div className="relative h-32 w-full overflow-hidden rounded-[16px] bg-slate-900">
+        <div className="relative h-32 w-full overflow-hidden rounded-[16px] bg-white/[0.04]">
           {photo ? (
             <img src={photo} alt={name} className="h-full w-full object-cover" />
           ) : (
@@ -170,19 +170,19 @@ export function PlayerCard({
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2">
           {rating ? (
-            <div className="rounded-lg bg-slate-900/50 px-2 py-1 text-center">
+            <div className="rounded-lg bg-white/[0.05] px-2 py-1 text-center">
               <p className="text-xs text-slate-400">Rating</p>
               <p className="text-sm font-semibold text-yellow-300">{rating.toFixed(1)}⭐</p>
             </div>
           ) : null}
           {goals !== undefined ? (
-            <div className="rounded-lg bg-slate-900/50 px-2 py-1 text-center">
+            <div className="rounded-lg bg-white/[0.05] px-2 py-1 text-center">
               <p className="text-xs text-slate-400">Goles</p>
               <p className="text-sm font-semibold text-emerald-300">⚽{goals}</p>
             </div>
           ) : null}
           {assists !== undefined ? (
-            <div className="rounded-lg bg-slate-900/50 px-2 py-1 text-center">
+            <div className="rounded-lg bg-white/[0.05] px-2 py-1 text-center">
               <p className="text-xs text-slate-400">Asist</p>
               <p className="text-sm font-semibold text-blue-300">{assists}</p>
             </div>
@@ -235,7 +235,7 @@ export function LeaderboardRow({
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-lg font-bold">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.05] text-lg font-bold">
             {getMedalIcon(rank) || <span className="text-sm text-slate-400">#{rank}</span>}
           </div>
           <div className="flex-1">

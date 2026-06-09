@@ -45,6 +45,20 @@ import type {
 import { WC26_GROUP_NAMES, normalizeGroupId } from '../../constants/groups';
 import { filterActiveLeaderboard } from '../../utils/leaderboardDisplay';
 
+export type LiveMatchStatRow = {
+  matchId: string
+  predictionCount: number
+  homePct: number
+  drawPct: number
+  awayPct: number
+}
+
+function isRpcMissing(error: { code?: string; message?: string }): boolean {
+  const code = error.code ?? ''
+  const msg = (error.message ?? '').toLowerCase()
+  return code === '42883' || code === 'PGRST202' || msg.includes('function') && msg.includes('does not exist')
+}
+
 
 
 const TEAM_COLS =
@@ -617,6 +631,21 @@ export const worldCupService = {
 
     return (data ?? []).map(row => mapDbPlayerLiveStatus(asDbRow(row)));
 
+  },
+
+  getLiveMatchStats: async (): Promise<LiveMatchStatRow[]> => {
+    const { data, error } = await supabase.rpc('get_live_match_stats')
+    if (error) {
+      if (isRpcMissing(error)) return []
+      throw error
+    }
+    return (data ?? []).map((row: Record<string, unknown>) => ({
+      matchId: String(row.match_id),
+      predictionCount: Number(row.prediction_count ?? 0),
+      homePct: Number(row.home_pct ?? 0),
+      drawPct: Number(row.draw_pct ?? 0),
+      awayPct: Number(row.away_pct ?? 0),
+    }))
   },
 
 };

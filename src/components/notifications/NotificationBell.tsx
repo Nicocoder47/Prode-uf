@@ -51,7 +51,7 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-[rgba(4,8,24,0.96)] p-3 shadow-xl backdrop-blur-xl">
+        <div className="absolute right-0 top-full z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-white/[0.05] p-3 shadow-xl backdrop-blur-xl">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm font-extrabold text-white">Notificaciones</p>
             <Link to="/notifications" className="text-xs font-bold text-wc26-yellow" onClick={() => setOpen(false)}>
