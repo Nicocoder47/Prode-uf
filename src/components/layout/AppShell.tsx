@@ -1,9 +1,12 @@
 import type { ReactNode } from 'react'
 import { NavLink, useLocation, Link } from 'react-router-dom'
-import { Bell, CalendarDays, Home, ShieldCheck, Shield, Target, User } from 'lucide-react'
+import { CalendarDays, Home, ShieldCheck, Shield, Target, User } from 'lucide-react'
+import { NotificationBell } from '../notifications/NotificationBell.tsx'
+import { NotificationTicker } from '../notifications/NotificationTicker.tsx'
 import { useAuth } from '../../lib/auth.tsx'
 import { BottomNavigation } from '../worldcup/BottomNavigation'
 import { SeccionalLogo } from './SeccionalLogo'
+import { MobileTopHeader } from './MobileTopHeader'
 
 const navItems = [
   { to: '/', label: 'Inicio', icon: Home, tone: 'home' },
@@ -24,29 +27,19 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="wc26-screen text-wc26-text">
       <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col md:max-w-[1700px] md:px-6 md:py-4 lg:px-8">
-        <header
-          className={`mx-1 mb-3 mt-[max(0.75rem,env(safe-area-inset-top))] flex items-center justify-between rounded-[28px] wc26-glass px-4 py-3 md:hidden ${
-            isFixture ? 'border border-amber-400/20' : ''
-          } ${isHome ? 'hidden' : ''}`}
-        >
-          <div className="flex min-w-0 items-center gap-2.5">
-            <SeccionalLogo size="sm" />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-extrabold tracking-tight text-white">PRODEMUNDIAL</p>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75">
-                {isFixture ? 'Centro del juego' : 'Mundial 2026'}
-              </p>
-            </div>
+        {!isHome && (
+          <MobileTopHeader
+            className={`mx-1 mb-1 mt-[max(0.75rem,env(safe-area-inset-top))] md:hidden ${
+              isFixture ? 'border border-amber-400/20' : ''
+            }`}
+          />
+        )}
+
+        {!isHome && (
+          <div className="mb-2 md:hidden">
+            <NotificationTicker />
           </div>
-          <div className="flex items-center gap-2">
-            <button type="button" className="wc26-header-icon-btn" aria-label="Notificaciones">
-              <Bell className="h-4 w-4" />
-            </button>
-            <Link to="/profile" className="wc26-header-icon-btn" aria-label="Perfil">
-              <User className="h-4 w-4" />
-            </Link>
-          </div>
-        </header>
+        )}
 
         <header className="mb-4 hidden rounded-[32px] wc26-glass p-5 md:block">
           <div className="flex items-center justify-between gap-4">
@@ -57,9 +50,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <h1 className="text-xl font-extrabold text-white lg:text-2xl">Viví el Mundial. Jugá el Prode.</h1>
               </div>
             </div>
-            <Link to="/profile" className="wc26-chip-light !px-4 !py-2">
-              <User className="h-4 w-4" /> {profile?.full_name ?? 'Perfil'}
-            </Link>
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <Link to="/profile" className="wc26-chip-light !px-4 !py-2">
+                <User className="h-4 w-4" /> {profile?.full_name ?? 'Perfil'}
+              </Link>
+            </div>
           </div>
         </header>
 

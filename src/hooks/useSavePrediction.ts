@@ -23,6 +23,30 @@ export function useSavePrediction(userId?: string) {
         throw new Error('Debes iniciar sesión con tu email para predecir.')
       }
 
+      const { data: profile, error: profileErr } = await supabase
+        .from('profiles')
+        .select('is_active, deleted_at')
+        .eq('id', userId)
+        .single()
+
+      if (profileErr) {
+        if (profileErr.message.includes('deleted_at')) {
+          const { data: activeOnly, error: activeErr } = await supabase
+            .from('profiles')
+            .select('is_active')
+            .eq('id', userId)
+            .single()
+          if (activeErr) throw activeErr
+          if (activeOnly.is_active === false) {
+            throw new Error('Tu cuenta está deshabilitada. No podés predecir.')
+          }
+        } else {
+          throw profileErr
+        }
+      } else if (profile.deleted_at || profile.is_active === false) {
+        throw new Error('Tu cuenta está deshabilitada. No podés predecir.')
+      }
+
       const coherenceError = validatePredictionCoherence(input.result, input.homeScore, input.awayScore)
       if (coherenceError) throw new Error(coherenceError)
 

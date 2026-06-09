@@ -58,7 +58,7 @@ export default function MatchesPage() {
   return (
     <>
       <div className="md:hidden">
-        <header className="wc26-fixture-hero-header mb-5">
+        <header className="wc26-fixture-hero-header mb-4">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#FFD700]">Centro del juego</p>
           <h1 className="mt-1 text-2xl font-extrabold text-white">
             {selectedGroup ? `Grupo ${selectedGroup}` : 'Fixture'}

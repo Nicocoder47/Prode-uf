@@ -99,6 +99,16 @@ export function mapRegistrationError(code: string): string {
       return 'Ese email ya está registrado. Usá Iniciar sesión.'
     case 'profile_incomplete':
       return 'Tu cuenta está incompleta. Completá el registro con DNI y legajo.'
+    case 'legajo_not_authorized':
+      return 'Legajo no autorizado. Verificá tus datos o consultá con la administración.'
+    case 'legajo_blocked':
+      return 'Tu legajo está bloqueado. Consultá con la administración.'
+    case 'legajo_inactive':
+      return 'Tu legajo no está activo. Consultá con la administración.'
+    case 'dni_mismatch':
+      return 'El DNI no coincide con el legajo autorizado.'
+    case 'account_disabled':
+      return 'Tu cuenta está deshabilitada. Consultá con la administración.'
     default:
       return 'No pudimos validar tus datos. Intentá de nuevo.'
   }

@@ -123,7 +123,19 @@ export default function LoginPage() {
       setMessage(result.message)
 
       if (result.status === 'success') {
-        setTimeout(() => navigate('/', { replace: true }), 900)
+        let dest = '/'
+        if (mode === 'login') {
+          const { data: auth } = await supabase.auth.getUser()
+          if (auth.user?.id) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', auth.user.id)
+              .maybeSingle()
+            if (profile?.role === 'admin') dest = '/admin'
+          }
+        }
+        setTimeout(() => navigate(dest, { replace: true }), 900)
       }
     } catch (err) {
       setStatus('error')
@@ -244,9 +256,13 @@ export default function LoginPage() {
       {import.meta.env.DEV && devSignIn ? (
         <button
           type="button"
-          onClick={() => {
-            devSignIn()
-            navigate('/')
+          onClick={async () => {
+            await devSignIn()
+            const { data: auth } = await supabase.auth.getUser()
+            const { data: profile } = auth.user
+              ? await supabase.from('profiles').select('role').eq('id', auth.user.id).maybeSingle()
+              : { data: null }
+            navigate(profile?.role === 'admin' ? '/admin' : '/', { replace: true })
           }}
           className="wc26-login-secondary mt-3 border-dashed opacity-70"
         >

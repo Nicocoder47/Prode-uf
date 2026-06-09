@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell.tsx'
+import { AdminShell } from './components/layout/AdminShell.tsx'
 import { BackgroundProvider } from './components/layout/BackgroundProvider.tsx'
 import { ToastProvider } from './components/ui/ToastProvider.tsx'
 import ProtectedRoute from './routes/ProtectedRoute.tsx'
@@ -23,10 +24,8 @@ const GroupDetailPage = lazy(() => import('./features/groups/GroupDetailPage.tsx
 const PredictionsPage = lazy(() => import('./features/predictions/PredictionsPage.tsx'))
 const ProfilePage = lazy(() => import('./features/auth/ProfilePage.tsx'))
 const LoginPage = lazy(() => import('./features/auth/LoginPage.tsx'))
-const AdminPage = lazy(() => import('./features/admin/AdminPageNew.tsx'))
-const AdminDataQualityPage = lazy(() => import('./features/admin/AdminDataQualityPage.tsx'))
-const AdminSystemPage = lazy(() => import('./features/admin/AdminSystemPage.tsx'))
-const AdminKnockoutPage = lazy(() => import('./features/admin/AdminKnockoutPage.tsx'))
+const AdminUnifiedPage = lazy(() => import('./features/admin/AdminUnifiedPage.tsx'))
+const NotificationsPage = lazy(() => import('./features/notifications/NotificationsPage.tsx'))
 
 function PageLoader() {
   return (
@@ -48,6 +47,16 @@ function App() {
         <Route path="/invite" element={<Navigate to="/login" replace />} />
 
         <Route element={<ProtectedRoute />}>
+          <Route path="admin" element={<AdminRoute />}>
+            <Route element={<AdminShell />}>
+              <Route index element={<AdminUnifiedPage />} />
+              <Route path="users" element={<Navigate to="/admin#users" replace />} />
+              <Route path="activity" element={<Navigate to="/admin#activity" replace />} />
+              <Route path="notifications" element={<Navigate to="/admin#notifications" replace />} />
+              <Route path="cards" element={<Navigate to="/admin#cards" replace />} />
+            </Route>
+          </Route>
+
           <Route element={<AppShell><Outlet /></AppShell>}>
             <Route index element={<DashboardPage />} />
             <Route path="home" element={<Navigate to="/" replace />} />
@@ -66,12 +75,7 @@ function App() {
             <Route path="leaderboard" element={<LeaderboardPage />} />
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="profile" element={<ProfilePage />} />
-            <Route path="admin" element={<AdminRoute />}>
-              <Route index element={<AdminPage />} />
-              <Route path="data-quality" element={<AdminDataQualityPage />} />
-              <Route path="system" element={<AdminSystemPage />} />
-              <Route path="knockout" element={<AdminKnockoutPage />} />
-            </Route>
+            <Route path="notifications" element={<NotificationsPage />} />
           </Route>
         </Route>
 

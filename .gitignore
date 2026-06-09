@@ -17,6 +17,10 @@ dist-ssr
 !.env.cloud.example
 
 reports/master-admin-credentials.json
+data/*.xlsx
+reports/migration*.b64*
+reports/dashboard-expr-*
+reports/cdp-chunks/
 
 # Debug API dumps (no commitear respuestas)
 debug/football-data/*.json

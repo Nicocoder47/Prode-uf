@@ -49,7 +49,7 @@ export default function TeamsListPage() {
   }
 
   return (
-    <div className="space-y-5 pb-4">
+    <div className="space-y-4 pb-3">
       <header className="wc26-page-header wc26-page-header--green wc26-page-header--teams">
         <p className="wc26-page-header__eyebrow">Selecciones</p>
         <h1 className="text-2xl font-extrabold text-white md:text-3xl">48 equipos</h1>
@@ -62,7 +62,7 @@ export default function TeamsListPage() {
         <p className="wc26-card p-5 text-center text-sm text-wc26-text/55">{EMPTY.teams}</p>
       )}
 
-      <div className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-3 xl:grid-cols-3">
+      <div className="flex flex-col gap-2.5 md:grid md:grid-cols-2 md:gap-3 xl:grid-cols-3">
         {sortedTeams.map((team, i) => {
           const group = groupByTeam.get(team.id) || normalizeGroupId(team.group) || '—'
           const accent = group !== '—' ? groupColor(group) : '#006B3F'
@@ -92,4 +92,4 @@ export default function TeamsListPage() {
     </div>
   )
 }
-
+

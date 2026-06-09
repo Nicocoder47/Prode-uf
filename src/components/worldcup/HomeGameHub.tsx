@@ -213,14 +213,40 @@ export function HomeGamificationPanel({
   )
 }
 
-export function GroupTeamFlags({ teams }: { teams: { flag?: string | null; code?: string; name?: string }[] }) {
+export function GroupTeamFlags({
+  teams,
+  premium = false,
+  compact = false,
+}: {
+  teams: { flag?: string | null; code?: string; name?: string }[]
+  premium?: boolean
+  compact?: boolean
+}) {
   if (teams.length === 0) return null
+
+  if (compact) {
+    return (
+      <div className="wc26-fixture-teams-grid">
+        {teams.slice(0, 4).map(team => (
+          <div key={team.code ?? team.name} className="wc26-fixture-team-row">
+            <span className="wc26-fixture-team-row__flag">
+              <TeamCrest flag={team.flag} code={team.code} name={team.name} size="xs" premium={premium} />
+            </span>
+            <span className="wc26-fixture-team-row__name">{team.name || team.code}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <div className="mt-3 flex flex-col gap-2">
+    <div className="wc26-fixture-teams-list">
       {teams.slice(0, 4).map(team => (
-        <div key={team.code} className="flex items-center gap-2">
-          <TeamCrest flag={team.flag} code={team.code} name={team.name} size="sm" />
-          <span className="truncate text-[11px] font-bold text-white/80">{team.name || team.code}</span>
+        <div key={team.code ?? team.name} className="wc26-fixture-team-row">
+          <span className="wc26-fixture-team-row__flag">
+            <TeamCrest flag={team.flag} code={team.code} name={team.name} size="sm" premium={premium} />
+          </span>
+          <span className="wc26-fixture-team-row__name">{team.name || team.code}</span>
         </div>
       ))}
     </div>

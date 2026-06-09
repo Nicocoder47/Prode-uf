@@ -118,31 +118,37 @@ export function TeamProfileCard({
   }
 
   const header = (
-    <div className="wc26-team-profile__header-inner">
+    <div
+      className={`wc26-team-profile__header-inner${
+        collapsible && !expanded ? ' wc26-team-profile__header-inner--row' : ''
+      }${expanded ? ' is-expanded' : ''}`}
+    >
       <div className="wc26-team-profile__crest-slot">
         <TeamCrest
           flag={team.flag}
           code={team.code}
           name={team.name}
           countryCode={team.countryCode}
-          size={expanded ? 'lg' : 'md'}
+          size={expanded ? 'lg' : 'sm'}
           premium
         />
       </div>
-      <h3 className={`wc26-team-profile__name${expanded ? '' : ' wc26-team-profile__name--compact'}`}>{team.name}</h3>
-      <div className="wc26-team-profile__tags">
-        {groupId !== '—' && <span className="wc26-team-tag wc26-team-tag--group">Grupo {groupId}</span>}
-        {confederation && <span className="wc26-team-tag">{confederation}</span>}
-        {team.fifaRanking != null && (
-          <span className="wc26-team-rank">
-            <Trophy className="h-3 w-3" />
-            <span>#{team.fifaRanking}</span>
-          </span>
-        )}
+      <div className="wc26-team-profile__header-copy">
+        <h3 className={`wc26-team-profile__name${expanded ? '' : ' wc26-team-profile__name--compact'}`}>{team.name}</h3>
+        <div className="wc26-team-profile__tags">
+          {groupId !== '—' && <span className="wc26-team-tag wc26-team-tag--group">Grupo {groupId}</span>}
+          {confederation && <span className="wc26-team-tag">{confederation}</span>}
+          {team.fifaRanking != null && (
+            <span className="wc26-team-rank">
+              <Trophy className="h-3 w-3" />
+              <span>#{team.fifaRanking}</span>
+            </span>
+          )}
+        </div>
       </div>
       {collapsible && (
         <ChevronDown
-          className={`wc26-team-profile__chevron h-5 w-5 text-white/45 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+          className={`wc26-team-profile__chevron h-4 w-4 shrink-0 text-white/45 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
           aria-hidden="true"
         />
       )}

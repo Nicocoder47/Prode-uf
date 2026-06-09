@@ -1,5 +1,5 @@
 type SeccionalLogoProps = {
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'header'
   className?: string
 }
 
@@ -7,6 +7,7 @@ const sizeClass = {
   sm: 'wc26-brand-logo wc26-brand-logo--sm',
   md: 'wc26-brand-logo wc26-brand-logo--md',
   lg: 'wc26-brand-logo wc26-brand-logo--lg',
+  header: 'wc26-brand-logo wc26-brand-logo--header',
 }
 
 export function SeccionalLogo({ size = 'sm', className = '' }: SeccionalLogoProps) {

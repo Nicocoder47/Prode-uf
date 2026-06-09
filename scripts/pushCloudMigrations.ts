@@ -91,9 +91,11 @@ async function pushViaPg() {
 }
 
 async function main() {
-  const ok = await verifyRpc()
-  if (ok) return
-  await pushViaPg()
+  const rpcOk = await verifyRpc()
+  const pushed = await pushViaPg()
+  if (!pushed && !rpcOk) {
+    process.exitCode = 1
+  }
 }
 
 main().catch(err => {

@@ -89,75 +89,44 @@ function GroupCard({
 
 
   return (
-
     <motion.button
-
       type="button"
-
       {...MOTION.tap}
-
       onClick={onClick}
-
       className="wc26-fixture-group-card text-left"
-
       style={{ '--group-color': groupColor(progress.groupId) } as React.CSSProperties}
-
     >
-
-      <div className="flex items-start justify-between gap-2">
-
-        <div>
-
-          <p className="text-lg font-black text-white">Grupo {progress.groupId}</p>
-
-          <p className="mt-0.5 text-xs text-white/60">{progress.total} partidos</p>
-
+      <div className="wc26-fixture-group-card__head">
+        <span className="wc26-fixture-group-card__badge">{progress.groupId}</span>
+        <div className="wc26-fixture-group-card__title-wrap">
+          <p className="wc26-fixture-group-card__title">Grupo {progress.groupId}</p>
+          <p className="wc26-fixture-group-card__meta">{progress.total} partidos</p>
         </div>
-
-        <ChevronRight className="h-5 w-5 shrink-0 text-white/40" />
-
+        <ChevronRight className="wc26-fixture-group-card__chevron" aria-hidden="true" />
       </div>
 
+      <GroupTeamFlags teams={teams} premium compact />
 
+      <div className="wc26-fixture-group-card__stats">
+        <p className="wc26-fixture-group-card__progress-text">
+          {done} predichos · {progress.pending} pendientes
+        </p>
+        {progress.pending > 0 && (
+          <p className="wc26-fixture-group-card__points">Máximo posible: {remainingPts} pts</p>
+        )}
+      </div>
 
-      <GroupTeamFlags teams={teams} />
-
-
-
-      <p className="mt-3 text-sm font-bold text-white/85">
-
-        {done} predichos · {progress.pending} pendientes
-
-      </p>
-
-      {progress.pending > 0 && (
-
-                <p className="mt-0.5 text-[10px] font-bold text-wc26-yellow">
-                  Máximo posible: {remainingPts} pts
-                </p>
-
-      )}
-
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-
-        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: groupColor(progress.groupId) }} />
-
+      <div className="wc26-fixture-group-card__bar">
+        <div className="wc26-fixture-group-card__bar-fill" style={{ width: `${pct}%` }} />
       </div>
 
       {progress.pending > 0 && (
-
-        <span className="mt-3 inline-flex w-full items-center justify-center gap-1 rounded-full bg-white/10 py-2 text-[11px] font-extrabold text-white">
-
+        <span className="wc26-fixture-group-card__cta">
           Continuar
-
-          <ChevronRight className="h-3.5 w-3.5" />
-
+          <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
         </span>
-
       )}
-
     </motion.button>
-
   )
 
 }
@@ -270,7 +239,7 @@ export function FixtureGroupHub({
 
         </div>
 
-        <GroupTeamFlags teams={teams} />
+        <GroupTeamFlags teams={teams} premium />
 
         <div className="mt-4 space-y-3">
 
@@ -336,7 +305,7 @@ export function FixtureGroupHub({
 
   return (
 
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className="wc26-fixture-groups-grid">
 
       {cards.map(progress => (
 

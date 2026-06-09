@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
+import { logUserLogin } from '../services/admin/adminService.ts'
 import { supabase } from './supabase'
 import {
   clearPendingRegistration,
@@ -25,6 +26,8 @@ interface Profile {
   role: string
   token_balance: number
   is_active: boolean
+  deleted_at: string | null
+  last_login_at: string | null
 }
 
 export interface AccessRegistrationInput {
@@ -61,7 +64,38 @@ function mapProfileSyncError(message: string): string {
   if (message.includes('dni_required')) return mapRegistrationError('dni_required')
   if (message.includes('legajo_required')) return mapRegistrationError('legajo_required')
   if (message.includes('domain_plate_taken')) return mapRegistrationError('legajo_taken')
+  if (message.includes('legajo_not_authorized')) return mapRegistrationError('legajo_not_authorized')
+  if (message.includes('legajo_blocked')) return mapRegistrationError('legajo_blocked')
+  if (message.includes('legajo_inactive')) return mapRegistrationError('legajo_inactive')
+  if (message.includes('dni_mismatch')) return mapRegistrationError('dni_mismatch')
   return message
+}
+
+async function assertAccountActive(userId: string): Promise<AuthStepResult | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('is_active, deleted_at')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (error) {
+    if (error.message.includes('deleted_at')) {
+      const fallback = await supabase.from('profiles').select('is_active').eq('id', userId).maybeSingle()
+      if (fallback.error) return { status: 'error', message: fallback.error.message }
+      if (fallback.data?.is_active === false) {
+        await supabase.auth.signOut()
+        return { status: 'error', message: mapRegistrationError('account_disabled') }
+      }
+      return null
+    }
+    return { status: 'error', message: error.message }
+  }
+
+  if (data?.deleted_at || data?.is_active === false) {
+    await supabase.auth.signOut()
+    return { status: 'error', message: mapRegistrationError('account_disabled') }
+  }
+  return null
 }
 
 function validateRegistrationInput(input: AccessRegistrationInput): AuthStepResult | null {
@@ -263,14 +297,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true
 
     async function fetchProfile() {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('profiles')
-        .select('id, email, full_name, dni, legajo, domain_plate, role, token_balance, is_active')
+        .select('id, email, full_name, dni, legajo, domain_plate, role, token_balance, is_active, deleted_at, last_login_at')
         .eq('id', user.id)
         .single()
 
+      if (error?.message.includes('deleted_at')) {
+        const fallback = await supabase
+          .from('profiles')
+          .select('id, email, full_name, dni, legajo, domain_plate, role, token_balance, is_active')
+          .eq('id', user.id)
+          .single()
+        data = fallback.data as typeof data
+        error = fallback.error
+      }
+
       if (mounted && !error && data) {
-        setProfile(data)
+        if ('deleted_at' in data && (data.deleted_at || data.is_active === false)) {
+          await supabase.auth.signOut()
+          setProfile(null)
+          return
+        }
+        if (data.is_active === false) {
+          await supabase.auth.signOut()
+          setProfile(null)
+          return
+        }
+        setProfile(data as Profile)
       }
     }
 
@@ -414,6 +468,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const profileError = await finalizeSessionProfile(data.session)
     if (profileError) return profileError
+
+    const activeError = await assertAccountActive(data.session.user.id)
+    if (activeError) return activeError
+
+    try {
+      await logUserLogin()
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('account_disabled')) {
+        await supabase.auth.signOut()
+        return { status: 'error', message: mapRegistrationError('account_disabled') }
+      }
+    }
 
     setSession(data.session)
     setUser(data.session.user)

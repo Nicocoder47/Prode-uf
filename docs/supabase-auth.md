@@ -63,3 +63,16 @@ VITE_PUBLIC_DEMO=false
 | Confirmá tu email primero | Falta abrir el link del mail de registro |
 | Ese email ya está registrado | Usar Iniciar sesión |
 | `validate_registration` not found | Migración SQL no aplicada |
+
+## Riesgo: DNI como contraseña
+
+Por decisión funcional actual, el **DNI es la contraseña** del usuario.
+
+| Aspecto | Detalle |
+|---------|---------|
+| Riesgo | DNI es dato semi-público; reutilización en otros sitios |
+| Mitigación actual | Validación 7–8 dígitos, email confirmado, DNI enmascarado en admin |
+| Panel admin | Solo muestra DNI enmascarado (`****1234`) salvo padrón parcial |
+| Futuro | Migrar a contraseña elegida + opcional 2FA |
+
+No compartir pantallas de admin en público ni registrar usuarios sin confirmar email.

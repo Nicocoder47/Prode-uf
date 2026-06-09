@@ -5,12 +5,13 @@ interface TeamCrestProps {
   code?: string
   name?: string
   countryCode?: string | null
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   className?: string
   premium?: boolean
 }
 
 const sizes = {
+  xs: 'h-6 w-6 text-[9px]',
   sm: 'h-8 w-8 text-[10px]',
   md: 'h-12 w-12 text-xs',
   lg: 'h-16 w-16 text-sm',

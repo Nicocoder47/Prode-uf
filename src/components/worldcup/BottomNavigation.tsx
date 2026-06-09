@@ -1,26 +1,38 @@
 import { NavLink } from 'react-router-dom'
-import { Home, Shield, CalendarDays, Target, User } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { PremiumNavIcon, PremiumPlayIcon, type PremiumNavIconName } from './PremiumNavIcons'
 
-const navItems = [
-  { to: '/', label: 'Inicio', icon: Home, tone: 'home' as const },
-  { to: '/teams', label: 'Equipos', icon: Shield, tone: 'teams' as const },
-  { to: '/matches', label: 'Fixture', icon: CalendarDays, tone: 'fixture' as const, featured: true },
-  { to: '/predictions', label: 'Predicciones', icon: Target, tone: 'predictions' as const },
-  { to: '/profile', label: 'Perfil', icon: User, tone: 'profile' as const },
+const navItems: {
+  to: string
+  label: string
+  icon: PremiumNavIconName
+  tone: 'home' | 'teams' | 'fixture' | 'predictions' | 'profile'
+  featured?: boolean
+}[] = [
+  { to: '/', label: 'Inicio', icon: 'home', tone: 'home' },
+  { to: '/teams', label: 'Equipos', icon: 'teams', tone: 'teams' },
+  { to: '/matches', label: 'Iniciar', icon: 'fixture', tone: 'fixture', featured: true },
+  { to: '/predictions', label: 'Predic.', icon: 'predictions', tone: 'predictions' },
+  { to: '/profile', label: 'Perfil', icon: 'profile', tone: 'profile' },
 ]
 
 export function BottomNavigation() {
   return (
-    <nav className="wc26-bottom-nav fixed inset-x-0 bottom-0 z-50 md:hidden" aria-label="Navegación principal">
-      <div className="wc26-bottom-nav__inner mx-auto flex max-w-[430px] items-end justify-around px-1 pb-1 pt-2">
-        {navItems.map(({ to, label, icon: Icon, tone, featured }) => (
+    <motion.nav
+      initial={{ y: 28, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: 'spring', stiffness: 360, damping: 32, delay: 0.08 }}
+      className="wc26-bottom-nav fixed inset-x-0 bottom-0 z-50 md:hidden"
+      aria-label="Navegación principal"
+    >
+      <div className="wc26-bottom-nav__inner">
+        {navItems.map(({ to, label, icon, tone, featured }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/'}
             className={({ isActive }) =>
-              `wc26-bottom-nav__item wc26-bottom-nav__item--${tone} relative flex flex-col items-center ${
+              `wc26-bottom-nav__item wc26-bottom-nav__item--${tone} ${
                 featured ? 'wc26-bottom-nav__item--featured' : ''
               } ${isActive ? 'is-active' : ''}`
             }
@@ -34,35 +46,68 @@ export function BottomNavigation() {
                     transition={{ type: 'spring', stiffness: 420, damping: 34 }}
                   />
                 )}
-                {isActive && featured && (
+
+                {featured ? (
+                  <div className="wc26-bottom-nav__featured">
+                    <motion.span
+                      className="wc26-bottom-nav__fixture-ring"
+                      aria-hidden="true"
+                      animate={{
+                        scale: isActive ? [1, 1.12, 1] : [1, 1.06, 1],
+                        opacity: isActive ? [0.55, 0.85, 0.55] : [0.35, 0.55, 0.35],
+                      }}
+                      transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    <motion.span
+                      className={`wc26-bottom-nav__fixture-icon${isActive ? ' is-active' : ''}`}
+                      whileTap={{ scale: 0.9 }}
+                      animate={{
+                        y: -4,
+                        scale: isActive ? 1.07 : 1,
+                      }}
+                      transition={{ type: 'spring', stiffness: 480, damping: 28 }}
+                    >
+                      <span className="wc26-bottom-nav__fixture-shine" aria-hidden="true" />
+                      <span className="wc26-bottom-nav__fixture-gloss" aria-hidden="true" />
+                      <PremiumPlayIcon active={isActive} className="relative z-[1]" />
+                    </motion.span>
+                  </div>
+                ) : (
                   <motion.span
-                    layoutId="bottom-nav-fixture-glow"
-                    className="wc26-bottom-nav__fixture-glow"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  />
+                    className={`wc26-bottom-nav__icon-shell${isActive ? ' is-active' : ''}`}
+                    whileTap={{ scale: 0.88 }}
+                    animate={{
+                      scale: isActive ? 1.06 : 1,
+                      y: isActive ? -2 : 0,
+                    }}
+                    transition={{ type: 'spring', stiffness: 520, damping: 26 }}
+                  >
+                    {isActive && (
+                      <motion.span
+                        layoutId="bottom-nav-dot"
+                        className="wc26-bottom-nav__dot"
+                        transition={{ type: 'spring', stiffness: 460, damping: 30 }}
+                      />
+                    )}
+                    <PremiumNavIcon name={icon} active={isActive} className="wc26-bottom-nav__svg" />
+                  </motion.span>
                 )}
+
                 <motion.span
-                  className={`relative z-10 grid place-items-center ${featured ? 'wc26-bottom-nav__fixture-icon' : 'h-7 w-7'}`}
-                  animate={{ scale: isActive ? (featured ? 1.05 : 1.08) : featured ? 1 : 1, y: isActive ? -1 : 0 }}
-                  transition={{ duration: 0.22, ease: 'easeOut' }}
-                >
-                  <Icon
-                    className={featured ? 'h-7 w-7' : 'h-[21px] w-[21px]'}
-                    strokeWidth={isActive ? 2.5 : 2}
-                  />
-                </motion.span>
-                <span
-                  className={`relative z-10 mt-0.5 leading-none tracking-wide ${
-                    featured ? 'text-[10px] font-black' : 'text-[9px] font-extrabold'
-                  }`}
+                  className={`wc26-bottom-nav__label${featured ? ' wc26-bottom-nav__label--featured' : ''}`}
+                  animate={{
+                    opacity: isActive ? 1 : featured ? 0.88 : 0.65,
+                    y: isActive ? 0 : 1,
+                  }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                 >
                   {label}
-                </span>
+                </motion.span>
               </>
             )}
           </NavLink>
         ))}
       </div>
-    </nav>
+    </motion.nav>
   )
 }

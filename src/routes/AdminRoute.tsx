@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
 import { useAuth } from '../lib/auth.tsx'
+import AdminAccessDeniedPage from '../features/admin/AdminAccessDeniedPage.tsx'
 
 export default function AdminRoute() {
   const { profile, loading } = useAuth()
@@ -11,9 +12,9 @@ export default function AdminRoute() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-stadiumNavy text-white">
-        <div className="rounded-3xl border border-white/10 bg-surfaceNavy/90 p-8 shadow-glow-cyan">
-          <p className="text-lg font-semibold">Verificando permisos...</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#030712] text-white">
+        <div className="rounded-3xl border border-amber-400/20 bg-black/40 p-8">
+          <p className="text-lg font-semibold">Verificando permisos de admin…</p>
         </div>
       </div>
     )
@@ -24,7 +25,7 @@ export default function AdminRoute() {
   }
 
   if (profile.role !== 'admin') {
-    return <Navigate to="/" replace />
+    return <AdminAccessDeniedPage />
   }
 
   return <Outlet />
