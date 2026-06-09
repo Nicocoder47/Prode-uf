@@ -115,13 +115,25 @@ export const MOTION = {
   hover: { whileHover: { scale: 1.02 }, transition: { duration: 0.18 } },
 } as const;
 
-/** Bottom nav AAA — tokens CSS en :root --pm-nav-* */
+/** Bottom nav — Mundial Night tokens (CSS :root --pm-nav-*) */
 export const BOTTOM_NAV = {
-  deep: '#08142A',
-  fifa: '#123B7A',
-  gold: '#F5C451',
-  white: 'rgba(255, 255, 255, 0.94)',
-  positive: '#34C759',
+  deep: '#041418',
+  surface: '#0B1220',
+  gold: '#F8B91E',
+  goldDeep: '#D4AF37',
+  white: '#F4F7FA',
+  muted: 'rgba(244, 247, 250, 0.48)',
+  accentGreen: '#1B7A43',
+} as const;
+
+/** Mundial Night — official palette for premium surfaces */
+export const MUNDIAL_NIGHT = {
+  bgDeep: '#041418',
+  bgSurface: '#0B1220',
+  gold: '#D4AF37',
+  goldBright: '#F8B91E',
+  text: '#F4F7FA',
+  accentGreen: '#1B7A43',
 } as const;
 
 /** Assets estáticos en /public */

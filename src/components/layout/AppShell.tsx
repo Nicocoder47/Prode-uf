@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { NavLink, useLocation, Link } from 'react-router-dom'
-import { CalendarDays, Home, ShieldCheck, Shield, Target, User } from 'lucide-react'
+import { Home, ShieldCheck, Shield, Play, Target, User } from 'lucide-react'
 import { NotificationBell } from '../notifications/NotificationBell.tsx'
 import { NotificationTicker } from '../notifications/NotificationTicker.tsx'
 import { useAuth } from '../../lib/auth.tsx'
@@ -9,12 +9,12 @@ import { SeccionalLogo } from './SeccionalLogo'
 import { MobileTopHeader } from './MobileTopHeader'
 
 const navItems = [
-  { to: '/', label: 'Inicio', icon: Home, tone: 'home' },
-  { to: '/teams', label: 'Equipos', icon: Shield, tone: 'teams' },
-  { to: '/matches', label: 'Jugar', icon: CalendarDays, tone: 'fixture', featured: true },
-  { to: '/predictions', label: 'Predicciones', icon: Target, tone: 'predictions' },
-  { to: '/profile', label: 'Perfil', icon: User, tone: 'profile' },
-  { to: '/admin', label: 'Admin', icon: ShieldCheck, tone: 'admin' },
+  { to: '/', label: 'Inicio', icon: Home },
+  { to: '/teams', label: 'Equipos', icon: Shield },
+  { to: '/matches', label: 'JUGAR', icon: Play, featured: true },
+  { to: '/predictions', label: 'Predicciones', icon: Target },
+  { to: '/profile', label: 'Perfil', icon: User },
+  { to: '/admin', label: 'Admin', icon: ShieldCheck },
 ]
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -59,26 +59,29 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <nav className="mb-4 hidden gap-1 rounded-[28px] wc26-glass p-2 md:flex">
+        <nav className="wc26-nav-desktop mb-4 hidden gap-1 rounded-[28px] p-2 md:flex">
           {navItemsToShow.map(({ to, label, icon: Icon, featured }) => (
             <NavLink
               key={to}
               to={to}
               end={to === '/'}
               className={({ isActive }) =>
-                `inline-flex flex-1 items-center justify-center gap-2 rounded-2xl px-2 py-2.5 text-xs font-extrabold transition ${
+                [
+                  'wc26-nav-desktop__link inline-flex flex-1 items-center justify-center gap-2 rounded-2xl px-2 py-2.5 text-xs font-extrabold',
                   featured
                     ? isActive
-                      ? 'wc26-nav-fixture-active scale-[1.03] shadow-lg'
-                      : 'bg-gradient-to-b from-[#F5C451] to-[#e8b84a] text-[#0c1220] shadow-md hover:brightness-105'
+                      ? 'wc26-nav-desktop__link--featured wc26-nav-desktop__link--featured-active'
+                      : 'wc26-nav-desktop__link--featured'
                     : isActive
-                      ? 'bg-gradient-to-b from-[#123B7A] to-[#08142A] text-white shadow-lg ring-1 ring-[#F5C451]/25'
-                      : 'text-white/60 hover:bg-white/10 hover:text-white'
-                }`
+                      ? 'wc26-nav-desktop__link--active'
+                      : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')
               }
             >
-              <Icon className="h-4 w-4" />
-              {featured ? 'Jugar' : label}
+              <Icon className="h-4 w-4" strokeWidth={2} />
+              {featured ? 'JUGAR' : label}
             </NavLink>
           ))}
         </nav>
@@ -86,8 +89,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main
           className={`flex-1 md:px-0 md:pb-6 ${
             isHome
-              ? 'px-0 pb-[calc(8rem+env(safe-area-inset-bottom))]'
-              : 'px-2 pb-[calc(7.75rem+env(safe-area-inset-bottom))]'
+              ? 'px-0 pb-[calc(8.25rem+env(safe-area-inset-bottom))]'
+              : 'px-2 pb-[calc(8rem+env(safe-area-inset-bottom))]'
           }`}
         >
           {children}

@@ -20,9 +20,9 @@
   --v3-radius-card: 28px;
 
   --wc26-bg-deep: #041418;
-  --wc26-green-dark: #003D25;
-  --wc26-green: #006B3F;
-  --wc26-green-light: #0E8A4A;
+  --wc26-green-dark: #145A32;
+  --wc26-green: #1B7A43;
+  --wc26-green-light: #249458;
   --wc26-gold: #D4AF37;
   --wc26-yellow: #F8B91E;
   --wc26-red: #E63946;
@@ -34,25 +34,30 @@
   --wc26-text-muted: rgba(244, 247, 250, 0.75);
   --wc26-gray100: #F1F3F5;
 
-  /* Bottom Navigation AAA — PRODEMUNDIAL 2026 */
-  --pm-nav-deep: #08142A;
-  --pm-nav-fifa: #123B7A;
-  --pm-nav-fifa-soft: rgba(18, 59, 122, 0.55);
-  --pm-nav-gold: #F5C451;
-  --pm-nav-gold-soft: rgba(245, 196, 81, 0.22);
-  --pm-nav-gold-glow: rgba(245, 196, 81, 0.52);
-  --pm-nav-white: rgba(255, 255, 255, 0.94);
-  --pm-nav-muted: rgba(255, 255, 255, 0.46);
-  --pm-nav-positive: #34C759;
-  --pm-nav-glass: rgba(8, 20, 42, 0.78);
-  --pm-nav-glass-edge: rgba(255, 255, 255, 0.11);
-  --pm-nav-blur: 28px;
+  /* Bottom Navigation AAA — PRODEMUNDIAL 2026 (verde marca) */
+  /* Mundial Night — bottom nav premium */
+  --pm-nav-deep: #041418;
+  --pm-nav-surface: #0b1220;
+  --pm-nav-surface-soft: rgba(11, 18, 32, 0.72);
+  --pm-nav-gold: #f8b91e;
+  --pm-nav-gold-deep: #d4af37;
+  --pm-nav-gold-soft: rgba(248, 185, 30, 0.22);
+  --pm-nav-gold-glow: rgba(212, 175, 55, 0.55);
+  --pm-nav-white: #f4f7fa;
+  --pm-nav-muted: rgba(244, 247, 250, 0.48);
+  --pm-nav-accent-green: #1b7a43;
+  --pm-nav-glass: rgba(11, 18, 32, 0.82);
+  --pm-nav-glass-edge: rgba(212, 175, 55, 0.16);
+  --pm-nav-blur: 32px;
   --pm-nav-radius: 28px;
-  --pm-nav-cta-size: 3.85rem;
-  --pm-nav-shadow-1: 0 -1px 0 rgba(245, 196, 81, 0.14);
-  --pm-nav-shadow-2: 0 -12px 40px rgba(4, 10, 22, 0.65);
-  --pm-nav-shadow-3: 0 20px 48px rgba(0, 0, 0, 0.45);
-  --pm-nav-cta-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28), 0 0 40px var(--pm-nav-gold-glow), 0 16px 40px rgba(0, 0, 0, 0.45);
+  --pm-nav-cta-size: 4rem;
+  --pm-nav-shadow-1: 0 -1px 0 rgba(212, 175, 55, 0.22);
+  --pm-nav-shadow-2: 0 -14px 44px rgba(4, 20, 24, 0.72);
+  --pm-nav-shadow-3: 0 22px 52px rgba(0, 0, 0, 0.55);
+  --pm-nav-cta-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.32),
+    0 0 48px var(--pm-nav-gold-glow),
+    0 18px 44px rgba(0, 0, 0, 0.5);
 }
 
 html {
@@ -99,8 +104,8 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 
 .wc26-bg-gradient {
   background:
-    radial-gradient(circle at top left, rgba(0, 180, 120, 0.18), transparent 40%),
-    radial-gradient(circle at bottom right, rgba(32, 90, 255, 0.18), transparent 40%),
+    radial-gradient(circle at top left, rgba(36, 148, 88, 0.2), transparent 42%),
+    radial-gradient(circle at bottom right, rgba(27, 122, 67, 0.16), transparent 40%),
     radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212, 175, 55, 0.08), transparent 45%);
 }
 
@@ -2164,7 +2169,7 @@ body.wc26-modal-open {
 }
 
 .wc26-action-premium--green {
-  background: linear-gradient(150deg, #1FC16B 0%, #0A9A52 45%, #006B3F 100%);
+  background: linear-gradient(150deg, var(--wc26-green-light) 0%, var(--wc26-green) 45%, var(--wc26-green-dark) 100%);
 }
 
 .wc26-action-premium--gold {
@@ -2372,7 +2377,7 @@ body.wc26-modal-open {
 .wc26-bottom-nav__backdrop {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 0%, rgba(8, 20, 42, 0.55) 38%, rgba(8, 20, 42, 0.88) 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(4, 20, 24, 0.42) 32%, rgba(4, 20, 24, 0.92) 100%);
   pointer-events: none;
 }
 
@@ -2388,16 +2393,17 @@ body.wc26-modal-open {
   border-radius: var(--pm-nav-radius);
   overflow: visible;
   background:
-    radial-gradient(ellipse 90% 80% at 50% -30%, rgba(18, 59, 122, 0.55) 0%, transparent 62%),
-    radial-gradient(ellipse 70% 50% at 50% 120%, rgba(0, 0, 0, 0.42) 0%, transparent 58%),
-    linear-gradient(180deg, rgba(18, 59, 122, 0.82) 0%, rgba(8, 20, 42, 0.94) 52%, rgba(6, 14, 28, 0.98) 100%);
+    radial-gradient(ellipse 85% 70% at 50% -28%, rgba(212, 175, 55, 0.14) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 40% at 50% 118%, rgba(0, 0, 0, 0.45) 0%, transparent 62%),
+    radial-gradient(ellipse 40% 30% at 8% 50%, rgba(27, 122, 67, 0.08) 0%, transparent 70%),
+    linear-gradient(180deg, rgba(11, 18, 32, 0.9) 0%, rgba(11, 18, 32, 0.94) 46%, rgba(4, 20, 24, 0.98) 100%);
   border: 1px solid var(--pm-nav-glass-edge);
   box-shadow:
     var(--pm-nav-shadow-1),
     var(--pm-nav-shadow-2),
     var(--pm-nav-shadow-3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(var(--pm-nav-blur)) saturate(165%);
   -webkit-backdrop-filter: blur(var(--pm-nav-blur)) saturate(165%);
 }
@@ -2424,9 +2430,9 @@ body.wc26-modal-open {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(245, 196, 81, 0.18) 20%,
+    rgba(248, 185, 30, 0.18) 20%,
     rgba(255, 255, 255, 0.38) 50%,
-    rgba(245, 196, 81, 0.18) 80%,
+    rgba(248, 185, 30, 0.18) 80%,
     transparent 100%
   );
   pointer-events: none;
@@ -2452,8 +2458,10 @@ body.wc26-modal-open {
   height: 1.35rem;
   margin-left: -2.625rem;
   border-radius: 0 0 999px 999px;
-  background: radial-gradient(ellipse 100% 120% at 50% 0%, rgba(8, 20, 42, 0.92) 0%, transparent 72%);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  background: radial-gradient(ellipse 100% 120% at 50% 0%, rgba(11, 18, 32, 0.98) 0%, transparent 72%);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.4),
+    0 -1px 0 rgba(212, 175, 55, 0.12);
   pointer-events: none;
 }
 
@@ -2486,7 +2494,7 @@ body.wc26-modal-open {
 }
 
 .wc26-bottom-nav__item--featured {
-  margin-top: -2rem;
+  margin-top: -2.15rem;
   z-index: 3;
   color: var(--pm-nav-white);
 }
@@ -2495,13 +2503,14 @@ body.wc26-modal-open {
   position: absolute;
   inset: 0.06rem 0.04rem 0.42rem;
   border-radius: 14px;
-  background: linear-gradient(180deg, rgba(18, 59, 122, 0.55) 0%, rgba(8, 20, 42, 0.35) 100%);
-  border: 1px solid rgba(245, 196, 81, 0.14);
+  background: linear-gradient(180deg, rgba(248, 185, 30, 0.1) 0%, rgba(11, 18, 32, 0.55) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.22);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 4px 16px rgba(0, 0, 0, 0.14);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+    0 0 20px rgba(212, 175, 55, 0.08),
+    0 4px 16px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .wc26-bottom-nav__indicator {
@@ -2551,21 +2560,20 @@ body.wc26-modal-open {
   .wc26-bottom-nav__item--featured:not(.is-active):hover .wc26-bottom-nav__cta {
     box-shadow:
       0 0 0 1px rgba(255, 255, 255, 0.32),
-      0 0 28px rgba(245, 196, 81, 0.38),
+      0 0 28px rgba(248, 185, 30, 0.38),
       0 14px 36px rgba(0, 0, 0, 0.38);
   }
 }
 
 .wc26-bottom-nav__icon-shell.is-active {
-  background:
-    linear-gradient(165deg, rgba(18, 59, 122, 0.72) 0%, rgba(8, 20, 42, 0.55) 100%);
-  border-color: rgba(245, 196, 81, 0.28);
+  background: linear-gradient(165deg, rgba(248, 185, 30, 0.14) 0%, rgba(11, 18, 32, 0.72) 100%);
+  border-color: rgba(212, 175, 55, 0.38);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1),
-    0 0 20px rgba(18, 59, 122, 0.45),
-    0 0 14px rgba(245, 196, 81, 0.12),
-    0 6px 16px rgba(0, 0, 0, 0.2);
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+    0 0 22px rgba(212, 175, 55, 0.18),
+    0 0 8px rgba(27, 122, 67, 0.12),
+    0 6px 16px rgba(0, 0, 0, 0.22);
 }
 
 .wc26-bottom-nav__icon {
@@ -2577,7 +2585,7 @@ body.wc26-modal-open {
 
 .wc26-bottom-nav__item.is-active .wc26-bottom-nav__icon {
   color: var(--pm-nav-gold);
-  filter: drop-shadow(0 0 6px rgba(245, 196, 81, 0.35));
+  filter: drop-shadow(0 0 6px rgba(248, 185, 30, 0.35));
 }
 
 .wc26-bottom-nav__label {
@@ -2599,7 +2607,7 @@ body.wc26-modal-open {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--pm-nav-gold);
-  text-shadow: 0 0 10px rgba(245, 196, 81, 0.28);
+  text-shadow: 0 0 10px rgba(248, 185, 30, 0.28);
 }
 
 .wc26-bottom-nav__cta-wrap {
@@ -2618,7 +2626,7 @@ body.wc26-modal-open {
   height: 0.45rem;
   margin-left: -1.3rem;
   border-radius: 999px;
-  background: radial-gradient(ellipse 100% 100% at 50% 50%, rgba(245, 196, 81, 0.48) 0%, transparent 72%);
+  background: radial-gradient(ellipse 100% 100% at 50% 50%, rgba(248, 185, 30, 0.48) 0%, transparent 72%);
   filter: blur(6px);
   pointer-events: none;
 }
@@ -2627,8 +2635,8 @@ body.wc26-modal-open {
   position: absolute;
   inset: -0.35rem;
   border-radius: 999px;
-  border: 1px solid rgba(245, 196, 81, 0.22);
-  background: radial-gradient(circle, rgba(245, 196, 81, 0.28) 0%, rgba(245, 196, 81, 0.04) 55%, transparent 72%);
+  border: 1px solid rgba(248, 185, 30, 0.22);
+  background: radial-gradient(circle, rgba(248, 185, 30, 0.28) 0%, rgba(248, 185, 30, 0.04) 55%, transparent 72%);
   pointer-events: none;
 }
 
@@ -2644,7 +2652,7 @@ body.wc26-modal-open {
   color: #0c1220;
   background:
     radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.92) 0%, transparent 44%),
-    linear-gradient(155deg, #fff0b8 0%, var(--pm-nav-gold) 38%, #c9972e 72%, #8a6518 100%);
+    linear-gradient(155deg, #ffe066 0%, var(--wc26-yellow) 38%, var(--wc26-gold) 72%, #b8860b 100%);
   box-shadow: var(--pm-nav-cta-shadow);
   transition: box-shadow 260ms ease;
 }
@@ -2652,8 +2660,8 @@ body.wc26-modal-open {
 .wc26-bottom-nav__cta.is-active {
   box-shadow:
     0 0 0 2px rgba(255, 255, 255, 0.42),
-    0 0 0 3px rgba(245, 196, 81, 0.32),
-    0 0 52px rgba(245, 196, 81, 0.62),
+    0 0 0 3px rgba(248, 185, 30, 0.32),
+    0 0 52px rgba(248, 185, 30, 0.62),
     0 20px 48px rgba(0, 0, 0, 0.4),
     inset 0 2px 1px rgba(255, 255, 255, 0.65),
     inset 0 -4px 10px rgba(100, 70, 10, 0.22);
@@ -2684,8 +2692,9 @@ body.wc26-modal-open {
 .wc26-bottom-nav__cta-icon {
   position: relative;
   z-index: 1;
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 1.45rem;
+  height: 1.45rem;
+  margin-left: 0.14rem;
   color: #141820;
   filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.35));
 }
@@ -2713,11 +2722,70 @@ body.wc26-modal-open {
     animation: none;
     opacity: 0;
   }
+
+  .wc26-bottom-nav__cta-pulse {
+    display: none;
+  }
 }
 
 .wc26-nav-fixture-active {
-  background: linear-gradient(180deg, var(--pm-nav-gold) 0%, #e8b84a 100%) !important;
+  background: linear-gradient(180deg, var(--wc26-yellow) 0%, var(--wc26-gold) 100%) !important;
   color: #0c1220 !important;
+}
+
+/* Desktop nav — Mundial Night (aligned with bottom nav) */
+.wc26-nav-desktop {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(11, 18, 32, 0.92) 0%, rgba(4, 20, 24, 0.96) 100%);
+  border: 1px solid var(--pm-nav-glass-edge);
+  box-shadow:
+    var(--pm-nav-shadow-2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(var(--pm-nav-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--pm-nav-blur)) saturate(160%);
+}
+
+.wc26-nav-desktop__link {
+  color: var(--pm-nav-muted);
+  transition:
+    color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease;
+}
+
+.wc26-nav-desktop__link:hover {
+  color: rgba(244, 247, 250, 0.82);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.wc26-nav-desktop__link--active {
+  color: var(--pm-nav-white);
+  background: linear-gradient(180deg, rgba(248, 185, 30, 0.12) 0%, rgba(11, 18, 32, 0.65) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 18px rgba(212, 175, 55, 0.12);
+}
+
+.wc26-nav-desktop__link--featured {
+  background: linear-gradient(155deg, #ffe066 0%, var(--pm-nav-gold) 42%, var(--pm-nav-gold-deep) 100%);
+  color: #0b1220;
+  box-shadow: var(--pm-nav-cta-shadow);
+}
+
+.wc26-nav-desktop__link--featured:hover {
+  filter: brightness(1.06);
+  color: #041418;
+}
+
+.wc26-nav-desktop__link--featured-active {
+  transform: scale(1.03);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.35),
+    0 0 40px rgba(212, 175, 55, 0.45),
+    0 14px 32px rgba(0, 0, 0, 0.35);
 }
 
 .wc26-icon-btn--compact {
@@ -3995,7 +4063,7 @@ body.wc26-modal-open {
   position: absolute;
   inset: 0 0 auto 0;
   height: 3px;
-  background: linear-gradient(90deg, #006b3f, #00a86b, #f8b91e);
+  background: linear-gradient(90deg, var(--wc26-green), var(--wc26-green-light), var(--wc26-yellow));
 }
 
 .wc26-predict-match-team {
@@ -4086,8 +4154,8 @@ body.wc26-modal-open {
 .wc26-predict-progress__fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #008e5b, #00c878, #f8b91e);
-  box-shadow: 0 0 14px rgba(0, 200, 120, 0.45);
+  background: linear-gradient(90deg, var(--wc26-green), var(--wc26-green-light), var(--wc26-yellow));
+  box-shadow: 0 0 14px rgba(27, 122, 67, 0.4);
 }
 
 .wc26-predict-result-grid {
@@ -4484,9 +4552,9 @@ body.wc26-modal-open {
 
 .wc26-predict-btn--primary {
   border: none;
-  background: linear-gradient(180deg, #00c878 0%, #006b3f 100%);
+  background: linear-gradient(180deg, var(--wc26-green-light) 0%, var(--wc26-green) 100%);
   color: white;
-  box-shadow: 0 10px 28px rgba(0, 107, 63, 0.4);
+  box-shadow: 0 10px 28px rgba(27, 122, 67, 0.4);
 }
 
 .wc26-predict-btn--cta {
@@ -4817,6 +4885,13 @@ body.wc26-modal-open {
   padding: 1rem 1.1rem;
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+}
+
+.wc26-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--wc26-green) 0%, var(--wc26-green-light) 100%);
+  box-shadow: 0 0 12px rgba(27, 122, 67, 0.42);
 }
 
 .wc26-world-progress--nested {
