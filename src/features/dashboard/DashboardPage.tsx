@@ -14,7 +14,7 @@ import {
   WorldCupLiveCarousel,
 } from '../../components/worldcup'
 import { useWorldCupLiveInsights } from '../../hooks/useWorldCupLiveInsights'
-import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers, useTopPlayers } from '../../useWorldCupData'
+import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers, useAllPlayers } from '../../useWorldCupData'
 import { ENABLE_HEAVY_ANIMATIONS, ENABLE_LIVE_INSIGHTS } from '../../config/betaMode'
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
@@ -37,7 +37,7 @@ export default function DashboardPage() {
   const { data: dbPredictions = [] } = usePredictions(currentUserId)
   const { data: dbLeaderboard = [], isLoading: leaderboardLoading } = useLeaderboard()
   const { data: topScorers = [] } = useTopScorers()
-  const { data: featuredPlayers = [] } = useTopPlayers(20)
+  const { data: allPlayers = [] } = useAllPlayers()
 
   const predictionSet = useMemo(() => new Set(dbPredictions.map(p => p.matchId)), [dbPredictions])
   const groupProgress = useMemo(
@@ -72,7 +72,7 @@ export default function DashboardPage() {
     matches,
     leaderboard: dbLeaderboard,
     topScorers,
-    players: featuredPlayers,
+    players: allPlayers,
     overall: overallProgress,
     groupProgress,
     userId: currentUserId,
