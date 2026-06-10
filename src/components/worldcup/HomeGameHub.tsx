@@ -4,15 +4,11 @@ import { motion } from 'framer-motion'
 import { Flame, Medal, Target } from 'lucide-react'
 import { MOTION } from '../../constants/design'
 import { groupColor, WC26_GROUP_NAMES } from '../../constants/groups'
-import type { Match } from '../../types/worldcup'
 import type { Achievement, GroupProgress, StreakInfo } from '../../utils/predictionProgress'
 import { TeamCrest } from './TeamCrest'
 
 type HomeContinuePredictingProps = {
   groups: GroupProgress[]
-  matches: Match[]
-  predictionSet: Set<string>
-  predicted: number
   total: number
 }
 
@@ -20,7 +16,6 @@ const GROUP_CARD_WIDTH = 88
 
 export function HomeContinuePredicting({
   groups,
-  predicted,
   total,
 }: HomeContinuePredictingProps) {
   const knownIds = new Set(groups.map(g => g.groupId))

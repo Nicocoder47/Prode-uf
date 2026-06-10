@@ -166,9 +166,6 @@ export default function DashboardPage() {
               <>
                 <HomeContinuePredicting
                   groups={groupProgress}
-                  matches={matches}
-                  predictionSet={predictionSet}
-                  predicted={overallProgress.predicted}
                   total={overallProgress.total}
                 />
                 <HomeGamificationPanel achievements={achievements} streaks={streaks} />
@@ -207,9 +204,6 @@ export default function DashboardPage() {
           <>
             <HomeContinuePredicting
               groups={groupProgress}
-              matches={matches}
-              predictionSet={predictionSet}
-              predicted={overallProgress.predicted}
               total={overallProgress.total}
             />
             <HomeGamificationPanel achievements={achievements} streaks={streaks} />
