@@ -9,8 +9,16 @@ import {
   AdminUpcomingMatchesPanel,
   AdminWorldCupStatus,
 } from '../../components/admin/controlCenter'
+import { AdminBeta300Status } from '../../components/admin/AdminBeta300Status'
+import { AdminBetaOverviewCards } from '../../components/admin/AdminBetaOverviewCards.tsx'
 import { useAdminSupportTickets } from '../../hooks/useSupportTickets'
-import { useAdminActivityLogs, useAdminDashboard, useMatchPredictionCounts } from '../../hooks/useAdminQueries.ts'
+import {
+  useAdminActivityLogs,
+  useAdminBetaCapacity,
+  useAdminBetaOverview,
+  useAdminDashboard,
+  useMatchPredictionCounts,
+} from '../../hooks/useAdminQueries.ts'
 import { useWorldCupMatches } from '../../useWorldCupData'
 import {
   buildAttentionItems,
@@ -21,6 +29,8 @@ import {
 
 export default function AdminDashboardPage() {
   const { data, error, isLoading } = useAdminDashboard()
+  const { data: betaCapacity } = useAdminBetaCapacity()
+  const { data: betaOverview } = useAdminBetaOverview()
   const { data: tickets = [] } = useAdminSupportTickets()
   const { data: matches = [] } = useWorldCupMatches()
   const { data: fallbackActivity = [] } = useAdminActivityLogs(
@@ -73,8 +83,11 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="admin-control-center space-y-5">
+      {betaOverview && <AdminBetaOverviewCards data={betaOverview} />}
+      {betaCapacity && <AdminBeta300Status data={betaCapacity} />}
+
       <header className="admin-control-center__header">
-        <p className="admin-control-center__kicker">Admin V2</p>
+        <p className="admin-control-center__kicker">Admin V3</p>
         <h1 className="admin-control-center__title">World Cup Control Center</h1>
         <p className="admin-control-center__subtitle">
           Estado completo del Mundial en una sola vista — usuarios, fixture, sync, competencia y soporte.

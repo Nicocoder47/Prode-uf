@@ -2,6 +2,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   fetchAdminActivityLogs,
   fetchAdminCardsManage,
+  fetchAdminBetaCapacity,
+  fetchAdminBetaOverview,
   fetchAdminDashboard,
   fetchAdminNotifications,
   fetchAdminUserDetail,
@@ -9,11 +11,22 @@ import {
   fetchMatchPredictionCounts,
   getAdminDataMode,
 } from '../services/admin/adminService'
-import type { AdminActivityRow, AdminDashboard, AdminNotificationRow, AdminUserDetail, AdminUserRow } from '../types/admin'
+import { POLLING_INTERVALS } from '../config/betaMode'
+import type {
+  AdminActivityRow,
+  AdminBetaCapacity,
+  AdminBetaOverview,
+  AdminDashboard,
+  AdminNotificationRow,
+  AdminUserDetail,
+  AdminUserRow,
+} from '../types/admin'
 
 export const adminKeys = {
   all: ['admin'] as const,
   dashboard: () => [...adminKeys.all, 'dashboard'] as const,
+  betaCapacity: () => [...adminKeys.all, 'beta-capacity'] as const,
+  betaOverview: () => [...adminKeys.all, 'beta-overview'] as const,
   users: () => [...adminKeys.all, 'users'] as const,
   userDetail: (id: string) => [...adminKeys.all, 'user', id] as const,
   activity: (filters: string) => [...adminKeys.all, 'activity', filters] as const,
@@ -28,6 +41,24 @@ export function useAdminDashboard() {
     queryKey: adminKeys.dashboard(),
     queryFn: fetchAdminDashboard,
     staleTime: 60_000,
+  })
+}
+
+export function useAdminBetaCapacity() {
+  return useQuery<AdminBetaCapacity>({
+    queryKey: adminKeys.betaCapacity(),
+    queryFn: fetchAdminBetaCapacity,
+    staleTime: 60_000,
+    refetchInterval: POLLING_INTERVALS.capacity,
+  })
+}
+
+export function useAdminBetaOverview() {
+  return useQuery<AdminBetaOverview>({
+    queryKey: adminKeys.betaOverview(),
+    queryFn: fetchAdminBetaOverview,
+    staleTime: 30_000,
+    refetchInterval: POLLING_INTERVALS.capacity,
   })
 }
 
@@ -112,6 +143,8 @@ export function useInvalidateAdmin() {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: adminKeys.all }),
     invalidateUsers: () => queryClient.invalidateQueries({ queryKey: adminKeys.users() }),
     invalidateDashboard: () => queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() }),
+    invalidateBetaOverview: () => queryClient.invalidateQueries({ queryKey: adminKeys.betaOverview() }),
+    invalidateBetaCapacity: () => queryClient.invalidateQueries({ queryKey: adminKeys.betaCapacity() }),
     invalidateUserDetail: (id: string) =>
       queryClient.invalidateQueries({ queryKey: adminKeys.userDetail(id) }),
     invalidateNotifications: () => queryClient.invalidateQueries({ queryKey: adminKeys.notifications() }),

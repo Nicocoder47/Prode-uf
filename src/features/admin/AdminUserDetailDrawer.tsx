@@ -3,14 +3,21 @@ import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { useAppToast } from '../../components/ui/ToastProvider.tsx'
 import {
   adminApproveUser,
+  adminBlockUser,
   adminCreateNotification,
+  adminDeleteTestUser,
+  adminDeleteUserFull,
+  adminForcePasswordChange,
   adminRejectUser,
-  adminSetUserActive,
+  adminResetUserPredictions,
+  adminResetUserScore,
   adminSetUserRole,
   adminSoftDeleteUser,
+  adminUnblockUser,
 } from '../../services/admin/adminService.ts'
 import { useAdminUserDetail, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
 import type { AdminUserRow } from '../../types/admin.ts'
+import { isTestUserEmail } from '../../utils/adminTestUser.ts'
 import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL } from '../../utils/reviewStatus.ts'
 
 type Tab = 'predictions' | 'activity' | 'notifications'
@@ -34,7 +41,7 @@ interface Props {
 
 export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
   const { data: detail, isLoading, error: queryError, refetch } = useAdminUserDetail(user.id)
-  const { invalidateUserDetail } = useInvalidateAdmin()
+  const { invalidateUserDetail, invalidateBetaOverview, invalidateDashboard, invalidateUsers } = useInvalidateAdmin()
   const { showToast } = useAppToast()
 
   const [tab, setTab] = useState<Tab>('predictions')
@@ -43,6 +50,14 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
   const [notifyMessage, setNotifyMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showDeactivate, setShowDeactivate] = useState(false)
+  const [deactivateConfirm, setDeactivateConfirm] = useState('')
+  const [showPromote, setShowPromote] = useState(false)
+  const [promoteConfirm, setPromoteConfirm] = useState('')
+  const [showDeleteTest, setShowDeleteTest] = useState(false)
+  const [showDeleteFull, setShowDeleteFull] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState('')
+  const [deleteReason, setDeleteReason] = useState('')
 
   async function runAction(action: () => Promise<void>, successMessage: string) {
     setBusy(true)
@@ -51,6 +66,9 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
       await action()
       onChanged()
       invalidateUserDetail(user.id)
+      invalidateUsers()
+      invalidateBetaOverview()
+      invalidateDashboard()
       await refetch()
       setActionReason('')
       setNotifyTitle('')
@@ -66,6 +84,7 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
   const u = detail?.user ?? user
   const padron = detail?.padron ?? null
   const displayError = error ?? (queryError instanceof Error ? queryError.message : null)
+  const isTest = u.is_test_user ?? isTestUserEmail(u.email)
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60" onClick={onClose}>
@@ -92,6 +111,9 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
             </span>
             <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/80">{accountStatus(u)}</span>
             <span className="text-xs text-white/50">Rol: {u.role}</span>
+            <span className={`text-xs ${u.must_change_password ? 'text-amber-300' : 'text-emerald-300'}`}>
+              {u.must_change_password ? 'Debe cambiar contraseña' : 'Contraseña actualizada'}
+            </span>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
@@ -242,17 +264,41 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
               <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => runAction(() => adminRejectUser(u.id, actionReason || 'Rechazado por admin'), 'Usuario rechazado')}>
                 Rechazar
               </PremiumButton>
-              {!u.deleted_at && (
-                <PremiumButton size="sm" disabled={busy} onClick={() => runAction(() => adminSetUserActive(u.id, !u.is_active), u.is_active ? 'Usuario bloqueado' : 'Usuario desbloqueado')}>
-                  {u.is_active ? 'Bloquear' : 'Desbloquear'}
+              {!u.deleted_at && !u.is_blocked && (
+                <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => runAction(() => adminBlockUser(u.id, actionReason || 'Bloqueado por admin'), 'Usuario bloqueado')}>
+                  Bloquear
                 </PremiumButton>
               )}
-              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminSoftDeleteUser(u.id, actionReason || 'Eliminado por admin'), 'Usuario eliminado')}>
-                Eliminar lógico
+              {!u.deleted_at && u.is_blocked && (
+                <PremiumButton size="sm" disabled={busy} onClick={() => runAction(() => adminUnblockUser(u.id), 'Usuario desbloqueado')}>
+                  Desbloquear
+                </PremiumButton>
+              )}
+              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminForcePasswordChange(u.id), 'Cambio de contraseña forzado')}>
+                Forzar cambio clave
               </PremiumButton>
-              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminSetUserRole(u.id, u.role === 'admin' ? 'member' : 'admin'), u.role === 'admin' ? 'Rol member asignado' : 'Promovido a admin')}>
+              <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowDeactivate(true)}>
+                Desactivar (soft)
+              </PremiumButton>
+              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(async () => { await adminResetUserPredictions(u.id) }, 'Predicciones reseteadas')}>
+                Reset predicciones
+              </PremiumButton>
+              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(async () => { await adminResetUserScore(u.id) }, 'Puntaje reseteado')}>
+                Reset puntaje
+              </PremiumButton>
+              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => (u.role === 'admin' ? runAction(() => adminSetUserRole(u.id, 'member'), 'Rol actualizado') : setShowPromote(true))}>
                 {u.role === 'admin' ? 'Quitar admin' : 'Promover admin'}
               </PremiumButton>
+              {isTest && u.role !== 'admin' && (
+                <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowDeleteTest(true)}>
+                  Eliminar usuario de prueba
+                </PremiumButton>
+              )}
+              {u.role !== 'admin' && (
+                <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowDeleteFull(true)}>
+                  Eliminar definitivamente
+                </PremiumButton>
+              )}
             </div>
           </div>
 
@@ -264,6 +310,102 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
               Enviar
             </PremiumButton>
           </div>
+          {showDeactivate && (
+            <div className="rounded-2xl border border-red-400/30 bg-red-500/10 p-4 space-y-2">
+              <p className="text-sm font-bold text-red-100">Desactivar usuario (soft delete)</p>
+              <p className="text-xs text-red-100/80">Se conserva historial por auditoría. Escribí DESACTIVAR para confirmar.</p>
+              <input className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={deactivateConfirm} onChange={e => setDeactivateConfirm(e.target.value)} placeholder="DESACTIVAR" />
+              <div className="flex gap-2">
+                <PremiumButton size="sm" variant="danger" disabled={busy || deactivateConfirm !== 'DESACTIVAR' || !actionReason.trim()} onClick={() => runAction(async () => { await adminSoftDeleteUser(u.id, actionReason); setShowDeactivate(false); setDeactivateConfirm('') }, 'Usuario desactivado')}>
+                  Confirmar desactivación
+                </PremiumButton>
+                <PremiumButton size="sm" variant="ghost" onClick={() => setShowDeactivate(false)}>Cancelar</PremiumButton>
+              </div>
+            </div>
+          )}
+
+          {showPromote && (
+            <div className="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-4 space-y-2">
+              <p className="text-sm font-bold text-amber-100">Promover a administrador</p>
+              <p className="text-xs text-amber-100/80">Escribí PROMOVER ADMIN para confirmar.</p>
+              <input className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={promoteConfirm} onChange={e => setPromoteConfirm(e.target.value)} placeholder="PROMOVER ADMIN" />
+              <div className="flex gap-2">
+                <PremiumButton size="sm" disabled={busy || promoteConfirm !== 'PROMOVER ADMIN'} onClick={() => runAction(async () => { await adminSetUserRole(u.id, 'admin'); setShowPromote(false); setPromoteConfirm('') }, 'Promovido a admin')}>
+                  Confirmar
+                </PremiumButton>
+                <PremiumButton size="sm" variant="ghost" onClick={() => setShowPromote(false)}>Cancelar</PremiumButton>
+              </div>
+            </div>
+          )}
+
+          {showDeleteTest && (
+            <div className="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-4 space-y-2">
+              <p className="text-sm font-bold text-amber-100">Eliminar usuario de prueba</p>
+              <p className="text-xs text-amber-100/80">
+                Se borrará <strong>{u.email}</strong> y todos sus datos. Escribí ELIMINAR_TEST para confirmar.
+              </p>
+              <input className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} placeholder="ELIMINAR_TEST" />
+              <div className="flex gap-2">
+                <PremiumButton
+                  size="sm"
+                  variant="danger"
+                  disabled={busy || deleteConfirm !== 'ELIMINAR_TEST'}
+                  onClick={() =>
+                    runAction(async () => {
+                      await adminDeleteTestUser(u.id)
+                      setShowDeleteTest(false)
+                      setDeleteConfirm('')
+                      onClose()
+                    }, 'Usuario de prueba eliminado — cupo liberado')
+                  }
+                >
+                  Confirmar eliminación
+                </PremiumButton>
+                <PremiumButton size="sm" variant="ghost" onClick={() => setShowDeleteTest(false)}>Cancelar</PremiumButton>
+              </div>
+            </div>
+          )}
+
+          {showDeleteFull && (
+            <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-4 space-y-2">
+              <p className="text-sm font-bold text-red-100">Eliminar usuario definitivamente</p>
+              <p className="text-xs text-red-100/90">
+                Esta acción elimina al usuario y todos sus datos relacionados. No se puede deshacer.
+              </p>
+              <textarea
+                rows={2}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+                placeholder="Motivo obligatorio"
+                value={deleteReason}
+                onChange={e => setDeleteReason(e.target.value)}
+              />
+              <input
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+                value={deleteConfirm}
+                onChange={e => setDeleteConfirm(e.target.value)}
+                placeholder="Escribí ELIMINAR"
+              />
+              <div className="flex gap-2">
+                <PremiumButton
+                  size="sm"
+                  variant="danger"
+                  disabled={busy || deleteConfirm !== 'ELIMINAR' || !deleteReason.trim()}
+                  onClick={() =>
+                    runAction(async () => {
+                      await adminDeleteUserFull(u.id, deleteReason.trim(), 'ELIMINAR')
+                      setShowDeleteFull(false)
+                      setDeleteConfirm('')
+                      setDeleteReason('')
+                      onClose()
+                    }, 'Usuario eliminado definitivamente — cupo liberado')
+                  }
+                >
+                  Confirmar eliminación total
+                </PremiumButton>
+                <PremiumButton size="sm" variant="ghost" onClick={() => setShowDeleteFull(false)}>Cancelar</PremiumButton>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

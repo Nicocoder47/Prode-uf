@@ -1,13 +1,18 @@
 import { supabase } from '../../lib/supabase'
 import type {
   AdminActivityRow,
+  AdminBetaCapacity,
+  AdminBetaOverview,
   AdminCard,
   AdminDashboard,
+  AdminDeleteUserResult,
   AdminNotificationRow,
+  AdminTestUsersPreview,
   AdminUserDetail,
   AdminUserRow,
   AppNotification,
 } from '../../types/admin'
+import { ADMIN_RPC_FAIL_MESSAGE, shouldFailClosedOnAdminRpc } from '../../utils/adminFailClosed'
 import {
   adminSetUserActiveFallback,
   adminSetUserRoleFallback,
@@ -41,6 +46,10 @@ async function withFallback<T>(rpc: () => Promise<T>, fallback: () => Promise<T>
     return result
   } catch (err) {
     if (isRpcMissing(err as { message?: string; code?: string })) {
+      if (shouldFailClosedOnAdminRpc()) {
+        throw new Error(ADMIN_RPC_FAIL_MESSAGE)
+      }
+      console.warn('[admin] RPC ausente — usando fallback (solo dev)')
       lastMode = 'fallback'
       return fallback()
     }
@@ -54,6 +63,69 @@ export async function fetchAdminDashboard(): Promise<AdminDashboard> {
     if (error) throw error
     return unwrap<AdminDashboard>(data)
   }, fetchAdminDashboardFallback)
+}
+
+export async function fetchAdminBetaCapacity(): Promise<AdminBetaCapacity> {
+  const { data, error } = await supabase.rpc('admin_get_beta_capacity')
+  if (error) throw error
+  return unwrap<AdminBetaCapacity>(data)
+}
+
+export async function fetchAdminBetaOverview(): Promise<AdminBetaOverview> {
+  const { data, error } = await supabase.rpc('admin_get_beta_overview')
+  if (error) {
+    if (isRpcMissing(error)) {
+      throw new Error('Resumen beta requiere migración 260. Ejecutá npm run db:push:cloud')
+    }
+    throw error
+  }
+  return unwrap<AdminBetaOverview>(data)
+}
+
+export async function adminDeleteUserFull(
+  userId: string,
+  reason: string,
+  confirmation: string,
+): Promise<AdminDeleteUserResult> {
+  const { data, error } = await supabase.rpc('admin_delete_user_full', {
+    p_user_id: userId,
+    p_reason: reason,
+    p_confirmation: confirmation,
+  })
+  if (error) throw error
+  return unwrap<AdminDeleteUserResult>(data)
+}
+
+export async function adminDeleteTestUser(userId: string): Promise<AdminDeleteUserResult> {
+  const { data, error } = await supabase.rpc('admin_delete_test_user', { p_user_id: userId })
+  if (error) throw error
+  return unwrap<AdminDeleteUserResult>(data)
+}
+
+export async function adminResetUserPredictions(userId: string) {
+  const { data, error } = await supabase.rpc('admin_reset_user_predictions', { p_user_id: userId })
+  if (error) throw error
+  return data as { ok: boolean; predictions_deleted: number }
+}
+
+export async function adminResetUserScore(userId: string) {
+  const { data, error } = await supabase.rpc('admin_reset_user_score', { p_user_id: userId })
+  if (error) throw error
+  return data as { ok: boolean }
+}
+
+export async function adminCountTestUsers(): Promise<AdminTestUsersPreview> {
+  const { data, error } = await supabase.rpc('admin_count_test_users')
+  if (error) throw error
+  return unwrap<AdminTestUsersPreview>(data)
+}
+
+export async function adminCleanupTestUsers(confirmation: string) {
+  const { data, error } = await supabase.rpc('admin_cleanup_test_users', {
+    p_confirmation: confirmation,
+  })
+  if (error) throw error
+  return data as { ok: boolean; deleted_count: number }
 }
 
 export async function fetchAdminUsers(): Promise<AdminUserRow[]> {
@@ -104,16 +176,16 @@ export async function fetchAdminNotifications(): Promise<AdminNotificationRow[]>
 }
 
 export async function adminSoftDeleteUser(userId: string, reason: string) {
-  return withFallback(
-    async () => {
-      const { error } = await supabase.rpc('admin_soft_delete_user', {
-        p_user_id: userId,
-        p_reason: reason,
-      })
-      if (error) throw error
-    },
-    () => adminSoftDeleteUserFallback(userId, reason),
-  )
+  const { error } = await supabase.rpc('admin_soft_delete_user', {
+    p_user_id: userId,
+    p_reason: reason,
+  })
+  if (error) {
+    if (isRpcMissing(error) && !shouldFailClosedOnAdminRpc()) {
+      return adminSoftDeleteUserFallback(userId, reason)
+    }
+    throw error
+  }
 }
 
 export async function adminSetUserActive(userId: string, active: boolean) {
@@ -272,4 +344,43 @@ export async function fetchMatchPredictionCounts(matchIds: string[]): Promise<Re
 export async function logUserLogin() {
   const { error } = await supabase.rpc('log_user_login')
   if (error && !isRpcMissing(error)) throw error
+}
+
+export async function fetchRegistrationStatus(): Promise<{ enabled: boolean }> {
+  const { data, error } = await supabase.rpc('admin_get_registration_status')
+  if (error) throw error
+  return data as { enabled: boolean }
+}
+
+export async function adminSetRegistrationStatus(enabled: boolean) {
+  const { error } = await supabase.rpc('admin_set_registration_status', { p_enabled: enabled })
+  if (error) throw error
+}
+
+export async function adminForcePasswordChange(userId: string) {
+  const { error } = await supabase.rpc('admin_force_password_change', { p_user_id: userId })
+  if (error) throw error
+}
+
+export async function adminBlockUser(userId: string, reason: string) {
+  const { error } = await supabase.rpc('admin_block_user', { p_user_id: userId, p_reason: reason })
+  if (error) throw error
+}
+
+export async function adminUnblockUser(userId: string) {
+  const { error } = await supabase.rpc('admin_unblock_user', { p_user_id: userId })
+  if (error) throw error
+}
+
+export async function adminSetNotificationActive(notificationId: string, active: boolean) {
+  const { error } = await supabase.rpc('admin_set_notification_active', {
+    p_notification_id: notificationId,
+    p_active: active,
+  })
+  if (error) throw error
+}
+
+export async function completePasswordChange() {
+  const { error } = await supabase.rpc('complete_password_change')
+  if (error) throw error
 }

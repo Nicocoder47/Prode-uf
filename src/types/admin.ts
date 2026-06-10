@@ -53,6 +53,72 @@ export interface AdminDashboard {
   latest_logins: AdminUserBrief[]
 }
 
+export interface BetaCapacitySnapshot {
+  id: string
+  created_at: string
+  total_users: number
+  active_users_7d: number
+  total_predictions: number
+  estimated_concurrent_peak: number
+  capacity_status: string
+  migration_recommendation: string
+  notes: string | null
+}
+
+export interface DeviceHealthSummary {
+  reports_24h: number
+  errors_24h: number
+  error_rate: number
+  errors_by_device: Record<string, number>
+  errors_by_browser: Record<string, number>
+  slow_routes: { route: string; avg_ms: number }[]
+  top_error_routes: { route: string; count: number }[]
+  mobile_error_share_pct: number
+}
+
+export interface AdminBetaCapacity {
+  registered_users: number
+  new_users_today: number
+  new_users_7d: number
+  new_users_30d: number
+  active_users_24h: number
+  active_users_7d: number
+  total_predictions: number
+  predictions_24h: number
+  predictions_7d: number
+  users_with_predictions: number
+  users_played_pct: number
+  estimated_concurrent_users: number
+  capacity_percent: number
+  status: 'green' | 'yellow' | 'red' | 'exceeded'
+  recommendation: string
+  technical_action: 'seguir_gratis' | 'monitorear' | 'cerrar_invitaciones' | 'migrar'
+  device_health: DeviceHealthSummary
+  migration_needed: boolean
+  reasons: string[]
+  recent_sync_errors_24h: number
+  auth_errors_429_24h?: number
+  read_p95_ms?: number | null
+  save_p95_ms?: number | null
+  last_sync: {
+    id?: string
+    status?: string
+    sync_type?: string
+    started_at?: string
+    finished_at?: string | null
+    error_message?: string | null
+  } | null
+  latest_snapshots: BetaCapacitySnapshot[]
+  registration_open?: boolean
+  users_must_change_password?: number
+  users_blocked?: number
+  users_deactivated?: number
+  /** Compat legacy */
+  total_users?: number
+  active_users_today?: number
+  predictions_today?: number
+}
+
 export interface AdminRankingRow {
   rank: number
   points: number
@@ -93,6 +159,14 @@ export interface AdminUserRow {
   deleted_reason: string | null
   created_at: string
   last_login_at: string | null
+  must_change_password?: boolean
+  password_changed_at?: string | null
+  is_blocked?: boolean
+  block_reason?: string | null
+  active_last_7d?: boolean
+  is_test_user?: boolean
+  never_logged_in?: boolean
+  registered_today?: boolean
   predictions_count: number
   exact_predictions?: number
   hit_predictions?: number
@@ -104,6 +178,40 @@ export interface AdminUserRow {
   reference_first_name?: string | null
   reference_full_name?: string | null
   match_label?: string
+}
+
+export interface AdminBetaOverview {
+  max_users: number
+  registered_users: number
+  available_slots: number
+  capacity_percent: number
+  new_users_today: number
+  users_without_predictions: number
+  users_with_predictions: number
+  users_blocked: number
+  test_users_detected: number
+  registration_open: boolean
+  last_score_calculated_at: string | null
+  last_scored_match: {
+    id: string
+    score_home: number | null
+    score_away: number | null
+    scored_at: string | null
+    kick_off: string | null
+  } | null
+}
+
+export interface AdminDeleteUserResult {
+  success: boolean
+  deleted_user_id: string
+  deleted_email: string
+  affected_tables: Record<string, number>
+  freed_slot: boolean
+}
+
+export interface AdminTestUsersPreview {
+  count: number
+  users: { id: string; email: string; full_name: string }[]
 }
 
 export interface ReviewRequiredUser {
