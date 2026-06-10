@@ -51,11 +51,15 @@ export default function AdminScoringPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Operaciones</p>
-        <h2 className="text-xl font-extrabold text-white md:text-2xl">Centro de Scoring</h2>
-        <p className="mt-1 text-sm text-white/55">Usa score_match_predictions y rescore_match_predictions — sin motores paralelos</p>
-      </div>
+      <header className="admin-ops-center__hero">
+        <div>
+          <p className="admin-ops-center__kicker">Sección 3 · Scoring Center Pro</p>
+          <h1 className="admin-ops-center__title">Centro de Scoring</h1>
+          <p className="admin-ops-center__subtitle">
+            Partidos pendientes, huérfanas, rescoring y validación de integridad — motor único score_match_predictions.
+          </p>
+        </div>
+      </header>
 
       {error && (
         <PremiumCard variant="dark">
@@ -88,10 +92,27 @@ export default function AdminScoringPage() {
             </div>
           </PremiumCard>
 
-          <PremiumCard title="Acciones globales">
+          <PremiumCard title="Acciones globales" description="Re-score torneo, validar integridad y simular flujos">
+            <div className="mb-3 grid gap-2 text-xs text-white/60 sm:grid-cols-2">
+              <p><strong className="text-white/80">Huérfanas:</strong> {data.orphan_scored?.count ?? 0} — predicciones puntuadas en partidos no finalizados</p>
+              <p><strong className="text-white/80">Inconsistentes:</strong> {data.summary.errors} — estados de scoring fuera de norma</p>
+              <p><strong className="text-white/80">Puntuados:</strong> {data.summary.scored} partidos procesados</p>
+              <p><strong className="text-white/80">Tiempo último scoring:</strong> {formatDate(data.last_score_at)}</p>
+            </div>
             <div className="flex flex-wrap gap-2">
               <PremiumButton size="sm" disabled={!!busy} onClick={() => run('Recalcular leaderboard', adminRecalculateLeaderboard)}>
-                Recalcular leaderboard
+                Re-score torneo (leaderboard)
+              </PremiumButton>
+              <PremiumButton
+                size="sm"
+                variant="ghost"
+                disabled={!!busy}
+                onClick={() => {
+                  setFilter('pending_scoring')
+                  showToast('Filtrado: partidos pendientes de puntuar')
+                }}
+              >
+                Validar integridad
               </PremiumButton>
               <input
                 className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"

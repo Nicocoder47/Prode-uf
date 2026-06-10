@@ -34,6 +34,7 @@ const AdminActivityPage = lazy(() => import('./features/admin/AdminActivityPage.
 const AdminNotificationsPage = lazy(() => import('./features/admin/AdminNotificationsPage.tsx'))
 const AdminSystemOverviewPage = lazy(() => import('./features/admin/AdminSystemOverviewPage.tsx'))
 const AdminCardsPage = lazy(() => import('./features/admin/AdminCardsPage.tsx'))
+const AdminOperationsCenterPage = lazy(() => import('./features/admin/AdminOperationsCenterPage.tsx'))
 const AdminSupportPage = lazy(() => import('./features/admin/AdminSupportPage.tsx'))
 const AdminBetaCapacityPage = lazy(() => import('./features/admin/AdminBetaCapacityPage.tsx'))
 const AdminScoringPage = lazy(() => import('./features/admin/AdminScoringPage.tsx'))
@@ -68,6 +69,7 @@ function App() {
             <Route element={<AdminShell />}>
               <Route index element={<AdminHashRedirect />} />
               <Route path="dashboard" element={<AdminDashboardPage />} />
+              <Route path="operations" element={<AdminOperationsCenterPage />} />
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="activity" element={<AdminActivityPage />} />
               <Route path="notifications" element={<AdminNotificationsPage />} />

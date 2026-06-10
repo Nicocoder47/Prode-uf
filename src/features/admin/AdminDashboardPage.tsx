@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
 import {
   AdminAttentionPanel,
@@ -11,12 +12,20 @@ import {
 } from '../../components/admin/controlCenter'
 import { AdminBeta300Status } from '../../components/admin/AdminBeta300Status'
 import { AdminBetaOverviewCards } from '../../components/admin/AdminBetaOverviewCards.tsx'
+import {
+  ExecutiveMetricsGrid,
+  OperationsAlertCenter,
+  OperationsRecommendationBar,
+} from '../../components/admin/enterprise'
+import { AdminStatusLight } from '../../components/admin/AdminStatusLight.tsx'
 import { useAdminSupportTickets } from '../../hooks/useSupportTickets'
 import {
   useAdminActivityLogs,
   useAdminBetaCapacity,
   useAdminBetaOverview,
   useAdminDashboard,
+  useAdminScoringCenter,
+  useAdminSystemHealth,
   useMatchPredictionCounts,
 } from '../../hooks/useAdminQueries.ts'
 import { useWorldCupMatches } from '../../useWorldCupData'
@@ -26,11 +35,20 @@ import {
   buildSystemHealth,
   supportTicketCounts,
 } from '../../utils/adminControlCenter'
+import {
+  buildCapacityMetrics,
+  buildExecutiveUserMetrics,
+  buildOperationalAlerts,
+  buildOperationalRecommendations,
+  overallStatusFromAlerts,
+} from '../../utils/adminOperationsEngine.ts'
 
 export default function AdminDashboardPage() {
   const { data, error, isLoading } = useAdminDashboard()
   const { data: betaCapacity } = useAdminBetaCapacity()
   const { data: betaOverview } = useAdminBetaOverview()
+  const { data: health } = useAdminSystemHealth()
+  const { data: scoring } = useAdminScoringCenter()
   const { data: tickets = [] } = useAdminSupportTickets()
   const { data: matches = [] } = useWorldCupMatches()
   const { data: fallbackActivity = [] } = useAdminActivityLogs(
@@ -69,8 +87,46 @@ export default function AdminDashboardPage() {
 
   const ticketCounts = useMemo(() => supportTicketCounts(tickets), [tickets])
 
+  const userMetrics = useMemo(
+    () => (data ? buildExecutiveUserMetrics(data, betaCapacity, betaOverview) : []),
+    [data, betaCapacity, betaOverview],
+  )
+
+  const capacityMetrics = useMemo(
+    () => buildCapacityMetrics(betaCapacity, betaOverview),
+    [betaCapacity, betaOverview],
+  )
+
+  const alerts = useMemo(
+    () =>
+      buildOperationalAlerts({
+        dashboard: data,
+        capacity: betaCapacity,
+        overview: betaOverview,
+        health,
+        scoring,
+      }),
+    [data, betaCapacity, betaOverview, health, scoring],
+  )
+
+  const recommendations = useMemo(
+    () => buildOperationalRecommendations(alerts, betaCapacity),
+    [alerts, betaCapacity],
+  )
+
+  const overall = overallStatusFromAlerts(alerts)
+
   if (isLoading) {
-    return <p className="text-white/70">Cargando centro de control…</p>
+    return (
+      <div className="admin-ops-skeleton space-y-4">
+        <div className="admin-ops-skeleton__bar" />
+        <div className="admin-ops-skeleton__grid">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="admin-ops-skeleton__card" />
+          ))}
+        </div>
+      </div>
+    )
   }
 
   if (error || !data) {
@@ -82,17 +138,32 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="admin-control-center space-y-5">
+    <div className="admin-control-center admin-ops-center space-y-6">
+      <header className="admin-ops-center__hero">
+        <div>
+          <p className="admin-ops-center__kicker">PRODEMUNDIAL 2026</p>
+          <h1 className="admin-ops-center__title">Centro de Operaciones</h1>
+          <p className="admin-ops-center__subtitle">
+            NOC ejecutivo — usuarios, capacidad, alertas y competencia en una sola vista.
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <AdminStatusLight status={overall} label="Estado general" />
+          <Link to="/admin/operations" className="admin-ops-metric__cta">
+            Vista enterprise completa →
+          </Link>
+        </div>
+      </header>
+
+      <OperationsRecommendationBar items={recommendations} />
+
+      <ExecutiveMetricsGrid title="Usuarios" kicker="Sección 1 · Ejecutivo" metrics={userMetrics} />
+      <ExecutiveMetricsGrid title="Capacidad" kicker="Beta 300" metrics={capacityMetrics} />
+
+      <OperationsAlertCenter alerts={alerts.slice(0, 4)} />
+
       {betaOverview && <AdminBetaOverviewCards data={betaOverview} />}
       {betaCapacity && <AdminBeta300Status data={betaCapacity} />}
-
-      <header className="admin-control-center__header">
-        <p className="admin-control-center__kicker">Admin V3</p>
-        <h1 className="admin-control-center__title">World Cup Control Center</h1>
-        <p className="admin-control-center__subtitle">
-          Estado completo del Mundial en una sola vista — usuarios, fixture, sync, competencia y soporte.
-        </p>
-      </header>
 
       <AdminWorldCupStatus
         registered={data.total_users}

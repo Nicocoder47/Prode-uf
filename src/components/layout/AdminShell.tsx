@@ -5,6 +5,7 @@ import {
   Bell,
   CreditCard,
   LayoutDashboard,
+  Radar,
   LifeBuoy,
   BarChart3,
   Gauge,
@@ -20,6 +21,7 @@ import { AdminMigrationBanner } from '../../features/admin/AdminMigrationBanner.
 
 const nav = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/admin/operations', label: 'Operaciones', icon: Radar },
   { to: '/admin/users', label: 'Usuarios', icon: Users },
   { to: '/admin/activity', label: 'Actividad', icon: Activity },
   { to: '/admin/notifications', label: 'Notificaciones', icon: Bell },

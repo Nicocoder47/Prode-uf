@@ -17,6 +17,20 @@ import type {
   AppNotification,
 } from '../../types/admin'
 import { ADMIN_RPC_FAIL_MESSAGE, shouldFailClosedOnAdminRpc } from '../../utils/adminFailClosed'
+
+const SYNC_SUCCESS_STATUSES = new Set(['ok', 'done', 'success', 'completed'])
+
+function normalizeAdminSystemHealth(data: AdminSystemHealth): AdminSystemHealth {
+  return {
+    ...data,
+    services: data.services.map(svc => {
+      if (svc.id !== 'scheduler') return svc
+      const syncStatus = (svc.last_error ?? '').toLowerCase()
+      if (!SYNC_SUCCESS_STATUSES.has(syncStatus)) return svc
+      return { ...svc, status: 'green', last_error: null }
+    }),
+  }
+}
 import {
   adminSetUserActiveFallback,
   adminSetUserRoleFallback,
@@ -405,7 +419,7 @@ export async function fetchAdminScoringCenter(): Promise<AdminScoringCenter> {
 export async function fetchAdminSystemHealth(): Promise<AdminSystemHealth> {
   const { data, error } = await supabase.rpc('admin_get_system_health')
   requireRpc(error, '270')
-  return unwrap<AdminSystemHealth>(data)
+  return normalizeAdminSystemHealth(unwrap<AdminSystemHealth>(data))
 }
 
 export async function fetchAdminAnalytics(): Promise<AdminAnalyticsOverview> {
