@@ -5,6 +5,7 @@ import { AdminShell } from './components/layout/AdminShell.tsx'
 import { BackgroundProvider } from './components/layout/BackgroundProvider.tsx'
 import { ToastProvider } from './components/ui/ToastProvider.tsx'
 import { DeviceReporterBridge } from './components/layout/DeviceReporterBridge.tsx'
+import { SocialContactBar } from './components/layout/SocialContactBar.tsx'
 import ProtectedRoute from './routes/ProtectedRoute.tsx'
 import AdminRoute from './routes/AdminRoute.tsx'
 
@@ -53,6 +54,7 @@ function App() {
     <BackgroundProvider>
       <ToastProvider>
         <DeviceReporterBridge />
+        <SocialContactBar />
         <Suspense fallback={<PageLoader />}>
           <Routes>
         <Route path="/login" element={<LoginPage />} />

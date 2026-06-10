@@ -8,7 +8,11 @@ const viteEnv =
     : {}
 
 function readEnv(key: string): string | undefined {
-  return viteEnv[key] ?? process.env[key]
+  const nodeEnv =
+    typeof process !== 'undefined' && process.env
+      ? (process.env as Record<string, string | undefined>)[key]
+      : undefined
+  return viteEnv[key] ?? nodeEnv
 }
 
 const betaMode = readEnv('VITE_BETA_MODE') === 'true'

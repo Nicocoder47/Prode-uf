@@ -6,7 +6,6 @@ import { MOTION } from '../../constants/design'
 import { groupColor, WC26_GROUP_NAMES } from '../../constants/groups'
 import type { Match } from '../../types/worldcup'
 import type { Achievement, GroupProgress, StreakInfo } from '../../utils/predictionProgress'
-import { MAX_POINTS_PER_MATCH } from '../../utils/predictionProgress'
 import { TeamCrest } from './TeamCrest'
 
 type HomeContinuePredictingProps = {
@@ -15,7 +14,6 @@ type HomeContinuePredictingProps = {
   predictionSet: Set<string>
   predicted: number
   total: number
-  remainingPoints: number
 }
 
 const GROUP_CARD_WIDTH = 88
@@ -24,7 +22,6 @@ export function HomeContinuePredicting({
   groups,
   predicted,
   total,
-  remainingPoints,
 }: HomeContinuePredictingProps) {
   const knownIds = new Set(groups.map(g => g.groupId))
   const carouselGroups = WC26_GROUP_NAMES.filter(id => knownIds.has(id))
@@ -79,12 +76,6 @@ export function HomeContinuePredicting({
         </>
       )}
 
-      <HomeGlobalProgressBar
-        predicted={predicted}
-        total={total}
-        remainingPoints={remainingPoints}
-        nested
-      />
     </section>
   )
 }
@@ -120,41 +111,6 @@ export function HomePersonalRank({
         </div>
       </Link>
     </motion.section>
-  )
-}
-
-export function HomeGlobalProgressBar({
-  predicted,
-  total,
-  remainingPoints,
-  nested = false,
-}: {
-  predicted: number
-  total: number
-  remainingPoints: number
-  nested?: boolean
-}) {
-  if (total <= 0) return null
-  const pct = Math.round((predicted / total) * 100)
-  return (
-    <div className={`wc26-world-progress text-center ${nested ? 'wc26-world-progress--nested' : 'mb-5'}`}>
-      <div className="mb-2 flex items-center justify-center gap-3">
-        <p className="text-xs font-extrabold uppercase tracking-wider text-white/60">Progreso mundial</p>
-        <p className="text-xs font-black text-wc26-yellow">{pct}%</p>
-      </div>
-      <p className="mb-3 text-sm font-bold text-white">
-        {total} partidos · {predicted} completados
-      </p>
-      <div className="mx-auto mb-2 h-2 max-w-xs overflow-hidden rounded-full bg-white/10">
-        <div
-          className="wc26-progress-fill"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <p className="text-[11px] font-semibold text-white/55">
-        Hasta {remainingPoints} pts posibles en partidos abiertos ({MAX_POINTS_PER_MATCH} pts c/u)
-      </p>
-    </div>
   )
 }
 

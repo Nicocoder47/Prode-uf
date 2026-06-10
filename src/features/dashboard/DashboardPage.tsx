@@ -14,7 +14,8 @@ import {
   WorldCupLiveCarousel,
 } from '../../components/worldcup'
 import { useWorldCupLiveInsights } from '../../hooks/useWorldCupLiveInsights'
-import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers, useAllPlayers } from '../../useWorldCupData'
+import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers, useTopPlayers } from '../../useWorldCupData'
+import { ENABLE_HEAVY_ANIMATIONS, ENABLE_LIVE_INSIGHTS } from '../../config/betaMode'
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
 import {
@@ -36,7 +37,7 @@ export default function DashboardPage() {
   const { data: dbPredictions = [] } = usePredictions(currentUserId)
   const { data: dbLeaderboard = [], isLoading: leaderboardLoading } = useLeaderboard()
   const { data: topScorers = [] } = useTopScorers()
-  const { data: allPlayers = [] } = useAllPlayers()
+  const { data: featuredPlayers = [] } = useTopPlayers(20)
 
   const predictionSet = useMemo(() => new Set(dbPredictions.map(p => p.matchId)), [dbPredictions])
   const groupProgress = useMemo(
@@ -71,7 +72,7 @@ export default function DashboardPage() {
     matches,
     leaderboard: dbLeaderboard,
     topScorers,
-    players: allPlayers,
+    players: featuredPlayers,
     overall: overallProgress,
     groupProgress,
     userId: currentUserId,
@@ -136,10 +137,12 @@ export default function DashboardPage() {
           />
 
           <div className="wc26-content-sheet wc26-content-sheet--home mt-1 px-3 pb-3 pt-5">
-            <WorldCupLiveCarousel
-              cards={liveCards}
-              onPredict={openPredict}
-            />
+            {ENABLE_LIVE_INSIGHTS && (
+              <WorldCupLiveCarousel
+                cards={liveCards}
+                onPredict={openPredict}
+              />
+            )}
 
             <HomeRankingGrid
               entries={dbLeaderboard}
@@ -147,10 +150,17 @@ export default function DashboardPage() {
               isLoading={leaderboardLoading}
             />
 
-            <motion.section {...MOTION.enter} className="mb-5">
-              <p className="wc26-section-title">Jugá ahora</p>
-              <QuickActionGrid compact />
-            </motion.section>
+            {ENABLE_HEAVY_ANIMATIONS ? (
+              <motion.section {...MOTION.enter} className="mb-5">
+                <p className="wc26-section-title">Jugá ahora</p>
+                <QuickActionGrid compact />
+              </motion.section>
+            ) : (
+              <section className="mb-5">
+                <p className="wc26-section-title">Jugá ahora</p>
+                <QuickActionGrid compact />
+              </section>
+            )}
 
             {currentUserId && (
               <>
@@ -160,7 +170,6 @@ export default function DashboardPage() {
                   predictionSet={predictionSet}
                   predicted={overallProgress.predicted}
                   total={overallProgress.total}
-                  remainingPoints={overallProgress.remainingPoints}
                 />
                 <HomeGamificationPanel achievements={achievements} streaks={streaks} />
               </>
@@ -178,7 +187,9 @@ export default function DashboardPage() {
           onFixture={() => navigate('/matches')}
         />
 
-        <WorldCupLiveCarousel cards={liveCards} onPredict={openPredict} />
+        {ENABLE_LIVE_INSIGHTS && (
+          <WorldCupLiveCarousel cards={liveCards} onPredict={openPredict} />
+        )}
 
         <HomeNextMatchCard
           match={nextMatch}
@@ -200,7 +211,6 @@ export default function DashboardPage() {
               predictionSet={predictionSet}
               predicted={overallProgress.predicted}
               total={overallProgress.total}
-              remainingPoints={overallProgress.remainingPoints}
             />
             <HomeGamificationPanel achievements={achievements} streaks={streaks} />
           </>
