@@ -214,6 +214,105 @@ export interface AdminTestUsersPreview {
   users: { id: string; email: string; full_name: string }[]
 }
 
+export type HealthStatus = 'green' | 'yellow' | 'red'
+
+export interface AdminSystemHealthService {
+  id: string
+  label: string
+  status: HealthStatus
+  last_run: string | null
+  response_ms: number | null
+  last_error: string | null
+  detail: string
+}
+
+export interface AdminOrphanScoredCase {
+  prediction_id: string
+  user_id: string
+  match_id: string
+  match_status: string
+  points: number
+  email: string | null
+  full_name: string | null
+  home_team: string | null
+  away_team: string | null
+  kick_off: string | null
+}
+
+export interface AdminOrphanScored {
+  count: number
+  cases: AdminOrphanScoredCase[]
+}
+
+export interface AdminSystemHealth {
+  generated_at: string
+  probe_ms: number
+  orphan_scored?: AdminOrphanScored
+  services: AdminSystemHealthService[]
+}
+
+export interface AdminScoringMatchRow {
+  id: string
+  status: string
+  score_home: number | null
+  score_away: number | null
+  scored_at: string | null
+  kick_off: string | null
+  phase: string | null
+  home_team: string | null
+  away_team: string | null
+  predictions_total: number
+  predictions_scored: number
+  points_assigned: number
+  scoring_status: 'pending_scoring' | 'scored' | 'live' | 'scheduled' | string
+}
+
+export interface AdminScoringCenter {
+  last_score_at: string | null
+  last_rescore_at: string | null
+  orphan_scored?: AdminOrphanScored
+  summary: {
+    pending_scoring: number
+    scored: number
+    live: number
+    scheduled: number
+    errors: number
+  }
+  matches: AdminScoringMatchRow[]
+}
+
+export interface AdminAnalyticsOverview {
+  registered_users: number
+  active_today: number
+  active_week: number
+  active_month: number
+  total_predictions: number
+  pending_predictions: number
+  users_with_predictions: number
+  avg_predictions_per_user: number
+  participation_rate_pct: number
+  top_active_users: { full_name: string; email: string; activity_count: number }[]
+  top_matches_by_predictions: {
+    id: string
+    home_team: string | null
+    away_team: string | null
+    prediction_count: number
+  }[]
+  top_winner_picks: { choice: string; pick_count: number }[]
+  top_scoreline_picks: { scoreline: string; pick_count: number }[]
+}
+
+export interface AdminTestUserReportRow {
+  id: string
+  email: string
+  full_name: string
+  created_at: string
+  last_login_at: string | null
+  last_activity_at: string | null
+  predictions_count: number
+  total_points: number
+}
+
 export interface ReviewRequiredUser {
   id: string
   legajo: string | null

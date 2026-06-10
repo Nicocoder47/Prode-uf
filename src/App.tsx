@@ -4,6 +4,7 @@ import { AppShell } from './components/layout/AppShell.tsx'
 import { AdminShell } from './components/layout/AdminShell.tsx'
 import { BackgroundProvider } from './components/layout/BackgroundProvider.tsx'
 import { ToastProvider } from './components/ui/ToastProvider.tsx'
+import { DeviceReporterBridge } from './components/layout/DeviceReporterBridge.tsx'
 import ProtectedRoute from './routes/ProtectedRoute.tsx'
 import AdminRoute from './routes/AdminRoute.tsx'
 
@@ -24,6 +25,7 @@ const GroupDetailPage = lazy(() => import('./features/groups/GroupDetailPage.tsx
 const PredictionsPage = lazy(() => import('./features/predictions/PredictionsPage.tsx'))
 const ProfilePage = lazy(() => import('./features/auth/ProfilePage.tsx'))
 const LoginPage = lazy(() => import('./features/auth/LoginPage.tsx'))
+const ChangePasswordPage = lazy(() => import('./features/auth/ChangePasswordPage.tsx'))
 const AdminHashRedirect = lazy(() => import('./features/admin/AdminHashRedirect.tsx'))
 const AdminDashboardPage = lazy(() => import('./features/admin/AdminDashboardPage.tsx'))
 const AdminUsersPage = lazy(() => import('./features/admin/AdminUsersPage.tsx'))
@@ -32,6 +34,10 @@ const AdminNotificationsPage = lazy(() => import('./features/admin/AdminNotifica
 const AdminSystemOverviewPage = lazy(() => import('./features/admin/AdminSystemOverviewPage.tsx'))
 const AdminCardsPage = lazy(() => import('./features/admin/AdminCardsPage.tsx'))
 const AdminSupportPage = lazy(() => import('./features/admin/AdminSupportPage.tsx'))
+const AdminBetaCapacityPage = lazy(() => import('./features/admin/AdminBetaCapacityPage.tsx'))
+const AdminScoringPage = lazy(() => import('./features/admin/AdminScoringPage.tsx'))
+const AdminSystemHealthPage = lazy(() => import('./features/admin/AdminSystemHealthPage.tsx'))
+const AdminAnalyticsPage = lazy(() => import('./features/admin/AdminAnalyticsPage.tsx'))
 const NotificationsPage = lazy(() => import('./features/notifications/NotificationsPage.tsx'))
 
 function PageLoader() {
@@ -46,6 +52,7 @@ function App() {
   return (
     <BackgroundProvider>
       <ToastProvider>
+        <DeviceReporterBridge />
         <Suspense fallback={<PageLoader />}>
           <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -54,6 +61,7 @@ function App() {
         <Route path="/invite" element={<Navigate to="/login" replace />} />
 
         <Route element={<ProtectedRoute />}>
+          <Route path="change-password" element={<ChangePasswordPage />} />
           <Route path="admin" element={<AdminRoute />}>
             <Route element={<AdminShell />}>
               <Route index element={<AdminHashRedirect />} />
@@ -62,6 +70,10 @@ function App() {
               <Route path="activity" element={<AdminActivityPage />} />
               <Route path="notifications" element={<AdminNotificationsPage />} />
               <Route path="system" element={<AdminSystemOverviewPage />} />
+              <Route path="health" element={<AdminSystemHealthPage />} />
+              <Route path="scoring" element={<AdminScoringPage />} />
+              <Route path="analytics" element={<AdminAnalyticsPage />} />
+              <Route path="beta-capacity" element={<AdminBetaCapacityPage />} />
               <Route path="cards" element={<AdminCardsPage />} />
               <Route path="support" element={<AdminSupportPage />} />
             </Route>

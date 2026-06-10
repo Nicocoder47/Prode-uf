@@ -14,7 +14,7 @@ export default function LeaderboardPage() {
     points: lb.points,
     position: lb.rank ?? idx + 1,
     change: 0,
-    streak: lb.wins,
+    streak: 0,
     avatar: (lb.profile?.fullName || 'U').charAt(0).toUpperCase(),
   }))
 

@@ -1,12 +1,16 @@
 import { supabase } from '../../lib/supabase'
 import type {
   AdminActivityRow,
+  AdminAnalyticsOverview,
   AdminBetaCapacity,
   AdminBetaOverview,
   AdminCard,
   AdminDashboard,
   AdminDeleteUserResult,
   AdminNotificationRow,
+  AdminScoringCenter,
+  AdminSystemHealth,
+  AdminTestUserReportRow,
   AdminTestUsersPreview,
   AdminUserDetail,
   AdminUserRow,
@@ -383,4 +387,63 @@ export async function adminSetNotificationActive(notificationId: string, active:
 export async function completePasswordChange() {
   const { error } = await supabase.rpc('complete_password_change')
   if (error) throw error
+}
+
+function requireRpc(error: { message?: string; code?: string } | null, migration: string) {
+  if (error?.message?.includes('Could not find the function') || error?.code === 'PGRST202') {
+    throw new Error(`Requiere migración ${migration}. Ejecutá npm run db:apply:management -- ${migration}`)
+  }
+  if (error) throw error
+}
+
+export async function fetchAdminScoringCenter(): Promise<AdminScoringCenter> {
+  const { data, error } = await supabase.rpc('admin_get_scoring_center')
+  requireRpc(error, '270')
+  return unwrap<AdminScoringCenter>(data)
+}
+
+export async function fetchAdminSystemHealth(): Promise<AdminSystemHealth> {
+  const { data, error } = await supabase.rpc('admin_get_system_health')
+  requireRpc(error, '270')
+  return unwrap<AdminSystemHealth>(data)
+}
+
+export async function fetchAdminAnalytics(): Promise<AdminAnalyticsOverview> {
+  const { data, error } = await supabase.rpc('admin_get_analytics_overview')
+  requireRpc(error, '270')
+  return unwrap<AdminAnalyticsOverview>(data)
+}
+
+export async function fetchAdminTestUsersReport(): Promise<AdminTestUserReportRow[]> {
+  const { data, error } = await supabase.rpc('admin_get_test_users_report')
+  requireRpc(error, '270')
+  return unwrap<AdminTestUserReportRow[]>(data ?? [])
+}
+
+export async function adminScoreMatch(matchId: string) {
+  const { data, error } = await supabase.rpc('admin_score_match', { p_match_id: matchId })
+  requireRpc(error, '270')
+  return data as { ok: boolean; predictions_scored: number }
+}
+
+export async function adminRescoreMatch(matchId: string, oldHome: number, oldAway: number) {
+  const { data, error } = await supabase.rpc('admin_rescore_match', {
+    p_match_id: matchId,
+    p_old_score_home: oldHome,
+    p_old_score_away: oldAway,
+  })
+  requireRpc(error, '270')
+  return data as { ok: boolean; predictions_rescored: number }
+}
+
+export async function adminRecalculateLeaderboard() {
+  const { data, error } = await supabase.rpc('admin_recalculate_leaderboard')
+  requireRpc(error, '270')
+  return data as { ok: boolean }
+}
+
+export async function adminScoreRound(round: string) {
+  const { data, error } = await supabase.rpc('admin_score_round', { p_round: round })
+  requireRpc(error, '270')
+  return data as { ok: boolean; matches_processed: number; predictions_scored: number }
 }

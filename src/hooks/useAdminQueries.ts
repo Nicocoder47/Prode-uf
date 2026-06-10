@@ -3,9 +3,12 @@ import {
   fetchAdminActivityLogs,
   fetchAdminCardsManage,
   fetchAdminBetaCapacity,
+  fetchAdminAnalytics,
   fetchAdminBetaOverview,
   fetchAdminDashboard,
   fetchAdminNotifications,
+  fetchAdminScoringCenter,
+  fetchAdminSystemHealth,
   fetchAdminUserDetail,
   fetchAdminUsers,
   fetchMatchPredictionCounts,
@@ -14,10 +17,13 @@ import {
 import { POLLING_INTERVALS } from '../config/betaMode'
 import type {
   AdminActivityRow,
+  AdminAnalyticsOverview,
   AdminBetaCapacity,
   AdminBetaOverview,
   AdminDashboard,
   AdminNotificationRow,
+  AdminScoringCenter,
+  AdminSystemHealth,
   AdminUserDetail,
   AdminUserRow,
 } from '../types/admin'
@@ -34,6 +40,9 @@ export const adminKeys = {
   cards: () => [...adminKeys.all, 'cards'] as const,
   rpcMode: () => [...adminKeys.all, 'rpc-mode'] as const,
   matchPredictionCounts: (ids: string) => [...adminKeys.all, 'match-prediction-counts', ids] as const,
+  scoringCenter: () => [...adminKeys.all, 'scoring-center'] as const,
+  systemHealth: () => [...adminKeys.all, 'system-health'] as const,
+  analytics: () => [...adminKeys.all, 'analytics'] as const,
 }
 
 export function useAdminDashboard() {
@@ -59,6 +68,32 @@ export function useAdminBetaOverview() {
     queryFn: fetchAdminBetaOverview,
     staleTime: 30_000,
     refetchInterval: POLLING_INTERVALS.capacity,
+  })
+}
+
+export function useAdminScoringCenter() {
+  return useQuery<AdminScoringCenter>({
+    queryKey: adminKeys.scoringCenter(),
+    queryFn: fetchAdminScoringCenter,
+    staleTime: 20_000,
+    refetchInterval: 60_000,
+  })
+}
+
+export function useAdminSystemHealth() {
+  return useQuery<AdminSystemHealth>({
+    queryKey: adminKeys.systemHealth(),
+    queryFn: fetchAdminSystemHealth,
+    staleTime: 15_000,
+    refetchInterval: 30_000,
+  })
+}
+
+export function useAdminAnalytics() {
+  return useQuery<AdminAnalyticsOverview>({
+    queryKey: adminKeys.analytics(),
+    queryFn: fetchAdminAnalytics,
+    staleTime: 60_000,
   })
 }
 
