@@ -13,6 +13,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [react()],
+    // Sin manualChunks: evita circular vendor ↔ react que rompe createContext en prod.
+    build: {},
     server: {
       host: '0.0.0.0',
       port: 5174,

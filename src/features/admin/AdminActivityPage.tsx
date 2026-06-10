@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { downloadCsv } from '../../utils/exportCsv'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
 import { useAdminActivityLogs, type AdminActivityFilters } from '../../hooks/useAdminQueries.ts'
@@ -28,6 +29,19 @@ function formatDate(value: string) {
   return new Date(value).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
 }
 
+function ActivityMetadata({ metadata }: { metadata: Record<string, unknown> }) {
+  const [open, setOpen] = useState(false)
+  const text = JSON.stringify(metadata ?? {}, null, 2)
+  return (
+    <div>
+      <button type="button" className="text-xs text-amber-300 hover:underline" onClick={() => setOpen(!open)}>
+        {open ? 'Ocultar' : 'Ver más'}
+      </button>
+      {open && <pre className="mt-1 max-w-md overflow-x-auto rounded bg-black/30 p-2 text-[10px] text-white/70">{text}</pre>}
+    </div>
+  )
+}
+
 export default function AdminActivityPage() {
   const [type, setType] = useState('')
   const [legajo, setLegajo] = useState('')
@@ -36,6 +50,21 @@ export default function AdminActivityPage() {
   const [appliedFilters, setAppliedFilters] = useState<AdminActivityFilters>({ limit: 200 })
 
   const { data: logs = [], isLoading } = useAdminActivityLogs(appliedFilters)
+
+  function exportActivityCsv() {
+    downloadCsv(
+      `actividad-${new Date().toISOString().slice(0, 10)}.csv`,
+      ['fecha', 'usuario', 'legajo', 'tipo', 'descripcion', 'metadata'],
+      logs.map(log => [
+        log.created_at,
+        log.user_name ?? log.full_name ?? '',
+        log.user_legajo ?? log.legajo ?? '',
+        log.type,
+        log.description ?? log.title,
+        JSON.stringify(log.metadata ?? {}),
+      ]),
+    )
+  }
 
   function applyFilters() {
     setAppliedFilters({
@@ -88,6 +117,9 @@ export default function AdminActivityPage() {
       </PremiumCard>
 
       <PremiumCard title="Movimientos" description={`${logs.length} registros`}>
+        <div className="mb-3">
+          <PremiumButton size="sm" variant="ghost" onClick={exportActivityCsv}>Exportar CSV</PremiumButton>
+        </div>
         {isLoading ? (
           <p className="text-white/60">Cargando…</p>
         ) : (
@@ -115,8 +147,8 @@ export default function AdminActivityPage() {
                       </span>
                     </td>
                     <td className="py-2 pr-3 text-white/80">{log.description ?? log.title}</td>
-                    <td className="py-2 max-w-[200px] truncate text-xs text-white/40">
-                      {JSON.stringify(log.metadata ?? {})}
+                    <td className="py-2 text-xs text-white/40">
+                      <ActivityMetadata metadata={log.metadata ?? {}} />
                     </td>
                   </tr>
                 ))}

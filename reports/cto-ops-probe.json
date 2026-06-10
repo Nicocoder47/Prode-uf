@@ -1,0 +1,197 @@
+{
+  "generatedAt": "2026-06-10T00:07:59.016Z",
+  "snapshots": [
+    {
+      "created_at": "2026-06-09T23:46:14.734987+00:00",
+      "snapshot_type": "worker_health",
+      "payload": {
+        "at": "2026-06-09T23:46:14.214Z",
+        "ok": true,
+        "host": "unknown",
+        "errors": [],
+        "durationMs": 1495,
+        "primaryProvider": "football-data.org",
+        "liveMatchesUpserted": 0,
+        "liveBundlesProcessed": 0,
+        "apiFootballConfigured": false
+      }
+    },
+    {
+      "created_at": "2026-06-09T23:46:14.473413+00:00",
+      "snapshot_type": "worker_heartbeat",
+      "payload": {
+        "at": "2026-06-09T23:46:14.214Z",
+        "ok": true,
+        "host": "unknown",
+        "errors": [],
+        "durationMs": 1495,
+        "primaryProvider": "football-data.org",
+        "liveMatchesUpserted": 0,
+        "liveBundlesProcessed": 0,
+        "apiFootballConfigured": false
+      }
+    },
+    {
+      "created_at": "2026-06-09T23:02:27.705884+00:00",
+      "snapshot_type": "worker_health",
+      "payload": {
+        "at": "2026-06-09T23:02:27.528Z",
+        "ok": true,
+        "host": "unknown",
+        "errors": [],
+        "durationMs": 875,
+        "primaryProvider": "football-data.org",
+        "liveMatchesUpserted": 0,
+        "liveBundlesProcessed": 0,
+        "apiFootballConfigured": false
+      }
+    },
+    {
+      "created_at": "2026-06-09T23:02:27.645854+00:00",
+      "snapshot_type": "worker_heartbeat",
+      "payload": {
+        "at": "2026-06-09T23:02:27.528Z",
+        "ok": true,
+        "host": "unknown",
+        "errors": [],
+        "durationMs": 875,
+        "primaryProvider": "football-data.org",
+        "liveMatchesUpserted": 0,
+        "liveBundlesProcessed": 0,
+        "apiFootballConfigured": false
+      }
+    },
+    {
+      "created_at": "2026-06-09T22:15:52.135006+00:00",
+      "snapshot_type": "worker_health",
+      "payload": {
+        "at": "2026-06-09T22:15:51.643Z",
+        "ok": true,
+        "host": "unknown",
+        "errors": [],
+        "durationMs": 1436,
+        "primaryProvider": "football-data.org",
+        "liveMatchesUpserted": 0,
+        "liveBundlesProcessed": 0,
+        "apiFootballConfigured": false
+      }
+    },
+    {
+      "created_at": "2026-06-09T22:15:51.875451+00:00",
+      "snapshot_type": "worker_heartbeat",
+      "payload": {
+        "at": "2026-06-09T22:15:51.643Z",
+        "ok": true,
+        "host": "unknown",
+        "errors": [],
+        "durationMs": 1436,
+        "primaryProvider": "football-data.org",
+        "liveMatchesUpserted": 0,
+        "liveBundlesProcessed": 0,
+        "apiFootballConfigured": false
+      }
+    },
+    {
+      "created_at": "2026-06-09T21:39:45.066767+00:00",
+      "snapshot_type": "worker_health",
+      "payload": {
+        "at": "2026-06-09T21:39:44.732Z",
+        "ok": true,
+        "host": "unknown",
+        "errors": [],
+        "durationMs": 1572,
+        "primaryProvider": "football-data.org",
+        "liveMatchesUpserted": 0,
+        "liveBundlesProcessed": 0,
+        "apiFootballConfigured": false
+      }
+    },
+    {
+      "created_at": "2026-06-09T21:39:44.956863+00:00",
+      "snapshot_type": "worker_heartbeat",
+      "payload": {
+        "at": "2026-06-09T21:39:44.732Z",
+        "ok": true,
+        "host": "unknown",
+        "errors": [],
+        "durationMs": 1572,
+        "primaryProvider": "football-data.org",
+        "liveMatchesUpserted": 0,
+        "liveBundlesProcessed": 0,
+        "apiFootballConfigured": false
+      }
+    }
+  ],
+  "syncLogs": [
+    {
+      "started_at": "2026-06-09T23:46:14.150445+00:00",
+      "finished_at": "2026-06-09T23:46:13.95+00:00",
+      "sync_type": "live_matches",
+      "status": "done",
+      "error_message": null,
+      "records_upserted": 0
+    },
+    {
+      "started_at": "2026-06-09T23:02:27.481701+00:00",
+      "finished_at": "2026-06-09T23:02:27.439+00:00",
+      "sync_type": "live_matches",
+      "status": "done",
+      "error_message": null,
+      "records_upserted": 0
+    },
+    {
+      "started_at": "2026-06-09T22:15:51.591168+00:00",
+      "finished_at": "2026-06-09T22:15:51.36+00:00",
+      "sync_type": "live_matches",
+      "status": "done",
+      "error_message": null,
+      "records_upserted": 0
+    },
+    {
+      "started_at": "2026-06-09T21:39:44.679528+00:00",
+      "finished_at": "2026-06-09T21:39:44.447+00:00",
+      "sync_type": "live_matches",
+      "status": "done",
+      "error_message": null,
+      "records_upserted": 0
+    },
+    {
+      "started_at": "2026-06-09T20:47:05.451661+00:00",
+      "finished_at": "2026-06-09T20:47:05.43+00:00",
+      "sync_type": "live_matches",
+      "status": "done",
+      "error_message": null,
+      "records_upserted": 0
+    },
+    {
+      "started_at": "2026-06-09T19:47:40.337028+00:00",
+      "finished_at": "2026-06-09T19:47:40.284+00:00",
+      "sync_type": "live_matches",
+      "status": "done",
+      "error_message": null,
+      "records_upserted": 0
+    },
+    {
+      "started_at": "2026-06-09T18:56:20.7055+00:00",
+      "finished_at": "2026-06-09T18:56:20.651+00:00",
+      "sync_type": "live_matches",
+      "status": "done",
+      "error_message": null,
+      "records_upserted": 0
+    },
+    {
+      "started_at": "2026-06-09T17:57:52.397235+00:00",
+      "finished_at": "2026-06-09T17:57:52.345+00:00",
+      "sync_type": "live_matches",
+      "status": "done",
+      "error_message": null,
+      "records_upserted": 0
+    }
+  ],
+  "memberSampleKeys": [
+    "dni",
+    "full_name",
+    "last_name"
+  ],
+  "incompleteTeams": null
+}

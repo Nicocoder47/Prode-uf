@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-06-06T23:53:11.885Z",
+  "generatedAt": "2026-06-10T00:10:39.496Z",
   "overall": "PARTIAL",
   "services": {
     "frontend": "online",
     "backend": "unknown",
-    "worker": "unknown",
+    "worker": "offline",
     "db": "online",
     "auth": "online",
     "realtime": "online"
@@ -22,7 +22,7 @@
       "note": "Oracle no desplegado — configurar VITE_API_BASE_URL"
     },
     "worker": {
-      "lastHeartbeatAt": null,
+      "lastHeartbeatAt": "2026-06-09T23:46:14.473413+00:00",
       "expectedIntervalSec": 60
     },
     "db": {

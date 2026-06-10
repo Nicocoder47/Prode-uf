@@ -1,0 +1,20 @@
+{
+  "admin_settings": {
+    "exists": true,
+    "count": null
+  },
+  "device_reports": {
+    "exists": true,
+    "count": null
+  },
+  "system_capacity_snapshots": {
+    "exists": true,
+    "count": null
+  },
+  "registration_open": {
+    "error": "Could not find the table 'public.admin_settings' in the schema cache"
+  },
+  "profiles_sample": {
+    "error": "column profiles.must_change_password does not exist"
+  }
+}

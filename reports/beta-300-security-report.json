@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-06-10T01:14:25.962Z",
+  "estado_beta": "green",
+  "usuarios": "57/300",
+  "invitaciones_abiertas": true,
+  "usuarios_deben_cambiar_password": 0,
+  "usuarios_bloqueados": 0,
+  "usuarios_desactivados": 0,
+  "admins_activos": 1,
+  "ultimos_cambios_rol": [],
+  "dispositivos_errores_24h": 0,
+  "mobile_error_pct": 0,
+  "problemas_criticos": [],
+  "recomendacion": "Operación beta estable — monitorear diario"
+}

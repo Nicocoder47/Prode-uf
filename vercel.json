@@ -8,7 +8,11 @@
     "VITE_SUPABASE_URL": "https://irklqwsnehlfcgehvscm.supabase.co",
     "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlya2xxd3NuZWhsZmNnZWh2c2NtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NzIxMzcsImV4cCI6MjA5NjI0ODEzN30.IZdvjieoofr0G9V7WupI782jbKbB-A3l7AJ6JJID3UA",
     "VITE_USE_FOOTBALL_API": "false",
-    "VITE_PUBLIC_DEMO": "false"
+    "VITE_PUBLIC_DEMO": "false",
+    "VITE_BETA_MODE": "true",
+    "VITE_ENABLE_REALTIME": "false",
+    "VITE_ENABLE_HEAVY_ANIMATIONS": "false",
+    "VITE_ENABLE_LIVE_INSIGHTS": "true"
   },
   "rewrites": [
     { "source": "/((?!assets/).*)", "destination": "/index.html" }
@@ -17,6 +21,19 @@
     {
       "source": "/assets/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://irklqwsnehlfcgehvscm.supabase.co wss://irklqwsnehlfcgehvscm.supabase.co https://*.supabase.co wss://*.supabase.co https://prodemundialprode.vercel.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        }
+      ]
     }
   ]
 }

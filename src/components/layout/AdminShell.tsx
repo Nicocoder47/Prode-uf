@@ -12,6 +12,7 @@ import {
   HeartPulse,
   Server,
   ShieldCheck,
+  Sparkles,
   Target,
   Users,
 } from 'lucide-react'
@@ -32,6 +33,7 @@ const nav = [
   { to: '/admin/beta-capacity', label: 'Beta / Capacidad', icon: Gauge },
   { to: '/admin/support', label: 'Soporte', icon: LifeBuoy },
   { to: '/admin/cards', label: 'Cards', icon: CreditCard },
+  { to: '/admin/live-cards', label: 'Mundial Vivo', icon: Sparkles },
 ] as const
 
 function navClassName(isActive: boolean, base: string) {

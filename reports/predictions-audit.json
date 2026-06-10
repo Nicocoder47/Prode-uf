@@ -1,20 +1,27 @@
 {
-  "generatedAt": "2026-06-05T10:00:00.893Z",
+  "generatedAt": "2026-06-10T17:11:04.293Z",
   "counts": {
-    "pending": 0,
+    "pending": 114,
     "locked": 0,
     "scored": 0,
-    "total": 0
+    "total": 114
+  },
+  "platform": {
+    "totalUsers": 10,
+    "totalMatches": 104,
+    "finishedMatches": 0,
+    "liveMatches": 0,
+    "scoredMatches": 0,
+    "pendingScoringMatches": 0
   },
   "unscoredOnFinished": [],
   "finishedWithoutScoring": [],
   "inconsistent": [],
   "scoringRules": {
-    "source": "score_match_predictions (Supabase migration v5)",
+    "source": "score_match_predictions (marcador only)",
     "exactScore": 5,
     "correctResult": 3,
-    "firstScorerBonus": 2,
-    "mvpBonus": 2,
+    "maxPerMatch": 5,
     "exclusiveExactOrResult": true
   }
 }

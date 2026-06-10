@@ -1,0 +1,173 @@
+{
+  "generated_at": "2026-06-10T17:11:12.970Z",
+  "summary": {
+    "passed": 22,
+    "failed": 0,
+    "total": 22,
+    "readiness_pct": 100
+  },
+  "checks": [
+    {
+      "phase": "auth",
+      "name": "admin_sign_in",
+      "ok": true,
+      "detail": "maestro@prodemundial.prode"
+    },
+    {
+      "phase": "f1",
+      "name": "admin_score_match_blocks_scheduled",
+      "ok": true,
+      "detail": "match_not_finished"
+    },
+    {
+      "phase": "f1",
+      "name": "admin_rescore_match_blocks_scheduled",
+      "ok": true,
+      "detail": "match_not_finished"
+    },
+    {
+      "phase": "f1",
+      "name": "no_orphan_scored_predictions",
+      "ok": true,
+      "detail": "0"
+    },
+    {
+      "phase": "f1",
+      "name": "health_scoring_integrity_green",
+      "ok": true
+    },
+    {
+      "phase": "f1",
+      "name": "scoring_center_has_orphan_field",
+      "ok": true,
+      "detail": "count=0"
+    },
+    {
+      "phase": "f1",
+      "name": "leaderboard_no_phantom_points",
+      "ok": true,
+      "detail": "0 pts con 0 finished"
+    },
+    {
+      "phase": "f4",
+      "name": "db_no_orphan_predictions",
+      "ok": true
+    },
+    {
+      "phase": "f4",
+      "name": "db_no_duplicate_ranks",
+      "ok": true
+    },
+    {
+      "phase": "f4",
+      "name": "db_no_duplicate_emails",
+      "ok": true,
+      "detail": "0 users"
+    },
+    {
+      "phase": "f5",
+      "name": "beta_overview",
+      "ok": true,
+      "detail": "10/300 slots=290"
+    },
+    {
+      "phase": "f5",
+      "name": "analytics_rpc_ms",
+      "ok": true,
+      "detail": "236"
+    },
+    {
+      "phase": "f6",
+      "name": "supabase_url_production",
+      "ok": true,
+      "detail": "https://irklqwsnehlfcgehvscm.supabase.co"
+    },
+    {
+      "phase": "f6",
+      "name": "rpc_admin_get_beta_overview",
+      "ok": true
+    },
+    {
+      "phase": "f6",
+      "name": "rpc_admin_get_users",
+      "ok": true
+    },
+    {
+      "phase": "f6",
+      "name": "rpc_admin_get_scoring_center",
+      "ok": true
+    },
+    {
+      "phase": "f6",
+      "name": "rpc_admin_get_system_health",
+      "ok": true
+    },
+    {
+      "phase": "f6",
+      "name": "rpc_admin_get_analytics_overview",
+      "ok": true
+    },
+    {
+      "phase": "f6",
+      "name": "rpc_admin_get_registration_status",
+      "ok": true
+    },
+    {
+      "phase": "f6",
+      "name": "invitations_registration_status",
+      "ok": true,
+      "detail": "{\"enabled\":true}"
+    },
+    {
+      "phase": "f6",
+      "name": "vercel_deploy_reachable",
+      "ok": true,
+      "detail": "https://prodemundialprode.vercel.app"
+    },
+    {
+      "phase": "f6",
+      "name": "local_build_dist_exists",
+      "ok": true
+    }
+  ],
+  "beta": {
+    "registered_users": 10,
+    "available_slots": 290,
+    "max_users": 300,
+    "test_users": 0,
+    "predictions": 114,
+    "admin_audit_entries": 51,
+    "leaderboard_with_points": 0,
+    "finished_matches": 0
+  },
+  "capacity_scenarios": [
+    {
+      "users": 200,
+      "est_predictions": 2280,
+      "risk": "green"
+    },
+    {
+      "users": 400,
+      "est_predictions": 4560,
+      "risk": "green"
+    },
+    {
+      "users": 700,
+      "est_predictions": 7980,
+      "risk": "yellow"
+    },
+    {
+      "users": 1000,
+      "est_predictions": 11400,
+      "risk": "red"
+    }
+  ],
+  "infra": {
+    "vercel_url": "https://prodemundialprode.vercel.app",
+    "supabase_url": "https://irklqwsnehlfcgehvscm.supabase.co",
+    "has_anon_key": true,
+    "has_service_role": true,
+    "has_access_token": true,
+    "analytics_rpc_ms": 236
+  }
+}

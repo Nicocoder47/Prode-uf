@@ -1,3 +1,4 @@
+/** @deprecated Admin V2 legacy — no enrutado. Usar AdminShell + rutas modulares. */
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Activity, Bell, CreditCard, LayoutDashboard, Users } from 'lucide-react'

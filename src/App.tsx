@@ -34,7 +34,11 @@ const AdminActivityPage = lazy(() => import('./features/admin/AdminActivityPage.
 const AdminNotificationsPage = lazy(() => import('./features/admin/AdminNotificationsPage.tsx'))
 const AdminSystemOverviewPage = lazy(() => import('./features/admin/AdminSystemOverviewPage.tsx'))
 const AdminCardsPage = lazy(() => import('./features/admin/AdminCardsPage.tsx'))
+const AdminLiveCardsPage = lazy(() => import('./features/admin/AdminLiveCardsPage.tsx'))
 const AdminOperationsCenterPage = lazy(() => import('./features/admin/AdminOperationsCenterPage.tsx'))
+const LiveCardsPreviewPage = import.meta.env.DEV
+  ? lazy(() => import('./features/dev/LiveCardsPreviewPage.tsx'))
+  : null
 const AdminSupportPage = lazy(() => import('./features/admin/AdminSupportPage.tsx'))
 const AdminBetaCapacityPage = lazy(() => import('./features/admin/AdminBetaCapacityPage.tsx'))
 const AdminScoringPage = lazy(() => import('./features/admin/AdminScoringPage.tsx'))
@@ -59,6 +63,9 @@ function App() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
         <Route path="/login" element={<LoginPage />} />
+        {LiveCardsPreviewPage ? (
+          <Route path="/dev/live-cards" element={<LiveCardsPreviewPage />} />
+        ) : null}
         <Route path="/registro" element={<Navigate to="/login" replace />} />
         <Route path="/register" element={<Navigate to="/login" replace />} />
         <Route path="/invite" element={<Navigate to="/login" replace />} />
@@ -79,6 +86,7 @@ function App() {
               <Route path="analytics" element={<AdminAnalyticsPage />} />
               <Route path="beta-capacity" element={<AdminBetaCapacityPage />} />
               <Route path="cards" element={<AdminCardsPage />} />
+              <Route path="live-cards" element={<AdminLiveCardsPage />} />
               <Route path="support" element={<AdminSupportPage />} />
             </Route>
           </Route>

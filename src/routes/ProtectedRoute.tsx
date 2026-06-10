@@ -3,7 +3,7 @@ import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
 import { useAuth } from '../lib/auth.tsx'
 
 export default function ProtectedRoute() {
-  const { session, loading } = useAuth()
+  const { session, loading, profile } = useAuth()
   const location = useLocation()
 
   if (PUBLIC_DEMO_ACCESS) {
@@ -22,6 +22,17 @@ export default function ProtectedRoute() {
 
   if (!session) {
     return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  const onChangePassword = location.pathname === '/change-password'
+  const mustChange = profile?.must_change_password === true
+
+  if (!loading && profile && mustChange && !onChangePassword) {
+    return <Navigate to="/change-password" replace />
+  }
+
+  if (!loading && profile && !mustChange && onChangePassword) {
+    return <Navigate to="/" replace />
   }
 
   return <Outlet />

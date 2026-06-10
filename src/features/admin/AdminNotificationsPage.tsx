@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
 import { useAppToast } from '../../components/ui/ToastProvider.tsx'
-import { adminCreateNotification } from '../../services/admin/adminService.ts'
+import { adminCreateNotification, adminSetNotificationActive } from '../../services/admin/adminService.ts'
 import { useAdminNotifications, useAdminUsers, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
 
 function formatDate(value: string | null) {
@@ -154,7 +154,28 @@ export default function AdminNotificationsPage() {
                     <td className="py-2 pr-3 text-white/70">{n.creator_name ?? '—'}</td>
                     <td className="py-2 pr-3 text-xs text-white/50">{formatDate(n.created_at)}</td>
                     <td className="py-2 pr-3">{n.read_count}</td>
-                    <td className="py-2">{n.is_active ? 'Sí' : 'No'}</td>
+                    <td className="py-2">
+                      <PremiumButton
+                        size="sm"
+                        variant="ghost"
+                        disabled={busy}
+                        onClick={async () => {
+                          setBusy(true)
+                          try {
+                            await adminSetNotificationActive(n.id, !n.is_active)
+                            invalidateNotifications()
+                            await refetch()
+                            showToast(n.is_active ? 'Notificación desactivada' : 'Notificación reactivada')
+                          } catch (err) {
+                            setError(err instanceof Error ? err.message : 'Error')
+                          } finally {
+                            setBusy(false)
+                          }
+                        }}
+                      >
+                        {n.is_active ? 'Desactivar' : 'Reactivar'}
+                      </PremiumButton>
+                    </td>
                   </tr>
                 ))}
               </tbody>

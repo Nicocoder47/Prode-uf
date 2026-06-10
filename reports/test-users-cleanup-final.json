@@ -1,0 +1,1286 @@
+{
+  "generated_at": "2026-06-10T10:27:21.758Z",
+  "deleted_count": 49,
+  "before": {
+    "max_users": 300,
+    "users_blocked": 1,
+    "available_slots": 243,
+    "new_users_today": 48,
+    "capacity_percent": 19,
+    "registered_users": 57,
+    "last_scored_match": null,
+    "registration_open": true,
+    "test_users_detected": 49,
+    "users_with_predictions": 5,
+    "last_score_calculated_at": "2026-06-10T09:54:33.783519+00:00",
+    "users_without_predictions": 52
+  },
+  "after": {
+    "max_users": 300,
+    "users_blocked": 1,
+    "available_slots": 292,
+    "new_users_today": 0,
+    "capacity_percent": 2.7,
+    "registered_users": 8,
+    "last_scored_match": null,
+    "registration_open": true,
+    "test_users_detected": 0,
+    "users_with_predictions": 5,
+    "last_score_calculated_at": "2026-06-10T09:54:33.783519+00:00",
+    "users_without_predictions": 3
+  },
+  "real_users_remaining": 8,
+  "slots_freed": 49,
+  "leaderboard_integrity": {
+    "entries": 5,
+    "duplicate_ranks": false
+  },
+  "recent_audit": [
+    {
+      "id": "c78f7f7a-ce96-4379-bc88-8017a7574370",
+      "admin_id": "ba0d4fa6-5a5c-44be-9113-b897e106c8c0",
+      "action": "user_hard_delete",
+      "deleted_user_id": "5f35efe2-c26d-46de-93b1-8f4119d7a912",
+      "deleted_email": "cto-probe-1781049896771@audit.test",
+      "reason": "Limpieza masiva usuarios de prueba",
+      "affected_tables": {
+        "payments": 0,
+        "profiles": 1,
+        "auth_users": 1,
+        "user_roles": 0,
+        "leaderboard": 0,
+        "predictions": 0,
+        "device_reports": 0,
+        "activity_logs_user": 0,
+        "notification_reads": 0,
+        "token_transactions": 0,
+        "special_predictions": 0,
+        "user_support_tickets": 0
+      },
+      "metadata": {
+        "freed_slot": true
+      },
+      "created_at": "2026-06-10T10:27:20.144926+00:00"
+    },
+    {
+      "id": "58ad998a-7da3-46bf-b95b-3589937c3980",
+      "admin_id": "ba0d4fa6-5a5c-44be-9113-b897e106c8c0",
+      "action": "user_hard_delete",
+      "deleted_user_id": "47ef97aa-3a95-4128-a908-2ca3e2888c5a",
+      "deleted_email": "cto-probe-1781049897620@audit.test",
+      "reason": "Limpieza masiva usuarios de prueba",
+      "affected_tables": {
+        "payments": 0,
+        "profiles": 1,
+        "auth_users": 1,
+        "user_roles": 0,
+        "leaderboard": 0,
+        "predictions": 0,
+        "device_reports": 0,
+        "activity_logs_user": 0,
+        "notification_reads": 0,
+        "token_transactions": 0,
+        "special_predictions": 0,
+        "user_support_tickets": 0
+      },
+      "metadata": {
+        "freed_slot": true
+      },
+      "created_at": "2026-06-10T10:27:20.144926+00:00"
+    },
+    {
+      "id": "be4b9f1a-06be-4e22-a078-13b96f9b9f37",
+      "admin_id": "ba0d4fa6-5a5c-44be-9113-b897e106c8c0",
+      "action": "user_hard_delete",
+      "deleted_user_id": "851958de-47fc-4ffb-9a4b-c0b1edc285c8",
+      "deleted_email": "cto-probe-1781049898495@audit.test",
+      "reason": "Limpieza masiva usuarios de prueba",
+      "affected_tables": {
+        "payments": 0,
+        "profiles": 1,
+        "auth_users": 1,
+        "user_roles": 0,
+        "leaderboard": 0,
+        "predictions": 0,
+        "device_reports": 0,
+        "activity_logs_user": 0,
+        "notification_reads": 0,
+        "token_transactions": 0,
+        "special_predictions": 0,
+        "user_support_tickets": 0
+      },
+      "metadata": {
+        "freed_slot": true
+      },
+      "created_at": "2026-06-10T10:27:20.144926+00:00"
+    },
+    {
+      "id": "9c3e5d30-d634-4bed-b391-37232f2b1ac0",
+      "admin_id": "ba0d4fa6-5a5c-44be-9113-b897e106c8c0",
+      "action": "user_hard_delete",
+      "deleted_user_id": "9c579c2c-240b-4e4d-925f-623b8ea46cd5",
+      "deleted_email": "cto-probe-1781049899345@audit.test",
+      "reason": "Limpieza masiva usuarios de prueba",
+      "affected_tables": {
+        "payments": 0,
+        "profiles": 1,
+        "auth_users": 1,
+        "user_roles": 0,
+        "leaderboard": 0,
+        "predictions": 0,
+        "device_reports": 0,
+        "activity_logs_user": 0,
+        "notification_reads": 0,
+        "token_transactions": 0,
+        "special_predictions": 0,
+        "user_support_tickets": 0
+      },
+      "metadata": {
+        "freed_slot": true
+      },
+      "created_at": "2026-06-10T10:27:20.144926+00:00"
+    },
+    {
+      "id": "1dbe8a02-ad5b-4b2c-9ca7-a063ef6fe590",
+      "admin_id": "ba0d4fa6-5a5c-44be-9113-b897e106c8c0",
+      "action": "user_hard_delete",
+      "deleted_user_id": "01cb3b89-2212-45e9-9d27-36ed1bcd1faf",
+      "deleted_email": "cto-probe-1781049900203@audit.test",
+      "reason": "Limpieza masiva usuarios de prueba",
+      "affected_tables": {
+        "payments": 0,
+        "profiles": 1,
+        "auth_users": 1,
+        "user_roles": 0,
+        "leaderboard": 0,
+        "predictions": 0,
+        "device_reports": 0,
+        "activity_logs_user": 0,
+        "notification_reads": 0,
+        "token_transactions": 0,
+        "special_predictions": 0,
+        "user_support_tickets": 0
+      },
+      "metadata": {
+        "freed_slot": true
+      },
+      "created_at": "2026-06-10T10:27:20.144926+00:00"
+    },
+    {
+      "id": "12cc94a8-ccb4-4057-85de-d5d104316d4a",
+      "admin_id": "ba0d4fa6-5a5c-44be-9113-b897e106c8c0",
+      "action": "user_hard_delete",
+      "deleted_user_id": "562fb885-179d-4875-8580-f14386de057e",
+      "deleted_email": "cto-probe-1781049901053@audit.test",
+      "reason": "Limpieza masiva usuarios de prueba",
+      "affected_tables": {
+        "payments": 0,
+        "profiles": 1,
+        "auth_users": 1,
+        "user_roles": 0,
+        "leaderboard": 0,
+        "predictions": 0,
+        "device_reports": 0,
+        "activity_logs_user": 0,
+        "notification_reads": 0,
+        "token_transactions": 0,
+        "special_predictions": 0,
+        "user_support_tickets": 0
+      },
+      "metadata": {
+        "freed_slot": true
+      },
+      "created_at": "2026-06-10T10:27:20.144926+00:00"
+    },
+    {
+      "id": "b7d753f7-0080-4b7b-bd2c-8eaad4d9851d",
+      "admin_id": "ba0d4fa6-5a5c-44be-9113-b897e106c8c0",
+      "action": "user_hard_delete",
+      "deleted_user_id": "54aaa46c-10be-4692-a649-de5c31d0e523",
+      "deleted_email": "e2e-1780997984317@prodemundial.test",
+      "reason": "Limpieza masiva usuarios de prueba",
+      "affected_tables": {
+        "payments": 0,
+        "profiles": 1,
+        "auth_users": 1,
+        "user_roles": 0,
+        "leaderboard": 0,
+        "predictions": 0,
+        "device_reports": 0,
+        "activity_logs_user": 0,
+        "notification_reads": 0,
+        "token_transactions": 0,
+        "special_predictions": 0,
+        "user_support_tickets": 0
+      },
+      "metadata": {
+        "freed_slot": true
+      },
+      "created_at": "2026-06-10T10:27:20.144926+00:00"
+    },
+    {
+      "id": "f3501668-6763-46e8-aec0-0ecce451efd6",
+      "admin_id": "ba0d4fa6-5a5c-44be-9113-b897e106c8c0",
+      "action": "user_hard_delete",
+      "deleted_user_id": "2dddedd6-b446-4f5f-82a5-168e53963971",
+      "deleted_email": "cto-probe-1781049895830@audit.test",
+      "reason": "Limpieza masiva usuarios de prueba",
+      "affected_tables": {
+        "payments": 0,
+        "profiles": 1,
+        "auth_users": 1,
+        "user_roles": 0,
+        "leaderboard": 0,
+        "predictions": 0,
+        "device_reports": 0,
+        "activity_logs_user": 0,
+        "notification_reads": 0,
+        "token_transactions": 0,
+        "special_predictions": 0,
+        "user_support_tickets": 0
+      },
+      "metadata": {
+        "freed_slot": true
+      },
+      "created_at": "2026-06-10T10:27:20.144926+00:00"
+    },
+    {
+      "id": "35787c9b-d2ac-45f9-9881-2773bc1423de",
+      "admin_id": "ba0d4fa6-5a5c-44be-9113-b897e106c8c0",
+      "action": "user_hard_delete",
+      "deleted_user_id": "2a89a3a6-96e8-4d7b-b8a4-0035af849784",
+      "deleted_email": "load-1781051838015-47@loadtest.prodemundial.test",
+      "reason": "Limpieza masiva usuarios de prueba",
+      "affected_tables": {
+        "payments": 0,
+        "profiles": 1,
+        "auth_users": 1,
+        "user_roles": 0,
+        "leaderboard": 0,
+        "predictions": 0,
+        "device_reports": 0,
+        "activity_logs_user": 0,
+        "notification_reads": 0,
+        "token_transactions": 0,
+        "special_predictions": 0,
+        "user_support_tickets": 0
+      },
+      "metadata": {
+        "freed_slot": true
+      },
+      "created_at": "2026-06-10T10:27:20.144926+00:00"
+    },
+    {
+      "id": "03319bfa-d7dc-4b0c-9e02-0e223bc5c4a8",
+      "admin_id": "ba0d4fa6-5a5c-44be-9113-b897e106c8c0",
+      "action": "user_hard_delete",
+      "deleted_user_id": "b4765d94-def7-4c44-9e8e-2ba0af5ebcf2",
+      "deleted_email": "load-1781051839946-49@loadtest.prodemundial.test",
+      "reason": "Limpieza masiva usuarios de prueba",
+      "affected_tables": {
+        "payments": 0,
+        "profiles": 1,
+        "auth_users": 1,
+        "user_roles": 0,
+        "leaderboard": 0,
+        "predictions": 0,
+        "device_reports": 0,
+        "activity_logs_user": 0,
+        "notification_reads": 0,
+        "token_transactions": 0,
+        "special_predictions": 0,
+        "user_support_tickets": 0
+      },
+      "metadata": {
+        "freed_slot": true
+      },
+      "created_at": "2026-06-10T10:27:20.144926+00:00"
+    }
+  ],
+  "cleanup_result": {
+    "ok": true,
+    "deleted_count": 49,
+    "deleted_users": [
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "cto-probe-1781049896771@audit.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "5f35efe2-c26d-46de-93b1-8f4119d7a912"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "cto-probe-1781049897620@audit.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "47ef97aa-3a95-4128-a908-2ca3e2888c5a"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "cto-probe-1781049898495@audit.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "851958de-47fc-4ffb-9a4b-c0b1edc285c8"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "cto-probe-1781049899345@audit.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "9c579c2c-240b-4e4d-925f-623b8ea46cd5"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "cto-probe-1781049900203@audit.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "01cb3b89-2212-45e9-9d27-36ed1bcd1faf"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "cto-probe-1781049901053@audit.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "562fb885-179d-4875-8580-f14386de057e"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "e2e-1780997984317@prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "54aaa46c-10be-4692-a649-de5c31d0e523"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "cto-probe-1781049895830@audit.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "2dddedd6-b446-4f5f-82a5-168e53963971"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051838015-47@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "2a89a3a6-96e8-4d7b-b8a4-0035af849784"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051839946-49@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "b4765d94-def7-4c44-9e8e-2ba0af5ebcf2"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051245085-75@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "fd734f03-b05b-4628-96d4-a749f17cd87a"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051245745-76@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "6b206671-5d67-4143-8af2-81671897b72d"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051221254-41@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "fd1a453d-2b43-4e39-a584-322ecc367825"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051222743-43@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "6a22dda4-65c3-4d71-a2cf-f78d709a64aa"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051223386-44@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "08ebec1d-8c48-4692-9e6e-59db8b3b0114"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051224797-46@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "f192e49e-904d-4c43-99f0-a4b47502525d"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051225445-47@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "b89cbcc4-c1bc-4594-ba70-846484e38d13"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051226815-49@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "3fec756d-97e2-4c36-b763-eba83b2bdc20"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051227469-50@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "16d88a82-2fe2-4b65-b916-320cb21e0f9a"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051229089-52@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "9d02ffe4-0592-4830-a937-afacd636a2cb"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051229730-53@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "a58d85b6-5888-4e4e-891c-d3b5967cf099"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051231114-55@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "b01c0895-470e-44fe-8f7d-b2a19efc98ef"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051231768-56@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "bae5ab3f-95ee-4c11-b376-d4dfa0091375"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051233159-58@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "606d9b15-4f15-46c3-b466-94b1d7e4437e"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051234644-60@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "046b1a5a-0105-49bf-9fa8-63abcbac1c24"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051235343-61@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "30ecbdf8-3770-4993-b7e7-bb2e3bed4108"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051236769-63@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "025ef422-512f-4435-83a3-5ca3adf5ef83"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051237460-64@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "45e3940b-0d80-482f-89f6-1945e1b95487"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051238955-66@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "8b828391-cfb6-4121-aa27-ef6fe4c05cc6"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051239633-67@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "27ef1e7a-5c8d-464c-9a3d-279fa2836389"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051241017-69@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "02341c4a-6e2d-4605-ba3e-266547caec7c"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051241669-70@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "5940dcb2-7fbc-42c7-96c0-bd51ac479c99"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051243056-72@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "962f1a45-a66e-4448-98d5-02ef3a6c7e52"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051243691-73@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "f61505ff-573f-40fb-b0ed-c3420abbabaf"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051247168-78@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "d8751755-c1ee-446d-a11c-733509a43f4a"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051247818-79@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "c31ffce6-eeae-4fbf-91be-e1f12a318ad6"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051249180-81@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "e2f6a03c-ea76-435a-8fa2-6a6ef6c8c1a8"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051249833-82@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "3dfa590b-265c-48d9-96e3-fe1bfdc57979"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051251200-84@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "655bacd4-a4b6-47af-aa8c-6d7ae200fb74"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051251856-85@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "48b92b87-3487-4347-952d-4153b2426447"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051253250-87@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "9b7563b8-9af3-41a5-9330-356e5b2d79d1"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051253887-88@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "9b531d97-8e48-4636-86ea-2353c87974f7"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051255249-90@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "43ab53db-7d46-47c2-84b7-67820c66a874"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051256642-92@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "a8f434be-23b4-4a94-9ab8-336e1e0a4750"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051257282-93@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "6ec011f6-4173-483c-991c-77608c217ef6"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051258666-95@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "59eb8050-981c-4d92-b2d0-5b7b9dbd85fd"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051259309-96@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "5dc7e9fc-2e22-42b4-a959-1b0e26ea7b6a"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051260710-98@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "fd9c9a1c-1754-4493-bc5d-c11cb5cf4057"
+      },
+      {
+        "success": true,
+        "freed_slot": true,
+        "deleted_email": "load-1781051261350-99@loadtest.prodemundial.test",
+        "affected_tables": {
+          "payments": 0,
+          "profiles": 1,
+          "auth_users": 1,
+          "user_roles": 0,
+          "leaderboard": 0,
+          "predictions": 0,
+          "device_reports": 0,
+          "activity_logs_user": 0,
+          "notification_reads": 0,
+          "token_transactions": 0,
+          "special_predictions": 0,
+          "user_support_tickets": 0
+        },
+        "deleted_user_id": "fac3dd44-0f2e-47a1-8651-98c1bd44f630"
+      }
+    ]
+  }
+}

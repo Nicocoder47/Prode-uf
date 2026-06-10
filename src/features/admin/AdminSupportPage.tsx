@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { LifeBuoy } from 'lucide-react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
@@ -59,6 +60,14 @@ function TicketRow({
       />
 
       <div className="mt-3 flex flex-wrap gap-2">
+        {ticket.userId && (
+          <Link
+            to={`/admin/users?userId=${ticket.userId}`}
+            className="inline-flex items-center rounded-xl border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/15"
+          >
+            Ver usuario
+          </Link>
+        )}
         <PremiumButton
           type="button"
           size="sm"

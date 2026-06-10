@@ -1,3 +1,4 @@
+/** @deprecated Admin V2 legacy — no enrutado. Links a /admin/data-quality y /admin/knockout rotos. */
 import { Link } from 'react-router-dom'
 import { AlertCircle, BarChart3, CheckCircle, Clock, Settings, Zap } from 'lucide-react'
 import { PremiumCard, StatsPill } from '../../components/ui/PremiumCard.tsx'

@@ -7,7 +7,8 @@ import type { Match, Team, Player, Prediction, TopScorer, Standing, LeaderboardE
 import { worldCupService } from './services/worldcup/worldCupService';
 import { footballApiClient } from './lib/api/footballApiClient';
 
-import { useSupabaseRealtime } from './hooks/useSupabaseRealtime';
+import { ENABLE_REALTIME, BETA_POLL_INTERVAL_MS } from './config/betaMode';
+import { useBetaQuerySync } from './hooks/useBetaQuerySync';
 
 
 
@@ -161,6 +162,8 @@ export const useWorldCupMatches = () => {
 
     staleTime: 1000 * 60 * 60,
 
+    refetchInterval: ENABLE_REALTIME ? false : BETA_POLL_INTERVAL_MS.matches,
+
   });
 
 };
@@ -187,19 +190,19 @@ export const useLiveMatches = () => {
 
   const queryClient = useQueryClient();
 
-  const invalidate = useCallback(() => {
+  const invalidateLive = useCallback(() => {
 
     queryClient.invalidateQueries({ queryKey: worldCupKeys.liveMatches() });
 
-    queryClient.invalidateQueries({ queryKey: worldCupKeys.matches() });
-
   }, [queryClient]);
 
-
-
-  useSupabaseRealtime(true, { event: '*', schema: 'public', table: 'matches' }, invalidate, [invalidate]);
-
-
+  const pollMs = useBetaQuerySync(
+    true,
+    'matches',
+    invalidateLive,
+    [invalidateLive],
+    { pollMs: BETA_POLL_INTERVAL_MS.liveMatches },
+  );
 
   return useQuery<Match[]>({
 
@@ -208,6 +211,8 @@ export const useLiveMatches = () => {
     queryFn: worldCupService.getLiveMatches,
 
     staleTime: 1000 * 15,
+
+    refetchInterval: pollMs || false,
 
   });
 
@@ -225,17 +230,21 @@ export const useLeaderboard = () => {
 
   }, [queryClient]);
 
-
-
-  useSupabaseRealtime(true, { event: '*', schema: 'public', table: 'leaderboard' }, invalidate, [invalidate]);
-
-
+  const pollMs = useBetaQuerySync(
+    true,
+    'leaderboard',
+    invalidate,
+    [invalidate],
+    { pollMs: BETA_POLL_INTERVAL_MS.leaderboard },
+  );
 
   return useQuery<LeaderboardEntry[]>({
 
     queryKey: worldCupKeys.leaderboard(),
 
     queryFn: worldCupService.getLeaderboard,
+
+    refetchInterval: pollMs || false,
 
   });
 
@@ -259,19 +268,22 @@ export const usePredictions = (userId?: string) => {
 
 
 
-  useSupabaseRealtime(
+  const pollMs = useBetaQuerySync(
 
     !!userId,
 
-    { event: '*', schema: 'public', table: 'predictions', filter: userId ? `user_id=eq.${userId}` : undefined },
+    'predictions',
 
     invalidate,
 
-    [invalidate, userId]
+    [invalidate, userId],
+
+    {
+      filter: userId ? `user_id=eq.${userId}` : undefined,
+      pollMs: BETA_POLL_INTERVAL_MS.predictions,
+    },
 
   );
-
-
 
   return useQuery<Prediction[]>({
 
@@ -280,6 +292,8 @@ export const usePredictions = (userId?: string) => {
     enabled: !!userId,
 
     queryFn: () => worldCupService.getPredictions(userId!),
+
+    refetchInterval: pollMs || false,
 
   });
 
@@ -323,13 +337,13 @@ export const useWorldCupPlayers = useAllPlayers;
 
 
 
-export const useTopPlayers = () => {
+export const useTopPlayers = (limit = 20) => {
 
   return useQuery<Player[]>({
 
-    queryKey: worldCupKeys.topPlayers(),
+    queryKey: [...worldCupKeys.topPlayers(), limit],
 
-    queryFn: worldCupService.getTopPlayers,
+    queryFn: () => worldCupService.getTopPlayers(limit),
 
     staleTime: 1000 * 60 * 60,
 
@@ -371,19 +385,22 @@ export const useMatchEvents = (matchId?: string) => {
 
 
 
-  useSupabaseRealtime(
+  const pollMs = useBetaQuerySync(
 
     !!matchId,
 
-    { event: '*', schema: 'public', table: 'events', filter: matchId ? `match_id=eq.${matchId}` : undefined },
+    'events',
 
     invalidate,
 
-    [invalidate, matchId]
+    [invalidate, matchId],
+
+    {
+      filter: matchId ? `match_id=eq.${matchId}` : undefined,
+      pollMs: BETA_POLL_INTERVAL_MS.matchEvents,
+    },
 
   );
-
-
 
   return useQuery({
 
@@ -392,6 +409,8 @@ export const useMatchEvents = (matchId?: string) => {
     enabled: !!matchId,
 
     queryFn: () => worldCupService.getMatchEvents(matchId!),
+
+    refetchInterval: pollMs || false,
 
   });
 
@@ -431,29 +450,22 @@ export const usePlayerLiveStatus = (matchId?: string) => {
 
 
 
-  useSupabaseRealtime(
+  const pollMs = useBetaQuerySync(
 
     !!matchId,
 
-    {
-
-      event: '*',
-
-      schema: 'public',
-
-      table: 'player_live_status',
-
-      filter: matchId ? `match_id=eq.${matchId}` : undefined,
-
-    },
+    'player_live_status',
 
     invalidate,
 
-    [invalidate, matchId]
+    [invalidate, matchId],
+
+    {
+      filter: matchId ? `match_id=eq.${matchId}` : undefined,
+      pollMs: BETA_POLL_INTERVAL_MS.playerLiveStatus,
+    },
 
   );
-
-
 
   return useQuery<PlayerLiveStatusEntry[]>({
 
@@ -464,6 +476,8 @@ export const usePlayerLiveStatus = (matchId?: string) => {
     queryFn: () => worldCupService.getPlayerLiveStatus(matchId!),
 
     staleTime: 1000 * 15,
+
+    refetchInterval: pollMs || false,
 
   });
 

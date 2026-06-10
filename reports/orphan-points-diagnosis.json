@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-06-10T11:39:45.852Z",
+  "finished_matches": 0,
+  "leaderboard_with_points": [],
+  "orphan_scored_predictions": [
+    {
+      "prediction_id": "23cbb915-3c70-47bd-9aff-e659ad5d38c1",
+      "user": {
+        "full_name": "Lucio",
+        "legajo": "10066",
+        "email": "lucioaseguin@gmail.com"
+      },
+      "points": 0,
+      "match_id": "392765de-7fa4-421f-a14e-f9c47fc0b9a6",
+      "match_status": "scheduled",
+      "match_score": "?-?",
+      "kick_off": "2026-06-11T19:00:00+00:00",
+      "teams": "Mexico vs South Africa",
+      "predicted": "2-0",
+      "scored_at": "2026-06-10T11:39:28.835601+00:00"
+    },
+    {
+      "prediction_id": "e6f7eec1-c15b-486c-9b2d-819516e09144",
+      "user": {
+        "full_name": "Carlos Lionel Areco",
+        "legajo": "11569",
+        "email": "charly.xeneize69@gmail.com"
+      },
+      "points": 0,
+      "match_id": "392765de-7fa4-421f-a14e-f9c47fc0b9a6",
+      "match_status": "scheduled",
+      "match_score": "?-?",
+      "kick_off": "2026-06-11T19:00:00+00:00",
+      "teams": "Mexico vs South Africa",
+      "predicted": "2-0",
+      "scored_at": "2026-06-10T11:39:28.835601+00:00"
+    },
+    {
+      "prediction_id": "8301bb15-f712-4f3a-9c3b-cf302b84683a",
+      "user": {
+        "full_name": "Osvaldo Zilinski",
+        "legajo": "12513",
+        "email": "osvaldozilinskiescalada@gmail.com"
+      },
+      "points": 0,
+      "match_id": "392765de-7fa4-421f-a14e-f9c47fc0b9a6",
+      "match_status": "scheduled",
+      "match_score": "?-?",
+      "kick_off": "2026-06-11T19:00:00+00:00",
+      "teams": "Mexico vs South Africa",
+      "predicted": "2-0",
+      "scored_at": "2026-06-10T11:39:28.835601+00:00"
+    },
+    {
+      "prediction_id": "6c5623b5-005a-40e8-9461-6238760ad4c2",
+      "user": {
+        "full_name": "Jorge Gomez",
+        "legajo": "8243",
+        "email": "jorgergomez87@gmail.com"
+      },
+      "points": 0,
+      "match_id": "392765de-7fa4-421f-a14e-f9c47fc0b9a6",
+      "match_status": "scheduled",
+      "match_score": "?-?",
+      "kick_off": "2026-06-11T19:00:00+00:00",
+      "teams": "Mexico vs South Africa",
+      "predicted": "2-0",
+      "scored_at": "2026-06-10T11:39:28.835601+00:00"
+    }
+  ],
+  "root_cause": "Predicciones marcadas status=scored con puntos asignados en partidos que NO están finished (scoring ejecutado antes de tiempo — E2E/manual)"
+}

@@ -1,0 +1,510 @@
+{
+  "generated_at": "2026-06-10T10:27:20.791Z",
+  "count": 49,
+  "before_overview": {
+    "max_users": 300,
+    "users_blocked": 1,
+    "available_slots": 243,
+    "new_users_today": 48,
+    "capacity_percent": 19,
+    "registered_users": 57,
+    "last_scored_match": null,
+    "registration_open": true,
+    "test_users_detected": 49,
+    "users_with_predictions": 5,
+    "last_score_calculated_at": "2026-06-10T09:54:33.783519+00:00",
+    "users_without_predictions": 52
+  },
+  "users": [
+    {
+      "id": "b4765d94-def7-4c44-9e8e-2ba0af5ebcf2",
+      "email": "load-1781051839946-49@loadtest.prodemundial.test",
+      "full_name": "load-1781051839946-49",
+      "created_at": "2026-06-10T00:37:18.998784+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "2a89a3a6-96e8-4d7b-b8a4-0035af849784",
+      "email": "load-1781051838015-47@loadtest.prodemundial.test",
+      "full_name": "load-1781051838015-47",
+      "created_at": "2026-06-10T00:37:17.06165+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "fac3dd44-0f2e-47a1-8651-98c1bd44f630",
+      "email": "load-1781051261350-99@loadtest.prodemundial.test",
+      "full_name": "load-1781051261350-99",
+      "created_at": "2026-06-10T00:27:40.397005+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "fd9c9a1c-1754-4493-bc5d-c11cb5cf4057",
+      "email": "load-1781051260710-98@loadtest.prodemundial.test",
+      "full_name": "load-1781051260710-98",
+      "created_at": "2026-06-10T00:27:39.759715+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "5dc7e9fc-2e22-42b4-a959-1b0e26ea7b6a",
+      "email": "load-1781051259309-96@loadtest.prodemundial.test",
+      "full_name": "load-1781051259309-96",
+      "created_at": "2026-06-10T00:27:38.374138+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "59eb8050-981c-4d92-b2d0-5b7b9dbd85fd",
+      "email": "load-1781051258666-95@loadtest.prodemundial.test",
+      "full_name": "load-1781051258666-95",
+      "created_at": "2026-06-10T00:27:37.711097+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "6ec011f6-4173-483c-991c-77608c217ef6",
+      "email": "load-1781051257282-93@loadtest.prodemundial.test",
+      "full_name": "load-1781051257282-93",
+      "created_at": "2026-06-10T00:27:36.331069+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "a8f434be-23b4-4a94-9ab8-336e1e0a4750",
+      "email": "load-1781051256642-92@loadtest.prodemundial.test",
+      "full_name": "load-1781051256642-92",
+      "created_at": "2026-06-10T00:27:35.688382+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "43ab53db-7d46-47c2-84b7-67820c66a874",
+      "email": "load-1781051255249-90@loadtest.prodemundial.test",
+      "full_name": "load-1781051255249-90",
+      "created_at": "2026-06-10T00:27:34.290257+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "9b531d97-8e48-4636-86ea-2353c87974f7",
+      "email": "load-1781051253887-88@loadtest.prodemundial.test",
+      "full_name": "load-1781051253887-88",
+      "created_at": "2026-06-10T00:27:32.933432+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "9b7563b8-9af3-41a5-9330-356e5b2d79d1",
+      "email": "load-1781051253250-87@loadtest.prodemundial.test",
+      "full_name": "load-1781051253250-87",
+      "created_at": "2026-06-10T00:27:32.299602+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "48b92b87-3487-4347-952d-4153b2426447",
+      "email": "load-1781051251856-85@loadtest.prodemundial.test",
+      "full_name": "load-1781051251856-85",
+      "created_at": "2026-06-10T00:27:30.905093+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "655bacd4-a4b6-47af-aa8c-6d7ae200fb74",
+      "email": "load-1781051251200-84@loadtest.prodemundial.test",
+      "full_name": "load-1781051251200-84",
+      "created_at": "2026-06-10T00:27:30.257259+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "3dfa590b-265c-48d9-96e3-fe1bfdc57979",
+      "email": "load-1781051249833-82@loadtest.prodemundial.test",
+      "full_name": "load-1781051249833-82",
+      "created_at": "2026-06-10T00:27:28.886564+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "e2f6a03c-ea76-435a-8fa2-6a6ef6c8c1a8",
+      "email": "load-1781051249180-81@loadtest.prodemundial.test",
+      "full_name": "load-1781051249180-81",
+      "created_at": "2026-06-10T00:27:28.241497+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "c31ffce6-eeae-4fbf-91be-e1f12a318ad6",
+      "email": "load-1781051247818-79@loadtest.prodemundial.test",
+      "full_name": "load-1781051247818-79",
+      "created_at": "2026-06-10T00:27:26.86578+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "d8751755-c1ee-446d-a11c-733509a43f4a",
+      "email": "load-1781051247168-78@loadtest.prodemundial.test",
+      "full_name": "load-1781051247168-78",
+      "created_at": "2026-06-10T00:27:26.21728+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "6b206671-5d67-4143-8af2-81671897b72d",
+      "email": "load-1781051245745-76@loadtest.prodemundial.test",
+      "full_name": "load-1781051245745-76",
+      "created_at": "2026-06-10T00:27:24.804324+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "fd734f03-b05b-4628-96d4-a749f17cd87a",
+      "email": "load-1781051245085-75@loadtest.prodemundial.test",
+      "full_name": "load-1781051245085-75",
+      "created_at": "2026-06-10T00:27:24.142492+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "f61505ff-573f-40fb-b0ed-c3420abbabaf",
+      "email": "load-1781051243691-73@loadtest.prodemundial.test",
+      "full_name": "load-1781051243691-73",
+      "created_at": "2026-06-10T00:27:22.742976+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "962f1a45-a66e-4448-98d5-02ef3a6c7e52",
+      "email": "load-1781051243056-72@loadtest.prodemundial.test",
+      "full_name": "load-1781051243056-72",
+      "created_at": "2026-06-10T00:27:22.100239+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "5940dcb2-7fbc-42c7-96c0-bd51ac479c99",
+      "email": "load-1781051241669-70@loadtest.prodemundial.test",
+      "full_name": "load-1781051241669-70",
+      "created_at": "2026-06-10T00:27:20.713846+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "02341c4a-6e2d-4605-ba3e-266547caec7c",
+      "email": "load-1781051241017-69@loadtest.prodemundial.test",
+      "full_name": "load-1781051241017-69",
+      "created_at": "2026-06-10T00:27:20.078311+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "27ef1e7a-5c8d-464c-9a3d-279fa2836389",
+      "email": "load-1781051239633-67@loadtest.prodemundial.test",
+      "full_name": "load-1781051239633-67",
+      "created_at": "2026-06-10T00:27:18.684821+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "8b828391-cfb6-4121-aa27-ef6fe4c05cc6",
+      "email": "load-1781051238955-66@loadtest.prodemundial.test",
+      "full_name": "load-1781051238955-66",
+      "created_at": "2026-06-10T00:27:18.001233+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "45e3940b-0d80-482f-89f6-1945e1b95487",
+      "email": "load-1781051237460-64@loadtest.prodemundial.test",
+      "full_name": "load-1781051237460-64",
+      "created_at": "2026-06-10T00:27:16.509653+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "025ef422-512f-4435-83a3-5ca3adf5ef83",
+      "email": "load-1781051236769-63@loadtest.prodemundial.test",
+      "full_name": "load-1781051236769-63",
+      "created_at": "2026-06-10T00:27:15.822277+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "30ecbdf8-3770-4993-b7e7-bb2e3bed4108",
+      "email": "load-1781051235343-61@loadtest.prodemundial.test",
+      "full_name": "load-1781051235343-61",
+      "created_at": "2026-06-10T00:27:14.385083+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "046b1a5a-0105-49bf-9fa8-63abcbac1c24",
+      "email": "load-1781051234644-60@loadtest.prodemundial.test",
+      "full_name": "load-1781051234644-60",
+      "created_at": "2026-06-10T00:27:13.696258+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "606d9b15-4f15-46c3-b466-94b1d7e4437e",
+      "email": "load-1781051233159-58@loadtest.prodemundial.test",
+      "full_name": "load-1781051233159-58",
+      "created_at": "2026-06-10T00:27:12.203842+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "bae5ab3f-95ee-4c11-b376-d4dfa0091375",
+      "email": "load-1781051231768-56@loadtest.prodemundial.test",
+      "full_name": "load-1781051231768-56",
+      "created_at": "2026-06-10T00:27:10.817547+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "b01c0895-470e-44fe-8f7d-b2a19efc98ef",
+      "email": "load-1781051231114-55@loadtest.prodemundial.test",
+      "full_name": "load-1781051231114-55",
+      "created_at": "2026-06-10T00:27:10.166602+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "a58d85b6-5888-4e4e-891c-d3b5967cf099",
+      "email": "load-1781051229730-53@loadtest.prodemundial.test",
+      "full_name": "load-1781051229730-53",
+      "created_at": "2026-06-10T00:27:08.787062+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "9d02ffe4-0592-4830-a937-afacd636a2cb",
+      "email": "load-1781051229089-52@loadtest.prodemundial.test",
+      "full_name": "load-1781051229089-52",
+      "created_at": "2026-06-10T00:27:08.135262+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "16d88a82-2fe2-4b65-b916-320cb21e0f9a",
+      "email": "load-1781051227469-50@loadtest.prodemundial.test",
+      "full_name": "load-1781051227469-50",
+      "created_at": "2026-06-10T00:27:06.528961+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "3fec756d-97e2-4c36-b763-eba83b2bdc20",
+      "email": "load-1781051226815-49@loadtest.prodemundial.test",
+      "full_name": "load-1781051226815-49",
+      "created_at": "2026-06-10T00:27:05.861762+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "b89cbcc4-c1bc-4594-ba70-846484e38d13",
+      "email": "load-1781051225445-47@loadtest.prodemundial.test",
+      "full_name": "load-1781051225445-47",
+      "created_at": "2026-06-10T00:27:04.495436+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "f192e49e-904d-4c43-99f0-a4b47502525d",
+      "email": "load-1781051224797-46@loadtest.prodemundial.test",
+      "full_name": "load-1781051224797-46",
+      "created_at": "2026-06-10T00:27:03.851512+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "08ebec1d-8c48-4692-9e6e-59db8b3b0114",
+      "email": "load-1781051223386-44@loadtest.prodemundial.test",
+      "full_name": "load-1781051223386-44",
+      "created_at": "2026-06-10T00:27:02.428948+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "6a22dda4-65c3-4d71-a2cf-f78d709a64aa",
+      "email": "load-1781051222743-43@loadtest.prodemundial.test",
+      "full_name": "load-1781051222743-43",
+      "created_at": "2026-06-10T00:27:01.787832+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "fd1a453d-2b43-4e39-a584-322ecc367825",
+      "email": "load-1781051221254-41@loadtest.prodemundial.test",
+      "full_name": "load-1781051221254-41",
+      "created_at": "2026-06-10T00:27:00.297112+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "562fb885-179d-4875-8580-f14386de057e",
+      "email": "cto-probe-1781049901053@audit.test",
+      "full_name": "cto-probe-1781049901053",
+      "created_at": "2026-06-10T00:05:00.103904+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "01cb3b89-2212-45e9-9d27-36ed1bcd1faf",
+      "email": "cto-probe-1781049900203@audit.test",
+      "full_name": "cto-probe-1781049900203",
+      "created_at": "2026-06-10T00:04:59.253926+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "9c579c2c-240b-4e4d-925f-623b8ea46cd5",
+      "email": "cto-probe-1781049899345@audit.test",
+      "full_name": "cto-probe-1781049899345",
+      "created_at": "2026-06-10T00:04:58.400786+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "851958de-47fc-4ffb-9a4b-c0b1edc285c8",
+      "email": "cto-probe-1781049898495@audit.test",
+      "full_name": "cto-probe-1781049898495",
+      "created_at": "2026-06-10T00:04:57.555921+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "47ef97aa-3a95-4128-a908-2ca3e2888c5a",
+      "email": "cto-probe-1781049897620@audit.test",
+      "full_name": "cto-probe-1781049897620",
+      "created_at": "2026-06-10T00:04:56.672316+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "5f35efe2-c26d-46de-93b1-8f4119d7a912",
+      "email": "cto-probe-1781049896771@audit.test",
+      "full_name": "cto-probe-1781049896771",
+      "created_at": "2026-06-10T00:04:55.820928+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "2dddedd6-b446-4f5f-82a5-168e53963971",
+      "email": "cto-probe-1781049895830@audit.test",
+      "full_name": "cto-probe-1781049895830",
+      "created_at": "2026-06-10T00:04:54.949754+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    },
+    {
+      "id": "54aaa46c-10be-4692-a649-de5c31d0e523",
+      "email": "e2e-1780997984317@prodemundial.test",
+      "full_name": "E2E Test",
+      "created_at": "2026-06-09T09:39:43.795465+00:00",
+      "last_login_at": null,
+      "last_activity_at": null,
+      "predictions_count": 0,
+      "total_points": 0
+    }
+  ]
+}

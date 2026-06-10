@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-06-10T01:14:26.961Z",
+  "estado_general": "green",
+  "usuarios": "57/300",
+  "capacidad_pct": 19,
+  "nuevos_hoy": 52,
+  "activos_24h": 7,
+  "predicciones_24h": 106,
+  "dispositivos": {
+    "reportes_24h": 0,
+    "errores_24h": 0,
+    "tasa_error_pct": 0,
+    "por_dispositivo": {},
+    "por_navegador": {},
+    "mobile_error_pct": 0
+  },
+  "errores": {
+    "sync_24h": 0,
+    "auth_429_24h": 0
+  },
+  "recomendacion": "Beta saludable. Puede seguir gratis.",
+  "accion_tecnica": "Seguir gratis",
+  "invitaciones": "Puede abrir invitaciones controladas",
+  "migration_needed": false,
+  "reasons": [
+    "Capacidad 19% — dentro de beta 300"
+  ]
+}

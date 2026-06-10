@@ -1,0 +1,166 @@
+{
+  "generated_at": "2026-06-10T00:37:38.635Z",
+  "metrics": {
+    "total_users": 67,
+    "new_users_today": 58,
+    "new_users_7d": 67,
+    "new_users_30d": 67,
+    "active_users_today": 16,
+    "active_users_7d": 17,
+    "total_predictions": 123,
+    "predictions_today": 9,
+    "predictions_7d": 123,
+    "users_with_predictions": 14,
+    "users_played_pct": 20.9,
+    "recent_sync_errors_24h": 0,
+    "last_sync": {
+      "id": "cab34993-3dba-49a4-9b35-80a8ce373064",
+      "provider": "football-data.org",
+      "sync_type": "live_matches",
+      "status": "done",
+      "records_upserted": 0,
+      "records_skipped": 0,
+      "error_message": null,
+      "started_at": "2026-06-09T23:46:14.150445+00:00",
+      "finished_at": "2026-06-09T23:46:13.95+00:00"
+    }
+  },
+  "evaluation": {
+    "semaphore": "yellow",
+    "migrationRecommendation": "prepare_migration",
+    "migrationLabel": "Estás cerca del límite gratuito",
+    "reasons": [
+      "Latencia p95 lectura ~3407ms"
+    ],
+    "estimatedConcurrentPeak": 10
+  },
+  "cost_zero_viable": false,
+  "thresholds_exceeded": [
+    "Latencia p95 lectura ~3407ms"
+  ],
+  "recommended_action": "Estás cerca del límite gratuito",
+  "load_reports": {
+    "read_api": {
+      "generatedAt": "2026-06-10T00:36:41.545Z",
+      "vus": 250,
+      "durationSec": 30,
+      "wallMs": 31065,
+      "matches": {
+        "requests": 1428,
+        "ok": 1428,
+        "fail": 0,
+        "errorRatePct": 0,
+        "latencies": {
+          "n": 1428,
+          "min": 193.89869999999974,
+          "max": 8880.8098,
+          "avg": 1198,
+          "p50": 841.6778000000013,
+          "p95": 3406.5253999999986,
+          "p99": 5246.627700000001
+        },
+        "statuses": {
+          "200": 1428
+        }
+      },
+      "leaderboard": {
+        "requests": 1386,
+        "ok": 1386,
+        "fail": 0,
+        "errorRatePct": 0,
+        "latencies": {
+          "n": 1386,
+          "min": 181.77679999999964,
+          "max": 8857.9861,
+          "avg": 990,
+          "p50": 657.9546999999984,
+          "p95": 3062.497799999999,
+          "p99": 5014.250300000003
+        },
+        "statuses": {
+          "200": 1386
+        }
+      },
+      "players_page1": {
+        "requests": 1333,
+        "ok": 1333,
+        "fail": 0,
+        "errorRatePct": 0,
+        "latencies": {
+          "n": 1333,
+          "min": 278.54739999999947,
+          "max": 6110.754200000001,
+          "avg": 1176,
+          "p50": 889.1071999999986,
+          "p95": 2934.8896999999997,
+          "p99": 4281.8174
+        },
+        "statuses": {
+          "200": 1333
+        }
+      },
+      "teams": {
+        "requests": 1273,
+        "ok": 1273,
+        "fail": 0,
+        "errorRatePct": 0,
+        "latencies": {
+          "n": 1273,
+          "min": 187.51770000000033,
+          "max": 4653.357,
+          "avg": 944,
+          "p50": 690.6129000000001,
+          "p95": 2651.639,
+          "p99": 3846.161
+        },
+        "statuses": {
+          "200": 1273
+        }
+      },
+      "live_match_stats": {
+        "requests": 1230,
+        "ok": 1230,
+        "fail": 0,
+        "errorRatePct": 0,
+        "latencies": {
+          "n": 1230,
+          "min": 189.24089999999887,
+          "max": 7423.996800000001,
+          "avg": 923,
+          "p50": 647.0483000000022,
+          "p95": 2616.6409999999996,
+          "p99": 3881.136699999999
+        },
+        "statuses": {
+          "200": 1230
+        }
+      },
+      "p95": 3406.5253999999986
+    },
+    "save_prediction": {
+      "generatedAt": "2026-06-10T00:37:22.003Z",
+      "matchId": "392765de-7fa4-421f-a14e-f9c47fc0b9a6",
+      "usersRequested": 50,
+      "usersCreated": 48,
+      "concurrency": 50,
+      "wallMs": 1014,
+      "rps": 47.4,
+      "success": 48,
+      "failed": 0,
+      "latencies": {
+        "n": 48,
+        "min": 375.15849999999773,
+        "max": 1004.4829000000027,
+        "avg": 909,
+        "p50": 938.1774000000005,
+        "p95": 997.1486999999979,
+        "p99": 1004.4829000000027
+      },
+      "predictionsInDb": 48,
+      "uniqueUsersWithPrediction": 48,
+      "duplicateRows": 0,
+      "sampleErrors": [],
+      "p95": 997.1486999999979
+    }
+  }
+}

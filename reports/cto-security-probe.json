@@ -1,0 +1,42 @@
+{
+  "generatedAt": "2026-06-10T00:05:56.261Z",
+  "results": {
+    "anon_profiles_pii": {
+      "rows": 0,
+      "count": 0,
+      "sample": null
+    },
+    "anon_member_reference": {
+      "rows": 0,
+      "count": null,
+      "error": "column member_reference.legajo does not exist",
+      "sample": null
+    },
+    "anon_predictions": {
+      "rows": 0,
+      "count": 0
+    },
+    "anon_payments_insert": {
+      "blocked": true,
+      "error": "Could not find the 'amount' column of 'payments' in the schema cache",
+      "code": "PGRST204"
+    },
+    "anon_special_predictions_insert": {
+      "blocked": true,
+      "error": "Could not find the 'type' column of 'special_predictions' in the schema cache",
+      "code": "PGRST204"
+    },
+    "validate_invite_code": {
+      "data": null,
+      "error": "Could not find the function public.validate_invite_code(p_code) in the schema cache",
+      "code": "PGRST202"
+    },
+    "public_leaderboard_profiles_anon": {
+      "rows": 5,
+      "count": 5,
+      "hasEmail": false
+    },
+    "worker_heartbeat_latest": null,
+    "data_sync_logs_latest": null
+  }
+}

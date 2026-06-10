@@ -21,6 +21,9 @@ function mapRpcError(message: string): string {
   if (message.includes('account_inactive')) {
     return 'Tu cuenta está deshabilitada. No podés predecir.'
   }
+  if (message.includes('password_change_required')) {
+    return 'Debés cambiar tu contraseña antes de predecir.'
+  }
   if (message.includes('predictions_closed') || message.includes('kickoff')) {
     return 'Las predicciones están cerradas para este partido.'
   }
@@ -61,7 +64,6 @@ export function useSavePrediction(userId?: string) {
       if (!userId) return
       queryClient.invalidateQueries({ queryKey: worldCupKeys.predictions(userId) })
       queryClient.invalidateQueries({ queryKey: worldCupKeys.match(input.matchId) })
-      queryClient.invalidateQueries({ queryKey: worldCupKeys.matches() })
     },
   })
 }

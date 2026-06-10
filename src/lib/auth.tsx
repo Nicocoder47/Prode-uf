@@ -7,10 +7,12 @@ import {
   clearPendingRegistration,
   isValidDni,
   isValidEmail,
+  isValidPhone,
   mapRegistrationError,
   mapSignInError,
   normalizeDni,
   normalizeLegajo,
+  normalizePhone,
   readPendingRegistration,
   savePendingRegistration,
   type PendingRegistration,
@@ -28,6 +30,8 @@ interface Profile {
   is_active: boolean
   deleted_at: string | null
   last_login_at: string | null
+  must_change_password?: boolean
+  is_blocked?: boolean
 }
 
 export interface AccessRegistrationInput {
@@ -35,6 +39,7 @@ export interface AccessRegistrationInput {
   dni: string
   legajo: string
   email: string
+  phone: string
 }
 
 export interface AuthStepResult {
@@ -109,6 +114,9 @@ function validateRegistrationInput(input: AccessRegistrationInput): AuthStepResu
   if (!isValidDni(dni)) return { status: 'error', message: mapRegistrationError('invalid_dni') }
   if (!legajo) return { status: 'error', message: mapRegistrationError('legajo_required') }
   if (!isValidEmail(email)) return { status: 'error', message: mapRegistrationError('invalid_email') }
+  const phone = normalizePhone(input.phone)
+  if (!phone) return { status: 'error', message: mapRegistrationError('phone_required') }
+  if (!isValidPhone(phone)) return { status: 'error', message: mapRegistrationError('invalid_phone') }
 
   return null
 }
@@ -133,6 +141,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (error) {
       throw new Error(mapProfileSyncError(error.message))
+    }
+
+    const phone = normalizePhone(input.phone ?? '')
+    if (phone) {
+      const { data: auth } = await supabase.auth.getUser()
+      const userId = auth.user?.id
+      if (userId) {
+        const { error: phoneError } = await supabase
+          .from('profiles')
+          .update({ phone })
+          .eq('id', userId)
+        if (phoneError) {
+          throw new Error(phoneError.message)
+        }
+      }
     }
   }
 
@@ -159,6 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       dni: normalizeDni(String(meta.dni)),
       legajo: normalizeLegajo(String(meta.legajo)),
       email,
+      phone: normalizePhone(String(meta.phone ?? '')),
     }
   }
 
@@ -299,7 +323,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function fetchProfile() {
       let { data, error } = await supabase
         .from('profiles')
-        .select('id, email, full_name, dni, legajo, domain_plate, role, token_balance, is_active, deleted_at, last_login_at')
+        .select('id, email, full_name, dni, legajo, domain_plate, role, token_balance, is_active, deleted_at, last_login_at, must_change_password, is_blocked')
         .eq('id', user.id)
         .single()
 
@@ -343,6 +367,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const dni = normalizeDni(input.dni)
     const legajo = normalizeLegajo(input.legajo)
     const email = input.email.trim().toLowerCase()
+    const phone = normalizePhone(input.phone)
 
     const { data: rpcValidation, error: validationRpcError } = await supabase.rpc('validate_registration', {
       p_email: email,
@@ -373,7 +398,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    savePendingRegistration({ fullName, dni, legajo, email })
+    savePendingRegistration({ fullName, dni, legajo, email, phone })
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -384,6 +409,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           full_name: fullName,
           dni,
           legajo,
+          phone,
         },
       },
     })
@@ -409,7 +435,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(data.session.user)
 
     try {
-      await syncUserProfile({ fullName, dni, legajo, email })
+      await syncUserProfile({ fullName, dni, legajo, email, phone })
       clearPendingRegistration()
     } catch (err) {
       await supabase.auth.signOut()

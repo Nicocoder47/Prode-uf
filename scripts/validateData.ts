@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from 'node:fs';
-import { createClient } from '@supabase/supabase-js';
 import { syncTeamGroupsFromStandings } from '../src/services/sync/syncTeamGroups';
+import { createNodeSupabaseClient } from './lib/supabaseNodeClient.js';
 
 function loadEnvFile(path: string) {
   if (!existsSync(path)) return;
@@ -25,7 +25,7 @@ if (!url || !key) {
   process.exit(1);
 }
 
-const supabase = createClient(url, key);
+const supabase = createNodeSupabaseClient(url, key);
 
 type Check = { name: string; ok: boolean; detail?: string };
 const checks: Check[] = [];

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/auth.tsx'
 import { supabase } from '../../lib/supabase.ts'
-import { normalizeDni, normalizeLegajo, mapSignInError } from '../../utils/registration.ts'
+import { normalizeDni, normalizeLegajo, normalizePhone, mapSignInError } from '../../utils/registration.ts'
 import { AuthField, AuthShell, AuthStatusMessage, type UiStatus } from './AuthShell.tsx'
 
 type AuthMode = 'register' | 'login'
@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [dni, setDni] = useState('')
   const [legajo, setLegajo] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [status, setStatus] = useState<UiStatus>('idle')
   const [message, setMessage] = useState('')
 
@@ -113,6 +114,7 @@ export default function LoginPage() {
               dni: normalizeDni(dni),
               legajo: normalizeLegajo(legajo),
               email: cleanEmail,
+              phone: normalizePhone(phone),
             })
           : await login(cleanEmail, dni)
 
@@ -208,6 +210,20 @@ export default function LoginPage() {
                 onChange={e => setLegajo(e.target.value.toUpperCase())}
                 placeholder="Ej: 12345"
                 autoComplete="off"
+                className="wc26-login-input font-mono tracking-wider"
+                required
+              />
+            </AuthField>
+
+            <AuthField label="Teléfono" id="phone" required>
+              <input
+                id="phone"
+                type="tel"
+                inputMode="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value.replace(/[^\d\s+-]/g, '').slice(0, 20))}
+                placeholder="Ej: 11 1234-5678"
+                autoComplete="tel"
                 className="wc26-login-input font-mono tracking-wider"
                 required
               />

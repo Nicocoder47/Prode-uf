@@ -1,0 +1,75 @@
+{
+  "started_at": "2026-06-10T10:15:32.921Z",
+  "steps": [
+    {
+      "name": "admin_sign_in",
+      "ok": true,
+      "detail": "maestro@prodemundial.prode"
+    },
+    {
+      "name": "migration_260_applied",
+      "ok": true
+    },
+    {
+      "name": "create_test_user",
+      "ok": true,
+      "detail": "admin-delete-test-1781086534113@loadtest.prodemundial.test"
+    },
+    {
+      "name": "create_prediction",
+      "ok": true,
+      "detail": "392765de-7fa4-421f-a14e-f9c47fc0b9a6"
+    },
+    {
+      "name": "create_leaderboard_entry",
+      "ok": true
+    },
+    {
+      "name": "create_activity_log",
+      "ok": true
+    },
+    {
+      "name": "member_cannot_delete",
+      "ok": true,
+      "detail": "forbidden"
+    },
+    {
+      "name": "admin_delete_test_user",
+      "ok": true,
+      "detail": "admin-delete-test-1781086534113@loadtest.prodemundial.test"
+    },
+    {
+      "name": "all_tables_clean",
+      "ok": true
+    },
+    {
+      "name": "auth_user_removed",
+      "ok": true
+    },
+    {
+      "name": "slot_freed",
+      "ok": true,
+      "detail": "57 → 57"
+    },
+    {
+      "name": "leaderboard_no_duplicate_ranks",
+      "ok": true,
+      "detail": "5 entradas"
+    },
+    {
+      "name": "cannot_delete_last_admin",
+      "ok": false,
+      "detail": "cannot_delete_self_use_special_flow"
+    },
+    {
+      "name": "cannot_delete_self",
+      "ok": true,
+      "detail": "cannot_delete_self_use_special_flow"
+    }
+  ],
+  "summary": {
+    "passed": 13,
+    "failed": 1,
+    "total": 14
+  }
+}

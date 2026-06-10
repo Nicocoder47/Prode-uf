@@ -1,0 +1,16 @@
+{
+  "fixed_at": "2026-06-10T11:46:16.117Z",
+  "predictions_reset": [
+    {
+      "id": "84030c17-0c19-42a4-8c83-a17617d70bfb",
+      "user_id": "85c79052-f2e9-440b-8d8c-acd411be46f9",
+      "was_points": 3
+    },
+    {
+      "id": "25c73b3b-293f-4eac-9b3e-ff530d5fb56e",
+      "user_id": "73263fea-3caa-4021-ada0-d03cef44811e",
+      "was_points": 3
+    }
+  ],
+  "leaderboard_with_points_after": []
+}

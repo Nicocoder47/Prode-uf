@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-06-10T00:37:22.003Z",
+  "matchId": "392765de-7fa4-421f-a14e-f9c47fc0b9a6",
+  "usersRequested": 50,
+  "usersCreated": 48,
+  "concurrency": 50,
+  "wallMs": 1014,
+  "rps": 47.4,
+  "success": 48,
+  "failed": 0,
+  "latencies": {
+    "n": 48,
+    "min": 375.15849999999773,
+    "max": 1004.4829000000027,
+    "avg": 909,
+    "p50": 938.1774000000005,
+    "p95": 997.1486999999979,
+    "p99": 1004.4829000000027
+  },
+  "predictionsInDb": 48,
+  "uniqueUsersWithPrediction": 48,
+  "duplicateRows": 0,
+  "sampleErrors": [],
+  "p95": 997.1486999999979
+}

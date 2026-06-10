@@ -1,0 +1,159 @@
+{
+  "generated_at": "2026-06-10T10:27:06.025Z",
+  "leaderboard_audit": {
+    "total_entries": 5,
+    "active_with_points": 2,
+    "rank_mismatches_after_filter": 0,
+    "rank_mismatch_samples": [],
+    "duplicate_db_ranks": [],
+    "frontend_backend_aligned": true
+  },
+  "wins_draws_losses_audit": {
+    "db_semantics": "Incrementa por resultado REAL del partido (home/draw/away) al puntuar — NO aciertos del usuario",
+    "ui_issue": "LeaderboardPage usa lb.wins como streak — semántica incorrecta en visualización",
+    "sample": [
+      {
+        "user_id": "85c79052-f2e9-440b-8d8c-acd411be46f9",
+        "wins": 1,
+        "draws": 5,
+        "losses": 0,
+        "points": 3
+      },
+      {
+        "user_id": "73263fea-3caa-4021-ada0-d03cef44811e",
+        "wins": 1,
+        "draws": 5,
+        "losses": 0,
+        "points": 3
+      },
+      {
+        "user_id": "1683f78d-8274-4453-90b2-fe368af0a34b",
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "points": 0
+      },
+      {
+        "user_id": "5625e11a-4081-4641-a876-8ab351278e50",
+        "wins": 0,
+        "draws": 5,
+        "losses": 0,
+        "points": 0
+      },
+      {
+        "user_id": "75e5dab4-c332-4724-ba78-408bdf5e648e",
+        "wins": 0,
+        "draws": 5,
+        "losses": 0,
+        "points": 0
+      }
+    ]
+  },
+  "orphan_predictions": {
+    "total_scored": 6,
+    "orphans_not_finished": 6,
+    "details": [
+      {
+        "prediction_id": "84030c17-0c19-42a4-8c83-a17617d70bfb",
+        "user_id": "85c79052-f2e9-440b-8d8c-acd411be46f9",
+        "email": "lucioaseguin@gmail.com",
+        "match_id": "1b1ce8cc-fce8-4e6a-9bb5-a77b42e3ccb8",
+        "match_status": "scheduled",
+        "points": 3,
+        "is_test_user": false
+      },
+      {
+        "prediction_id": "23cbb915-3c70-47bd-9aff-e659ad5d38c1",
+        "user_id": "85c79052-f2e9-440b-8d8c-acd411be46f9",
+        "email": "lucioaseguin@gmail.com",
+        "match_id": "392765de-7fa4-421f-a14e-f9c47fc0b9a6",
+        "match_status": "scheduled",
+        "points": 0,
+        "is_test_user": false
+      },
+      {
+        "prediction_id": "25c73b3b-293f-4eac-9b3e-ff530d5fb56e",
+        "user_id": "73263fea-3caa-4021-ada0-d03cef44811e",
+        "email": "jorgergomez87@gmail.com",
+        "match_id": "1b1ce8cc-fce8-4e6a-9bb5-a77b42e3ccb8",
+        "match_status": "scheduled",
+        "points": 3,
+        "is_test_user": false
+      },
+      {
+        "prediction_id": "e6f7eec1-c15b-486c-9b2d-819516e09144",
+        "user_id": "75e5dab4-c332-4724-ba78-408bdf5e648e",
+        "email": "charly.xeneize69@gmail.com",
+        "match_id": "392765de-7fa4-421f-a14e-f9c47fc0b9a6",
+        "match_status": "scheduled",
+        "points": 0,
+        "is_test_user": false
+      },
+      {
+        "prediction_id": "8301bb15-f712-4f3a-9c3b-cf302b84683a",
+        "user_id": "5625e11a-4081-4641-a876-8ab351278e50",
+        "email": "osvaldozilinskiescalada@gmail.com",
+        "match_id": "392765de-7fa4-421f-a14e-f9c47fc0b9a6",
+        "match_status": "scheduled",
+        "points": 0,
+        "is_test_user": false
+      },
+      {
+        "prediction_id": "6c5623b5-005a-40e8-9461-6238760ad4c2",
+        "user_id": "73263fea-3caa-4021-ada0-d03cef44811e",
+        "email": "jorgergomez87@gmail.com",
+        "match_id": "392765de-7fa4-421f-a14e-f9c47fc0b9a6",
+        "match_status": "scheduled",
+        "points": 0,
+        "is_test_user": false
+      }
+    ],
+    "test_only": []
+  },
+  "orphan_fix": {
+    "test_orphans_deleted": 0,
+    "ids": []
+  },
+  "capacity_estimate": {
+    "current_users": 57,
+    "current_predictions": 114,
+    "leaderboard_query_ms": 289,
+    "matches_query_ms": 194,
+    "scenarios": [
+      {
+        "users": 200,
+        "est_predictions": 400,
+        "risk": "green"
+      },
+      {
+        "users": 400,
+        "est_predictions": 800,
+        "risk": "green"
+      },
+      {
+        "users": 700,
+        "est_predictions": 1400,
+        "risk": "yellow"
+      },
+      {
+        "users": 1000,
+        "est_predictions": 2000,
+        "risk": "red"
+      }
+    ]
+  },
+  "beta_overview": {
+    "max_users": 300,
+    "users_blocked": 1,
+    "available_slots": 243,
+    "new_users_today": 48,
+    "capacity_percent": 19,
+    "registered_users": 57,
+    "last_scored_match": null,
+    "registration_open": true,
+    "test_users_detected": 49,
+    "users_with_predictions": 5,
+    "last_score_calculated_at": "2026-06-10T09:54:33.783519+00:00",
+    "users_without_predictions": 52
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "admin_email": "maestro@prodemundial.prode",
+  "admin_get_registration_status": {
+    "enabled": true
+  },
+  "admin_get_beta_capacity": {
+    "status": "green",
+    "reasons": [
+      "Capacidad dentro de beta 300"
+    ],
+    "last_sync": {
+      "id": "948dd9fa-d532-4412-a865-c1dbcf2091d0",
+      "status": "done",
+      "provider": "football-data.org",
+      "sync_type": "live_matches",
+      "started_at": "2026-06-10T11:22:35.117437+00:00",
+      "finished_at": "2026-06-10T11:22:35.064+00:00",
+      "error_message": null
+    },
+    "read_p95_ms": null,
+    "save_p95_ms": null,
+    "total_users": 8,
+    "new_users_7d": 8,
+    "device_health": {
+      "error_rate": 0,
+      "errors_24h": 0,
+      "reports_24h": 76,
+      "slow_routes": [
+        {
+          "route": "/admin/users",
+          "avg_ms": 1047995
+        },
+        {
+          "route": "/",
+          "avg_ms": 556703
+        },
+        {
+          "route": "/matches",
+          "avg_ms": 389281
+        },
+        {
+          "route": "/teams",
+          "avg_ms": 199149
+        },
+        {
+          "route": "/admin/support",
+          "avg_ms": 10032
+        }
+      ],
+      "errors_by_device": {},
+      "top_error_routes": [],
+      "errors_by_browser": {},
+      "mobile_error_share_pct": 0
+    },
+    "new_users_30d": 8,
+    "users_blocked": 0,
+    "predictions_7d": 114,
+    "recommendation": "Beta saludable. Puede seguir gratis.",
+    "active_users_7d": 7,
+    "new_users_today": 0,
+    "predictions_24h": 105,
+    "active_users_24h": 6,
+    "capacity_percent": 2.7,
+    "latest_snapshots": [],
+    "migration_needed": false,
+    "registered_users": 8,
+    "technical_action": "seguir_gratis",
+    "users_played_pct": 62.5,
+    "predictions_today": 105,
+    "registration_open": true,
+    "total_predictions": 114,
+    "users_deactivated": 0,
+    "active_users_today": 6,
+    "auth_errors_429_24h": 0,
+    "recent_sync_errors_24h": 0,
+    "users_with_predictions": 5,
+    "estimated_concurrent_users": 5,
+    "users_must_change_password": 0
+  },
+  "beta_capacity_checks": {
+    "status": true,
+    "recommendation": true,
+    "registration_open": true,
+    "device_health": true
+  },
+  "admin_get_users": {
+    "count": 8,
+    "has_dni_masked": true,
+    "exposes_full_dni": false,
+    "sample_keys": [
+      "active_last_7d",
+      "block_reason",
+      "created_at",
+      "deleted_at",
+      "deleted_reason",
+      "dni_masked",
+      "email",
+      "exact_predictions",
+      "full_name",
+      "hit_predictions",
+      "id",
+      "is_active",
+      "is_blocked",
+      "is_test_user",
+      "last_login_at",
+      "legajo",
+      "must_change_password",
+      "never_logged_in",
+      "password_changed_at",
+      "predictions_count",
+      "reference_first_name",
+      "reference_full_name",
+      "reference_last_name",
+      "registered_today",
+      "review_reason",
+      "review_status",
+      "reviewed_at",
+      "role",
+      "total_points"
+    ]
+  }
+}

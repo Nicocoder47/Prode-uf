@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-06T23:53:16.750Z",
+  "generatedAt": "2026-06-10T00:10:40.170Z",
   "host": "unknown",
   "nodeEnv": "production",
   "pm2Processes": [
@@ -34,14 +34,27 @@
     ]
   },
   "worker": {
-    "status": "unknown",
-    "lastHeartbeatAt": null,
-    "lastCycle": null,
+    "status": "offline",
+    "lastHeartbeatAt": "2026-06-09T23:46:14.473413+00:00",
+    "lastCycle": {
+      "at": "2026-06-09T23:46:14.214Z",
+      "ok": true,
+      "host": "unknown",
+      "errors": [],
+      "durationMs": 1495,
+      "primaryProvider": "football-data.org",
+      "liveMatchesUpserted": 0,
+      "liveBundlesProcessed": 0,
+      "apiFootballConfigured": false
+    },
     "snapshotType": "worker_heartbeat",
     "expectedIntervalSec": 60
   },
   "sync": {
-    "lastLiveMatches": null,
+    "lastLiveMatches": {
+      "at": "2026-06-09T23:46:13.95+00:00",
+      "status": "done"
+    },
     "lastLivePipeline": null
   },
   "redis": {

@@ -3,8 +3,8 @@
  * npm run audit:team-coverage
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { createClient } from '@supabase/supabase-js';
 import { loadCloudEnv } from './lib/loadCloudEnv.js';
+import { createNodeSupabaseClient } from './lib/supabaseNodeClient.js';
 
 loadCloudEnv();
 
@@ -32,7 +32,7 @@ async function main() {
     process.exit(1);
   }
 
-  const supabase = createClient(url, key, { auth: { persistSession: false } });
+  const supabase = createNodeSupabaseClient(url, key);
 
   const { data: teams, error } = await supabase
     .from('teams')

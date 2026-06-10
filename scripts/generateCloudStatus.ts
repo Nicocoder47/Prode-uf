@@ -3,8 +3,8 @@
  * npm run audit:cloud
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { createClient } from '@supabase/supabase-js';
 import { CLOUD_DEFAULTS, loadCloudEnv } from './lib/loadCloudEnv.js';
+import { createNodeSupabaseClient } from './lib/supabaseNodeClient.js';
 
 type ServiceStatus = 'online' | 'offline' | 'stale' | 'unknown' | 'partial';
 
@@ -53,7 +53,7 @@ async function main() {
   let auth: ServiceStatus = 'unknown';
   let authDetail: string | undefined;
   if (serviceKey) {
-    const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+    const supabase = createNodeSupabaseClient(supabaseUrl, serviceKey);
     const { error } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1 });
     auth = error ? 'offline' : 'online';
     authDetail = error?.message;
@@ -65,7 +65,7 @@ async function main() {
   let worker: ServiceStatus = 'unknown';
   let lastHeartbeat: string | null = null;
   if (serviceKey) {
-    const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+    const supabase = createNodeSupabaseClient(supabaseUrl, serviceKey);
     const { data } = await supabase
       .from('system_snapshots')
       .select('created_at')

@@ -5,6 +5,7 @@ export type PendingRegistration = {
   dni: string
   legajo: string
   email: string
+  phone: string
 }
 
 /** DNI argentino: solo dígitos (7–8) */
@@ -32,6 +33,16 @@ export function isValidDni(dni: string): boolean {
   return n.length >= 7 && n.length <= 8
 }
 
+/** Teléfono: solo dígitos (código de área + número, sin 0 ni 15). */
+export function normalizePhone(raw: string): string {
+  return raw.trim().replace(/\D/g, '')
+}
+
+export function isValidPhone(phone: string): boolean {
+  const n = normalizePhone(phone)
+  return n.length >= 10 && n.length <= 13
+}
+
 export function savePendingRegistration(data: PendingRegistration) {
   sessionStorage.setItem(PENDING_KEY, JSON.stringify(data))
 }
@@ -44,7 +55,7 @@ export function readPendingRegistration(): PendingRegistration | null {
     if (parsed.domainPlate && !parsed.legajo) {
       parsed.legajo = parsed.domainPlate
     }
-    return parsed
+    return { ...parsed, phone: parsed.phone ?? '' }
   } catch {
     return null
   }
@@ -95,6 +106,12 @@ export function mapRegistrationError(code: string): string {
       return 'Ingresá un email válido.'
     case 'full_name_required':
       return 'Ingresá tu nombre completo.'
+    case 'phone_required':
+      return 'Ingresá tu número de teléfono.'
+    case 'invalid_phone':
+      return 'El teléfono debe tener entre 10 y 13 dígitos (ej: 11 1234-5678).'
+    case 'registration_closed':
+      return 'Las invitaciones están cerradas temporalmente. Contactá al administrador.'
     case 'account_not_found':
       return 'No encontramos una cuenta con ese email. Registrate primero.'
     case 'email_taken':

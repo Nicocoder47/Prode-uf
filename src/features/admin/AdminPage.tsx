@@ -1,3 +1,4 @@
+/** @deprecated Admin V2 legacy — no enrutado. Usar AdminDashboardPage. */
 import { ShieldCheck } from 'lucide-react'
 import { GlassCard } from '../../components/ui/GlassCard.tsx'
 

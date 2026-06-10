@@ -41,3 +41,5 @@ debug/football-data/*.json
 *.njsproj
 *.sln
 *.sw?
+
+.vercel

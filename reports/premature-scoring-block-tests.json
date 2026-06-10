@@ -1,0 +1,45 @@
+{
+  "steps": [
+    {
+      "name": "find_scheduled_match",
+      "ok": true,
+      "detail": "1b1ce8cc-fce8-4e6a-9bb5-a77b42e3ccb8"
+    },
+    {
+      "name": "create_prediction",
+      "ok": true,
+      "detail": "43e18ae5-5cc3-4199-a505-5ad4326dcd0e"
+    },
+    {
+      "name": "admin_score_match_blocked",
+      "ok": true,
+      "detail": "match_not_finished"
+    },
+    {
+      "name": "prediction_stays_pending",
+      "ok": true
+    },
+    {
+      "name": "leaderboard_unchanged",
+      "ok": true
+    },
+    {
+      "name": "set_match_finished",
+      "ok": true
+    },
+    {
+      "name": "admin_score_match_finished",
+      "ok": true,
+      "detail": "scored=0"
+    },
+    {
+      "name": "prediction_scored_after_finished",
+      "ok": true,
+      "detail": "points=5"
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0
+  }
+}

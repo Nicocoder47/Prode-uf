@@ -353,7 +353,7 @@ export const worldCupService = {
 
 
 
-  getTopPlayers: async (): Promise<Player[]> => {
+  getTopPlayers: async (limit = 20): Promise<Player[]> => {
 
     const { data, error } = await supabase
 
@@ -363,7 +363,7 @@ export const worldCupService = {
 
       .order('market_value', { ascending: false, nullsFirst: false })
 
-      .limit(10);
+      .limit(limit);
 
     if (error) throw error;
 
