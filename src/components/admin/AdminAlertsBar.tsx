@@ -27,7 +27,7 @@ export function AdminAlertsBar() {
       {visible.map(alert => {
         const Icon = severityIcon(alert.severity)
         return (
-          <div key={alert.id} className={`admin-alerts-bar__item ${severityClass(alert.severity)}`}>
+          <div key={alert.id} className={`admin-premium-card admin-alerts-bar__item ${severityClass(alert.severity)}`}>
             <Icon className="admin-alerts-bar__icon" strokeWidth={2.25} />
             <div className="admin-alerts-bar__text">
               <p className="admin-alerts-bar__title">{alert.title}</p>

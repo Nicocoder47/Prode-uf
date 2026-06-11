@@ -48,7 +48,7 @@ export function AdminUserPredictionCard({ prediction: p }: Props) {
   const scoredAt = status === 'scored' ? (p.scored_at ?? p.updated_at) : null
 
   return (
-    <article className={`admin-pred-card admin-pred-card--${status}`}>
+    <article className={`admin-premium-card admin-pred-card admin-pred-card--${status}`}>
       <div className="admin-pred-card__head">
         <div className="min-w-0">
           <h3 className="admin-pred-card__match">

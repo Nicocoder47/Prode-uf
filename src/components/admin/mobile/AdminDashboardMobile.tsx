@@ -86,7 +86,7 @@ export function AdminDashboardMobile({
 
       <div className="admin-dashboard-mobile__kpi-grid">
         {kpis.map(kpi => (
-          <Link key={kpi.label} to={kpi.to} className="admin-dashboard-mobile__kpi">
+          <Link key={kpi.label} to={kpi.to} className="admin-premium-card admin-dashboard-mobile__kpi">
             <span className="admin-dashboard-mobile__kpi-label">{kpi.label}</span>
             <span className="admin-dashboard-mobile__kpi-value">{kpi.value}</span>
             <AdminStatusLight status={kpi.state} label="" />
@@ -113,7 +113,7 @@ export function AdminDashboardMobile({
         <p className="admin-dashboard-mobile__section-title">Accesos rápidos</p>
         <div className="admin-dashboard-mobile__quick-grid">
           {quickLinks.map(l => (
-            <Link key={l.to} to={l.to} className="admin-dashboard-mobile__quick-link">
+            <Link key={l.to} to={l.to} className="admin-premium-card admin-premium-card--compact admin-dashboard-mobile__quick-link">
               {l.label}
             </Link>
           ))}

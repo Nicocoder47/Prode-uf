@@ -173,7 +173,7 @@ export default function AdminScoringPage() {
           ))}
         </div>
 
-        <div className="admin-scoring-mobile-list space-y-3 md:hidden">
+        <div className="admin-scoring-mobile-list admin-mobile-card-stack md:hidden">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, i) => <div key={i} className="admin-ops-skeleton__card h-32" />)
           ) : filtered.length === 0 ? (

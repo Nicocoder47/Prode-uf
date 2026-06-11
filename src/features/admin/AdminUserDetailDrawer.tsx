@@ -21,7 +21,9 @@ import {
 import { useAdminUserDetail, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
 import type { AdminUserRow } from '../../types/admin.ts'
 import { isTestUserEmail } from '../../utils/adminTestUser.ts'
+import { AdminUserDetailMobileHero } from '../../components/admin/mobile/AdminUserDetailMobileHero.tsx'
 import { AdminUserPredictionsTab } from '../../components/admin/mobile/AdminUserPredictionsTab.tsx'
+import { AdminUserSummaryMobile } from '../../components/admin/mobile/AdminUserSummaryMobile.tsx'
 import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL } from '../../utils/reviewStatus.ts'
 
 type Tab = 'summary' | 'predictions' | 'security' | 'actions' | 'audit'
@@ -100,6 +102,7 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
   const padron = detail?.padron ?? null
   const displayError = error ?? (queryError instanceof Error ? queryError.message : null)
   const isTest = u.is_test_user ?? isTestUserEmail(u.email)
+  const accountLabel = accountStatus(u)
 
   return (
     <div
@@ -110,21 +113,27 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
         className={isMobile ? 'admin-user-detail__panel' : 'flex h-full w-full max-w-2xl flex-col overflow-hidden border-l border-white/10 bg-wc26-navy shadow-2xl'}
         onClick={e => e.stopPropagation()}
       >
-        <div className="admin-user-detail__header flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5 sm:py-4">
-          <div className="flex min-w-0 items-start gap-2">
-            {isMobile && (
-              <button type="button" className="admin-user-detail__back" onClick={onClose} aria-label="Volver">
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-            )}
+        {isMobile ? (
+          <div className="admin-user-detail__mobile-top">
+            <button type="button" className="admin-user-detail__back" onClick={onClose} aria-label="Volver">
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <span className="admin-user-detail__mobile-title">Perfil de usuario</span>
+          </div>
+        ) : (
+          <div className="admin-user-detail__header flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5 sm:py-4">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-wider text-white/50">Detalle de usuario</p>
               <h2 className="truncate text-lg font-extrabold text-white sm:text-xl">{u.full_name}</h2>
               <p className="truncate text-sm text-white/60">{u.email} · {u.legajo ?? '—'}</p>
             </div>
+            <PremiumButton size="sm" variant="ghost" onClick={onClose}>Cerrar</PremiumButton>
           </div>
-          {!isMobile && <PremiumButton size="sm" variant="ghost" onClick={onClose}>Cerrar</PremiumButton>}
-        </div>
+        )}
+
+        {isMobile && !isLoading && (
+          <AdminUserDetailMobileHero user={u} accountLabel={accountLabel} isTest={isTest} />
+        )}
 
         <div className="admin-user-detail__tabs flex gap-0 overflow-x-auto border-b border-white/10 px-2">
           {(Object.keys(TAB_LABELS) as Tab[]).map(t => (
@@ -143,62 +152,66 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
           {displayError && <p className="rounded-xl bg-red-500/20 px-3 py-2 text-sm text-red-200">{displayError}</p>}
           {isLoading && <p className="text-white/60">Cargando detalle…</p>}
 
-          {tab === 'summary' && (
+          {tab === 'summary' && isMobile && (
+            <AdminUserSummaryMobile user={u} padron={padron} accountLabel={accountLabel} formatDate={formatDate} />
+          )}
+
+          {tab === 'summary' && !isMobile && (
             <>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={REVIEW_STATUS_CLASS[u.review_status ?? 'pending']}>
-              {REVIEW_STATUS_LABEL[u.review_status ?? 'pending']}
-            </span>
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/80">{accountStatus(u)}</span>
-            <span className="text-xs text-white/50">Rol: {u.role}</span>
-          </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={REVIEW_STATUS_CLASS[u.review_status ?? 'pending']}>
+                  {REVIEW_STATUS_LABEL[u.review_status ?? 'pending']}
+                </span>
+                <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/80">{accountLabel}</span>
+                <span className="text-xs text-white/50">Rol: {u.role}</span>
+              </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/50">Datos declarados</p>
-              <ul className="space-y-1 text-sm text-white/85">
-                <li><strong>Nombre:</strong> {u.full_name}</li>
-                <li><strong>Legajo:</strong> {u.legajo ?? '—'}</li>
-                <li><strong>DNI:</strong> {u.dni_masked}</li>
-                <li><strong>Email:</strong> {u.email}</li>
-                <li><strong>Registro:</strong> {formatDate(u.created_at)}</li>
-                <li><strong>Último login:</strong> {formatDate(u.last_login_at)}</li>
-                <li><strong>Motivo revisión:</strong> {u.review_reason ?? '—'}</li>
-              </ul>
-            </div>
-            <div className={`rounded-2xl border p-4 ${padron ? 'border-white/10 bg-white/[0.04] backdrop-blur-xl' : 'border-red-400/30 bg-red-500/10'}`}>
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/50">Padrón de referencia</p>
-              {padron ? (
-                <ul className="space-y-1 text-sm text-white/85">
-                  <li><strong>Apellido:</strong> {padron.last_name ?? '—'}</li>
-                  <li><strong>Nombre:</strong> {padron.first_name ?? '—'}</li>
-                  <li><strong>Completo:</strong> {padron.full_name ?? '—'}</li>
-                  <li><strong>DNI padrón:</strong> {padron.dni ? `****${String(padron.dni).slice(-4)}` : '—'}</li>
-                </ul>
-              ) : (
-                <p className="text-sm font-semibold text-red-300">DNI no encontrado en padrón de referencia</p>
-              )}
-            </div>
-          </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/50">Datos declarados</p>
+                  <ul className="space-y-1 text-sm text-white/85">
+                    <li><strong>Nombre:</strong> {u.full_name}</li>
+                    <li><strong>Legajo:</strong> {u.legajo ?? '—'}</li>
+                    <li><strong>DNI:</strong> {u.dni_masked}</li>
+                    <li><strong>Email:</strong> {u.email}</li>
+                    <li><strong>Registro:</strong> {formatDate(u.created_at)}</li>
+                    <li><strong>Último login:</strong> {formatDate(u.last_login_at)}</li>
+                    <li><strong>Motivo revisión:</strong> {u.review_reason ?? '—'}</li>
+                  </ul>
+                </div>
+                <div className={`rounded-2xl border p-4 ${padron ? 'border-white/10 bg-white/[0.04] backdrop-blur-xl' : 'border-red-400/30 bg-red-500/10'}`}>
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/50">Padrón de referencia</p>
+                  {padron ? (
+                    <ul className="space-y-1 text-sm text-white/85">
+                      <li><strong>Apellido:</strong> {padron.last_name ?? '—'}</li>
+                      <li><strong>Nombre:</strong> {padron.first_name ?? '—'}</li>
+                      <li><strong>Completo:</strong> {padron.full_name ?? '—'}</li>
+                      <li><strong>DNI padrón:</strong> {padron.dni ? `****${String(padron.dni).slice(-4)}` : '—'}</li>
+                    </ul>
+                  ) : (
+                    <p className="text-sm font-semibold text-red-300">DNI no encontrado en padrón de referencia</p>
+                  )}
+                </div>
+              </div>
 
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 text-center text-sm">
-            <div className="rounded-xl border border-white/10 bg-white/5 p-2">
-              <p className="text-[10px] uppercase text-white/50">Pts</p>
-              <p className="font-bold text-wc26-yellow">{u.total_points}</p>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 p-2">
-              <p className="text-[10px] uppercase text-white/50">Predicciones</p>
-              <p className="font-bold text-white">{u.predictions_count}</p>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 p-2">
-              <p className="text-[10px] uppercase text-white/50">Exactas</p>
-              <p className="font-bold text-white">{u.exact_predictions ?? 0}</p>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-white/5 p-2">
-              <p className="text-[10px] uppercase text-white/50">Aciertos</p>
-              <p className="font-bold text-white">{u.hit_predictions ?? 0}</p>
-            </div>
-          </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 text-center text-sm">
+                <div className="rounded-xl border border-white/10 bg-white/5 p-2">
+                  <p className="text-[10px] uppercase text-white/50">Pts</p>
+                  <p className="font-bold text-wc26-yellow">{u.total_points}</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-2">
+                  <p className="text-[10px] uppercase text-white/50">Predicciones</p>
+                  <p className="font-bold text-white">{u.predictions_count}</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-2">
+                  <p className="text-[10px] uppercase text-white/50">Exactas</p>
+                  <p className="font-bold text-white">{u.exact_predictions ?? 0}</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-2">
+                  <p className="text-[10px] uppercase text-white/50">Aciertos</p>
+                  <p className="font-bold text-white">{u.hit_predictions ?? 0}</p>
+                </div>
+              </div>
             </>
           )}
 

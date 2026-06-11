@@ -28,7 +28,7 @@ export function AdminMatchDayCard({ dashboard, scoring, matches = [] }: Props) {
   }
 
   return (
-    <section className="admin-match-day-card">
+    <section className="admin-premium-card admin-premium-card--gold admin-match-day-card">
       <div className="admin-match-day-card__header">
         <CalendarDays className="h-5 w-5 text-amber-300" />
         <div>

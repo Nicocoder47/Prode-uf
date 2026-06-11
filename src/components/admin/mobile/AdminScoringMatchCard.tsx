@@ -21,7 +21,7 @@ export function AdminScoringMatchCard({ match: m, busy, onScore, onRescore }: Pr
   const disabledTitle = 'Solo partidos finalizados'
 
   return (
-    <article className="admin-scoring-match-card">
+    <article className="admin-premium-card admin-scoring-match-card">
       <div className="admin-scoring-match-card__teams">
         <h3>
           {m.home_team ?? '?'} <span className="text-white/40">vs</span> {m.away_team ?? '?'}

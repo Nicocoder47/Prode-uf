@@ -10,6 +10,7 @@ import { downloadCsv } from '../../utils/exportCsv'
 import { AdminUserDetailDrawer } from './AdminUserDetailDrawer.tsx'
 import { AdminUserMobileCard } from '../../components/admin/mobile/AdminUserMobileCard.tsx'
 import { AdminUsersFiltersSheet } from '../../components/admin/mobile/AdminUsersFiltersSheet.tsx'
+import { AdminUsersMobileStats } from '../../components/admin/mobile/AdminUsersMobileStats.tsx'
 import { useAppToast } from '../../components/ui/ToastProvider.tsx'
 import { adminBlockUser, adminUnblockUser } from '../../services/admin/adminService.ts'
 import { SlidersHorizontal } from 'lucide-react'
@@ -171,9 +172,13 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="hidden md:block">
         <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Identidad</p>
         <h2 className="text-xl font-extrabold text-white md:text-2xl">Usuarios</h2>
+      </div>
+
+      <div className="md:hidden">
+        <AdminUsersMobileStats users={users} filteredCount={filtered.length} />
       </div>
 
       {error && (
@@ -183,7 +188,7 @@ export default function AdminUsersPage() {
       )}
 
       {reviewCount > 0 && (
-        <div className="rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+        <div className="admin-users-review-banner md:rounded-2xl md:border md:border-red-400/30 md:bg-red-500/10 md:px-4 md:py-3 md:text-sm md:text-red-100">
           <strong>{reviewCount}</strong> usuario(s) requieren revisión (DNI no encontrado en padrón o datos distintos).
         </div>
       )}
@@ -286,11 +291,29 @@ export default function AdminUsersPage() {
         </div>
       </PremiumCard>
 
-      <div className="admin-users-mobile-list space-y-3 md:hidden">
+      <div className="admin-users-mobile-list admin-mobile-card-stack md:hidden">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <div key={i} className="admin-ops-skeleton__card h-36" />)
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="admin-user-mobile-card admin-user-mobile-card--skeleton">
+              <div className="admin-ops-skeleton__bar h-12 w-12 rounded-full" />
+              <div className="flex-1 space-y-2">
+                <div className="admin-ops-skeleton__bar h-4 w-3/4" />
+                <div className="admin-ops-skeleton__bar h-3 w-1/2" />
+              </div>
+            </div>
+          ))
+        ) : users.length === 0 && !error ? (
+          <div className="admin-users-empty-premium">
+            <p className="admin-users-empty-premium__title">Sin usuarios cargados</p>
+            <p className="admin-users-empty-premium__hint">Verificá la conexión o permisos de admin.</p>
+            <PremiumButton size="sm" variant="ghost" onClick={() => refetch()}>Reintentar</PremiumButton>
+          </div>
         ) : pageUsers.length === 0 ? (
-          <p className="admin-empty-state">No hay usuarios con estos filtros</p>
+          <div className="admin-users-empty-premium">
+            <p className="admin-users-empty-premium__title">Sin resultados</p>
+            <p className="admin-users-empty-premium__hint">Probá otro término o limpiá los filtros.</p>
+            <PremiumButton size="sm" variant="ghost" onClick={resetFilters}>Limpiar filtros</PremiumButton>
+          </div>
         ) : (
           pageUsers.map(u => {
             const st = accountStatus(u)
@@ -304,7 +327,6 @@ export default function AdminUsersPage() {
                 busy={cardBusy === u.id}
                 onView={() => { setDetailUser(u); setSearchParams({ userId: u.id }) }}
                 onToggleBlock={() => toggleBlock(u)}
-                onMore={() => { setDetailUser(u); setSearchParams({ userId: u.id }) }}
               />
             )
           })
