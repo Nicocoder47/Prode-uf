@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react'
 import { TeamCrest } from './TeamCrest'
 import { formatCountdownLabel, type WorldCupLiveInsightPayload } from '../../utils/worldCupLiveInsights'
 import type { Match } from '../../types/worldcup'
+import { teamDisplayName } from '../../utils/teamDisplay'
 
 type LiveInsightCardProps = {
   card: WorldCupLiveInsightPayload
@@ -93,6 +94,64 @@ function TrendBars({
   )
 }
 
+const TODAY_MATCHES_LIMIT = 4
+
+function TodayMatchesList({ matches, featuredId }: { matches: Match[]; featuredId: string }) {
+  if (matches.length === 0) return null
+
+  const visible = matches.slice(0, TODAY_MATCHES_LIMIT)
+  const hiddenCount = Math.max(0, matches.length - TODAY_MATCHES_LIMIT)
+
+  return (
+    <div className="wc26-live-card__today">
+      <p className="wc26-live-card__today-title">Partidos de hoy</p>
+      <ul className="wc26-live-card__today-list">
+        {visible.map(match => {
+          const home = match.homeTeam!
+          const away = match.awayTeam!
+          const kickoff = fmtKickoff(match.kickoff)
+          const isFeatured = match.id === featuredId
+          const isLive = match.status === 'live' || match.status === 'halftime'
+          const isFinished = match.status === 'finished'
+          const hasScore = isFinished || isLive
+
+          return (
+            <li
+              key={match.id}
+              className={`wc26-live-card__today-row${isFeatured ? ' wc26-live-card__today-row--featured' : ''}`}
+            >
+              <span className="wc26-live-card__today-time">{kickoff.time}</span>
+              <div className="wc26-live-card__today-teams">
+                <span className="wc26-live-card__today-team">
+                  <TeamCrest flag={home.flag} code={home.code} size="xs" />
+                  <span>{teamDisplayName(home)}</span>
+                </span>
+                <span
+                  className={`wc26-live-card__today-score${hasScore ? ' wc26-live-card__today-score--set' : ''}${isLive ? ' wc26-live-card__today-score--live' : ''}`}
+                >
+                  {hasScore ? `${match.homeScore ?? 0}-${match.awayScore ?? 0}` : '—'}
+                </span>
+                <span className="wc26-live-card__today-team">
+                  <span>{teamDisplayName(away)}</span>
+                  <TeamCrest flag={away.flag} code={away.code} size="xs" />
+                </span>
+              </div>
+              <span
+                className={`wc26-live-card__today-status${isLive ? ' is-live' : ''}${isFinished ? ' is-finished' : ''}`}
+              >
+                {isLive ? 'Vivo' : isFinished ? 'Fin' : kickoff.time}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+      {hiddenCount > 0 ? (
+        <p className="wc26-live-card__today-more">+{hiddenCount} partido{hiddenCount === 1 ? '' : 's'} más hoy</p>
+      ) : null}
+    </div>
+  )
+}
+
 function NextMatchCardBody({
   card,
   onAction,
@@ -118,6 +177,7 @@ function NextMatchCardBody({
       <p className="wc26-live-card__meta">
         {time} · {date}
       </p>
+      <TodayMatchesList matches={card.todayMatches} featuredId={card.match.id} />
       {card.cta ? (
         <button type="button" className="wc26-live-card__cta" onClick={() => onAction(card)}>
           {card.cta.label}
@@ -159,11 +219,33 @@ function CardBody({
     case 'ranking_move':
       return (
         <>
-          <ul className="wc26-live-card__lines">
-            {card.lines.map(line => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
+          {card.lines.length > 0 ? (
+            <ul className="wc26-live-card__lines wc26-live-card__lines--compact">
+              {card.lines.map(line => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          ) : null}
+          <div className="wc26-live-card__ranking-podium">
+            {card.leader ? (
+              <div className="wc26-live-card__ranking-spot wc26-live-card__ranking-spot--leader">
+                <span className="wc26-live-card__ranking-pos">1°</span>
+                <p className="wc26-live-card__ranking-name">{card.leader.name}</p>
+                <p className="wc26-live-card__ranking-legajo">Legajo {card.leader.legajo}</p>
+                <p className="wc26-live-card__ranking-pts">{card.leader.points} pts</p>
+              </div>
+            ) : (
+              <p className="wc26-live-card__ranking-empty">Esperando movimientos</p>
+            )}
+            {card.runnerUp ? (
+              <div className="wc26-live-card__ranking-spot wc26-live-card__ranking-spot--second">
+                <span className="wc26-live-card__ranking-pos">2°</span>
+                <p className="wc26-live-card__ranking-name">{card.runnerUp.name}</p>
+                <p className="wc26-live-card__ranking-legajo">Legajo {card.runnerUp.legajo}</p>
+                <p className="wc26-live-card__ranking-pts">{card.runnerUp.points} pts</p>
+              </div>
+            ) : null}
+          </div>
           {card.cta ? (
             <button type="button" className="wc26-live-card__cta" onClick={() => onAction(card)}>
               {card.cta.label}

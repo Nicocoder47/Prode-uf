@@ -30,6 +30,7 @@ export type NextMatchInsight = WorldCupLiveCard & {
   type: 'next_match'
   match: Match
   countdownLabel: string
+  todayMatches: Match[]
 }
 
 export type CommunityTrendInsight = WorldCupLiveCard & {
@@ -42,9 +43,18 @@ export type CommunityTrendInsight = WorldCupLiveCard & {
   hasEnoughData: boolean
 }
 
+export type RankingPodiumEntry = {
+  rank: number
+  name: string
+  legajo: string
+  points: number
+}
+
 export type RankingMoveInsight = WorldCupLiveCard & {
   type: 'ranking_move'
   lines: string[]
+  leader: RankingPodiumEntry | null
+  runnerUp: RankingPodiumEntry | null
 }
 
 export type PopularMatchInsight = WorldCupLiveCard & {
@@ -126,9 +136,53 @@ function displayName(entry: LeaderboardEntry): string {
   return entry.profile?.legajo ?? `Jugador #${entry.rank}`
 }
 
+function fullDisplayName(entry: LeaderboardEntry): string {
+  const name = entry.profile?.fullName?.trim()
+  if (name) return name
+  return entry.profile?.legajo ?? `Jugador #${entry.rank}`
+}
+
+function legajoLabel(entry: LeaderboardEntry): string {
+  return entry.profile?.legajo?.trim() || '—'
+}
+
+function buildRankingPodium(leaderboard: LeaderboardEntry[]): {
+  leader: RankingPodiumEntry | null
+  runnerUp: RankingPodiumEntry | null
+} {
+  const leader = leaderboard[0]
+  const second = leaderboard[1]
+
+  return {
+    leader: leader
+      ? {
+          rank: 1,
+          name: fullDisplayName(leader),
+          legajo: legajoLabel(leader),
+          points: leader.points,
+        }
+      : null,
+    runnerUp: second
+      ? {
+          rank: 2,
+          name: fullDisplayName(second),
+          legajo: legajoLabel(second),
+          points: second.points,
+        }
+      : null,
+  }
+}
+
 function shortTeamName(name: string): string {
   const parts = name.trim().split(/\s+/)
   return parts[parts.length - 1] ?? name
+}
+
+export function getTodayMatches(matches: Match[], now = Date.now()): Match[] {
+  const todayKey = new Date(now).toDateString()
+  return matches
+    .filter(m => m.homeTeam && m.awayTeam && new Date(m.kickoff).toDateString() === todayKey)
+    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
 }
 
 function buildRankingMoves(leaderboard: LeaderboardEntry[]): string[] {
@@ -138,7 +192,7 @@ function buildRankingMoves(leaderboard: LeaderboardEntry[]): string[] {
 
   if (leaderboard.length === 0) {
     writeLbSnapshot(leaderboard, bucket)
-    return ['Esperando movimientos']
+    return []
   }
 
   let hasMovement = false
@@ -169,11 +223,7 @@ function buildRankingMoves(leaderboard: LeaderboardEntry[]): string[] {
   }
 
   if (!hasMovement) {
-    lines.push('Esperando movimientos')
-    const leader = leaderboard[0]
-    if (leader && leader.points > 0) {
-      lines.push(`${displayName(leader)} lidera con ${leader.points} pts`)
-    }
+    return []
   }
 
   writeLbSnapshot(leaderboard, bucket)
@@ -323,6 +373,7 @@ function findPopularMatch(
 }
 
 function resolveNextMatch(matches: Match[], now: number): NextMatchInsight | null {
+  const todayMatches = getTodayMatches(matches, now)
   const resolved = resolveNextMatchForHome(matches, now)
   const next = resolved.featuredMatch
   if (next?.homeTeam && next.awayTeam) {
@@ -337,6 +388,7 @@ function resolveNextMatch(matches: Match[], now: number): NextMatchInsight | nul
       title: 'Próximo partido',
       match: next,
       countdownLabel,
+      todayMatches,
       cta: { label: 'Predecir ahora', action: 'predict' },
     }
   }
@@ -352,6 +404,7 @@ function resolveNextMatch(matches: Match[], now: number): NextMatchInsight | nul
     match: anyWithTeams,
     countdownLabel: 'Fixture en actualización',
     subtitle: 'Próximamente nuevos partidos',
+    todayMatches,
     cta: { label: 'Ver fixture', action: 'matches' },
   }
 }
@@ -391,14 +444,19 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
       favoriteLabel: favoriteTrendLabel(trendMatch, homePct, drawPct, awayPct, hasEnoughTrend),
       hasEnoughData: hasEnoughTrend,
     },
-    {
-      id: 'ranking-move',
-      type: 'ranking_move',
-      emoji: '🏆',
-      title: 'Movimiento del ranking',
-      lines: buildRankingMoves(input.leaderboard),
-      cta: { label: 'Ver ranking', action: 'leaderboard' },
-    },
+    (() => {
+      const podium = buildRankingPodium(input.leaderboard)
+      return {
+        id: 'ranking-move',
+        type: 'ranking_move' as const,
+        emoji: '🏆',
+        title: 'Movimiento del ranking',
+        lines: buildRankingMoves(input.leaderboard),
+        leader: podium.leader,
+        runnerUp: podium.runnerUp,
+        cta: { label: 'Ver ranking', action: 'leaderboard' as const },
+      }
+    })(),
     findPopularMatch(input.matches, stats, nextCard.match),
     {
       id: 'top-scorers',
@@ -410,61 +468,6 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
       emptyMessage: scorersPayload.emptyMessage,
     },
   ]
-
-  if (input.userId) {
-    cards.push(
-      {
-        id: 'your-progress',
-        type: 'your_progress',
-        emoji: '🎯',
-        title: 'Tu progreso',
-        predicted: input.overall.predicted,
-        total: input.overall.total,
-        percent: input.overall.percent,
-        points: input.points,
-        rank: input.rank,
-        cta: { label: 'Seguir prediciendo', action: 'matches' },
-      },
-      {
-        id: 'next-reward',
-        type: 'next_reward',
-        emoji: '🎁',
-        title: 'Próxima recompensa',
-        message: getNextRewardInsight(
-          input.overall,
-          input.groupProgress,
-          input.rank,
-          input.points,
-          input.leaderboard,
-        ),
-        cta: { label: 'Jugar ahora', action: 'matches' },
-      },
-    )
-  } else {
-    cards.push(
-      {
-        id: 'your-progress-guest',
-        type: 'your_progress',
-        emoji: '🎯',
-        title: 'Tu progreso',
-        subtitle: 'Registrate y empezá a predecir',
-        predicted: 0,
-        total: input.overall.total || 104,
-        percent: 0,
-        points: 0,
-        rank: null,
-        cta: { label: 'Crear cuenta', action: 'login' },
-      },
-      {
-        id: 'next-reward-guest',
-        type: 'next_reward',
-        emoji: '🎁',
-        title: 'Próxima recompensa',
-        message: 'Sumá puntos completando grupos y predicciones',
-        cta: { label: 'Jugar ahora', action: 'login' },
-      },
-    )
-  }
 
   return cards
 }

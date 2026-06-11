@@ -7,7 +7,7 @@ import type { Match, Team, Player, Prediction, TopScorer, Standing, LeaderboardE
 import { worldCupService } from './services/worldcup/worldCupService';
 import { footballApiClient } from './lib/api/footballApiClient';
 
-import { ENABLE_REALTIME, BETA_POLL_INTERVAL_MS } from './config/betaMode';
+import { ENABLE_LIVE_INSIGHTS, ENABLE_REALTIME, BETA_POLL_INTERVAL_MS } from './config/betaMode';
 import { useBetaQuerySync } from './hooks/useBetaQuerySync';
 
 
@@ -160,9 +160,13 @@ export const useWorldCupMatches = () => {
 
     queryFn: worldCupService.getMatches,
 
-    staleTime: 1000 * 60 * 60,
+    staleTime: ENABLE_LIVE_INSIGHTS ? 90_000 : 1000 * 60 * 60,
 
-    refetchInterval: ENABLE_REALTIME ? false : BETA_POLL_INTERVAL_MS.matches,
+    refetchInterval: ENABLE_REALTIME
+      ? false
+      : ENABLE_LIVE_INSIGHTS
+        ? 45_000
+        : BETA_POLL_INTERVAL_MS.matches,
 
   });
 
@@ -325,7 +329,9 @@ export const useAllPlayers = () => {
 
     queryFn: worldCupService.getAllPlayers,
 
-    staleTime: 1000 * 60 * 30,
+    staleTime: ENABLE_LIVE_INSIGHTS ? 120_000 : 1000 * 60 * 30,
+
+    refetchInterval: ENABLE_LIVE_INSIGHTS ? 120_000 : false,
 
   });
 
@@ -361,7 +367,9 @@ export const useTopScorers = () => {
 
     queryFn: () => worldCupService.getTopScorers(10),
 
-    staleTime: 1000 * 60 * 30,
+    staleTime: ENABLE_LIVE_INSIGHTS ? 120_000 : 1000 * 60 * 30,
+
+    refetchInterval: ENABLE_LIVE_INSIGHTS ? 120_000 : false,
 
   });
 

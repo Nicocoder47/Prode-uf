@@ -13,6 +13,7 @@ import {
   HomeRankingGrid,
   WorldCupLiveCarousel,
 } from '../../components/worldcup'
+import { useTodayResultsSync } from '../../hooks/useTodayResultsSync.ts'
 import { useWorldCupLiveInsights } from '../../hooks/useWorldCupLiveInsights'
 import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers, useAllPlayers } from '../../useWorldCupData'
 import { ENABLE_HEAVY_ANIMATIONS, ENABLE_LIVE_INSIGHTS } from '../../config/betaMode'
@@ -24,6 +25,7 @@ import {
   computeOverallProgress,
   computeAchievements,
   computeStreaks,
+  getHeroDisplayMatch,
   resolveNextMatchForHome,
 } from '../../utils/predictionProgress'
 import type { Match } from '../../types/worldcup'
@@ -69,6 +71,9 @@ export default function DashboardPage() {
   const nextResolved = useMemo(() => resolveNextMatchForHome(matches, now), [matches, now])
   const nextMatch = nextResolved.predictMatch
   const featuredMatch = nextResolved.featuredMatch
+  const heroMatch = useMemo(() => getHeroDisplayMatch(nextResolved), [nextResolved])
+
+  useTodayResultsSync()
 
   const { cards: liveCards } = useWorldCupLiveInsights({
     matches,
@@ -115,6 +120,8 @@ export default function DashboardPage() {
       match={predictMatch}
       isOpen={!!predictMatch}
       onClose={() => setPredictMatch(null)}
+      allMatches={matches}
+      onContinueNext={setPredictMatch}
       existingPrediction={dbPredictions.find(p => p.matchId === predictMatch.id)}
       onSave={async payload => {
         await savePrediction.mutateAsync({
@@ -135,6 +142,7 @@ export default function DashboardPage() {
             variant="mobile"
             countdown={countdown}
             countdownHint={countdownHint}
+            nextMatch={heroMatch}
             onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
             hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
           />
@@ -183,6 +191,7 @@ export default function DashboardPage() {
           variant="desktop"
           countdown={countdown}
           countdownHint={countdownHint}
+          nextMatch={heroMatch}
           hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
           onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
           onFixture={() => navigate('/matches')}
