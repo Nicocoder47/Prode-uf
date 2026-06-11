@@ -19,10 +19,12 @@ import { ENABLE_HEAVY_ANIMATIONS, ENABLE_LIVE_INSIGHTS } from '../../config/beta
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
 import {
+  buildMatchCountdown,
   computeGroupProgress,
   computeOverallProgress,
   computeAchievements,
   computeStreaks,
+  resolveNextMatchForHome,
 } from '../../utils/predictionProgress'
 import type { Match } from '../../types/worldcup'
 
@@ -58,15 +60,15 @@ export default function DashboardPage() {
   )
   const streaks = useMemo(() => computeStreaks(dbPredictions, matches), [dbPredictions, matches])
 
-  const upcoming = useMemo(
-    () =>
-      matches
-        .filter(m => m.status === 'scheduled')
-        .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime()),
-    [matches]
-  )
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(id)
+  }, [])
 
-  const nextMatch = upcoming[0] ?? null
+  const nextResolved = useMemo(() => resolveNextMatchForHome(matches, now), [matches, now])
+  const nextMatch = nextResolved.predictMatch
+  const featuredMatch = nextResolved.featuredMatch
 
   const { cards: liveCards } = useWorldCupLiveInsights({
     matches,
@@ -80,24 +82,24 @@ export default function DashboardPage() {
     rank: meLeaderboard?.rank ?? null,
   })
 
-  const [now, setNow] = useState(() => Date.now())
-  useEffect(() => {
-    if (!nextMatch) return
-    const id = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [nextMatch?.id, nextMatch?.kickoff])
+  const countdown = useMemo(
+    () => buildMatchCountdown(nextResolved.countdownMatch, now),
+    [nextResolved.countdownMatch, now],
+  )
 
-  const countdown = useMemo(() => {
-    if (!nextMatch) return undefined
-    const diff = new Date(nextMatch.kickoff).getTime() - now
-    if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
-    return {
-      days: Math.floor(diff / 86400000),
-      hours: Math.floor((diff % 86400000) / 3600000),
-      minutes: Math.floor((diff % 3600000) / 60000),
-      seconds: Math.floor((diff % 60000) / 1000),
-    }
-  }, [nextMatch, now])
+  const countdownHint =
+    nextResolved.phase === 'starting_soon' && !countdown
+      ? '¡Arranca pronto!'
+      : nextResolved.phase === 'live' && !countdown
+        ? 'Partido en curso'
+        : undefined
+
+  const liveCardsResolved = useMemo(() => {
+    if (!featuredMatch) return liveCards
+    return liveCards.map(card =>
+      card.type === 'next_match' ? { ...card, match: featuredMatch } : card,
+    )
+  }, [liveCards, featuredMatch])
 
   const openPredict = (match: Match) => {
     if (!currentUserId) {
@@ -132,6 +134,7 @@ export default function DashboardPage() {
           <WorldCupHero
             variant="mobile"
             countdown={countdown}
+            countdownHint={countdownHint}
             onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
             hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
           />
@@ -139,7 +142,7 @@ export default function DashboardPage() {
           <div className="wc26-content-sheet wc26-content-sheet--home mt-1 px-3 pb-3 pt-5">
             {ENABLE_LIVE_INSIGHTS && (
               <WorldCupLiveCarousel
-                cards={liveCards}
+                cards={liveCardsResolved}
                 onPredict={openPredict}
               />
             )}
@@ -179,17 +182,19 @@ export default function DashboardPage() {
         <WorldCupHero
           variant="desktop"
           countdown={countdown}
+          countdownHint={countdownHint}
           hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
           onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
           onFixture={() => navigate('/matches')}
         />
 
         {ENABLE_LIVE_INSIGHTS && (
-          <WorldCupLiveCarousel cards={liveCards} onPredict={openPredict} />
+          <WorldCupLiveCarousel cards={liveCardsResolved} onPredict={openPredict} />
         )}
 
         <HomeNextMatchCard
-          match={nextMatch}
+          match={featuredMatch}
+          phase={nextResolved.phase}
           hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
           onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
         />

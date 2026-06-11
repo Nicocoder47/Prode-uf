@@ -456,6 +456,12 @@ export async function adminRecalculateLeaderboard() {
   return data as { ok: boolean }
 }
 
+export async function adminRebuildLeaderboardFromPredictions() {
+  const { data, error } = await supabase.rpc('admin_rebuild_leaderboard_from_predictions')
+  requireRpc(error, '290')
+  return data as { ok: boolean; users_rebuilt: number; rows_removed: number }
+}
+
 export async function adminScoreRound(round: string) {
   const { data, error } = await supabase.rpc('admin_score_round', { p_round: round })
   requireRpc(error, '270')

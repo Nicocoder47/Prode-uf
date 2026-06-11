@@ -1,5 +1,5 @@
 import type { GroupProgress, OverallProgress } from './predictionProgress'
-import { getNextRewardMilestone, getRecommendedGroup } from './predictionProgress'
+import { getNextRewardMilestone, getRecommendedGroup, resolveNextMatchForHome } from './predictionProgress'
 import type { LeaderboardEntry, Match, Player, TopScorer } from '../types/worldcup'
 import type { LiveMatchStatRow } from '../services/worldcup/worldCupService'
 
@@ -323,18 +323,20 @@ function findPopularMatch(
 }
 
 function resolveNextMatch(matches: Match[], now: number): NextMatchInsight | null {
-  const upcoming = matches
-    .filter(m => m.status === 'scheduled' && m.homeTeam && m.awayTeam)
-    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
-  const next = upcoming[0]
+  const resolved = resolveNextMatchForHome(matches, now)
+  const next = resolved.featuredMatch
   if (next?.homeTeam && next.awayTeam) {
+    const countdownLabel =
+      resolved.phase === 'live'
+        ? 'En vivo'
+        : formatCountdownLabel(next.kickoff, now)
     return {
       id: 'next-match',
       type: 'next_match',
       emoji: '⚽',
       title: 'Próximo partido',
       match: next,
-      countdownLabel: formatCountdownLabel(next.kickoff, now),
+      countdownLabel,
       cta: { label: 'Predecir ahora', action: 'predict' },
     }
   }

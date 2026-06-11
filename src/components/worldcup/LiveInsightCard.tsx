@@ -1,8 +1,9 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import { TeamCrest } from './TeamCrest'
-import type { WorldCupLiveInsightPayload } from '../../utils/worldCupLiveInsights'
+import { formatCountdownLabel, type WorldCupLiveInsightPayload } from '../../utils/worldCupLiveInsights'
 import type { Match } from '../../types/worldcup'
 
 type LiveInsightCardProps = {
@@ -92,6 +93,41 @@ function TrendBars({
   )
 }
 
+function NextMatchCardBody({
+  card,
+  onAction,
+}: {
+  card: Extract<WorldCupLiveInsightPayload, { type: 'next_match' }>
+  onAction: (card: WorldCupLiveInsightPayload) => void
+}) {
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(id)
+  }, [card.match.id, card.match.kickoff])
+
+  const { time, date } = fmtKickoff(card.match.kickoff)
+  const isLive = card.match.status === 'live' || card.match.status === 'halftime'
+  const highlight = isLive ? 'En vivo' : formatCountdownLabel(card.match.kickoff, now)
+
+  return (
+    <>
+      <MatchFlags match={card.match} />
+      <p className="wc26-live-card__highlight">{highlight}</p>
+      <p className="wc26-live-card__meta">
+        {time} · {date}
+      </p>
+      {card.cta ? (
+        <button type="button" className="wc26-live-card__cta" onClick={() => onAction(card)}>
+          {card.cta.label}
+          <ArrowRight className="h-3.5 w-3.5" />
+        </button>
+      ) : null}
+    </>
+  )
+}
+
 function CardBody({
   card,
   onAction,
@@ -100,24 +136,8 @@ function CardBody({
   onAction: (card: WorldCupLiveInsightPayload) => void
 }) {
   switch (card.type) {
-    case 'next_match': {
-      const { time, date } = fmtKickoff(card.match.kickoff)
-      return (
-        <>
-          <MatchFlags match={card.match} />
-          <p className="wc26-live-card__highlight">{card.countdownLabel}</p>
-          <p className="wc26-live-card__meta">
-            {time} · {date}
-          </p>
-          {card.cta ? (
-            <button type="button" className="wc26-live-card__cta" onClick={() => onAction(card)}>
-              {card.cta.label}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          ) : null}
-        </>
-      )
-    }
+    case 'next_match':
+      return <NextMatchCardBody card={card} onAction={onAction} />
     case 'community_trend': {
       const home = card.match.homeTeam?.name?.split(' ').pop() ?? 'Local'
       const away = card.match.awayTeam?.name?.split(' ').pop() ?? 'Visitante'

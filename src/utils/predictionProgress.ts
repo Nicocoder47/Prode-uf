@@ -361,13 +361,82 @@ export function formatPredictionClose(date: Date): string {
   }).replace('.', '').toUpperCase()
 }
 
+function kickoffMs(match: Match): number {
+  return new Date(match.kickoff).getTime()
+}
+
+export type NextMatchPhase = 'countdown' | 'starting_soon' | 'live' | 'none'
+
+/** Próximo partido para home: countdown al futuro; card puede mostrar en vivo o arranca pronto. */
+export function resolveNextMatchForHome(matches: Match[], now = Date.now()) {
+  const withTeams = matches.filter(m => m.homeTeam && m.awayTeam)
+
+  const futureScheduled = withTeams
+    .filter(m => m.status === 'scheduled' && kickoffMs(m) > now)
+    .sort((a, b) => kickoffMs(a) - kickoffMs(b))
+
+  const overdueScheduled = withTeams
+    .filter(m => m.status === 'scheduled' && kickoffMs(m) <= now)
+    .sort((a, b) => kickoffMs(a) - kickoffMs(b))
+
+  const live = withTeams.find(m => m.status === 'live' || m.status === 'halftime')
+
+  const countdownMatch = futureScheduled[0] ?? null
+
+  if (live) {
+    return {
+      countdownMatch,
+      featuredMatch: live,
+      predictMatch: countdownMatch ?? live,
+      phase: 'live' as NextMatchPhase,
+    }
+  }
+
+  if (overdueScheduled[0]) {
+    return {
+      countdownMatch,
+      featuredMatch: overdueScheduled[0],
+      predictMatch: countdownMatch ?? overdueScheduled[0],
+      phase: 'starting_soon' as NextMatchPhase,
+    }
+  }
+
+  if (countdownMatch) {
+    return {
+      countdownMatch,
+      featuredMatch: countdownMatch,
+      predictMatch: countdownMatch,
+      phase: 'countdown' as NextMatchPhase,
+    }
+  }
+
+  return {
+    countdownMatch: null,
+    featuredMatch: null,
+    predictMatch: null,
+    phase: 'none' as NextMatchPhase,
+  }
+}
+
+export function buildMatchCountdown(match: Match | null, now = Date.now()) {
+  if (!match) return undefined
+  const diff = kickoffMs(match) - now
+  if (diff <= 0) return undefined
+  return {
+    days: Math.floor(diff / 86_400_000),
+    hours: Math.floor((diff % 86_400_000) / 3_600_000),
+    minutes: Math.floor((diff % 3_600_000) / 60_000),
+    seconds: Math.floor((diff % 60_000) / 1000),
+  }
+}
+
 export function getDaysUntilNextMatch(matches: Match[]): number | null {
   const now = Date.now()
   const next = matches
-    .filter(m => m.status === 'scheduled' && new Date(m.kickoff).getTime() > now)
-    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())[0]
+    .filter(m => m.status === 'scheduled' && kickoffMs(m) > now)
+    .sort((a, b) => kickoffMs(a) - kickoffMs(b))[0]
   if (!next) return null
-  const diff = new Date(next.kickoff).getTime() - now
+  const diff = kickoffMs(next) - now
   return Math.max(0, Math.ceil(diff / 86_400_000))
 }
 

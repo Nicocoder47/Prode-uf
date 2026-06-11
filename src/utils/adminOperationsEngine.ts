@@ -287,6 +287,25 @@ export function buildOperationalAlerts(input: {
     })
   }
 
+  const stalePending =
+    input.scoring?.stale_pending_scoring?.count ??
+    input.scoring?.summary.stale_pending_scoring ??
+    0
+  if (stalePending > 0) {
+    alerts.push({
+      id: 'stale-pending-scoring',
+      severity: 'critical',
+      title: `${stalePending} partido(s) sin puntuar hace más de 5 min`,
+      description: 'Partidos finalizados con marcador completo y scored_at vacío.',
+      cause: 'El trigger de scoring no corrió o falló el sync de resultados.',
+      impact: 'Los usuarios no reciben puntos hasta intervención manual.',
+      suggestedAction: 'Puntuar desde Scoring Center o verificar worker live.',
+      actionTo: '/admin/scoring',
+      actionLabel: 'Ir a scoring',
+      timestamp: now,
+    })
+  }
+
   const review = input.dashboard?.users_review_required ?? 0
   if (review > 0) {
     alerts.push({

@@ -267,16 +267,34 @@ export interface AdminScoringMatchRow {
   scoring_status: 'pending_scoring' | 'scored' | 'live' | 'scheduled' | string
 }
 
+export interface AdminStalePendingScoring {
+  count: number
+  cases: {
+    match_id: string
+    status: string
+    score_home: number
+    score_away: number
+    kick_off: string | null
+    updated_at: string
+    stale_minutes: number
+    home_team: string | null
+    away_team: string | null
+    predictions_total: number
+  }[]
+}
+
 export interface AdminScoringCenter {
   last_score_at: string | null
   last_rescore_at: string | null
   orphan_scored?: AdminOrphanScored
+  stale_pending_scoring?: AdminStalePendingScoring
   summary: {
     pending_scoring: number
     scored: number
     live: number
     scheduled: number
     errors: number
+    stale_pending_scoring?: number
   }
   matches: AdminScoringMatchRow[]
 }

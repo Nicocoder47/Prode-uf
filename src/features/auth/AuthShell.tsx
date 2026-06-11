@@ -42,6 +42,7 @@ export function AuthShell({ children }: AuthShellProps) {
           muted
           playsInline
           preload="auto"
+          poster="/fondo-jugar.png"
         >
           <source src="/videosec.mp4" type="video/mp4" />
         </video>

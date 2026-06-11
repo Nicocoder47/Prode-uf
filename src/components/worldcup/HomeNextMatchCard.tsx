@@ -5,19 +5,17 @@ import { CalendarDays } from 'lucide-react'
 import { MOTION } from '../../constants/design'
 
 import type { Match } from '../../types/worldcup'
+import type { NextMatchPhase } from '../../utils/predictionProgress'
 
 import { TeamCrest } from './TeamCrest'
 
 
 
 type HomeNextMatchCardProps = {
-
   match: Match | null
-
+  phase?: NextMatchPhase
   hasPrediction?: boolean
-
   onPredict: () => void
-
 }
 
 
@@ -38,7 +36,13 @@ function fmtDate(iso: string) {
 
 
 
-export function HomeNextMatchCard({ match, hasPrediction, onPredict }: HomeNextMatchCardProps) {
+function phaseLabel(phase?: NextMatchPhase) {
+  if (phase === 'live') return 'En vivo ahora'
+  if (phase === 'starting_soon') return '¡Arranca pronto!'
+  return null
+}
+
+export function HomeNextMatchCard({ match, phase, hasPrediction, onPredict }: HomeNextMatchCardProps) {
 
   if (!match?.homeTeam || !match.awayTeam) {
 
@@ -57,19 +61,15 @@ export function HomeNextMatchCard({ match, hasPrediction, onPredict }: HomeNextM
 
 
   const home = match.homeTeam
-
   const away = match.awayTeam
-
-
+  const statusLabel = phaseLabel(phase)
 
   return (
 
     <motion.section {...MOTION.enter} className="wc26-next-match-hero mx-auto w-full">
 
       <p className="mb-4 text-center text-[11px] font-extrabold uppercase tracking-[0.2em] text-wc26-yellow">
-
-        Próximo partido para predecir
-
+        {statusLabel ?? 'Próximo partido para predecir'}
       </p>
 
 

@@ -8,7 +8,7 @@ import { AuthField, AuthShell } from './AuthShell.tsx'
 
 export default function ChangePasswordPage() {
   const navigate = useNavigate()
-  const { profile, user } = useAuth()
+  const { profile, user, loading, refreshProfile } = useAuth()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -38,12 +38,21 @@ export default function ChangePasswordPage() {
       const { error: authErr } = await supabase.auth.updateUser({ password })
       if (authErr) throw authErr
       await completePasswordChange()
+      await refreshProfile()
       navigate('/', { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo actualizar la contraseña.')
     } finally {
       setBusy(false)
     }
+  }
+
+  if (loading && !profile) {
+    return (
+      <AuthShell>
+        <p className="wc26-login-muted text-sm">Cargando tu cuenta…</p>
+      </AuthShell>
+    )
   }
 
   return (

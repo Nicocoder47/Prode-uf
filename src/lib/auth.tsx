@@ -57,6 +57,7 @@ interface AuthContextValue {
   register: (input: AccessRegistrationInput) => Promise<AuthStepResult>
   login: (email: string, dni: string) => Promise<AuthStepResult>
   finalizeSessionProfile: (session: Session) => Promise<AuthStepResult | null>
+  refreshProfile: () => Promise<void>
   signOut: () => Promise<void>
   devSignIn?: () => void
 }
@@ -74,6 +75,56 @@ function mapProfileSyncError(message: string): string {
   if (message.includes('legajo_inactive')) return mapRegistrationError('legajo_inactive')
   if (message.includes('dni_mismatch')) return mapRegistrationError('dni_mismatch')
   return message
+}
+
+const PROFILE_SELECT =
+  'id, email, full_name, dni, legajo, domain_plate, role, token_balance, is_active, deleted_at, last_login_at, must_change_password, is_blocked'
+
+async function fetchProfileRow(userId: string): Promise<Profile | null> {
+  let { data, error } = await supabase.from('profiles').select(PROFILE_SELECT).eq('id', userId).single()
+
+  if (error?.message.includes('deleted_at')) {
+    const fallback = await supabase
+      .from('profiles')
+      .select('id, email, full_name, dni, legajo, domain_plate, role, token_balance, is_active')
+      .eq('id', userId)
+      .single()
+    data = fallback.data as typeof data
+    error = fallback.error
+  }
+
+  if (error || !data) return null
+
+  if ('deleted_at' in data && (data.deleted_at || data.is_active === false)) {
+    await supabase.auth.signOut()
+    return null
+  }
+  if (data.is_active === false) {
+    await supabase.auth.signOut()
+    return null
+  }
+
+  return data as Profile
+}
+
+/** Solo DEV: la cuenta dev@local no debe bloquear pruebas locales. */
+async function maybeSkipDevPasswordChange(userId: string, email: string | undefined): Promise<void> {
+  if (!import.meta.env.DEV) return
+
+  const devEnabled =
+    import.meta.env.VITE_DEV_ADMIN === 'true' || !!import.meta.env.VITE_DEV_ADMIN_EMAIL
+  if (!devEnabled) return
+
+  const devEmail = (import.meta.env.VITE_DEV_ADMIN_EMAIL ?? 'dev@local').trim().toLowerCase()
+  if ((email ?? '').trim().toLowerCase() !== devEmail) return
+
+  const prof = await fetchProfileRow(userId)
+  if (!prof?.must_change_password) return
+
+  const { error } = await supabase.rpc('complete_password_change')
+  if (error) {
+    console.warn('[DEV_ADMIN] No se pudo omitir cambio de contraseña:', error.message)
+  }
 }
 
 async function assertAccountActive(userId: string): Promise<AuthStepResult | null> {
@@ -254,7 +305,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.warn('[DEV_ADMIN] No se pudo autenticar en Supabase:', error.message)
       return null
     }
-    return data.session
+    const session = data.session
+    if (session?.user?.id) {
+      await maybeSkipDevPasswordChange(session.user.id, session.user.email)
+    }
+    return session
   }
 
   useEffect(() => {
@@ -282,6 +337,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.session) {
         try {
           await finalizePendingRegistration(data.session)
+          if (DEV_ADMIN && import.meta.env.DEV) {
+            await maybeSkipDevPasswordChange(data.session.user.id, data.session.user.email)
+          }
         } catch (err) {
           console.warn('[auth] sync profile:', err)
         }
@@ -321,35 +379,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true
 
     async function fetchProfile() {
-      let { data, error } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, dni, legajo, domain_plate, role, token_balance, is_active, deleted_at, last_login_at, must_change_password, is_blocked')
-        .eq('id', user.id)
-        .single()
-
-      if (error?.message.includes('deleted_at')) {
-        const fallback = await supabase
-          .from('profiles')
-          .select('id, email, full_name, dni, legajo, domain_plate, role, token_balance, is_active')
-          .eq('id', user.id)
-          .single()
-        data = fallback.data as typeof data
-        error = fallback.error
+      if (DEV_ADMIN && import.meta.env.DEV) {
+        await maybeSkipDevPasswordChange(user.id, user.email)
       }
-
-      if (mounted && !error && data) {
-        if ('deleted_at' in data && (data.deleted_at || data.is_active === false)) {
-          await supabase.auth.signOut()
-          setProfile(null)
-          return
-        }
-        if (data.is_active === false) {
-          await supabase.auth.signOut()
-          setProfile(null)
-          return
-        }
-        setProfile(data as Profile)
-      }
+      const data = await fetchProfileRow(user.id)
+      if (mounted) setProfile(data)
     }
 
     fetchProfile()
@@ -529,6 +563,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const refreshProfile = async () => {
+    if (!user?.id) {
+      setProfile(null)
+      return
+    }
+    const data = await fetchProfileRow(user.id)
+    setProfile(data)
+  }
+
   const value = useMemo(
     () => ({
       session,
@@ -538,6 +581,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       register,
       login,
       finalizeSessionProfile,
+      refreshProfile,
       signOut,
       devSignIn: import.meta.env.DEV && DEV_ADMIN ? devSignIn : undefined,
     }),

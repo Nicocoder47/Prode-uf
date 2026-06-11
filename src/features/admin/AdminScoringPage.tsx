@@ -8,6 +8,7 @@ import { AdminStatusLight, scoringStatusLight } from '../../components/admin/Adm
 import { useAppToast } from '../../components/ui/ToastProvider.tsx'
 import { useAdminScoringCenter, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
 import {
+  adminRebuildLeaderboardFromPredictions,
   adminRecalculateLeaderboard,
   adminRescoreMatch,
   adminScoreMatch,
@@ -22,7 +23,7 @@ function formatDate(v: string | null | undefined) {
 
 export default function AdminScoringPage() {
   const { data, isLoading, error, refetch } = useAdminScoringCenter()
-  const { invalidateDashboard } = useInvalidateAdmin()
+  const { invalidateAfterScoring, invalidateAfterRebuild } = useInvalidateAdmin()
   const { showToast } = useAppToast()
   const [busy, setBusy] = useState<string | null>(null)
   const [filter, setFilter] = useState('')
@@ -30,7 +31,9 @@ export default function AdminScoringPage() {
   const [showOrphanCases, setShowOrphanCases] = useState(false)
   const [confirmLeaderboard, setConfirmLeaderboard] = useState(false)
   const [confirmRound, setConfirmRound] = useState(false)
+  const [confirmRebuild, setConfirmRebuild] = useState(false)
   const [confirmPhrase, setConfirmPhrase] = useState('')
+  const [rebuildPhrase, setRebuildPhrase] = useState('')
 
   const canScore = (status: string) => status === 'finished'
   const scoreDisabledTitle = 'Solo partidos finalizados'
@@ -72,9 +75,23 @@ export default function AdminScoringPage() {
       await action()
       showToast(`${label} ejecutado`)
       await refetch()
-      invalidateDashboard()
+      invalidateAfterScoring()
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Error')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function runRebuildLeaderboard() {
+    setBusy('rebuild-leaderboard')
+    try {
+      await adminRebuildLeaderboardFromPredictions()
+      showToast('Leaderboard reconstruido correctamente')
+      await refetch()
+      invalidateAfterRebuild()
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'No se pudo reconstruir el leaderboard')
     } finally {
       setBusy(null)
     }
@@ -160,6 +177,20 @@ export default function AdminScoringPage() {
                 Recalcular jornada
               </PremiumButton>
             </div>
+          </PremiumCard>
+
+          <PremiumCard title="Mantenimiento avanzado" description="Recuperación manual — solo si hay desincronización entre leaderboard y predicciones">
+            <p className="mb-3 text-xs text-white/55">
+              Reconstruye los puntos totales del ranking desde las predicciones ya puntuadas. No ejecuta scoring ni modifica partidos.
+            </p>
+            <PremiumButton
+              size="sm"
+              variant="ghost"
+              disabled={!!busy}
+              onClick={() => setConfirmRebuild(true)}
+            >
+              {busy === 'rebuild-leaderboard' ? 'Reconstruyendo…' : 'Reconstruir leaderboard'}
+            </PremiumButton>
           </PremiumCard>
         </>
       )}
@@ -278,6 +309,33 @@ export default function AdminScoringPage() {
           run('Recalcular leaderboard', adminRecalculateLeaderboard).finally(() => {
             setConfirmLeaderboard(false)
             setConfirmPhrase('')
+          })
+        }}
+      />
+
+      <AdminConfirmModal
+        open={confirmRebuild}
+        title="Reconstruir leaderboard"
+        description={
+          <p>
+            Esta acción reconstruye los puntos del leaderboard desde las predicciones ya puntuadas.
+            No modifica predicciones, resultados ni reglas de puntaje.
+          </p>
+        }
+        confirmLabel="Reconstruir leaderboard"
+        confirmPhrase="RECONSTRUIR"
+        confirmValue={rebuildPhrase}
+        onConfirmValueChange={setRebuildPhrase}
+        reversible={false}
+        busy={busy === 'rebuild-leaderboard'}
+        onCancel={() => {
+          setConfirmRebuild(false)
+          setRebuildPhrase('')
+        }}
+        onConfirm={() => {
+          void runRebuildLeaderboard().finally(() => {
+            setConfirmRebuild(false)
+            setRebuildPhrase('')
           })
         }}
       />

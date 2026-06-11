@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { worldCupKeys } from '../useWorldCupData'
 import {
   fetchAdminActivityLogs,
   fetchAdminCardsManage,
@@ -182,8 +183,31 @@ export function useInvalidateAdmin() {
     invalidateBetaCapacity: () => queryClient.invalidateQueries({ queryKey: adminKeys.betaCapacity() }),
     invalidateUserDetail: (id: string) =>
       queryClient.invalidateQueries({ queryKey: adminKeys.userDetail(id) }),
+    invalidateUserDetails: () =>
+      queryClient.invalidateQueries({ queryKey: [...adminKeys.all, 'user'] }),
     invalidateNotifications: () => queryClient.invalidateQueries({ queryKey: adminKeys.notifications() }),
     invalidateCards: () => queryClient.invalidateQueries({ queryKey: adminKeys.cards() }),
     invalidateActivity: () => queryClient.invalidateQueries({ queryKey: adminKeys.activity('') }),
+    invalidateLeaderboard: () =>
+      queryClient.invalidateQueries({ queryKey: worldCupKeys.leaderboard() }),
+    invalidateAllPredictions: () =>
+      queryClient.invalidateQueries({ queryKey: [...worldCupKeys.all, 'predictions'] }),
+    invalidateScoringCenter: () =>
+      queryClient.invalidateQueries({ queryKey: adminKeys.scoringCenter() }),
+    invalidateAfterScoring: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() })
+      queryClient.invalidateQueries({ queryKey: adminKeys.users() })
+      queryClient.invalidateQueries({ queryKey: [...adminKeys.all, 'user'] })
+      queryClient.invalidateQueries({ queryKey: worldCupKeys.leaderboard() })
+      queryClient.invalidateQueries({ queryKey: [...worldCupKeys.all, 'predictions'] })
+    },
+    invalidateAfterRebuild: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() })
+      queryClient.invalidateQueries({ queryKey: adminKeys.users() })
+      queryClient.invalidateQueries({ queryKey: [...adminKeys.all, 'user'] })
+      queryClient.invalidateQueries({ queryKey: worldCupKeys.leaderboard() })
+      queryClient.invalidateQueries({ queryKey: [...worldCupKeys.all, 'predictions'] })
+      queryClient.invalidateQueries({ queryKey: adminKeys.scoringCenter() })
+    },
   }
 }

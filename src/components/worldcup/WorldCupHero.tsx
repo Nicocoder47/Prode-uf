@@ -10,6 +10,7 @@ interface WorldCupHeroProps {
     minutes: number
     seconds: number
   }
+  countdownHint?: string
   onPredict?: () => void
   onFixture?: () => void
   hasPrediction?: boolean
@@ -46,9 +47,37 @@ function CountdownUnits({ countdown, compact }: { countdown: NonNullable<WorldCu
   )
 }
 
+function CountdownBlock({
+  countdown,
+  countdownHint,
+  title,
+  compact,
+}: {
+  countdown?: WorldCupHeroProps['countdown']
+  countdownHint?: string
+  title: string
+  compact?: boolean
+}) {
+  if (!countdown && !countdownHint) return null
+
+  return (
+    <div className={`wc26-countdown-panel${compact ? '' : ' wc26-countdown-panel--desktop'}`}>
+      <p className="wc26-countdown-title mb-3 text-center">{title}</p>
+      {countdown ? (
+        <CountdownUnits countdown={countdown} compact={compact} />
+      ) : (
+        <p className="text-center text-lg font-black uppercase tracking-wide text-[#F8B91E]">
+          {countdownHint}
+        </p>
+      )}
+    </div>
+  )
+}
+
 export function WorldCupHero({
   variant = 'mobile',
   countdown,
+  countdownHint,
   onPredict,
   onFixture,
   hasPrediction,
@@ -71,12 +100,11 @@ export function WorldCupHero({
               <p className="mt-1 text-base font-medium text-[#F4F7FA]/80">Viví el Mundial. Jugá el Prode.</p>
             </div>
           </div>
-          {countdown && (
-            <div className="wc26-countdown-panel wc26-countdown-panel--desktop">
-              <p className="wc26-countdown-title mb-3 text-center">Próximo partido</p>
-              <CountdownUnits countdown={countdown} />
-            </div>
-          )}
+          <CountdownBlock
+            countdown={countdown}
+            countdownHint={countdownHint}
+            title="Próximo partido"
+          />
           <div className="flex gap-3">
             <motion.button
               type="button"
@@ -121,10 +149,14 @@ export function WorldCupHero({
           <TrophyIllustration variant="hero" />
         </div>
 
-        {countdown && (
-          <motion.div {...MOTION.fadeIn} className="wc26-countdown-panel mx-auto w-full max-w-[22rem]">
-            <p className="wc26-countdown-title mb-3 text-center">Falta para el próximo partido</p>
-            <CountdownUnits countdown={countdown} compact />
+        {(countdown || countdownHint) && (
+          <motion.div {...MOTION.fadeIn} className="mx-auto w-full max-w-[22rem]">
+            <CountdownBlock
+              countdown={countdown}
+              countdownHint={countdownHint}
+              title="Falta para el próximo partido"
+              compact
+            />
           </motion.div>
         )}
 
