@@ -174,8 +174,10 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 .wc26-screen {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   isolation: isolate;
   background: transparent;
+  overflow-x: hidden;
 }
 
 .wc26-screen > * {
@@ -1046,13 +1048,22 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   min-height: 100dvh;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 0.65rem 0.85rem max(0.85rem, env(safe-area-inset-bottom));
+  justify-content: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding:
+    max(0.5rem, env(safe-area-inset-top))
+    max(0.75rem, env(safe-area-inset-right))
+    calc(5rem + env(safe-area-inset-bottom))
+    max(0.75rem, env(safe-area-inset-left));
 }
 
 @media (min-width: 768px) {
   .wc26-login-page__layout {
-    padding: 2.5rem 1.5rem;
+    justify-content: center;
+    overflow-y: visible;
+    padding: 2.5rem 1.5rem max(1.25rem, env(safe-area-inset-bottom));
   }
 }
 
@@ -1065,8 +1076,30 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
 }
 
 .wc26-login-panel__brand .wc26-brand-logo {
-  width: 5.5rem;
-  height: 5.5rem;
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+@media (min-width: 768px) {
+  .wc26-login-panel__brand .wc26-brand-logo {
+    width: 5.5rem;
+    height: 5.5rem;
+  }
+}
+
+@media (max-height: 740px) {
+  .wc26-login-panel__brand {
+    margin-bottom: 0.5rem;
+  }
+
+  .wc26-login-panel__brand .wc26-brand-logo {
+    width: 3.75rem;
+    height: 3.75rem;
+  }
+
+  .wc26-login-page .wc26-login-panel {
+    padding: 0.7rem 0.75rem;
+  }
 }
 
 .wc26-login-panel__kicker {
@@ -1270,9 +1303,15 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   background: rgba(255, 255, 255, 0.04);
   color: #ffffff;
   padding: 0.62rem 0.85rem;
-  font-size: 0.92rem;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.03em;
+}
+
+@media (min-width: 768px) {
+  .wc26-login-page .wc26-login-input {
+    font-size: 0.92rem;
+  }
 }
 
 .wc26-login-page .wc26-login-input::placeholder {
