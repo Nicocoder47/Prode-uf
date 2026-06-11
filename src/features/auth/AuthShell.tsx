@@ -57,31 +57,8 @@ export function AuthShell({ children }: AuthShellProps) {
             {children}
           </div>
         </section>
-        <AuthCompatibilityNotice />
       </div>
     </div>
-  )
-}
-
-export function AuthCompatibilityNotice() {
-  return (
-    <aside className="wc26-login-compat" aria-label="Aviso importante de compatibilidad">
-      <p className="wc26-login-compat__title">Aviso importante</p>
-      <p className="wc26-login-compat__intro">
-        PRODEMUNDIAL 2026 utiliza tecnologias modernas para ofrecer resultados reales, rankings
-        actualizados y estadisticas del Mundial.
-      </p>
-      <p className="wc26-login-compat__detail wc26-login-compat__detail--full">
-        Para una experiencia optima recomendamos utilizar{' '}
-        <strong>Android 13 o superior</strong>, <strong>iPhone con iOS 16 o superior</strong>,{' '}
-        <strong>Windows 10 o superior</strong>, <strong>macOS 12 o superior</strong> y las ultimas
-        versiones de Chrome, Safari, Edge o Firefox.
-      </p>
-      <p className="wc26-login-compat__detail wc26-login-compat__detail--short">
-        Recomendamos <strong>Android 13+</strong>, <strong>iOS 16+</strong>, <strong>Windows 10+</strong>,{' '}
-        <strong>macOS 12+</strong> y Chrome, Safari, Edge o Firefox actualizados.
-      </p>
-    </aside>
   )
 }
 

@@ -28,13 +28,7 @@ function InstagramIcon() {
 }
 
 function isLoginRoute(pathname: string) {
-  return (
-    pathname === '/login' ||
-    pathname === '/registro' ||
-    pathname === '/register' ||
-    pathname === '/invite' ||
-    pathname === '/change-password'
-  )
+  return pathname === '/login' || pathname === '/registro' || pathname === '/register' || pathname === '/invite'
 }
 
 export function SocialContactBar() {
