@@ -3,7 +3,7 @@ import { AdminOrphanScoredAlert } from '../../components/admin/AdminOrphanScored
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
 import { AdminStatusLight } from '../../components/admin/AdminStatusLight.tsx'
 import { OperationalServiceCard } from '../../components/admin/enterprise'
-import { useAdminSystemHealth } from '../../hooks/useAdminQueries.ts'
+import { useAdminMatchSyncHealth, useAdminSystemHealth } from '../../hooks/useAdminQueries.ts'
 import { enrichHealthServices } from '../../utils/adminOperationsEngine.ts'
 import { AdminHealthSemaphore } from '../../components/admin/mobile/AdminHealthSemaphore.tsx'
 import { Link } from 'react-router-dom'
@@ -16,7 +16,12 @@ function formatDate(v: string | null | undefined) {
 
 export default function AdminSystemHealthPage() {
   const { data, isLoading, error } = useAdminSystemHealth()
+  const { data: matchSync } = useAdminMatchSyncHealth()
   const [showOrphanCases, setShowOrphanCases] = useState(false)
+
+  const todayStale =
+    !matchSync?.last_today_results ||
+    (matchSync.minutes_since_today_results != null && matchSync.minutes_since_today_results > 20)
 
   const services = useMemo(() => (data ? enrichHealthServices(data) : []), [data])
 
@@ -51,6 +56,21 @@ export default function AdminSystemHealthPage() {
       )}
 
       <AdminHealthSemaphore status={overall} redCount={redCount} yellowCount={yellowCount} />
+
+      {todayStale && (
+        <PremiumCard variant="dark" className="border border-amber-500/40">
+          <p className="text-sm font-medium text-amber-200">
+            Sync de resultados detenido o desactualizado.
+            {matchSync?.last_today_results
+              ? ` Último today_results: hace ${matchSync.minutes_since_today_results ?? '?'} minutos.`
+              : ' Sin registros today_results en data_sync_logs.'}
+          </p>
+          <p className="mt-1 text-xs text-white/55">
+            Verificar GitHub Actions sync-live, secrets FOOTBALL_DATA_API_KEY y edge function
+            sync-today-results.
+          </p>
+        </PremiumCard>
+      )}
 
       <div className="hidden justify-end md:flex">
         <Link to="/admin/operations">

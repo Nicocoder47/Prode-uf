@@ -1,5 +1,5 @@
 /**
- * Sync de partidos en vivo / resultados — una ejecución (GitHub Actions cada 10–15 min).
+ * Sync de partidos en vivo / resultados — una ejecución (GitHub Actions cada 10 min).
  * npm run sync:live
  */
 import { loadCloudEnv } from './lib/loadCloudEnv.js';
@@ -20,16 +20,39 @@ async function main() {
     process.exit(1);
   }
   if (/localhost|127\.0\.0\.1|:54321/.test(process.env.SUPABASE_URL)) {
-    console.error('SUPABASE_URL apunta a local — usar cloud en CI/producción');
+    console.error('SUPABASE_URL apunta a local — usar cloud en producción');
     process.exit(1);
   }
 
+  const providerHint = process.env.FOOTBALL_DATA_API_KEY?.trim()
+    ? 'football-data.org (prioridad)'
+    : 'api-football';
+
+  console.log('[SYNC:live] Inicio', {
+    supabase: process.env.SUPABASE_URL.replace(/https?:\/\//, '').split('.')[0],
+    provider: providerHint,
+    apiFootball: Boolean(process.env.API_FOOTBALL_KEY?.trim()),
+    at: new Date().toISOString(),
+  });
+
   const result = await runLiveSyncCycle();
+
+  console.log('[SYNC:live] Resumen', {
+    ok: result.ok,
+    provider: result.primaryProvider,
+    liveMatchesUpserted: result.liveMatchesUpserted,
+    todayResultsFetched: result.todayResultsFetched,
+    todayResultsUpserted: result.todayResultsUpserted,
+    liveBundlesProcessed: result.liveBundlesProcessed,
+    errors: result.errors,
+    durationMs: result.durationMs,
+  });
+
   console.log(JSON.stringify(result, null, 2));
   process.exit(result.ok ? 0 : 1);
 }
 
 main().catch(err => {
-  console.error(err instanceof Error ? err.message : err);
+  console.error('[SYNC:live] Fatal:', err instanceof Error ? err.message : err);
   process.exit(1);
 });

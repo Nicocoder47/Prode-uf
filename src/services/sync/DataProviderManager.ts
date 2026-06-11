@@ -8,6 +8,7 @@ export interface SportsDataProviderAdapter {
   syncFixtures(): Promise<unknown[]>;
   syncStandings(): Promise<unknown[]>;
   syncLiveMatches?(): Promise<unknown[]>;
+  syncTodayMatchResults?(): Promise<unknown[]>;
 }
 
 function footballDataAdapter(): SportsDataProviderAdapter {
@@ -29,6 +30,9 @@ function footballDataAdapter(): SportsDataProviderAdapter {
     async syncLiveMatches() {
       return FootballDataProvider.syncLiveMatches();
     },
+    async syncTodayMatchResults() {
+      return FootballDataProvider.syncTodayMatchResults();
+    },
   };
 }
 
@@ -49,6 +53,9 @@ function apiFootballAdapter(): SportsDataProviderAdapter {
     },
     async syncLiveMatches() {
       return ApiFootballProvider.syncLiveMatches();
+    },
+    async syncTodayMatchResults() {
+      return ApiFootballProvider.syncTodayMatchResults();
     },
   };
 }

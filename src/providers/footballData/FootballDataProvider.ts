@@ -1,6 +1,7 @@
 import axios, { type AxiosError } from 'axios';
 import { supabase } from '../../database/supabaseClient';
 import { TBD_TEAM_ID } from '../../constants/knockoutBracket';
+import { todayInArgentina } from '../../utils/matchDay';
 import {
   FOOTBALL_DATA_PROVIDER,
   normalizeFootballDataMatch,
@@ -171,6 +172,47 @@ export class FootballDataProvider {
         );
       }
     }
+    return rows;
+  }
+
+  static async syncTodayMatchResults(): Promise<DbMatchRow[]> {
+    const day = todayInArgentina();
+    const path = `${this.getCompetitionPath()}/matches?dateFrom=${day}&dateTo=${day}`;
+    const { data } = await footballDataGet<{ matches?: Record<string, unknown>[] }>(path);
+    const teamMap = await getTeamUuidMap();
+    const matches = (data as { matches?: Record<string, unknown>[] }).matches ?? [];
+
+    console.log(
+      `[SYNC:today_results] football-data day=${day} fetched=${matches.length} teams_mapped=${teamMap.size}`,
+    );
+
+    const rows: DbMatchRow[] = [];
+    for (const raw of matches) {
+      const home = raw.homeTeam as { id?: number; name?: string } | undefined;
+      const away = raw.awayTeam as { id?: number; name?: string } | undefined;
+      const providerMatchId = String(raw.id ?? '');
+      const externalStatus = String(raw.status ?? 'SCHEDULED');
+      const score = raw.score as {
+        fullTime?: { home?: number | null; away?: number | null };
+        halfTime?: { home?: number | null; away?: number | null };
+      } | undefined;
+
+      const normalized = normalizeFootballDataMatch(raw, teamMap, TBD_TEAM_ID);
+      if (!normalized) {
+        const homeMapped = home?.id != null ? teamMap.has(String(home.id)) : false;
+        const awayMapped = away?.id != null ? teamMap.has(String(away.id)) : false;
+        console.warn(
+          `[SYNC:match] SKIP provider_match_id=${providerMatchId} ${home?.name ?? '?'} vs ${away?.name ?? '?'} reason=team_map_miss home_api=${home?.id ?? 'null'} mapped=${homeMapped} away_api=${away?.id ?? 'null'} mapped=${awayMapped}`,
+        );
+        continue;
+      }
+
+      console.log(
+        `[SYNC:match] FOUND provider_match_id=${providerMatchId} status=${externalStatus} score=${score?.fullTime?.home ?? 'null'}-${score?.fullTime?.away ?? 'null'} mapped_status=${normalized.status} mapped_score=${normalized.score_home ?? 'null'}-${normalized.score_away ?? 'null'}`,
+      );
+      rows.push(normalized);
+    }
+
     return rows;
   }
 

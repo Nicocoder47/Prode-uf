@@ -26,6 +26,7 @@ import {
   useAdminDashboard,
   useAdminScoringCenter,
   useAdminSystemHealth,
+  useAdminMatchSyncHealth,
   useMatchPredictionCounts,
 } from '../../hooks/useAdminQueries.ts'
 import { useWorldCupMatches } from '../../useWorldCupData'
@@ -50,6 +51,7 @@ export default function AdminDashboardPage() {
   const { data: betaCapacity } = useAdminBetaCapacity()
   const { data: betaOverview } = useAdminBetaOverview()
   const { data: health } = useAdminSystemHealth()
+  const { data: matchSync } = useAdminMatchSyncHealth()
   const { data: scoring } = useAdminScoringCenter()
   const { data: tickets = [] } = useAdminSupportTickets()
   const { data: matches = [] } = useWorldCupMatches()
@@ -106,9 +108,10 @@ export default function AdminDashboardPage() {
         capacity: betaCapacity,
         overview: betaOverview,
         health,
+        matchSync,
         scoring,
       }),
-    [data, betaCapacity, betaOverview, health, scoring],
+    [data, betaCapacity, betaOverview, health, matchSync, scoring],
   )
 
   const recommendations = useMemo(

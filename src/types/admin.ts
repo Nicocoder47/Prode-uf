@@ -251,6 +251,24 @@ export interface AdminSystemHealth {
   services: AdminSystemHealthService[]
 }
 
+export interface AdminMatchSyncLogRow {
+  provider: string
+  sync_type: string
+  status: string
+  records_upserted: number
+  records_skipped: number
+  error_message: string | null
+  started_at: string
+  finished_at: string | null
+}
+
+export interface AdminMatchSyncHealth {
+  last_today_results: AdminMatchSyncLogRow | null
+  last_live_cycle: AdminMatchSyncLogRow | null
+  minutes_since_today_results: number | null
+  today_results_errors_24h: number
+}
+
 export interface AdminScoringMatchRow {
   id: string
   status: string

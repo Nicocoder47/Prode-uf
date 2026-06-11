@@ -5,6 +5,7 @@ import type {
   AdminDashboard,
   AdminScoringCenter,
   AdminSystemHealth,
+  AdminMatchSyncHealth,
   HealthStatus,
 } from '../types/admin'
 import type {
@@ -207,6 +208,7 @@ export function buildOperationalAlerts(input: {
   capacity?: AdminBetaCapacity | null
   overview?: AdminBetaOverview | null
   health?: AdminSystemHealth | null
+  matchSync?: AdminMatchSyncHealth | null
   scoring?: AdminScoringCenter | null
 }): OperationalAlert[] {
   const alerts: OperationalAlert[] = []
@@ -252,6 +254,44 @@ export function buildOperationalAlerts(input: {
       actionTo: '/admin/health',
       actionLabel: 'Ver salud',
       timestamp: lastSync?.finished_at ?? lastSync?.started_at ?? now,
+    })
+  }
+
+  const matchSync = input.matchSync
+  const todayMins = matchSync?.minutes_since_today_results ?? null
+  const lastToday = matchSync?.last_today_results
+
+  if (!lastToday || (todayMins != null && todayMins > 20)) {
+    alerts.push({
+      id: 'today-results-stale',
+      severity: todayMins != null && todayMins > 60 ? 'critical' : 'warning',
+      title: 'Sync de resultados detenido o desactualizado',
+      description: lastToday
+        ? `Último today_results: hace ${formatRelativeMinutes(todayMins)}.`
+        : 'No hay registros today_results en data_sync_logs. GitHub Actions puede estar con código viejo.',
+      cause: 'Workflow sync-live sin today_results, edge function no desplegada o FOOTBALL_DATA_API_KEY ausente.',
+      impact: 'Partidos finalizados no actualizan score_home/score_away en la UI.',
+      suggestedAction: 'Verificar GitHub Actions, secrets y desplegar sync-today-results.',
+      actionTo: '/admin/health',
+      actionLabel: 'Ver salud sync',
+      timestamp: lastToday?.finished_at ?? lastToday?.started_at ?? now,
+    })
+  }
+
+  if ((matchSync?.today_results_errors_24h ?? 0) > 0) {
+    alerts.push({
+      id: 'today-results-errors',
+      severity: 'critical',
+      title: `${matchSync?.today_results_errors_24h} fallos today_results en 24h`,
+      description: lastToday?.error_message
+        ? `Último error: ${lastToday.error_message.slice(0, 120)}`
+        : 'Revisar logs de data_sync_logs.',
+      cause: 'API key inválida, rate limit o error de mapeo de equipos.',
+      impact: 'Resultados reales no llegan a Supabase.',
+      suggestedAction: 'Revisar secrets FOOTBALL_DATA_API_KEY y ejecutar npm run diagnose:match-sync.',
+      actionTo: '/admin/health',
+      actionLabel: 'Ver salud',
+      timestamp: lastToday?.finished_at ?? lastToday?.started_at ?? now,
     })
   }
 

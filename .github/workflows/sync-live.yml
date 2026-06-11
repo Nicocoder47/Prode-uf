@@ -39,4 +39,8 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
           FOOTBALL_DATA_API_KEY: ${{ env.FOOTBALL_DATA_API_KEY }}
           API_FOOTBALL_KEY: ${{ env.API_FOOTBALL_KEY }}
-        run: npm run sync:live
+        run: |
+          echo "=== sync:live inicio $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+          echo "Proveedor esperado: football-data.org si FOOTBALL_DATA_API_KEY está set"
+          npm run sync:live
+          echo "=== sync:live fin exit=$? ==="

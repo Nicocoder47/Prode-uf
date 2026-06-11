@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { scoringDisplayKeys } from './useScoringDisplayConfig.ts'
 import { worldCupKeys } from '../useWorldCupData'
 import {
   fetchAdminActivityLogs,
@@ -10,6 +11,7 @@ import {
   fetchAdminNotifications,
   fetchAdminScoringCenter,
   fetchAdminSystemHealth,
+  fetchAdminMatchSyncHealth,
   fetchAdminUserDetail,
   fetchAdminUsers,
   fetchMatchPredictionCounts,
@@ -25,6 +27,7 @@ import type {
   AdminNotificationRow,
   AdminScoringCenter,
   AdminSystemHealth,
+  AdminMatchSyncHealth,
   AdminUserDetail,
   AdminUserRow,
 } from '../types/admin'
@@ -43,6 +46,7 @@ export const adminKeys = {
   matchPredictionCounts: (ids: string) => [...adminKeys.all, 'match-prediction-counts', ids] as const,
   scoringCenter: () => [...adminKeys.all, 'scoring-center'] as const,
   systemHealth: () => [...adminKeys.all, 'system-health'] as const,
+  matchSyncHealth: () => [...adminKeys.all, 'match-sync-health'] as const,
   analytics: () => [...adminKeys.all, 'analytics'] as const,
 }
 
@@ -87,6 +91,15 @@ export function useAdminSystemHealth() {
     queryFn: fetchAdminSystemHealth,
     staleTime: 15_000,
     refetchInterval: 30_000,
+  })
+}
+
+export function useAdminMatchSyncHealth() {
+  return useQuery<AdminMatchSyncHealth>({
+    queryKey: adminKeys.matchSyncHealth(),
+    queryFn: fetchAdminMatchSyncHealth,
+    staleTime: 30_000,
+    refetchInterval: 60_000,
   })
 }
 
@@ -186,7 +199,10 @@ export function useInvalidateAdmin() {
     invalidateUserDetails: () =>
       queryClient.invalidateQueries({ queryKey: [...adminKeys.all, 'user'] }),
     invalidateNotifications: () => queryClient.invalidateQueries({ queryKey: adminKeys.notifications() }),
-    invalidateCards: () => queryClient.invalidateQueries({ queryKey: adminKeys.cards() }),
+    invalidateCards: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.cards() })
+      queryClient.invalidateQueries({ queryKey: scoringDisplayKeys.all })
+    },
     invalidateActivity: () => queryClient.invalidateQueries({ queryKey: adminKeys.activity('') }),
     invalidateLeaderboard: () =>
       queryClient.invalidateQueries({ queryKey: worldCupKeys.leaderboard() }),
@@ -200,6 +216,8 @@ export function useInvalidateAdmin() {
       queryClient.invalidateQueries({ queryKey: [...adminKeys.all, 'user'] })
       queryClient.invalidateQueries({ queryKey: worldCupKeys.leaderboard() })
       queryClient.invalidateQueries({ queryKey: [...worldCupKeys.all, 'predictions'] })
+      queryClient.invalidateQueries({ queryKey: worldCupKeys.matches() })
+      queryClient.invalidateQueries({ queryKey: worldCupKeys.liveMatches() })
     },
     invalidateAfterRebuild: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() })

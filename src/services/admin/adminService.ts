@@ -10,6 +10,8 @@ import type {
   AdminNotificationRow,
   AdminScoringCenter,
   AdminSystemHealth,
+  AdminMatchSyncHealth,
+  AdminMatchSyncLogRow,
   AdminTestUserReportRow,
   AdminTestUsersPreview,
   AdminUserDetail,
@@ -422,6 +424,63 @@ export async function fetchAdminSystemHealth(): Promise<AdminSystemHealth> {
   return normalizeAdminSystemHealth(unwrap<AdminSystemHealth>(data))
 }
 
+function mapSyncLogRow(row: Record<string, unknown>): AdminMatchSyncLogRow {
+  return {
+    provider: String(row.provider ?? ''),
+    sync_type: String(row.sync_type ?? ''),
+    status: String(row.status ?? ''),
+    records_upserted: Number(row.records_upserted ?? 0),
+    records_skipped: Number(row.records_skipped ?? 0),
+    error_message: (row.error_message as string | null) ?? null,
+    started_at: String(row.started_at ?? ''),
+    finished_at: (row.finished_at as string | null) ?? null,
+  }
+}
+
+/** Salud del sync de resultados (today_results / live_cycle) para alertas admin. */
+export async function fetchAdminMatchSyncHealth(): Promise<AdminMatchSyncHealth> {
+  const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+
+  const [{ data: todayRow }, { data: cycleRow }, { count: errorCount }] = await Promise.all([
+    supabase
+      .from('data_sync_logs')
+      .select('provider,sync_type,status,records_upserted,records_skipped,error_message,started_at,finished_at')
+      .eq('sync_type', 'today_results')
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from('data_sync_logs')
+      .select('provider,sync_type,status,records_upserted,records_skipped,error_message,started_at,finished_at')
+      .eq('sync_type', 'live_cycle')
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from('data_sync_logs')
+      .select('id', { count: 'exact', head: true })
+      .eq('sync_type', 'today_results')
+      .eq('status', 'error')
+      .gte('started_at', since24h),
+  ])
+
+  const lastToday = todayRow ? mapSyncLogRow(todayRow as Record<string, unknown>) : null
+  const lastCycle = cycleRow ? mapSyncLogRow(cycleRow as Record<string, unknown>) : null
+
+  let minutesSince: number | null = null
+  if (lastToday?.finished_at || lastToday?.started_at) {
+    const ts = lastToday.finished_at ?? lastToday.started_at
+    minutesSince = Math.floor((Date.now() - new Date(ts).getTime()) / 60_000)
+  }
+
+  return {
+    last_today_results: lastToday,
+    last_live_cycle: lastCycle,
+    minutes_since_today_results: minutesSince,
+    today_results_errors_24h: errorCount ?? 0,
+  }
+}
+
 export async function fetchAdminAnalytics(): Promise<AdminAnalyticsOverview> {
   const { data, error } = await supabase.rpc('admin_get_analytics_overview')
   requireRpc(error, '270')
@@ -432,6 +491,25 @@ export async function fetchAdminTestUsersReport(): Promise<AdminTestUserReportRo
   const { data, error } = await supabase.rpc('admin_get_test_users_report')
   requireRpc(error, '270')
   return unwrap<AdminTestUserReportRow[]>(data ?? [])
+}
+
+export async function adminUpdateMatchResult(input: {
+  matchId: string
+  scoreHome: number
+  scoreAway: number
+  status?: 'scheduled' | 'live' | 'halftime' | 'finished' | 'postponed' | 'cancelled'
+}) {
+  const { error } = await supabase
+    .from('matches')
+    .update({
+      score_home: input.scoreHome,
+      score_away: input.scoreAway,
+      status: input.status ?? 'finished',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', input.matchId)
+
+  if (error) throw error
 }
 
 export async function adminScoreMatch(matchId: string) {

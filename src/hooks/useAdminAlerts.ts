@@ -5,6 +5,7 @@ import {
   useAdminDashboard,
   useAdminScoringCenter,
   useAdminSystemHealth,
+  useAdminMatchSyncHealth,
 } from './useAdminQueries'
 import { buildOperationalAlerts } from '../utils/adminOperationsEngine'
 
@@ -13,6 +14,7 @@ export function useAdminAlerts() {
   const { data: betaCapacity } = useAdminBetaCapacity()
   const { data: betaOverview } = useAdminBetaOverview()
   const { data: health } = useAdminSystemHealth()
+  const { data: matchSync } = useAdminMatchSyncHealth()
   const { data: scoring } = useAdminScoringCenter()
 
   const alerts = useMemo(
@@ -22,9 +24,10 @@ export function useAdminAlerts() {
         capacity: betaCapacity,
         overview: betaOverview,
         health,
+        matchSync,
         scoring,
       }),
-    [dashboard, betaCapacity, betaOverview, health, scoring],
+    [dashboard, betaCapacity, betaOverview, health, matchSync, scoring],
   )
 
   return { alerts, isLoading: loadingDashboard }

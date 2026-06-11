@@ -44,6 +44,7 @@
     "sync:stadiums": "tsx scripts/syncStadiums.ts",
     "sync:fixtures": "tsx scripts/syncFixtures.ts",
     "sync:live": "tsx scripts/syncLive.ts",
+    "diagnose:match-sync": "tsx scripts/diagnoseMatchSync.ts",
     "sync:squads": "tsx scripts/syncPlayers.ts",
     "sync:standings": "tsx scripts/syncStandings.ts",
     "sync:ratings": "tsx scripts/syncRatings.ts",

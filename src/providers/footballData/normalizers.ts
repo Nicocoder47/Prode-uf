@@ -91,6 +91,33 @@ function teamCode(raw: { tla?: string; shortName?: string; name?: string; id?: n
   return `T${raw.id ?? 0}`;
 }
 
+function extractFootballDataScores(
+  score:
+    | {
+        fullTime?: { home?: number | null; away?: number | null };
+        halfTime?: { home?: number | null; away?: number | null };
+      }
+    | undefined,
+  mappedStatus: string,
+): { home: number | null; away: number | null } {
+  const ftHome = score?.fullTime?.home;
+  const ftAway = score?.fullTime?.away;
+  if (ftHome != null && ftAway != null) {
+    return { home: ftHome, away: ftAway };
+  }
+
+  // En vivo / entretiempo la API suele tener solo halfTime.
+  if (mappedStatus === 'live' || mappedStatus === 'halftime') {
+    const htHome = score?.halfTime?.home;
+    const htAway = score?.halfTime?.away;
+    if (htHome != null && htAway != null) {
+      return { home: htHome, away: htAway };
+    }
+  }
+
+  return { home: ftHome ?? null, away: ftAway ?? null };
+}
+
 export function mapFootballDataStatus(status: string): string {
   const map: Record<string, string> = {
     SCHEDULED: 'scheduled',
@@ -179,9 +206,13 @@ export function normalizeFootballDataMatch(
   }
 
   const score = raw.score as {
-    fullTime?: { home?: number; away?: number };
-    penalties?: { home?: number; away?: number };
+    fullTime?: { home?: number | null; away?: number | null };
+    halfTime?: { home?: number | null; away?: number | null };
+    penalties?: { home?: number | null; away?: number | null };
   } | undefined;
+
+  const mappedStatus = mapFootballDataStatus(String(raw.status ?? 'SCHEDULED'));
+  const { home: scoreHome, away: scoreAway } = extractFootballDataScores(score, mappedStatus);
 
   const group = extractGroupLabel(raw.group as string);
 
@@ -194,9 +225,9 @@ export function normalizeFootballDataMatch(
     phase: stage || null,
     round: stage || null,
     group_label: group,
-    status: mapFootballDataStatus(String(raw.status ?? 'SCHEDULED')),
-    score_home: score?.fullTime?.home ?? null,
-    score_away: score?.fullTime?.away ?? null,
+    status: mappedStatus,
+    score_home: scoreHome,
+    score_away: scoreAway,
     score_home_penalties: score?.penalties?.home ?? null,
     score_away_penalties: score?.penalties?.away ?? null,
     stadium: typeof raw.venue === 'string' ? raw.venue : null,
