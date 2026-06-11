@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PremiumButton } from '../../components/ui/PremiumButton'
-import { PremiumCard } from '../../components/ui/PremiumCard'
 import { completePasswordChange } from '../../services/admin/adminService'
 import { useAuth } from '../../lib/auth'
 import { supabase } from '../../lib/supabase'
 import { normalizeDni } from '../../utils/registration'
+import { AuthField, AuthShell } from './AuthShell.tsx'
 
 export default function ChangePasswordPage() {
   const navigate = useNavigate()
@@ -48,36 +47,54 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center bg-wc26-cream px-4">
-      <PremiumCard title="Cambiar contraseña" description="Por seguridad, actualizá tu contraseña antes de continuar." className="w-full max-w-md">
-        <p className="mb-4 text-sm text-white/70">
-          Cuenta: {user?.email ?? profile?.email}
-        </p>
-        <form className="space-y-3" onSubmit={handleSubmit}>
+    <AuthShell>
+      <h2 className="wc26-login-heading mb-1">Cambiar contraseña</h2>
+      <p className="wc26-login-muted mb-4 text-sm">
+        Por seguridad, actualizá tu contraseña antes de continuar.
+      </p>
+      <p className="wc26-login-muted mb-4 text-sm">
+        Cuenta: {user?.email ?? profile?.email}
+      </p>
+
+      <form className="space-y-2" onSubmit={handleSubmit}>
+        <AuthField label="Nueva contraseña (mín. 8)" id="new-password" required>
           <input
+            id="new-password"
             type="password"
             required
             minLength={8}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-            placeholder="Nueva contraseña (mín. 8)"
+            className="wc26-login-input"
+            placeholder="Nueva contraseña"
             value={password}
             onChange={e => setPassword(e.target.value)}
+            autoComplete="new-password"
           />
+        </AuthField>
+
+        <AuthField label="Confirmar contraseña" id="confirm-password" required>
           <input
+            id="confirm-password"
             type="password"
             required
             minLength={8}
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-            placeholder="Confirmar contraseña"
+            className="wc26-login-input"
+            placeholder="Repetí la contraseña"
             value={confirm}
             onChange={e => setConfirm(e.target.value)}
+            autoComplete="new-password"
           />
-          {error && <p className="text-sm text-red-300">{error}</p>}
-          <PremiumButton type="submit" disabled={busy} className="w-full">
-            {busy ? 'Guardando…' : 'Guardar y continuar'}
-          </PremiumButton>
-        </form>
-      </PremiumCard>
-    </div>
+        </AuthField>
+
+        {error ? (
+          <p className="rounded-2xl border border-red-400/40 bg-red-500/15 px-4 py-3 text-sm text-red-100">
+            {error}
+          </p>
+        ) : null}
+
+        <button type="submit" className="wc26-login-primary" disabled={busy}>
+          {busy ? 'Guardando…' : 'Guardar y continuar'}
+        </button>
+      </form>
+    </AuthShell>
   )
 }

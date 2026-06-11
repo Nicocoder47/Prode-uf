@@ -12,7 +12,15 @@ const BackgroundContext = createContext<BackgroundContextValue>({ variant: 'defa
 function resolveVariant(pathname: string): BackgroundVariant {
   if (pathname === '/') return 'home'
   if (pathname === '/matches' || pathname.startsWith('/matches/')) return 'play'
-  if (pathname === '/login' || pathname === '/registro' || pathname === '/register' || pathname === '/invite') return 'hero'
+  if (
+    pathname === '/login' ||
+    pathname === '/registro' ||
+    pathname === '/register' ||
+    pathname === '/invite' ||
+    pathname === '/change-password'
+  ) {
+    return 'hero'
+  }
   return 'default'
 }
 
@@ -25,7 +33,13 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
   const variant = useMemo(() => resolveVariant(pathname), [pathname])
 
   // Login controla su propio fondo — evita capas globales que lo vuelven blanco
-  if (pathname === '/login' || pathname === '/registro' || pathname === '/register' || pathname === '/invite') {
+  if (
+    pathname === '/login' ||
+    pathname === '/registro' ||
+    pathname === '/register' ||
+    pathname === '/invite' ||
+    pathname === '/change-password'
+  ) {
     return <>{children}</>
   }
 

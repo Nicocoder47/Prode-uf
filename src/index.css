@@ -1367,6 +1367,45 @@ button:disabled { cursor: not-allowed; opacity: 0.65; }
   color: rgba(255, 255, 255, 0.52);
 }
 
+.wc26-login-compat {
+  width: min(100%, 28rem);
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  border: 1.5px solid rgba(248, 185, 30, 0.45);
+  border-radius: 1rem;
+  background: rgba(2, 29, 19, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 8px 24px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.wc26-login-compat p {
+  margin: 0;
+}
+
+.wc26-login-compat p + p {
+  margin-top: 0.55rem;
+}
+
+.wc26-login-compat__title {
+  margin-bottom: 0.65rem !important;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wc26-yellow);
+}
+
+.wc26-login-compat strong {
+  color: #ffffff;
+  font-weight: 800;
+}
+
 /* Barra fija WhatsApp / Instagram — iconos oficiales de marca */
 .wc26-social-bar {
   position: fixed;
