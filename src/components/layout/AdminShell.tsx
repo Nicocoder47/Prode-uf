@@ -19,6 +19,9 @@ import {
 import { useAuth } from '../../lib/auth.tsx'
 import { signOut } from '../../lib/authActions.ts'
 import { AdminMigrationBanner } from '../../features/admin/AdminMigrationBanner.tsx'
+import { AdminAlertsBar } from '../admin/AdminAlertsBar.tsx'
+import { AdminGlobalSearch } from '../admin/AdminGlobalSearch.tsx'
+import { AdminMobileBottomNav } from '../admin/mobile/AdminMobileBottomNav.tsx'
 
 const nav = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -65,6 +68,7 @@ export function AdminShell() {
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <AdminGlobalSearch compact />
             <span className="hidden rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-200 sm:inline">
               {profile?.full_name ?? 'Admin'}
             </span>
@@ -98,24 +102,14 @@ export function AdminShell() {
           </nav>
         </aside>
 
-        <nav className="admin-shell-mobile-nav flex gap-2 overflow-x-auto pb-1 md:hidden" aria-label="Secciones admin">
-          {nav.map(({ to, label, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) => navClassName(isActive, 'admin-shell-chip')}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-
         <main className="admin-shell-main min-w-0 space-y-4 md:col-start-2">
           <AdminMigrationBanner />
+          <AdminAlertsBar />
           <Outlet />
         </main>
       </div>
+
+      <AdminMobileBottomNav />
     </div>
   )
 }

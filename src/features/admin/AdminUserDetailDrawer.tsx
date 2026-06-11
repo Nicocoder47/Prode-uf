@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
+import { AdminConfirmModal } from '../../components/admin/AdminConfirmModal.tsx'
+import { useAdminMobile } from '../../hooks/useAdminMobile.ts'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { useAppToast } from '../../components/ui/ToastProvider.tsx'
 import {
@@ -18,9 +21,18 @@ import {
 import { useAdminUserDetail, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
 import type { AdminUserRow } from '../../types/admin.ts'
 import { isTestUserEmail } from '../../utils/adminTestUser.ts'
+import { AdminUserPredictionsTab } from '../../components/admin/mobile/AdminUserPredictionsTab.tsx'
 import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL } from '../../utils/reviewStatus.ts'
 
-type Tab = 'predictions' | 'activity' | 'notifications'
+type Tab = 'summary' | 'predictions' | 'security' | 'actions' | 'audit'
+
+const TAB_LABELS: Record<Tab, string> = {
+  summary: 'Resumen',
+  predictions: 'Predicciones',
+  security: 'Seguridad',
+  actions: 'Acciones',
+  audit: 'Auditoría',
+}
 
 function formatDate(value: string | null | undefined) {
   if (!value) return '—'
@@ -40,11 +52,12 @@ interface Props {
 }
 
 export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
+  const isMobile = useAdminMobile()
   const { data: detail, isLoading, error: queryError, refetch } = useAdminUserDetail(user.id)
   const { invalidateUserDetail, invalidateBetaOverview, invalidateDashboard, invalidateUsers } = useInvalidateAdmin()
   const { showToast } = useAppToast()
 
-  const [tab, setTab] = useState<Tab>('predictions')
+  const [tab, setTab] = useState<Tab>('summary')
   const [actionReason, setActionReason] = useState('')
   const [notifyTitle, setNotifyTitle] = useState('')
   const [notifyMessage, setNotifyMessage] = useState('')
@@ -56,6 +69,8 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
   const [promoteConfirm, setPromoteConfirm] = useState('')
   const [showDeleteTest, setShowDeleteTest] = useState(false)
   const [showDeleteFull, setShowDeleteFull] = useState(false)
+  const [showResetPred, setShowResetPred] = useState(false)
+  const [showResetScore, setShowResetScore] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteReason, setDeleteReason] = useState('')
 
@@ -87,33 +102,55 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
   const isTest = u.is_test_user ?? isTestUserEmail(u.email)
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/60" onClick={onClose}>
+    <div
+      className={isMobile ? 'admin-user-detail admin-user-detail--mobile' : 'fixed inset-0 z-50 flex justify-end bg-black/60'}
+      onClick={isMobile ? undefined : onClose}
+    >
       <div
-        className="flex h-full w-full max-w-2xl flex-col overflow-hidden border-l border-white/10 bg-wc26-navy shadow-2xl"
+        className={isMobile ? 'admin-user-detail__panel' : 'flex h-full w-full max-w-2xl flex-col overflow-hidden border-l border-white/10 bg-wc26-navy shadow-2xl'}
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-white/50">Detalle de usuario</p>
-            <h2 className="text-xl font-extrabold text-white">{u.full_name}</h2>
-            <p className="text-sm text-white/60">{u.email} · {u.legajo ?? '—'}</p>
+        <div className="admin-user-detail__header flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-5 sm:py-4">
+          <div className="flex min-w-0 items-start gap-2">
+            {isMobile && (
+              <button type="button" className="admin-user-detail__back" onClick={onClose} aria-label="Volver">
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+            )}
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-wider text-white/50">Detalle de usuario</p>
+              <h2 className="truncate text-lg font-extrabold text-white sm:text-xl">{u.full_name}</h2>
+              <p className="truncate text-sm text-white/60">{u.email} · {u.legajo ?? '—'}</p>
+            </div>
           </div>
-          <PremiumButton size="sm" variant="ghost" onClick={onClose}>Cerrar</PremiumButton>
+          {!isMobile && <PremiumButton size="sm" variant="ghost" onClick={onClose}>Cerrar</PremiumButton>}
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+        <div className="admin-user-detail__tabs flex gap-0 overflow-x-auto border-b border-white/10 px-2">
+          {(Object.keys(TAB_LABELS) as Tab[]).map(t => (
+            <button
+              key={t}
+              type="button"
+              className={`admin-user-detail__tab${tab === t ? ' is-active' : ''}`}
+              onClick={() => setTab(t)}
+            >
+              {TAB_LABELS[t]}
+            </button>
+          ))}
+        </div>
+
+        <div className="admin-user-detail__body flex-1 overflow-y-auto px-4 py-4 space-y-4 sm:px-5">
           {displayError && <p className="rounded-xl bg-red-500/20 px-3 py-2 text-sm text-red-200">{displayError}</p>}
           {isLoading && <p className="text-white/60">Cargando detalle…</p>}
 
+          {tab === 'summary' && (
+            <>
           <div className="flex flex-wrap items-center gap-2">
             <span className={REVIEW_STATUS_CLASS[u.review_status ?? 'pending']}>
               {REVIEW_STATUS_LABEL[u.review_status ?? 'pending']}
             </span>
             <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/80">{accountStatus(u)}</span>
             <span className="text-xs text-white/50">Rol: {u.role}</span>
-            <span className={`text-xs ${u.must_change_password ? 'text-amber-300' : 'text-emerald-300'}`}>
-              {u.must_change_password ? 'Debe cambiar contraseña' : 'Contraseña actualizada'}
-            </span>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
@@ -162,21 +199,33 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
               <p className="font-bold text-white">{u.hit_predictions ?? 0}</p>
             </div>
           </div>
+            </>
+          )}
 
-          <div className="flex gap-1 border-b border-white/10">
-            {(['predictions', 'activity', 'notifications'] as Tab[]).map(t => (
-              <button
-                key={t}
-                type="button"
-                className={`px-3 py-2 text-xs font-bold uppercase tracking-wider ${tab === t ? 'border-b-2 border-wc26-yellow text-white' : 'text-white/50'}`}
-                onClick={() => setTab(t)}
-              >
-                {t === 'predictions' ? 'Predicciones' : t === 'activity' ? 'Movimientos' : 'Notificaciones'}
-              </button>
-            ))}
-          </div>
+          {tab === 'security' && (
+            <div className="admin-user-detail__security space-y-3">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                <p className="mb-2 text-xs font-bold uppercase text-white/50">Estado de cuenta</p>
+                <ul className="space-y-2 text-sm text-white/85">
+                  <li><strong>Estado:</strong> {accountStatus(u)}</li>
+                  <li><strong>Rol:</strong> {u.role}</li>
+                  <li><strong>Revisión DNI:</strong> {REVIEW_STATUS_LABEL[u.review_status ?? 'pending']}</li>
+                  <li>
+                    <strong>Contraseña:</strong>{' '}
+                    {u.must_change_password ? 'Debe cambiar en próximo login' : 'Actualizada'}
+                  </li>
+                  <li><strong>Último login:</strong> {formatDate(u.last_login_at)}</li>
+                  <li><strong>Motivo revisión:</strong> {u.review_reason ?? '—'}</li>
+                </ul>
+              </div>
+            </div>
+          )}
 
-          {tab === 'predictions' && (
+          {tab === 'predictions' && isMobile && (
+            <AdminUserPredictionsTab predictions={detail?.predictions ?? []} />
+          )}
+
+          {tab === 'predictions' && !isMobile && (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[520px] text-left text-xs">
                 <thead>
@@ -209,46 +258,49 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
             </div>
           )}
 
-          {tab === 'activity' && (
-            <div className="space-y-2">
-              {(detail?.activity ?? []).length ? (
-                detail!.activity.map(a => (
-                  <div key={a.id} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
-                    <div className="flex justify-between gap-2">
-                      <span className="font-semibold text-white">{a.title}</span>
-                      <span className="text-[10px] uppercase text-wc26-yellow">{a.type}</span>
+          {tab === 'audit' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase text-white/50">Movimientos</p>
+                {(detail?.activity ?? []).length ? (
+                  detail!.activity.map(a => (
+                    <div key={a.id} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
+                      <div className="flex justify-between gap-2">
+                        <span className="font-semibold text-white">{a.title}</span>
+                        <span className="text-[10px] uppercase text-wc26-yellow">{a.type}</span>
+                      </div>
+                      <p className="text-xs text-white/50">{formatDate(a.created_at)}</p>
+                      {a.description && <p className="mt-1 text-xs text-white/70">{a.description}</p>}
                     </div>
-                    <p className="text-xs text-white/50">{formatDate(a.created_at)}</p>
-                    {a.description && <p className="mt-1 text-xs text-white/70">{a.description}</p>}
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-white/50">Sin movimientos</p>
-              )}
+                  ))
+                ) : (
+                  <p className="text-sm text-white/50">Sin movimientos</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase text-white/50">Notificaciones</p>
+                {(detail?.notifications ?? []).length ? (
+                  detail!.notifications.map(n => (
+                    <div key={n.id} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
+                      <div className="flex justify-between gap-2">
+                        <span className="font-semibold text-white">{n.title}</span>
+                        <span className={`text-[10px] uppercase ${n.is_read ? 'text-white/40' : 'text-wc26-yellow'}`}>
+                          {n.is_read ? 'Leída' : 'No leída'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-white/70">{n.message}</p>
+                      <p className="text-xs text-white/40">{formatDate(n.created_at)}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-white/50">Sin notificaciones</p>
+                )}
+              </div>
             </div>
           )}
 
-          {tab === 'notifications' && (
-            <div className="space-y-2">
-              {(detail?.notifications ?? []).length ? (
-                detail!.notifications.map(n => (
-                  <div key={n.id} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
-                    <div className="flex justify-between gap-2">
-                      <span className="font-semibold text-white">{n.title}</span>
-                      <span className={`text-[10px] uppercase ${n.is_read ? 'text-white/40' : 'text-wc26-yellow'}`}>
-                        {n.is_read ? 'Leída' : 'No leída'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-white/70">{n.message}</p>
-                    <p className="text-xs text-white/40">{formatDate(n.created_at)}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-white/50">Sin notificaciones</p>
-              )}
-            </div>
-          )}
-
+          {tab === 'actions' && (
+          <div className="space-y-4">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-3 space-y-2">
             <label className="block text-xs font-bold uppercase text-white/50">Motivo / notas</label>
             <input
@@ -280,23 +332,30 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
               <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowDeactivate(true)}>
                 Desactivar (soft)
               </PremiumButton>
-              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(async () => { await adminResetUserPredictions(u.id) }, 'Predicciones reseteadas')}>
-                Reset predicciones
-              </PremiumButton>
-              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(async () => { await adminResetUserScore(u.id) }, 'Puntaje reseteado')}>
-                Reset puntaje
-              </PremiumButton>
               <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => (u.role === 'admin' ? runAction(() => adminSetUserRole(u.id, 'member'), 'Rol actualizado') : setShowPromote(true))}>
                 {u.role === 'admin' ? 'Quitar admin' : 'Promover admin'}
               </PremiumButton>
+            </div>
+          </div>
+
+          <div className="admin-user-detail__danger rounded-2xl border border-red-400/30 bg-red-500/10 p-3 space-y-2">
+            <p className="text-xs font-bold uppercase text-red-200">Acciones peligrosas</p>
+            <p className="text-xs text-red-100/80">Requieren confirmación explícita. No reversibles.</p>
+            <div className="flex flex-wrap gap-2">
+              <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowResetPred(true)}>
+                Reset predicciones
+              </PremiumButton>
+              <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowResetScore(true)}>
+                Reset puntaje
+              </PremiumButton>
               {isTest && u.role !== 'admin' && (
                 <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowDeleteTest(true)}>
-                  Eliminar usuario de prueba
+                  Eliminar test
                 </PremiumButton>
               )}
               {u.role !== 'admin' && (
                 <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowDeleteFull(true)}>
-                  Eliminar definitivamente
+                  Eliminar definitivo
                 </PremiumButton>
               )}
             </div>
@@ -310,104 +369,100 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
               Enviar
             </PremiumButton>
           </div>
-          {showDeactivate && (
-            <div className="rounded-2xl border border-red-400/30 bg-red-500/10 p-4 space-y-2">
-              <p className="text-sm font-bold text-red-100">Desactivar usuario (soft delete)</p>
-              <p className="text-xs text-red-100/80">Se conserva historial por auditoría. Escribí DESACTIVAR para confirmar.</p>
-              <input className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={deactivateConfirm} onChange={e => setDeactivateConfirm(e.target.value)} placeholder="DESACTIVAR" />
-              <div className="flex gap-2">
-                <PremiumButton size="sm" variant="danger" disabled={busy || deactivateConfirm !== 'DESACTIVAR' || !actionReason.trim()} onClick={() => runAction(async () => { await adminSoftDeleteUser(u.id, actionReason); setShowDeactivate(false); setDeactivateConfirm('') }, 'Usuario desactivado')}>
-                  Confirmar desactivación
-                </PremiumButton>
-                <PremiumButton size="sm" variant="ghost" onClick={() => setShowDeactivate(false)}>Cancelar</PremiumButton>
-              </div>
-            </div>
-          )}
-
-          {showPromote && (
-            <div className="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-4 space-y-2">
-              <p className="text-sm font-bold text-amber-100">Promover a administrador</p>
-              <p className="text-xs text-amber-100/80">Escribí PROMOVER ADMIN para confirmar.</p>
-              <input className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={promoteConfirm} onChange={e => setPromoteConfirm(e.target.value)} placeholder="PROMOVER ADMIN" />
-              <div className="flex gap-2">
-                <PremiumButton size="sm" disabled={busy || promoteConfirm !== 'PROMOVER ADMIN'} onClick={() => runAction(async () => { await adminSetUserRole(u.id, 'admin'); setShowPromote(false); setPromoteConfirm('') }, 'Promovido a admin')}>
-                  Confirmar
-                </PremiumButton>
-                <PremiumButton size="sm" variant="ghost" onClick={() => setShowPromote(false)}>Cancelar</PremiumButton>
-              </div>
-            </div>
-          )}
-
-          {showDeleteTest && (
-            <div className="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-4 space-y-2">
-              <p className="text-sm font-bold text-amber-100">Eliminar usuario de prueba</p>
-              <p className="text-xs text-amber-100/80">
-                Se borrará <strong>{u.email}</strong> y todos sus datos. Escribí ELIMINAR_TEST para confirmar.
-              </p>
-              <input className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} placeholder="ELIMINAR_TEST" />
-              <div className="flex gap-2">
-                <PremiumButton
-                  size="sm"
-                  variant="danger"
-                  disabled={busy || deleteConfirm !== 'ELIMINAR_TEST'}
-                  onClick={() =>
-                    runAction(async () => {
-                      await adminDeleteTestUser(u.id)
-                      setShowDeleteTest(false)
-                      setDeleteConfirm('')
-                      onClose()
-                    }, 'Usuario de prueba eliminado — cupo liberado')
-                  }
-                >
-                  Confirmar eliminación
-                </PremiumButton>
-                <PremiumButton size="sm" variant="ghost" onClick={() => setShowDeleteTest(false)}>Cancelar</PremiumButton>
-              </div>
-            </div>
-          )}
-
-          {showDeleteFull && (
-            <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-4 space-y-2">
-              <p className="text-sm font-bold text-red-100">Eliminar usuario definitivamente</p>
-              <p className="text-xs text-red-100/90">
-                Esta acción elimina al usuario y todos sus datos relacionados. No se puede deshacer.
-              </p>
-              <textarea
-                rows={2}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                placeholder="Motivo obligatorio"
-                value={deleteReason}
-                onChange={e => setDeleteReason(e.target.value)}
-              />
-              <input
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                value={deleteConfirm}
-                onChange={e => setDeleteConfirm(e.target.value)}
-                placeholder="Escribí ELIMINAR"
-              />
-              <div className="flex gap-2">
-                <PremiumButton
-                  size="sm"
-                  variant="danger"
-                  disabled={busy || deleteConfirm !== 'ELIMINAR' || !deleteReason.trim()}
-                  onClick={() =>
-                    runAction(async () => {
-                      await adminDeleteUserFull(u.id, deleteReason.trim(), 'ELIMINAR')
-                      setShowDeleteFull(false)
-                      setDeleteConfirm('')
-                      setDeleteReason('')
-                      onClose()
-                    }, 'Usuario eliminado definitivamente — cupo liberado')
-                  }
-                >
-                  Confirmar eliminación total
-                </PremiumButton>
-                <PremiumButton size="sm" variant="ghost" onClick={() => setShowDeleteFull(false)}>Cancelar</PremiumButton>
-              </div>
-            </div>
+          </div>
           )}
         </div>
       </div>
+
+      <AdminConfirmModal
+        open={showDeactivate}
+        title="Desactivar usuario (soft delete)"
+        description={<p>Se desactivará <strong>{u.email}</strong>. El historial se conserva para auditoría.</p>}
+        confirmLabel="Desactivar"
+        confirmPhrase="DESACTIVAR"
+        confirmValue={deactivateConfirm}
+        onConfirmValueChange={setDeactivateConfirm}
+        reason={actionReason}
+        onReasonChange={setActionReason}
+        reasonRequired
+        reversible
+        busy={busy}
+        onCancel={() => { setShowDeactivate(false); setDeactivateConfirm('') }}
+        onConfirm={() => runAction(async () => { await adminSoftDeleteUser(u.id, actionReason); setShowDeactivate(false); setDeactivateConfirm('') }, 'Usuario desactivado')}
+      />
+
+      <AdminConfirmModal
+        open={showPromote}
+        title="Promover a administrador"
+        description={<p><strong>{u.full_name}</strong> tendrá acceso completo al panel admin.</p>}
+        confirmLabel="Promover"
+        confirmPhrase="PROMOVER ADMIN"
+        confirmValue={promoteConfirm}
+        onConfirmValueChange={setPromoteConfirm}
+        reversible
+        busy={busy}
+        onCancel={() => { setShowPromote(false); setPromoteConfirm('') }}
+        onConfirm={() => runAction(async () => { await adminSetUserRole(u.id, 'admin'); setShowPromote(false); setPromoteConfirm('') }, 'Promovido a admin')}
+      />
+
+      <AdminConfirmModal
+        open={showResetPred}
+        title="Resetear predicciones"
+        description={<p>Se eliminarán todas las predicciones de <strong>{u.full_name}</strong>.</p>}
+        confirmLabel="Reset predicciones"
+        confirmPhrase="RESET PRED"
+        confirmValue={deleteConfirm}
+        onConfirmValueChange={setDeleteConfirm}
+        reversible={false}
+        busy={busy}
+        onCancel={() => { setShowResetPred(false); setDeleteConfirm('') }}
+        onConfirm={() => runAction(async () => { await adminResetUserPredictions(u.id); setShowResetPred(false); setDeleteConfirm('') }, 'Predicciones reseteadas')}
+      />
+
+      <AdminConfirmModal
+        open={showResetScore}
+        title="Resetear puntaje"
+        description={<p>El puntaje de <strong>{u.full_name}</strong> volverá a 0.</p>}
+        confirmLabel="Reset puntaje"
+        confirmPhrase="RESET PUNTOS"
+        confirmValue={deleteConfirm}
+        onConfirmValueChange={setDeleteConfirm}
+        reversible={false}
+        busy={busy}
+        onCancel={() => { setShowResetScore(false); setDeleteConfirm('') }}
+        onConfirm={() => runAction(async () => { await adminResetUserScore(u.id); setShowResetScore(false); setDeleteConfirm('') }, 'Puntaje reseteado')}
+      />
+
+      <AdminConfirmModal
+        open={showDeleteTest}
+        title="Eliminar usuario de prueba"
+        description={<p>Se borrará <strong>{u.email}</strong> y todos sus datos. El cupo quedará liberado.</p>}
+        confirmLabel="Eliminar test"
+        confirmPhrase="ELIMINAR_TEST"
+        confirmValue={deleteConfirm}
+        onConfirmValueChange={setDeleteConfirm}
+        reversible={false}
+        busy={busy}
+        onCancel={() => { setShowDeleteTest(false); setDeleteConfirm('') }}
+        onConfirm={() => runAction(async () => { await adminDeleteTestUser(u.id); setShowDeleteTest(false); setDeleteConfirm(''); onClose() }, 'Usuario de prueba eliminado')}
+      />
+
+      <AdminConfirmModal
+        open={showDeleteFull}
+        title="Eliminar usuario definitivamente"
+        description={<p>Se eliminará <strong>{u.email}</strong> y todos los datos relacionados.</p>}
+        confirmLabel="Eliminar definitivo"
+        confirmPhrase="ELIMINAR"
+        confirmValue={deleteConfirm}
+        onConfirmValueChange={setDeleteConfirm}
+        reason={deleteReason}
+        onReasonChange={setDeleteReason}
+        reasonRequired
+        reversible={false}
+        busy={busy}
+        onCancel={() => { setShowDeleteFull(false); setDeleteConfirm(''); setDeleteReason('') }}
+        onConfirm={() => runAction(async () => { await adminDeleteUserFull(u.id, deleteReason.trim(), 'ELIMINAR'); setShowDeleteFull(false); setDeleteConfirm(''); setDeleteReason(''); onClose() }, 'Usuario eliminado definitivamente')}
+      />
     </div>
   )
 }

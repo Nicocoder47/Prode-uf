@@ -5,6 +5,9 @@ import { AdminStatusLight } from '../../components/admin/AdminStatusLight.tsx'
 import { OperationalServiceCard } from '../../components/admin/enterprise'
 import { useAdminSystemHealth } from '../../hooks/useAdminQueries.ts'
 import { enrichHealthServices } from '../../utils/adminOperationsEngine.ts'
+import { AdminHealthSemaphore } from '../../components/admin/mobile/AdminHealthSemaphore.tsx'
+import { Link } from 'react-router-dom'
+import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 
 function formatDate(v: string | null | undefined) {
   if (!v) return '—'
@@ -46,6 +49,14 @@ export default function AdminSystemHealthPage() {
           <p className="text-red-300">{error instanceof Error ? error.message : 'Error'}</p>
         </PremiumCard>
       )}
+
+      <AdminHealthSemaphore status={overall} redCount={redCount} yellowCount={yellowCount} />
+
+      <div className="hidden justify-end md:flex">
+        <Link to="/admin/operations">
+          <PremiumButton size="sm" variant="ghost">Revisar alertas</PremiumButton>
+        </Link>
+      </div>
 
       {data?.orphan_scored && data.orphan_scored.count > 0 && (
         <AdminOrphanScoredAlert

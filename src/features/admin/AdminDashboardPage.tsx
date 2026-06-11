@@ -42,6 +42,8 @@ import {
   buildOperationalRecommendations,
   overallStatusFromAlerts,
 } from '../../utils/adminOperationsEngine.ts'
+import { AdminDashboardMobile } from '../../components/admin/mobile/AdminDashboardMobile.tsx'
+import { AdminMatchDayCard } from '../../components/admin/AdminMatchDayCard.tsx'
 
 export default function AdminDashboardPage() {
   const { data, error, isLoading } = useAdminDashboard()
@@ -115,6 +117,7 @@ export default function AdminDashboardPage() {
   )
 
   const overall = overallStatusFromAlerts(alerts)
+  const capacitySlots = betaOverview?.available_slots != null ? String(betaOverview.available_slots) : '—'
 
   if (isLoading) {
     return (
@@ -138,7 +141,22 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="admin-control-center admin-ops-center space-y-6">
+    <>
+      <AdminDashboardMobile
+        data={data}
+        alerts={alerts}
+        overall={overall}
+        attentionItems={attentionItems}
+        liveFeed={liveFeed}
+        upcoming={upcoming}
+        matchesById={matchesById}
+        predictionCounts={predictionCounts}
+        scoring={scoring}
+        matches={matches}
+        capacitySlots={capacitySlots}
+      />
+
+      <div className="admin-control-center admin-ops-center hidden space-y-6 md:block">
       <header className="admin-ops-center__hero">
         <div>
           <p className="admin-ops-center__kicker">PRODEMUNDIAL 2026</p>
@@ -156,6 +174,8 @@ export default function AdminDashboardPage() {
       </header>
 
       <OperationsRecommendationBar items={recommendations} />
+
+      <AdminMatchDayCard dashboard={data} scoring={scoring} matches={matches} />
 
       <ExecutiveMetricsGrid title="Usuarios" kicker="Sección 1 · Ejecutivo" metrics={userMetrics} />
       <ExecutiveMetricsGrid title="Capacidad" kicker="Beta 300" metrics={capacityMetrics} />
@@ -198,5 +218,6 @@ export default function AdminDashboardPage() {
         />
       </div>
     </div>
+    </>
   )
 }

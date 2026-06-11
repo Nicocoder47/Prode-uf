@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AdminOrphanScoredAlert } from '../../components/admin/AdminOrphanScoredPanel.tsx'
+import { AdminConfirmModal } from '../../components/admin/AdminConfirmModal.tsx'
+import { AdminScoringMatchCard } from '../../components/admin/mobile/AdminScoringMatchCard.tsx'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard, StatsPill } from '../../components/ui/PremiumCard.tsx'
 import { AdminStatusLight, scoringStatusLight } from '../../components/admin/AdminStatusLight.tsx'
@@ -11,6 +13,7 @@ import {
   adminScoreMatch,
   adminScoreRound,
 } from '../../services/admin/adminService.ts'
+import type { AdminScoringMatchRow } from '../../types/admin.ts'
 
 function formatDate(v: string | null | undefined) {
   if (!v) return '—'
@@ -25,15 +28,43 @@ export default function AdminScoringPage() {
   const [filter, setFilter] = useState('')
   const [roundInput, setRoundInput] = useState('')
   const [showOrphanCases, setShowOrphanCases] = useState(false)
+  const [confirmLeaderboard, setConfirmLeaderboard] = useState(false)
+  const [confirmRound, setConfirmRound] = useState(false)
+  const [confirmPhrase, setConfirmPhrase] = useState('')
 
   const canScore = (status: string) => status === 'finished'
-  const scoreDisabledTitle = 'Solo se pueden puntuar partidos finalizados.'
+  const scoreDisabledTitle = 'Solo partidos finalizados'
+
+  function isToday(iso: string | null | undefined) {
+    if (!iso) return false
+    return new Date(iso).toDateString() === new Date().toDateString()
+  }
+
+  function hasScoringError(m: AdminScoringMatchRow) {
+    const known = ['pending_scoring', 'scored', 'live', 'scheduled']
+    if (known.includes(m.scoring_status)) return false
+    if (String(m.scoring_status).includes('error')) return true
+    return m.status === 'finished' && m.scoring_status !== 'scored' && m.scoring_status !== 'pending_scoring'
+  }
 
   const filtered = useMemo(() => {
     const list = data?.matches ?? []
     if (!filter) return list
+    if (filter === 'today') return list.filter(m => isToday(m.kick_off))
+    if (filter === 'finished') return list.filter(m => m.status === 'finished')
+    if (filter === 'error') return list.filter(hasScoringError)
+    if (filter === 'with_predictions') return list.filter(m => m.predictions_total > 0)
     return list.filter(m => m.scoring_status === filter)
   }, [data?.matches, filter])
+
+  const mobileFilters = [
+    { id: '', label: 'Todos' },
+    { id: 'today', label: 'Hoy' },
+    { id: 'pending_scoring', label: 'Pendientes' },
+    { id: 'finished', label: 'Finalizados' },
+    { id: 'error', label: 'Con error' },
+    { id: 'with_predictions', label: 'Con predicciones' },
+  ] as const
 
   async function run(label: string, action: () => Promise<unknown>) {
     setBusy(label)
@@ -100,7 +131,7 @@ export default function AdminScoringPage() {
               <p><strong className="text-white/80">Tiempo último scoring:</strong> {formatDate(data.last_score_at)}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <PremiumButton size="sm" disabled={!!busy} onClick={() => run('Recalcular leaderboard', adminRecalculateLeaderboard)}>
+              <PremiumButton size="sm" disabled={!!busy} onClick={() => setConfirmLeaderboard(true)}>
                 Re-score torneo (leaderboard)
               </PremiumButton>
               <PremiumButton
@@ -124,7 +155,7 @@ export default function AdminScoringPage() {
                 size="sm"
                 variant="ghost"
                 disabled={!!busy || !roundInput.trim()}
-                onClick={() => run(`Scoring jornada ${roundInput}`, () => adminScoreRound(roundInput.trim()))}
+                onClick={() => setConfirmRound(true)}
               >
                 Recalcular jornada
               </PremiumButton>
@@ -134,14 +165,33 @@ export default function AdminScoringPage() {
       )}
 
       <PremiumCard title="Partidos" description={isLoading ? 'Cargando…' : `${filtered.length} partidos`}>
-        <div className="mb-3 flex flex-wrap gap-2">
-          {['', 'pending_scoring', 'scored', 'live', 'scheduled'].map(f => (
-            <PremiumButton key={f || 'all'} size="sm" variant={filter === f ? 'primary' : 'ghost'} onClick={() => setFilter(f)}>
-              {f || 'Todos'}
+        <div className="admin-scoring-filters mb-3 flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible">
+          {mobileFilters.map(f => (
+            <PremiumButton key={f.id || 'all'} size="sm" variant={filter === f.id ? 'primary' : 'ghost'} onClick={() => setFilter(f.id)}>
+              {f.label}
             </PremiumButton>
           ))}
         </div>
-        <div className="overflow-x-auto">
+
+        <div className="admin-scoring-mobile-list space-y-3 md:hidden">
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, i) => <div key={i} className="admin-ops-skeleton__card h-32" />)
+          ) : filtered.length === 0 ? (
+            <p className="admin-empty-state">Sin partidos para este filtro</p>
+          ) : (
+            filtered.map(m => (
+              <AdminScoringMatchCard
+                key={m.id}
+                match={m}
+                busy={busy === m.id}
+                onScore={() => run(`Scoring ${m.id}`, () => adminScoreMatch(m.id))}
+                onRescore={() => run(`Rescore ${m.id}`, () => adminRescoreMatch(m.id, m.score_home!, m.score_away!))}
+              />
+            ))
+          )}
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead>
               <tr className="border-b border-white/10 text-xs uppercase text-white/50">
@@ -207,6 +257,53 @@ export default function AdminScoringPage() {
           </table>
         </div>
       </PremiumCard>
+
+      <AdminConfirmModal
+        open={confirmLeaderboard}
+        title="Recalcular leaderboard completo"
+        description={
+          <p>
+            Se recalculará el ranking de <strong>todos los usuarios</strong> según las predicciones puntuadas actuales.
+            Puede tardar varios segundos.
+          </p>
+        }
+        confirmLabel="Recalcular leaderboard"
+        confirmPhrase="RECALCULAR"
+        confirmValue={confirmPhrase}
+        onConfirmValueChange={setConfirmPhrase}
+        reversible={false}
+        busy={!!busy}
+        onCancel={() => { setConfirmLeaderboard(false); setConfirmPhrase('') }}
+        onConfirm={() => {
+          run('Recalcular leaderboard', adminRecalculateLeaderboard).finally(() => {
+            setConfirmLeaderboard(false)
+            setConfirmPhrase('')
+          })
+        }}
+      />
+
+      <AdminConfirmModal
+        open={confirmRound}
+        title={`Recalcular jornada: ${roundInput}`}
+        description={
+          <p>
+            Se ejecutará scoring para todos los partidos finalizados de la fase/jornada <strong>{roundInput}</strong>.
+          </p>
+        }
+        confirmLabel="Recalcular jornada"
+        confirmPhrase="JORNADA"
+        confirmValue={confirmPhrase}
+        onConfirmValueChange={setConfirmPhrase}
+        reversible={false}
+        busy={!!busy}
+        onCancel={() => { setConfirmRound(false); setConfirmPhrase('') }}
+        onConfirm={() => {
+          run(`Scoring jornada ${roundInput}`, () => adminScoreRound(roundInput.trim())).finally(() => {
+            setConfirmRound(false)
+            setConfirmPhrase('')
+          })
+        }}
+      />
     </div>
   )
 }

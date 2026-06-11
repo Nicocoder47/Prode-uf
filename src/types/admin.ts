@@ -375,6 +375,7 @@ export interface AdminUserPredictionRow {
   status: string
   created_at: string
   updated_at: string
+  scored_at?: string | null
   kick_off: string
   match_status: string
   result_home: number | null

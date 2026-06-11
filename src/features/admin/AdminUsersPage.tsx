@@ -8,6 +8,11 @@ import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL, reviewRowClass } from '../../
 import { isTestUserEmail } from '../../utils/adminTestUser.ts'
 import { downloadCsv } from '../../utils/exportCsv'
 import { AdminUserDetailDrawer } from './AdminUserDetailDrawer.tsx'
+import { AdminUserMobileCard } from '../../components/admin/mobile/AdminUserMobileCard.tsx'
+import { AdminUsersFiltersSheet } from '../../components/admin/mobile/AdminUsersFiltersSheet.tsx'
+import { useAppToast } from '../../components/ui/ToastProvider.tsx'
+import { adminBlockUser, adminUnblockUser } from '../../services/admin/adminService.ts'
+import { SlidersHorizontal } from 'lucide-react'
 
 const PAGE_SIZE = 25
 
@@ -41,9 +46,12 @@ function ReviewBadge({ status }: { status?: ReviewStatus }) {
 export default function AdminUsersPage() {
   const { data: users = [], isLoading, error, refetch } = useAdminUsers()
   const { invalidateUsers, invalidateBetaOverview, invalidateDashboard } = useInvalidateAdmin()
+  const { showToast } = useAppToast()
   const [searchParams, setSearchParams] = useSearchParams()
   const [detailUser, setDetailUser] = useState<AdminUserRow | null>(null)
   const [page, setPage] = useState(0)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [cardBusy, setCardBusy] = useState<string | null>(null)
 
   const [search, setSearch] = useState('')
   const [reviewFilter, setReviewFilter] = useState('')
@@ -118,6 +126,49 @@ export default function AdminUsersPage() {
     refetch()
   }
 
+  async function toggleBlock(u: AdminUserRow) {
+    const blocked = u.is_blocked || !u.is_active
+    setCardBusy(u.id)
+    try {
+      if (blocked) {
+        await adminUnblockUser(u.id)
+        showToast('Usuario desbloqueado')
+      } else {
+        await adminBlockUser(u.id, 'Bloqueado desde listado mobile')
+        showToast('Usuario bloqueado')
+      }
+      handleChanged()
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Error')
+    } finally {
+      setCardBusy(null)
+    }
+  }
+
+  const filterState = {
+    reviewFilter,
+    accountFilter,
+    roleFilter,
+    predFilter,
+    passwordFilter,
+    active7dFilter,
+    testFilter,
+    todayFilter,
+    noLoginFilter,
+  }
+
+  function resetFilters() {
+    setReviewFilter('')
+    setAccountFilter('')
+    setRoleFilter('')
+    setPredFilter('')
+    setPasswordFilter('')
+    setActive7dFilter(false)
+    setTestFilter('')
+    setTodayFilter(false)
+    setNoLoginFilter(false)
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -137,7 +188,46 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      <PremiumCard title="Filtros" description={`${filtered.length} de ${users.length} usuarios`}>
+      <div className="admin-users-mobile-toolbar sticky top-[calc(3.25rem+env(safe-area-inset-top))] z-20 -mx-1 space-y-2 border-b border-white/10 bg-[#041418]/95 px-1 py-2 backdrop-blur-xl md:hidden">
+        <input
+          className="admin-users-mobile-toolbar__search"
+          placeholder="Buscar legajo, nombre, email o DNI"
+          value={search}
+          onChange={e => { setSearch(e.target.value); setPage(0) }}
+        />
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs text-white/50">{filtered.length} de {users.length}</span>
+          <button type="button" className="admin-users-mobile-toolbar__filters" onClick={() => setFiltersOpen(true)}>
+            <SlidersHorizontal className="h-4 w-4" />
+            Filtros
+          </button>
+        </div>
+      </div>
+
+      <AdminUsersFiltersSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        filters={filterState}
+        onChange={patch => {
+          Object.entries(patch).forEach(([k, v]) => {
+            if (k === 'reviewFilter') setReviewFilter(v as string)
+            if (k === 'accountFilter') setAccountFilter(v as string)
+            if (k === 'roleFilter') setRoleFilter(v as string)
+            if (k === 'predFilter') setPredFilter(v as string)
+            if (k === 'passwordFilter') setPasswordFilter(v as string)
+            if (k === 'active7dFilter') setActive7dFilter(v as boolean)
+            if (k === 'testFilter') setTestFilter(v as string)
+            if (k === 'todayFilter') setTodayFilter(v as boolean)
+            if (k === 'noLoginFilter') setNoLoginFilter(v as boolean)
+          })
+          setPage(0)
+        }}
+        onReset={resetFilters}
+        resultCount={filtered.length}
+        totalCount={users.length}
+      />
+
+      <PremiumCard title="Filtros" description={`${filtered.length} de ${users.length} usuarios`} className="hidden md:block">
         <div className="mb-3 flex flex-wrap gap-2">
           <PremiumButton size="sm" variant="ghost" onClick={exportCsv}>Exportar CSV</PremiumButton>
         </div>
@@ -196,7 +286,41 @@ export default function AdminUsersPage() {
         </div>
       </PremiumCard>
 
-      <PremiumCard title="Usuarios" description="Revisión automática por DNI vs padrón Excel">
+      <div className="admin-users-mobile-list space-y-3 md:hidden">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => <div key={i} className="admin-ops-skeleton__card h-36" />)
+        ) : pageUsers.length === 0 ? (
+          <p className="admin-empty-state">No hay usuarios con estos filtros</p>
+        ) : (
+          pageUsers.map(u => {
+            const st = accountStatus(u)
+            return (
+              <AdminUserMobileCard
+                key={u.id}
+                user={u}
+                accountLabel={st.label}
+                accountClass={st.className}
+                isTest={isTestUser(u)}
+                busy={cardBusy === u.id}
+                onView={() => { setDetailUser(u); setSearchParams({ userId: u.id }) }}
+                onToggleBlock={() => toggleBlock(u)}
+                onMore={() => { setDetailUser(u); setSearchParams({ userId: u.id }) }}
+              />
+            )
+          })
+        )}
+        {!isLoading && filtered.length > PAGE_SIZE && (
+          <div className="flex items-center justify-between text-sm text-white/60">
+            <span>Página {page + 1} de {totalPages}</span>
+            <div className="flex gap-2">
+              <PremiumButton size="sm" variant="ghost" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Anterior</PremiumButton>
+              <PremiumButton size="sm" variant="ghost" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Siguiente</PremiumButton>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <PremiumCard title="Usuarios" description="Revisión automática por DNI vs padrón Excel" className="hidden md:block">
         {isLoading ? (
           <p className="text-white/60">Cargando…</p>
         ) : (
