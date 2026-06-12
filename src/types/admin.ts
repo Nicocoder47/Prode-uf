@@ -209,6 +209,28 @@ export interface AdminDeleteUserResult {
   freed_slot: boolean
 }
 
+export interface AdminDeletedUserRow {
+  audit_id: string
+  deleted_user_id: string
+  deleted_email: string
+  reason: string | null
+  deleted_at: string
+  affected_tables: Record<string, number>
+  profile_snapshot: Record<string, unknown> | null
+  has_snapshot: boolean
+  restored_at: string | null
+  profile_exists: boolean
+}
+
+export interface AdminRestoreUserResult {
+  success: boolean
+  user_id: string
+  email: string
+  full_name: string
+  must_change_password: boolean
+  note: string
+}
+
 export interface AdminTestUsersPreview {
   count: number
   users: { id: string; email: string; full_name: string }[]

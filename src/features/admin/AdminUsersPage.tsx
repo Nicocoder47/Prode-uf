@@ -10,16 +10,19 @@ import { isTestUserEmail } from '../../utils/adminTestUser.ts'
 import {
   adminUserToneRowClass,
   getAccountStateLabel,
+  getAdminUserVisualTone,
   getVerificationListLabel,
 } from '../../utils/adminUserVisualStatus.ts'
 import { downloadCsv } from '../../utils/exportCsv'
 import { AdminUserMobileCard } from '../../components/admin/mobile/AdminUserMobileCard.tsx'
 import { AdminUsersFiltersSheet } from '../../components/admin/mobile/AdminUsersFiltersSheet.tsx'
-import { AdminUsersMobileStats } from '../../components/admin/mobile/AdminUsersMobileStats.tsx'
 import { AdminUsersFiltersPanel } from '../../components/admin/AdminUsersFiltersPanel.tsx'
 import { EMPTY_ADMIN_USERS_FILTERS, countActiveAdminUserFilters } from '../../components/admin/AdminUsersFilterState.ts'
+import { AdminDeletedUsersRecovery, useAdminDeletedUsersPendingCount } from '../../components/admin/users/AdminDeletedUsersRecovery.tsx'
 import { AdminUserDetailPanel } from '../../components/admin/users/AdminUserDetailPanel.tsx'
 import { AdminUserDetailSheet } from '../../components/admin/users/AdminUserDetailSheet.tsx'
+import { AdminUsersPager } from '../../components/admin/users/AdminUsersPager.tsx'
+import { AdminUsersTabs, type AdminUsersTab } from '../../components/admin/users/AdminUsersTabs.tsx'
 
 const PAGE_SIZE = 25
 
@@ -49,6 +52,8 @@ export default function AdminUsersPage() {
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
   const [page, setPage] = useState(0)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<AdminUsersTab>('all')
+  const recoveryCount = useAdminDeletedUsersPendingCount()
 
   const [search, setSearch] = useState('')
   const [reviewFilter, setReviewFilter] = useState('')
@@ -100,10 +105,28 @@ export default function AdminUsersPage() {
     })
   }, [users, search, reviewFilter, accountFilter, roleFilter, predFilter, passwordFilter, active7dFilter, testFilter, todayFilter, noLoginFilter])
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const pageUsers = filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
+  const tabCounts = useMemo(() => ({
+    all: users.length,
+    review: users.filter(u => getAdminUserVisualTone(u) === 'red').length,
+    verified: users.filter(u => getAdminUserVisualTone(u) === 'green').length,
+    recovery: recoveryCount,
+  }), [users, recoveryCount])
+
+  const tabFiltered = useMemo(() => {
+    if (activeTab === 'recovery') return []
+    return filtered.filter(u => {
+      if (activeTab === 'all') return true
+      const tone = getAdminUserVisualTone(u)
+      if (activeTab === 'review') return tone === 'red'
+      if (activeTab === 'verified') return tone === 'green'
+      return true
+    })
+  }, [filtered, activeTab])
+
+  const totalPages = Math.max(1, Math.ceil(tabFiltered.length / PAGE_SIZE))
+  const pageUsers = tabFiltered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
   const selectedUser = users.find(u => u.id === selectedUserId) ?? null
-  const reviewCount = users.filter(u => u.review_status === 'review_required').length
+  const isRecoveryTab = activeTab === 'recovery'
 
   useEffect(() => {
     const userId = searchParams.get('userId')
@@ -113,6 +136,37 @@ export default function AdminUsersPage() {
     setSelectedUserId(found.id)
     if (isMobile) setMobileSheetOpen(true)
   }, [searchParams, users, isMobile])
+
+  useEffect(() => {
+    if (page > 0 && page >= totalPages) setPage(totalPages - 1)
+  }, [page, totalPages])
+
+  function goPrevPage() {
+    setPage(p => Math.max(0, p - 1))
+  }
+
+  function goNextPage() {
+    setPage(p => Math.min(totalPages - 1, p + 1))
+  }
+
+  const pagerProps = {
+    page,
+    totalPages,
+    totalItems: tabFiltered.length,
+    pageSize: PAGE_SIZE,
+    onPrev: goPrevPage,
+    onNext: goNextPage,
+  }
+
+  function changeTab(tab: AdminUsersTab) {
+    setActiveTab(tab)
+    setPage(0)
+    if (tab === 'recovery') {
+      setSelectedUserId(null)
+      setMobileSheetOpen(false)
+      setSearchParams({})
+    }
+  }
 
   function handleChanged() {
     invalidateUsers()
@@ -190,92 +244,74 @@ export default function AdminUsersPage() {
       <PremiumButton size="sm" variant="ghost" onClick={resetFilters}>Limpiar filtros</PremiumButton>
     </div>
   ) : (
-    <>
-      <table className="admin-users-table-v2 w-full text-left text-sm">
-        <thead>
-          <tr>
-            <th>Usuario</th>
-            <th>Legajo</th>
-            <th>DNI</th>
-            <th>Estado</th>
-            <th>Verificación</th>
-            <th>Último login</th>
-            <th>Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pageUsers.map(u => {
-            const tone = adminUserToneRowClass(u)
-            const isSelected = selectedUserId === u.id
-            return (
-              <tr
-                key={u.id}
-                className={`${tone}${isSelected ? ' is-selected' : ''}`}
-                onClick={() => selectUser(u)}
-              >
-                <td>
-                  <p className="admin-users-table-v2__name">{u.full_name}</p>
-                  <p className="admin-users-table-v2__sub">{u.email}</p>
-                </td>
-                <td className="font-mono text-xs">{u.legajo ?? '—'}</td>
-                <td className="font-mono text-xs">{u.dni_masked}</td>
-                <td className="text-xs">{getAccountStateLabel(u)}</td>
-                <td>
-                  <span className={`admin-users-table-v2__verification admin-users-table-v2__verification--${tone.replace('admin-user-tone--', '')}`}>
-                    {getVerificationListLabel(u)}
-                  </span>
-                </td>
-                <td className="text-xs text-white/55">{formatDate(u.last_login_at)}</td>
-                <td>
-                  <PremiumButton
-                    size="sm"
-                    variant="ghost"
-                    onClick={e => { e.stopPropagation(); selectUser(u) }}
-                  >
-                    Ver detalles
-                  </PremiumButton>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-      {filtered.length > PAGE_SIZE && (
-        <div className="admin-users-table-v2__pager">
-          <span>Página {page + 1} de {totalPages}</span>
-          <div className="flex gap-2">
-            <PremiumButton size="sm" variant="ghost" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Anterior</PremiumButton>
-            <PremiumButton size="sm" variant="ghost" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Siguiente</PremiumButton>
-          </div>
-        </div>
-      )}
-    </>
+    <div className="admin-users-split__list-inner">
+      <div className="admin-users-table-v2__wrap">
+        <table className="admin-users-table-v2 admin-users-table-v2--compact w-full text-left text-sm">
+          <thead>
+            <tr>
+              <th className="admin-users-table-v2__col-user">Usuario</th>
+              <th className="admin-users-table-v2__col-verify">Verificación</th>
+              <th className="admin-users-table-v2__col-action" aria-label="Acción" />
+            </tr>
+          </thead>
+          <tbody>
+            {pageUsers.map(u => {
+              const tone = adminUserToneRowClass(u)
+              const isSelected = selectedUserId === u.id
+              return (
+                <tr
+                  key={u.id}
+                  className={`${tone}${isSelected ? ' is-selected' : ''}`}
+                  onClick={() => selectUser(u)}
+                >
+                  <td className="admin-users-table-v2__col-user">
+                    <p className="admin-users-table-v2__name">{u.full_name}</p>
+                    <p className="admin-users-table-v2__sub">{u.email}</p>
+                    <p className="admin-users-table-v2__meta">
+                      Legajo {u.legajo ?? '—'} · DNI {u.dni_masked} · {getAccountStateLabel(u)}
+                    </p>
+                  </td>
+                  <td className="admin-users-table-v2__col-verify">
+                    <span className={`admin-users-table-v2__verification admin-users-table-v2__verification--${tone.replace('admin-user-tone--', '')}`}>
+                      {getVerificationListLabel(u)}
+                    </span>
+                  </td>
+                  <td className="admin-users-table-v2__col-action">
+                    <button
+                      type="button"
+                      className="admin-users-table-v2__action"
+                      onClick={e => { e.stopPropagation(); selectUser(u) }}
+                    >
+                      Ver
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      <AdminUsersPager {...pagerProps} />
+    </div>
   )
 
   return (
-    <div className="admin-users-page space-y-4">
-      <header className="hidden md:block">
+    <div className="admin-users-page">
+      <header className="admin-users-page__header hidden md:block">
         <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Identidad</p>
         <h2 className="text-xl font-extrabold text-white md:text-2xl">Usuarios</h2>
         <p className="mt-1 text-sm text-white/50">Revisión automática por DNI vs padrón Excel</p>
       </header>
 
-      <div className="md:hidden">
-        <AdminUsersMobileStats users={users} filteredCount={filtered.length} />
-      </div>
+      <AdminUsersTabs active={activeTab} counts={tabCounts} onChange={changeTab} />
 
       {error && (
-        <PremiumCard variant="dark">
+        <PremiumCard variant="dark" className="admin-users-page__block">
           <p className="text-red-300">{error instanceof Error ? error.message : 'Error'}</p>
         </PremiumCard>
       )}
 
-      {reviewCount > 0 && (
-        <div className="admin-users-review-banner md:rounded-2xl md:border md:border-red-400/30 md:bg-red-500/10 md:px-4 md:py-3 md:text-sm md:text-red-100">
-          <strong>{reviewCount}</strong> usuario(s) requieren revisión (DNI no encontrado en padrón o datos distintos).
-        </div>
-      )}
-
+      {!isRecoveryTab && (
       <div className="admin-users-mobile-toolbar sticky top-[calc(3.25rem+env(safe-area-inset-top))] z-20 -mx-1 space-y-2 border-b border-white/10 bg-[#041418]/95 px-1 py-2 backdrop-blur-xl md:hidden">
         <input
           className="admin-users-mobile-toolbar__search"
@@ -285,7 +321,7 @@ export default function AdminUsersPage() {
         />
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs text-white/50">
-            {filtered.length} de {users.length}
+            {tabFiltered.length} de {users.length}
             {activeFilterCount > 0 && <span className="ml-1 text-amber-300/90">· {activeFilterCount} filtro{activeFilterCount === 1 ? '' : 's'}</span>}
           </span>
           <div className="flex items-center gap-2">
@@ -302,6 +338,7 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </div>
+      )}
 
       <AdminUsersFiltersSheet
         open={filtersOpen}
@@ -314,7 +351,8 @@ export default function AdminUsersPage() {
         totalCount={users.length}
       />
 
-      <PremiumCard title="Filtros" description={`${filtered.length} de ${users.length} usuarios`} className="hidden md:block">
+      {!isRecoveryTab && (
+      <PremiumCard title="Filtros" description={`${tabFiltered.length} de ${users.length} usuarios`} className="hidden md:block">
         <div className="mb-3 flex flex-wrap gap-2">
           <PremiumButton size="sm" variant="ghost" onClick={exportCsv}>Exportar CSV</PremiumButton>
           {activeFilterCount > 0 && (
@@ -333,7 +371,14 @@ export default function AdminUsersPage() {
           onClearAll={resetFilters}
         />
       </PremiumCard>
+      )}
 
+      {isRecoveryTab ? (
+        <PremiumCard className="admin-users-recovery-card md:hidden">
+          <AdminDeletedUsersRecovery />
+        </PremiumCard>
+      ) : (
+      <>
       {/* Mobile: cards */}
       <div className="admin-users-mobile-list flex md:hidden">
         {isLoading ? (
@@ -350,22 +395,22 @@ export default function AdminUsersPage() {
             />
           ))
         )}
-        {!isLoading && filtered.length > PAGE_SIZE && (
-          <div className="flex items-center justify-between text-sm text-white/60">
-            <span>Página {page + 1} de {totalPages}</span>
-            <div className="flex gap-2">
-              <PremiumButton size="sm" variant="ghost" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Anterior</PremiumButton>
-              <PremiumButton size="sm" variant="ghost" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Siguiente</PremiumButton>
-            </div>
-          </div>
-        )}
       </div>
 
+      {!isLoading && (
+        <div className="admin-users-page__pager-mobile md:hidden">
+          <AdminUsersPager {...pagerProps} sticky />
+        </div>
+      )}
+      </>
+      )}
+
       {/* Desktop: split list + fixed detail panel */}
-      <div className="admin-users-split hidden md:grid">
-        <PremiumCard className="admin-users-split__list !p-0 overflow-hidden">
-          {listContent}
+      <div className={`admin-users-split hidden md:grid${isRecoveryTab ? ' admin-users-split--recovery' : ''}`}>
+        <PremiumCard className="admin-users-split__list !rounded-2xl !p-0 overflow-hidden">
+          {isRecoveryTab ? <AdminDeletedUsersRecovery /> : listContent}
         </PremiumCard>
+        {!isRecoveryTab && (
         <aside className="admin-users-split__detail">
           {selectedUser ? (
             <AdminUserDetailPanel
@@ -381,6 +426,7 @@ export default function AdminUsersPage() {
             </div>
           )}
         </aside>
+        )}
       </div>
 
       {mobileSheetOpen && selectedUser && (

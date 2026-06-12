@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, FileText, Settings2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, FileText, Settings2, Trash2 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { AdminConfirmModal } from '../AdminConfirmModal'
 import { AdminUserInfoSections } from '../AdminUserInfoSections'
@@ -48,9 +48,9 @@ function DetailSection({ title, children }: { title: string; children: ReactNode
   )
 }
 
-function DetailField({ label, value }: { label: string; value: ReactNode }) {
+function DetailField({ label, value, wide }: { label: string; value: ReactNode; wide?: boolean }) {
   return (
-    <div className="admin-user-detail-field">
+    <div className={`admin-user-detail-field${wide ? ' admin-user-detail-field--wide' : ''}`}>
       <dt>{label}</dt>
       <dd>{value ?? '—'}</dd>
     </div>
@@ -110,6 +110,18 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
   const padronName = padron?.full_name
     ?? ([padron?.last_name, padron?.first_name].filter(Boolean).join(' ') || '—')
 
+  function handleDirectDelete() {
+    if (isTest) {
+      void runAction(() => adminDeleteTestUser(u.id), 'Usuario eliminado de la base de datos', true)
+      return
+    }
+    void runAction(
+      () => adminDeleteUserFull(u.id, 'Eliminación directa desde panel admin', 'ELIMINAR'),
+      'Usuario eliminado de la base de datos',
+      true,
+    )
+  }
+
   const legajoInPadron = !padron
     ? 'No'
     : u.match_label?.toLowerCase().includes('legajo')
@@ -148,6 +160,17 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
             {showMoreActions ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
         )}
+        {u.role !== 'admin' && !u.deleted_at && (
+          <button
+            type="button"
+            className="admin-user-detail-panel__toggle admin-user-detail-panel__toggle--danger"
+            disabled={busy}
+            onClick={handleDirectDelete}
+          >
+            <Trash2 className="h-4 w-4" />
+            Eliminación directa
+          </button>
+        )}
       </div>
 
       <div className="admin-user-detail-panel__body">
@@ -155,8 +178,8 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
         {isLoading && <p className="text-sm text-white/50">Cargando datos…</p>}
 
         <DetailSection title="Datos declarados">
-          <DetailField label="Nombre completo" value={u.full_name} />
-          <DetailField label="Email" value={u.email} />
+          <DetailField label="Nombre completo" value={u.full_name} wide />
+          <DetailField label="Email" value={u.email} wide />
           <DetailField label="DNI" value={u.dni_masked} />
           <DetailField label="Legajo" value={u.legajo ?? '—'} />
           <DetailField label="Fecha de registro" value={formatDate(u.created_at)} />
@@ -166,11 +189,11 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
         </DetailSection>
 
         <DetailSection title="Validación contra padrón">
-          <DetailField label="Resultado" value={verificationResultLabel(u.review_status)} />
+          <DetailField label="Resultado" value={verificationResultLabel(u.review_status)} wide />
           <DetailField label="DNI en padrón" value={padron?.dni ? 'Sí' : 'No'} />
           <DetailField label="Legajo en padrón" value={legajoInPadron} />
-          <DetailField label="Nombre en padrón" value={padronName} />
-          <DetailField label="Observación" value={u.review_reason ?? u.match_label ?? '—'} />
+          <DetailField label="Nombre en padrón" value={padronName} wide />
+          <DetailField label="Observación" value={u.review_reason ?? u.match_label ?? '—'} wide />
         </DetailSection>
 
         <DetailSection title="Actividad">
@@ -180,6 +203,7 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
           <DetailField label="Aciertos" value={u.hit_predictions ?? 0} />
           <DetailField
             label="Última actividad"
+            wide
             value={lastActivity ? `${lastActivity.title} · ${formatDate(lastActivity.created_at)}` : formatDate(u.last_login_at)}
           />
           <DetailField label="Estado de actividad" value={getActivityStateLabel(u)} />

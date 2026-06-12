@@ -7,6 +7,8 @@ import type {
   AdminCard,
   AdminDashboard,
   AdminDeleteUserResult,
+  AdminDeletedUserRow,
+  AdminRestoreUserResult,
   AdminNotificationRow,
   AdminScoringCenter,
   AdminSystemHealth,
@@ -120,6 +122,26 @@ export async function adminDeleteTestUser(userId: string): Promise<AdminDeleteUs
   const { data, error } = await supabase.rpc('admin_delete_test_user', { p_user_id: userId })
   if (error) throw error
   return unwrap<AdminDeleteUserResult>(data)
+}
+
+export async function fetchAdminDeletedUsers(limit = 30): Promise<AdminDeletedUserRow[]> {
+  const { data, error } = await supabase.rpc('admin_list_deleted_users', { p_limit: limit })
+  if (error) throw error
+  return unwrap<AdminDeletedUserRow[]>(data ?? [])
+}
+
+export async function adminRestoreDeletedUser(
+  auditId: string,
+  fields?: { fullName?: string; dni?: string; legajo?: string },
+): Promise<AdminRestoreUserResult> {
+  const { data, error } = await supabase.rpc('admin_restore_deleted_user', {
+    p_audit_id: auditId,
+    p_full_name: fields?.fullName?.trim() || null,
+    p_dni: fields?.dni?.trim() || null,
+    p_legajo: fields?.legajo?.trim() || null,
+  })
+  if (error) throw error
+  return unwrap<AdminRestoreUserResult>(data)
 }
 
 export async function adminResetUserPredictions(userId: string) {
