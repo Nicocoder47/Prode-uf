@@ -158,13 +158,18 @@ function TodayMatchesList({
   const hiddenCount = Math.max(0, resolvedMatches.length - limit)
 
   return (
-    <div className={`wc26-live-card__today${solo ? ' wc26-live-card__today--solo' : ''}`}>
+    <div
+      className={`wc26-live-card__today${solo ? ' wc26-live-card__today--solo' : ''}${variant === 'played' ? ' wc26-live-card__today--played' : ''}`}
+    >
       {showTitle ? <p className="wc26-live-card__today-title">Partidos de hoy</p> : null}
-      <ul className={`wc26-live-card__today-list${solo ? ' wc26-live-card__today-list--solo' : ''}`}>
+      <ul
+        className={`wc26-live-card__today-list${solo ? ' wc26-live-card__today-list--solo' : ''}${variant === 'played' ? ' wc26-live-card__today-list--played' : ''}`}
+      >
         {visible.map(match => {
           const home = match.homeTeam!
           const away = match.awayTeam!
           const kickoff = fmtKickoff(match.kickoff)
+          const crestSize = variant === 'played' ? 'md' : 'sm'
           const isFeatured = variant === 'today' && Boolean(featuredId && match.id === featuredId)
           const isLive = variant === 'today' && (match.status === 'live' || match.status === 'halftime')
           const isFinished = variant === 'played' || match.status === 'finished'
@@ -175,22 +180,22 @@ function TodayMatchesList({
           return (
             <li
               key={match.id}
-              className={`wc26-live-card__today-row${isFeatured ? ' wc26-live-card__today-row--featured' : ''}`}
+              className={`wc26-live-card__today-row${isFeatured ? ' wc26-live-card__today-row--featured' : ''}${variant === 'played' ? ' wc26-live-card__today-row--played' : ''}`}
             >
               <span className="wc26-live-card__today-time">{kickoff.time}</span>
               <div className="wc26-live-card__today-teams">
                 <span className="wc26-live-card__today-team">
-                  <TeamCrest flag={home.flag} code={home.code} size="sm" />
+                  <TeamCrest flag={home.flag} code={home.code} size={crestSize} />
                   <span className="wc26-live-card__today-name">{teamDisplayName(home)}</span>
                 </span>
                 <span
-                  className={`wc26-live-card__today-score${hasScore ? ' wc26-live-card__today-score--set' : ''}${isLive ? ' wc26-live-card__today-score--live' : ''}`}
+                  className={`wc26-live-card__today-score${hasScore ? ' wc26-live-card__today-score--set' : ''}${isLive ? ' wc26-live-card__today-score--live' : ''}${variant === 'played' ? ' wc26-live-card__today-score--played' : ''}`}
                 >
                   {hasScore ? `${match.homeScore ?? 0}-${match.awayScore ?? 0}` : '—'}
                 </span>
                 <span className="wc26-live-card__today-team">
                   <span className="wc26-live-card__today-name">{teamDisplayName(away)}</span>
-                  <TeamCrest flag={away.flag} code={away.code} size="sm" />
+                  <TeamCrest flag={away.flag} code={away.code} size={crestSize} />
                 </span>
               </div>
               <span
@@ -221,7 +226,7 @@ function PlayedMatchesCardBody({
 }) {
   return (
     <>
-      <TodayMatchesList matches={card.matches} showTitle={false} solo limit={12} variant="played" />
+      <TodayMatchesList matches={card.matches} showTitle={false} solo limit={5} variant="played" />
       {card.cta ? (
         <button type="button" className="wc26-live-card__cta" onClick={() => onAction(card)}>
           {card.cta.label}

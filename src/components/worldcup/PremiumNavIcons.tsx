@@ -1,11 +1,12 @@
 import { useId } from 'react'
 
-export type PremiumNavIconName = 'home' | 'teams' | 'fixture' | 'predictions' | 'profile'
+export type PremiumNavIconName = 'home' | 'teams' | 'fixture' | 'predictions' | 'ranking' | 'profile'
 
 const ICON_ACCENTS: Record<Exclude<PremiumNavIconName, 'fixture'>, string> = {
   home: '#FFE566',
   teams: '#6EC1FF',
   predictions: '#FF9F43',
+  ranking: '#F8B91E',
   profile: '#CDB4FF',
 }
 
@@ -95,6 +96,40 @@ export function PremiumNavIcon({ name, active = false, className = '' }: Premium
             <circle cx="16" cy="16" r="10.5" fill={`url(#${fill})`} stroke={`url(#${stroke})`} strokeWidth={rim} />
             <circle cx="16" cy="16" r="6.5" fill="none" stroke={`url(#${accentGrad})`} strokeWidth="2" opacity="0.95" />
             <circle cx="16" cy="16" r="2.8" fill={`url(#${accentGrad})`} stroke="#fff" strokeWidth="0.8" />
+          </>
+        )}
+
+        {name === 'ranking' && (
+          <>
+            <path
+              d="M9.5 8.5h13l-1.2 3.8h-10.6L9.5 8.5Z"
+              fill={`url(#${fill})`}
+              stroke={`url(#${stroke})`}
+              strokeWidth={rim}
+              strokeLinejoin="round"
+            />
+            <path
+              d="M11.2 12.3h9.6l1.1 11.2H10.1l1.1-11.2Z"
+              fill={`url(#${fill})`}
+              stroke={`url(#${stroke})`}
+              strokeWidth={rim}
+              strokeLinejoin="round"
+            />
+            <path
+              d="M13.2 23.5h5.6l.7 2.2H12.5l.7-2.2Z"
+              fill={active ? 'rgba(255,215,0,0.35)' : 'rgba(0,0,0,0.16)'}
+              stroke={`url(#${stroke})`}
+              strokeWidth={rim - 0.2}
+              strokeLinejoin="round"
+            />
+            <path
+              d="M12.2 8.5 13.6 5.8h4.8l1.4 2.7"
+              fill="none"
+              stroke={`url(#${accentGrad})`}
+              strokeWidth="2.1"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </>
         )}
 
