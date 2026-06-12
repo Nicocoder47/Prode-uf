@@ -24,6 +24,7 @@ const TeamsListPage = lazy(() => import('./features/teams/TeamsListPage.tsx'))
 const GroupsPage = lazy(() => import('./features/groups/GroupsPage.tsx'))
 const GroupDetailPage = lazy(() => import('./features/groups/GroupDetailPage.tsx'))
 const PredictionsPage = lazy(() => import('./features/predictions/PredictionsPage.tsx'))
+const RankingCompetitionPage = lazy(() => import('./features/leaderboard/RankingCompetitionPage.tsx'))
 const ProfilePage = lazy(() => import('./features/auth/ProfilePage.tsx'))
 const LoginPage = lazy(() => import('./features/auth/LoginPage.tsx'))
 const ChangePasswordPage = lazy(() => import('./features/auth/ChangePasswordPage.tsx'))
@@ -43,6 +44,8 @@ const AdminSupportPage = lazy(() => import('./features/admin/AdminSupportPage.ts
 const AdminBetaCapacityPage = lazy(() => import('./features/admin/AdminBetaCapacityPage.tsx'))
 const AdminScoringPage = lazy(() => import('./features/admin/AdminScoringPage.tsx'))
 const AdminScoringDisplayPage = lazy(() => import('./features/admin/AdminScoringDisplayPage.tsx'))
+const AdminTickerContentPage = lazy(() => import('./features/admin/AdminTickerContentPage.tsx'))
+const AdminRankingLorePage = lazy(() => import('./features/admin/AdminRankingLorePage.tsx'))
 const AdminSystemHealthPage = lazy(() => import('./features/admin/AdminSystemHealthPage.tsx'))
 const AdminAnalyticsPage = lazy(() => import('./features/admin/AdminAnalyticsPage.tsx'))
 const NotificationsPage = lazy(() => import('./features/notifications/NotificationsPage.tsx'))
@@ -85,10 +88,12 @@ function App() {
               <Route path="health" element={<AdminSystemHealthPage />} />
               <Route path="scoring" element={<AdminScoringPage />} />
               <Route path="scoring-display" element={<AdminScoringDisplayPage />} />
+              <Route path="ticker-content" element={<AdminTickerContentPage />} />
               <Route path="analytics" element={<AdminAnalyticsPage />} />
               <Route path="beta-capacity" element={<AdminBetaCapacityPage />} />
               <Route path="cards" element={<AdminCardsPage />} />
               <Route path="live-cards" element={<AdminLiveCardsPage />} />
+              <Route path="ranking-lore" element={<AdminRankingLorePage />} />
               <Route path="support" element={<AdminSupportPage />} />
             </Route>
           </Route>
@@ -107,7 +112,8 @@ function App() {
             <Route path="matches/:id" element={<MatchDetailPage />} />
             <Route path="players" element={<PlayersPage />} />
             <Route path="players/:id" element={<PlayerPage />} />
-            <Route path="predictions" element={<PredictionsPage />} />
+            <Route path="predictions" element={<RankingCompetitionPage />} />
+            <Route path="mis-predicciones" element={<PredictionsPage />} />
             <Route path="leaderboard" element={<LeaderboardPage />} />
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="profile" element={<ProfilePage />} />

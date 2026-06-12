@@ -25,7 +25,11 @@ export default function AdminLiveCardsPage() {
         <h2 className="text-xl font-extrabold text-white md:text-2xl">Carrusel premium — preview</h2>
         <p className="mt-2 max-w-2xl text-sm text-white/55">
           Vista de las 7 cards del carrusel con datos mock. Usá los enlaces para ir al código y estilos que
-          controlan cada variante.
+          controlan cada variante. El lore del ranking se edita en{' '}
+          <Link to="/admin/ranking-lore" className="text-emerald-300 underline">
+            Lore ranking
+          </Link>
+          .
         </p>
       </div>
 

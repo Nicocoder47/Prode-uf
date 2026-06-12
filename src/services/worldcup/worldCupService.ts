@@ -379,15 +379,22 @@ export const worldCupService = {
 
       .from('player_ratings')
 
-      .select('player_id,goals,assists');
+      .select('player_id,goals,assists,source');
 
     if (error) throw error;
 
-
+    const TOURNAMENT_SCORERS_SOURCE = 'football_data_tournament';
+    const tournamentRows = (ratings ?? []).filter(
+      r => r.source === TOURNAMENT_SCORERS_SOURCE,
+    );
+    const rowsToAggregate =
+      tournamentRows.length > 0
+        ? tournamentRows
+        : (ratings ?? []).filter(r => r.source !== TOURNAMENT_SCORERS_SOURCE);
 
     const totals = new Map<string, { goals: number; assists: number }>();
 
-    for (const r of ratings ?? []) {
+    for (const r of rowsToAggregate) {
 
       const prev = totals.get(r.player_id) ?? { goals: 0, assists: 0 };
 

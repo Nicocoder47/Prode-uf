@@ -290,7 +290,7 @@ export function MatchPredictionModal({
                     type="button"
                     onClick={() => {
                       onClose()
-                      navigate('/predictions')
+                      navigate('/mis-predicciones')
                     }}
                     className="wc26-predict-btn wc26-predict-btn--cta flex-[1.4] inline-flex items-center justify-center gap-1.5"
                   >

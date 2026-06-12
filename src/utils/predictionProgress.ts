@@ -375,12 +375,29 @@ export function shortTeamDisplayName(name: string): string {
   return parts.length > 1 ? parts[parts.length - 1]! : parts[0] ?? name
 }
 
+function hasResolvedTeams(match: Match): boolean {
+  const homeCode = match.homeTeam?.code?.trim().toUpperCase()
+  const awayCode = match.awayTeam?.code?.trim().toUpperCase()
+  const homeName = match.homeTeam?.name?.trim().toLowerCase()
+  const awayName = match.awayTeam?.name?.trim().toLowerCase()
+
+  return Boolean(
+    homeCode &&
+      awayCode &&
+      homeCode !== 'TBD' &&
+      awayCode !== 'TBD' &&
+      homeName &&
+      awayName &&
+      !homeName.includes('por definir') &&
+      !awayName.includes('por definir'),
+  )
+}
+
 /** Próximo partido para home: countdown al futuro; card puede mostrar en vivo o arranca pronto. */
 export function resolveNextMatchForHome(matches: Match[], now = Date.now()) {
   const withTeams = matches.filter(
     m =>
-      m.homeTeam &&
-      m.awayTeam &&
+      hasResolvedTeams(m) &&
       m.status !== 'finished' &&
       m.status !== 'cancelled' &&
       m.status !== 'postponed',

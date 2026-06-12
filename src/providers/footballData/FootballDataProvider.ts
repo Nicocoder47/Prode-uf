@@ -115,6 +115,14 @@ export class FootballDataProvider {
     );
   }
 
+  static async fetchScorersRaw(limit = 50) {
+    const { season } = config();
+    const seasonQuery = Number.isFinite(season) ? `&season=${season}` : '';
+    return footballDataGet<{ scorers?: Record<string, unknown>[] }>(
+      `${this.getCompetitionPath()}/scorers?limit=${limit}${seasonQuery}`,
+    );
+  }
+
   static async syncTeams(): Promise<DbTeamRow[]> {
     const { data } = await this.fetchTeamsRaw();
     const teams = (data as { teams?: Record<string, unknown>[] }).teams ?? [];

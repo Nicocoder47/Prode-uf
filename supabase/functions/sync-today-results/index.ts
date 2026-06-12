@@ -3,6 +3,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const FOOTBALL_DATA_PROVIDER = 'football_data'
 const API_FOOTBALL_PROVIDER = 'api_football'
+const TOURNAMENT_SCORERS_PROVIDER_MATCH_ID = '__tournament_scorers__'
+const FOOTBALL_DATA_TOURNAMENT_SCORERS_SOURCE = 'football_data_tournament'
+const TBD_TEAM_ID = '00000000-0000-4000-8000-000000000001'
 
 function todayInArgentina(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date())
@@ -167,6 +170,184 @@ async function fetchApiFootballToday(apiKey: string, leagueId: string, season: s
   return rows
 }
 
+type ScorerRatingRow = {
+  player_id: string
+  match_id: string
+  goals: number
+  assists: number
+  source: string
+  captured_at: string
+}
+
+async function ensureTournamentScorersMatch(
+  supabase: ReturnType<typeof createClient>,
+): Promise<string> {
+  const { data: existing } = await supabase
+    .from('matches')
+    .select('id')
+    .eq('provider', FOOTBALL_DATA_PROVIDER)
+    .eq('provider_match_id', TOURNAMENT_SCORERS_PROVIDER_MATCH_ID)
+    .maybeSingle()
+
+  if (existing?.id) return String(existing.id)
+
+  const now = new Date().toISOString()
+  const { data: created, error } = await supabase
+    .from('matches')
+    .upsert(
+      {
+        provider: FOOTBALL_DATA_PROVIDER,
+        provider_match_id: TOURNAMENT_SCORERS_PROVIDER_MATCH_ID,
+        home_team_id: TBD_TEAM_ID,
+        away_team_id: TBD_TEAM_ID,
+        kick_off: now,
+        phase: 'tournament',
+        round: 'scorers',
+        status: 'finished',
+        updated_at: now,
+      },
+      { onConflict: 'provider,provider_match_id' },
+    )
+    .select('id')
+    .single()
+
+  if (error) throw error
+  return String(created.id)
+}
+
+async function syncFootballDataScorers(
+  supabase: ReturnType<typeof createClient>,
+  apiKey: string,
+  wcCode: string,
+  season: string,
+): Promise<{ fetched: number; upserted: number; skipped: number }> {
+  const res = await fetch(
+    `https://api.football-data.org/v4/competitions/${wcCode}/scorers?limit=50&season=${season}`,
+    { headers: { 'X-Auth-Token': apiKey } },
+  )
+  if (!res.ok) {
+    throw new Error(`football-data scorers HTTP ${res.status}`)
+  }
+
+  const body = await res.json() as { scorers?: Record<string, unknown>[] }
+  const scorers = body.scorers ?? []
+  if (scorers.length === 0) {
+    return { fetched: 0, upserted: 0, skipped: 0 }
+  }
+
+  const { data: players, error: playersError } = await supabase
+    .from('players')
+    .select('id,provider_player_id')
+    .eq('provider', FOOTBALL_DATA_PROVIDER)
+
+  if (playersError) throw playersError
+
+  const { data: teams, error: teamsError } = await supabase
+    .from('teams')
+    .select('id,provider_team_id')
+    .eq('provider', FOOTBALL_DATA_PROVIDER)
+
+  if (teamsError) throw teamsError
+
+  const playerMap = new Map(
+    (players ?? [])
+      .filter(p => p.provider_player_id)
+      .map(p => [String(p.provider_player_id), String(p.id)]),
+  )
+
+  const teamMap = new Map(
+    (teams ?? [])
+      .filter(t => t.provider_team_id)
+      .map(t => [String(t.provider_team_id), String(t.id)]),
+  )
+
+  const matchId = await ensureTournamentScorersMatch(supabase)
+  const capturedAt = new Date().toISOString()
+  const rows: ScorerRatingRow[] = []
+  let skipped = 0
+
+  for (const entry of scorers) {
+    const player = entry.player as Record<string, unknown> | undefined
+    const team = entry.team as { id?: number } | undefined
+    const providerPlayerId = player?.id != null ? String(player.id) : ''
+    if (!providerPlayerId) {
+      skipped += 1
+      continue
+    }
+
+    let playerUuid = playerMap.get(providerPlayerId)
+    if (!playerUuid) {
+      const teamProviderId = team?.id != null ? String(team.id) : ''
+      const teamUuid = teamProviderId ? teamMap.get(teamProviderId) : undefined
+      if (teamUuid) {
+        const now = new Date().toISOString()
+        const { data: created, error: createErr } = await supabase
+          .from('players')
+          .upsert(
+            {
+              provider: FOOTBALL_DATA_PROVIDER,
+              provider_player_id: providerPlayerId,
+              team_id: teamUuid,
+              name: String(player?.name ?? 'Unknown'),
+              nationality: (player?.nationality as string | null) ?? null,
+              position: (player?.position as string | null) ?? null,
+              updated_at: now,
+            },
+            { onConflict: 'provider,provider_player_id' },
+          )
+          .select('id')
+          .single()
+        if (!createErr && created?.id) {
+          playerUuid = String(created.id)
+          playerMap.set(providerPlayerId, playerUuid)
+        }
+      }
+    }
+
+    if (!playerUuid) {
+      skipped += 1
+      continue
+    }
+
+    const goals = Number(entry.goals ?? 0)
+    const assists = Number(entry.assists ?? 0)
+    if (goals <= 0 && assists <= 0) {
+      skipped += 1
+      continue
+    }
+
+    rows.push({
+      player_id: playerUuid,
+      match_id: matchId,
+      goals,
+      assists,
+      source: FOOTBALL_DATA_TOURNAMENT_SCORERS_SOURCE,
+      captured_at: capturedAt,
+    })
+  }
+
+  if (rows.length === 0) {
+    return { fetched: scorers.length, upserted: 0, skipped }
+  }
+
+  const { error: deleteError } = await supabase
+    .from('player_ratings')
+    .delete()
+    .eq('match_id', matchId)
+    .eq('source', FOOTBALL_DATA_TOURNAMENT_SCORERS_SOURCE)
+
+  if (deleteError) throw deleteError
+
+  const { error: upsertError } = await supabase
+    .from('player_ratings')
+    .upsert(rows, { onConflict: 'player_id,match_id,source' })
+
+  if (upsertError) throw upsertError
+
+  console.log(`[sync-today-results] scorers fetched=${scorers.length} upserted=${rows.length} skipped=${skipped}`)
+  return { fetched: scorers.length, upserted: rows.length, skipped }
+}
+
 serve(async () => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -176,6 +357,7 @@ serve(async () => {
     const wcCode = Deno.env.get('FOOTBALL_DATA_WORLD_CUP_CODE') ?? 'WC'
     const leagueId = Deno.env.get('API_FOOTBALL_WORLD_CUP_LEAGUE_ID') ?? '1'
     const season = Deno.env.get('API_FOOTBALL_WORLD_CUP_SEASON') ?? '2026'
+    const wcSeason = Deno.env.get('FOOTBALL_DATA_SEASON') ?? season
 
     if (!supabaseUrl || !serviceRole) {
       return new Response(JSON.stringify({ error: 'missing_supabase_env' }), { status: 500 })
@@ -203,61 +385,81 @@ serve(async () => {
 
     console.log(`[sync-today-results] provider=${provider} day=${todayInArgentina()} fetched=${rows.length}`)
 
-    if (rows.length === 0) {
-      return new Response(JSON.stringify({ ok: true, upserted: 0, provider, day: todayInArgentina() }), {
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
+    let upserted = 0
+    if (rows.length > 0) {
+      // No pisar marcadores existentes si la API devuelve null en fullTime.
+      const ids = rows.map(r => r.provider_match_id)
+      const { data: existingRows } = await supabase
+        .from('matches')
+        .select('provider_match_id,status,score_home,score_away')
+        .eq('provider', provider)
+        .in('provider_match_id', ids)
 
-    // No pisar marcadores existentes si la API devuelve null en fullTime.
-    const ids = rows.map(r => r.provider_match_id)
-    const { data: existingRows } = await supabase
-      .from('matches')
-      .select('provider_match_id,status,score_home,score_away')
-      .eq('provider', provider)
-      .in('provider_match_id', ids)
-
-    const existingById = new Map(
-      (existingRows ?? []).map(r => [String(r.provider_match_id), r]),
-    )
-
-    const mergedRows = rows.map(row => {
-      const prev = existingById.get(row.provider_match_id)
-      let next = {
-        ...row,
-        score_home: row.score_home ?? prev?.score_home ?? null,
-        score_away: row.score_away ?? prev?.score_away ?? null,
-      }
-      if (
-        next.status === 'finished' &&
-        (next.score_home == null || next.score_away == null)
-      ) {
-        const fallback =
-          prev?.status && prev.status !== 'finished' ? prev.status : 'scheduled'
-        console.warn(
-          `[sync-today-results] WARN provider_match_id=${row.provider_match_id}: finished sin marcador — status=${fallback}`,
-        )
-        next = { ...next, status: fallback }
-      }
-      return next
-    })
-
-    for (const row of mergedRows) {
-      console.log(
-        `[sync-today-results] upsert provider_match_id=${row.provider_match_id} status=${row.status} score=${row.score_home ?? 'null'}-${row.score_away ?? 'null'}`,
+      const existingById = new Map(
+        (existingRows ?? []).map(r => [String(r.provider_match_id), r]),
       )
+
+      const mergedRows = rows.map(row => {
+        const prev = existingById.get(row.provider_match_id)
+        let next = {
+          ...row,
+          score_home: row.score_home ?? prev?.score_home ?? null,
+          score_away: row.score_away ?? prev?.score_away ?? null,
+        }
+        if (
+          next.status === 'finished' &&
+          (next.score_home == null || next.score_away == null)
+        ) {
+          const fallback =
+            prev?.status && prev.status !== 'finished' ? prev.status : 'scheduled'
+          console.warn(
+            `[sync-today-results] WARN provider_match_id=${row.provider_match_id}: finished sin marcador — status=${fallback}`,
+          )
+          next = { ...next, status: fallback }
+        }
+        return next
+      })
+
+      for (const row of mergedRows) {
+        console.log(
+          `[sync-today-results] upsert provider_match_id=${row.provider_match_id} status=${row.status} score=${row.score_home ?? 'null'}-${row.score_away ?? 'null'}`,
+        )
+      }
+
+      const { error: upsertError } = await supabase
+        .from('matches')
+        .upsert(mergedRows, { onConflict: 'provider,provider_match_id' })
+
+      if (upsertError) {
+        return new Response(JSON.stringify({ error: upsertError.message }), { status: 500 })
+      }
+      upserted = rows.length
     }
 
-    const { error: upsertError } = await supabase
-      .from('matches')
-      .upsert(mergedRows, { onConflict: 'provider,provider_match_id' })
-
-    if (upsertError) {
-      return new Response(JSON.stringify({ error: upsertError.message }), { status: 500 })
+    let scorersUpserted = 0
+    let scorersFetched = 0
+    if (footballDataKey) {
+      try {
+        const scorers = await syncFootballDataScorers(supabase, footballDataKey, wcCode, wcSeason)
+        scorersFetched = scorers.fetched
+        scorersUpserted = scorers.upserted
+      } catch (scorersErr) {
+        console.warn(
+          '[sync-today-results] scorers sync failed:',
+          scorersErr instanceof Error ? scorersErr.message : scorersErr,
+        )
+      }
     }
 
     return new Response(
-      JSON.stringify({ ok: true, upserted: rows.length, provider, day: todayInArgentina() }),
+      JSON.stringify({
+        ok: true,
+        upserted,
+        scorersFetched,
+        scorersUpserted,
+        provider,
+        day: todayInArgentina(),
+      }),
       { headers: { 'Content-Type': 'application/json' } },
     )
   } catch (err) {

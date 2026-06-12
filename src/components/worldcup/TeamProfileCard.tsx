@@ -25,6 +25,7 @@ type TeamProfileCardProps = {
   index?: number
   expanded?: boolean
   onToggle?: () => void
+  variant?: 'list' | 'tile'
 }
 
 const CONFEDERATION_LABEL: Record<string, string> = {
@@ -93,7 +94,9 @@ export function TeamProfileCard({
   index = 0,
   expanded = false,
   onToggle,
+  variant = 'list',
 }: TeamProfileCardProps) {
+  const isTile = variant === 'tile'
   const squadValue = computeSquadValue(players)
   const averageAge = computeAverageAge(players)
   const formStats = formBreakdown(form)
@@ -101,6 +104,8 @@ export function TeamProfileCard({
   const confederation = confederationLabel(team.confederation)
   const marketLabel = fmtMarketCompact(squadValue)
   const collapsible = onToggle != null
+  const useRowHeader = collapsible && !expanded && !isTile
+  const crestSize = expanded ? 'lg' : isTile ? 'xs' : 'sm'
   const flagImageUrl = resolveTeamFlagUrl(team.flag, team.flag, team.countryCode, team.code)
 
   const metrics: MetricItem[] = []
@@ -120,8 +125,10 @@ export function TeamProfileCard({
   const header = (
     <div
       className={`wc26-team-profile__header-inner${
-        collapsible && !expanded ? ' wc26-team-profile__header-inner--row' : ''
-      }${expanded ? ' is-expanded' : ''}`}
+        useRowHeader ? ' wc26-team-profile__header-inner--row' : ''
+      }${isTile && collapsible && !expanded ? ' wc26-team-profile__header-inner--tile' : ''}${
+        expanded ? ' is-expanded' : ''
+      }`}
     >
       <div className="wc26-team-profile__crest-slot">
         <TeamCrest
@@ -129,16 +136,22 @@ export function TeamProfileCard({
           code={team.code}
           name={team.name}
           countryCode={team.countryCode}
-          size={expanded ? 'lg' : 'sm'}
+          size={crestSize}
           premium
         />
       </div>
       <div className="wc26-team-profile__header-copy">
-        <h3 className={`wc26-team-profile__name${expanded ? '' : ' wc26-team-profile__name--compact'}`}>{team.name}</h3>
+        <h3
+          className={`wc26-team-profile__name${
+            expanded ? '' : isTile ? ' wc26-team-profile__name--tile' : ' wc26-team-profile__name--compact'
+          }`}
+        >
+          {team.name}
+        </h3>
         <div className="wc26-team-profile__tags">
           {groupId !== '—' && <span className="wc26-team-tag wc26-team-tag--group">Grupo {groupId}</span>}
-          {confederation && <span className="wc26-team-tag">{confederation}</span>}
-          {team.fifaRanking != null && (
+          {(!isTile || expanded) && confederation && <span className="wc26-team-tag">{confederation}</span>}
+          {(!isTile || expanded) && team.fifaRanking != null && (
             <span className="wc26-team-rank">
               <Trophy className="h-3 w-3" />
               <span>#{team.fifaRanking}</span>
@@ -146,7 +159,7 @@ export function TeamProfileCard({
           )}
         </div>
       </div>
-      {collapsible && (
+      {collapsible && !isTile && (
         <ChevronDown
           className={`wc26-team-profile__chevron h-4 w-4 shrink-0 text-white/45 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
           aria-hidden="true"
@@ -226,7 +239,7 @@ export function TeamProfileCard({
   return (
     <motion.div {...MOTION.enter} transition={{ ...MOTION.enter.transition, delay: Math.min(index * 0.02, 0.2) }}>
       <article
-        className={`wc26-team-profile group ${collapsible ? 'wc26-team-profile--collapsible' : ''} ${expanded ? 'is-expanded' : ''}`}
+        className={`wc26-team-profile group ${collapsible ? 'wc26-team-profile--collapsible' : ''} ${isTile ? 'wc26-team-profile--tile' : ''} ${expanded ? 'is-expanded' : ''}`}
         style={{ '--team-accent': accent } as React.CSSProperties}
       >
         <span className="wc26-team-profile__shine" aria-hidden="true" />

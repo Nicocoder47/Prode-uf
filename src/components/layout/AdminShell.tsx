@@ -12,6 +12,8 @@ import {
   HeartPulse,
   Server,
   ShieldCheck,
+  BookOpen,
+  MessageSquareText,
   Sparkles,
   Target,
   Trophy,
@@ -31,6 +33,7 @@ const nav = [
   { to: '/admin/activity', label: 'Actividad', icon: Activity },
   { to: '/admin/notifications', label: 'Notificaciones', icon: Bell },
   { to: '/admin/scoring', label: 'Scoring', icon: Target },
+  { to: '/admin/ticker-content', label: 'Textos del ticker', icon: MessageSquareText },
   { to: '/admin/scoring-display', label: 'Puntos y ticker', icon: Trophy },
   { to: '/admin/health', label: 'Salud', icon: HeartPulse },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
@@ -39,6 +42,7 @@ const nav = [
   { to: '/admin/support', label: 'Soporte', icon: LifeBuoy },
   { to: '/admin/cards', label: 'Cards', icon: CreditCard },
   { to: '/admin/live-cards', label: 'Mundial Vivo', icon: Sparkles },
+  { to: '/admin/ranking-lore', label: 'Lore ranking', icon: BookOpen },
 ] as const
 
 function navClassName(isActive: boolean, base: string) {

@@ -24,8 +24,8 @@ const links: MenuItem[] = [
   { to: '/', label: 'Inicio', icon: Home, end: true },
   { to: '/teams', label: 'Equipos', icon: Shield },
   { to: '/matches', label: 'Fixture', icon: CalendarDays },
-  { to: '/predictions', label: 'Predicciones', icon: Target },
-  { to: '/leaderboard', label: 'Ranking', icon: Trophy },
+  { to: '/predictions', label: 'Ranking', icon: Trophy },
+  { to: '/mis-predicciones', label: 'Predicciones', icon: Target },
   { to: '/profile', label: 'Mi perfil', icon: User },
   { to: '/notifications', label: 'Notificaciones', icon: Bell },
 ]

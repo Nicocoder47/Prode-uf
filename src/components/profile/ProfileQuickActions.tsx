@@ -8,7 +8,7 @@ type ProfileQuickActionsProps = {
 }
 
 const ACTIONS = [
-  { to: '/predictions', label: 'Mis Predicciones', icon: Target },
+  { to: '/mis-predicciones', label: 'Mis Predicciones', icon: Target },
   { to: '/leaderboard', label: 'Ranking', icon: Trophy },
   { to: '/matches', label: 'Partidos', icon: CalendarDays },
 ] as const

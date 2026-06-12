@@ -4,6 +4,7 @@ import { resolveSportsDataProvider } from './DataProviderManager'
 import { SyncEngine } from './SyncEngine'
 import { logSyncPhase } from './matchSyncDiagnostics'
 import { syncTodayMatchResultsFromApi } from './todayMatchResultsSync'
+import { syncFootballDataScorers } from './scorersSync'
 
 export type LiveSyncCycleResult = {
   ok: boolean
@@ -14,6 +15,8 @@ export type LiveSyncCycleResult = {
   todayResultsFetched: number
   todayResultsUpserted: number
   todayResultsSkipped: number
+  scorersFetched: number
+  scorersUpserted: number
   liveBundlesProcessed: number
   apiFootballConfigured: boolean
   errors: string[]
@@ -91,6 +94,8 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
   let todayResultsFetched = 0
   let todayResultsUpserted = 0
   let todayResultsSkipped = 0
+  let scorersFetched = 0
+  let scorersUpserted = 0
   let liveBundlesProcessed = 0
   const apiFootballConfigured = ApiFootballProvider.isConfigured()
 
@@ -188,6 +193,41 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
     })
   }
 
+  // --- scorers (football-data tournament totals) ---
+  if (process.env.FOOTBALL_DATA_API_KEY?.trim()) {
+    const scorersStartedAt = new Date().toISOString()
+    try {
+      const scorersSync = await syncFootballDataScorers(50)
+      scorersFetched = scorersSync.fetched
+      scorersUpserted = scorersSync.upserted
+      if (scorersSync.errors.length > 0) {
+        warnings.push(...scorersSync.errors.map(e => `scorers: ${e}`))
+      }
+      await logSyncRun({
+        syncType: 'scorers',
+        provider: 'football_data',
+        status: scorersSync.errors.length > 0 ? 'error' : 'done',
+        recordsUpserted: scorersSync.upserted,
+        recordsSkipped: scorersSync.skipped,
+        startedAt: scorersStartedAt,
+        errorMessage: scorersSync.errors[0] ?? null,
+        meta: { fetched: scorersSync.fetched },
+      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      warnings.push(`scorers: ${msg}`)
+      console.warn(`[SYNC:scorers] ${msg}`)
+      await logSyncRun({
+        syncType: 'scorers',
+        provider: 'football_data',
+        status: 'error',
+        recordsUpserted: 0,
+        startedAt: scorersStartedAt,
+        errorMessage: msg,
+      })
+    }
+  }
+
   // --- api-football pipeline (opcional) ---
   if (apiFootballConfigured) {
     const pipelineStartedAt = new Date().toISOString()
@@ -224,6 +264,8 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
     todayResultsFetched,
     todayResultsUpserted,
     todayResultsSkipped,
+    scorersFetched,
+    scorersUpserted,
     liveBundlesProcessed,
     apiFootballConfigured,
     errors,
@@ -247,6 +289,8 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
       todayResultsFetched,
       todayResultsUpserted,
       todayResultsSkipped,
+      scorersFetched,
+      scorersUpserted,
       liveBundlesProcessed,
       apiFootballConfigured,
       errors,

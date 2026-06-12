@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useRankingLoreConfig } from './useRankingLoreConfig.ts'
 import { worldCupService } from '../services/worldcup/worldCupService'
+import { getPlayedResultsLastSync } from './usePlayedResultsSync.ts'
 import {
   buildWorldCupLiveInsights,
   getLiveInsightsCacheBucket,
@@ -33,6 +35,7 @@ type UseWorldCupLiveInsightsInput = {
 export function useWorldCupLiveInsights(input: UseWorldCupLiveInsightsInput) {
   const bucket = getLiveInsightsCacheBucket()
   const enabled = input.enabled ?? true
+  const { data: rankingLore } = useRankingLoreConfig()
 
   const { data: matchStats = [] } = useQuery({
     queryKey: worldCupLiveKeys.matchStats(),
@@ -55,6 +58,8 @@ export function useWorldCupLiveInsights(input: UseWorldCupLiveInsightsInput) {
       userId: input.userId,
       points: input.points,
       rank: input.rank,
+      rankingLore: rankingLore ?? null,
+      playedResultsLastSync: getPlayedResultsLastSync(),
     })
   }, [
     enabled,
@@ -68,6 +73,7 @@ export function useWorldCupLiveInsights(input: UseWorldCupLiveInsightsInput) {
     input.points,
     input.rank,
     matchStats,
+    rankingLore,
   ])
 
   return {

@@ -62,7 +62,7 @@ export default function TeamsListPage() {
         <p className="wc26-card p-5 text-center text-sm text-wc26-text/55">{EMPTY.teams}</p>
       )}
 
-      <div className="flex flex-col gap-2.5 md:grid md:grid-cols-2 md:gap-3 xl:grid-cols-3">
+      <div className="wc26-teams-grid grid grid-cols-2 gap-2 sm:gap-2.5 xl:grid-cols-3">
         {sortedTeams.map((team, i) => {
           const group = groupByTeam.get(team.id) || normalizeGroupId(team.group) || '—'
           const accent = group !== '—' ? groupColor(group) : '#006B3F'
@@ -73,19 +73,25 @@ export default function TeamsListPage() {
           const goalsPerMatch =
             scoring.perMatch ??
             (standing && standing.played > 0 ? standing.goalsFor / standing.played : null)
+          const isExpanded = expandedId === team.id
           return (
-            <TeamProfileCard
+            <div
               key={team.id}
-              team={team}
-              groupId={group}
-              players={teamPlayers}
-              form={form}
-              goalsPerMatch={goalsPerMatch}
-              accent={accent}
-              index={i}
-              expanded={expandedId === team.id}
-              onToggle={() => toggleTeam(team.id)}
-            />
+              className={`min-w-0${isExpanded ? ' col-span-2 xl:col-span-3' : ''}`}
+            >
+              <TeamProfileCard
+                team={team}
+                groupId={group}
+                players={teamPlayers}
+                form={form}
+                goalsPerMatch={goalsPerMatch}
+                accent={accent}
+                index={i}
+                variant="tile"
+                expanded={isExpanded}
+                onToggle={() => toggleTeam(team.id)}
+              />
+            </div>
           )
         })}
       </div>

@@ -7,7 +7,7 @@ const ACTIONS = [
   { to: '/groups', label: 'Grupos', sub: 'Fase de grupos', icon: LayoutGrid, tone: 'blue' },
   { to: '/teams', label: 'Equipos', sub: '48 selecciones', icon: Shield, tone: 'green' },
   { to: '/matches', label: 'Fixture', sub: 'Calendario completo', icon: CalendarDays, tone: 'gold' },
-  { to: '/predictions', label: 'Predicciones', sub: 'Tus pronósticos', icon: Target, tone: 'red' },
+  { to: '/mis-predicciones', label: 'Predicciones', sub: 'Tus pronósticos', icon: Target, tone: 'red' },
 ] as const
 
 export function QuickActionGrid({ compact = false }: { compact?: boolean }) {

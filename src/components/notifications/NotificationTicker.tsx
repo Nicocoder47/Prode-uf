@@ -4,6 +4,7 @@ import { Bell } from 'lucide-react'
 import { getDefaultScoringDisplay } from '../../hooks/useScoringDisplayConfig.ts'
 import { fetchActiveAdminCards, fetchMyNotifications, markNotificationRead } from '../../services/admin/adminService.ts'
 import { resolveScoringDisplay } from '../../config/scoringDisplay.ts'
+import { resolveTickerContent } from '../../config/tickerContent.ts'
 import type { AppNotification } from '../../types/admin.ts'
 
 type TickerItem = {
@@ -15,17 +16,18 @@ type TickerItem = {
 
 function buildFallbackItems(): TickerItem[] {
   const scoring = getDefaultScoringDisplay()
+  const content = resolveTickerContent([], scoring)
   return [
     {
       id: 'welcome',
-      title: 'PRODEMUNDIAL 2026',
-      message: 'Viví el Mundial · Hacé tus predicciones antes de cada partido',
+      title: content.welcomeTitle,
+      message: content.welcomeMessage,
       isRead: true,
     },
     {
       id: 'tip',
-      title: 'Tip',
-      message: scoring.tickerTipMessage,
+      title: content.tipTitle,
+      message: content.tipMessage,
       isRead: true,
     },
   ]
@@ -42,6 +44,7 @@ export function NotificationTicker() {
       ])
 
       const scoring = resolveScoringDisplay(cards)
+      const content = resolveTickerContent(cards, scoring)
 
       const fromNotifs: TickerItem[] = notifications.map(n => ({
         id: n.id,
@@ -50,22 +53,28 @@ export function NotificationTicker() {
         isRead: n.is_read,
       }))
 
-      const important = cards.find(c => c.key === 'important_message' && c.value && c.value !== '—')
-      const fromCard: TickerItem[] = important
-        ? [{ id: 'card-important', title: important.title, message: important.value ?? important.subtitle ?? '', isRead: true }]
+      const fromCard: TickerItem[] = content.importantActive
+        ? [
+            {
+              id: 'card-important',
+              title: content.importantTitle,
+              message: content.importantMessage ?? '',
+              isRead: true,
+            },
+          ]
         : []
 
       const scoringTip: TickerItem = {
         id: 'tip',
-        title: 'Tip',
-        message: scoring.tickerTipMessage,
+        title: content.tipTitle,
+        message: content.tipMessage,
         isRead: true,
       }
 
       const welcome: TickerItem = {
         id: 'welcome',
-        title: 'PRODEMUNDIAL 2026',
-        message: 'Viví el Mundial · Hacé tus predicciones antes de cada partido',
+        title: content.welcomeTitle,
+        message: content.welcomeMessage,
         isRead: true,
       }
 

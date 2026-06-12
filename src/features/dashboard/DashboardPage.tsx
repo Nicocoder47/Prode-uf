@@ -14,6 +14,7 @@ import {
   WorldCupLiveCarousel,
 } from '../../components/worldcup'
 import { useTodayResultsSync } from '../../hooks/useTodayResultsSync.ts'
+import { usePlayedResultsSync } from '../../hooks/usePlayedResultsSync.ts'
 import { useWorldCupLiveInsights } from '../../hooks/useWorldCupLiveInsights'
 import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers, useAllPlayers } from '../../useWorldCupData'
 import { ENABLE_HEAVY_ANIMATIONS, ENABLE_LIVE_INSIGHTS } from '../../config/betaMode'
@@ -74,6 +75,7 @@ export default function DashboardPage() {
   const heroMatch = useMemo(() => getHeroDisplayMatch(nextResolved), [nextResolved])
 
   useTodayResultsSync()
+  usePlayedResultsSync()
 
   const { cards: liveCards } = useWorldCupLiveInsights({
     matches,

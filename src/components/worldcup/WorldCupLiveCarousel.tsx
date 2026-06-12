@@ -40,6 +40,10 @@ export function WorldCupLiveCarousel({ cards, onPredict }: WorldCupLiveCarouselP
     return () => window.clearInterval(id)
   }, [cards.length, reduceMotion, scrollToIndex])
 
+  useEffect(() => {
+    window.requestAnimationFrame(() => scrollToIndex(active))
+  }, [active, cards.length, scrollToIndex])
+
   const handleScroll = () => {
     const el = scrollRef.current
     if (!el || el.children.length === 0) return

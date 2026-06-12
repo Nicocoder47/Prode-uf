@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { NavLink, useLocation, Link } from 'react-router-dom'
-import { Home, ShieldCheck, Shield, Play, Target, User } from 'lucide-react'
+import { Home, ShieldCheck, Shield, Play, Trophy, User } from 'lucide-react'
 import { NotificationBell } from '../notifications/NotificationBell.tsx'
 import { NotificationTicker } from '../notifications/NotificationTicker.tsx'
 import { useAuth } from '../../lib/auth.tsx'
@@ -12,7 +12,7 @@ const navItems = [
   { to: '/', label: 'Inicio', icon: Home },
   { to: '/teams', label: 'Equipos', icon: Shield },
   { to: '/matches', label: 'JUGAR', icon: Play, featured: true },
-  { to: '/predictions', label: 'Predicciones', icon: Target },
+  { to: '/predictions', label: 'Ranking', icon: Trophy },
   { to: '/profile', label: 'Perfil', icon: User },
   { to: '/admin', label: 'Admin', icon: ShieldCheck },
 ]
@@ -90,8 +90,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main
           className={`flex-1 md:px-0 md:pb-6 ${
             isHome
-              ? 'px-0 pb-[calc(8.25rem+env(safe-area-inset-bottom))]'
-              : 'px-2 pb-[calc(8rem+env(safe-area-inset-bottom))]'
+              ? 'px-0 pb-[calc(8.5rem+env(safe-area-inset-bottom))]'
+              : 'px-2 pb-[calc(8.35rem+env(safe-area-inset-bottom))]'
           }`}
         >
           {children}

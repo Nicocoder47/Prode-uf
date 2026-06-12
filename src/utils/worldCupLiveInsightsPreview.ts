@@ -1,8 +1,31 @@
-import type { Match, Team } from '../types/worldcup'
-import type {
-  WorldCupLiveCardType,
-  WorldCupLiveInsightPayload,
+import { buildRankingLoreFromLeaderboard, DEFAULT_RANKING_LORE } from '../config/rankingLore.ts'
+import type { LeaderboardEntry, Match, Team } from '../types/worldcup'
+import {
+  toRankingLoreDisplay,
+  type WorldCupLiveCardType,
+  type WorldCupLiveInsightPayload,
 } from './worldCupLiveInsights'
+
+const PREVIEW_LEADERBOARD: LeaderboardEntry[] = [
+  {
+    userId: 'preview-leader',
+    rank: 1,
+    points: 24,
+    wins: 0,
+    draws: 0,
+    losses: 0,
+    profile: { fullName: 'Martín García', legajo: '10482' },
+  },
+  {
+    userId: 'preview-runner',
+    rank: 2,
+    points: 24,
+    wins: 0,
+    draws: 0,
+    losses: 0,
+    profile: { fullName: 'Marcelo Arguello', legajo: '25985' },
+  },
+]
 
 function mockTeam(code: string, name: string, flag: string): Team {
   return {
@@ -44,10 +67,20 @@ export const LIVE_CARD_TYPE_META: Record<
   WorldCupLiveCardType,
   { label: string; emoji: string; description: string; sources: string[] }
 > = {
+  played_matches: {
+    label: 'Partidos jugados',
+    emoji: '🏁',
+    description: 'Resultados oficiales de partidos finalizados, sync diario con la API.',
+    sources: [
+      'src/utils/worldCupLiveInsights.ts',
+      'src/hooks/usePlayedResultsSync.ts',
+      'src/components/worldcup/LiveInsightCard.tsx',
+    ],
+  },
   next_match: {
-    label: 'Próximo partido',
+    label: 'Próximos partidos',
     emoji: '⚽',
-    description: 'Countdown al siguiente partido programado con CTA para predecir.',
+    description: 'Listado de partidos del día con CTA para predecir.',
     sources: [
       'src/components/worldcup/WorldCupLiveCarousel.tsx',
       'src/utils/worldCupLiveInsights.ts',
@@ -66,9 +99,14 @@ export const LIVE_CARD_TYPE_META: Record<
   },
   ranking_move: {
     label: 'Movimiento ranking',
-    emoji: '🏆',
-    description: 'Cambios de posición en el leaderboard respecto al snapshot anterior.',
-    sources: ['src/utils/worldCupLiveInsights.ts', 'src/components/worldcup/LiveInsightCard.tsx'],
+    emoji: '🎯',
+    description: 'Relato editorial del ranking (configurable en admin) o podio automático si el lore está desactivado.',
+    sources: [
+      'src/utils/worldCupLiveInsights.ts',
+      'src/components/worldcup/LiveInsightCard.tsx',
+      'src/features/admin/AdminRankingLorePage.tsx',
+      'src/config/rankingLore.ts',
+    ],
   },
   popular_match: {
     label: 'Partido popular',
@@ -97,6 +135,7 @@ export const LIVE_CARD_TYPE_META: Record<
 }
 
 const ORDER: WorldCupLiveCardType[] = [
+  'played_matches',
   'next_match',
   'community_trend',
   'ranking_move',
@@ -110,25 +149,45 @@ const ORDER: WorldCupLiveCardType[] = [
 export function buildLiveCardsPreviewFixtures(): WorldCupLiveInsightPayload[] {
   const match = mockMatch()
 
+  const finishedPreview: Match = {
+    ...match,
+    id: 'preview-played-1',
+    status: 'finished',
+    homeScore: 2,
+    awayScore: 1,
+    kickoff: new Date(Date.now() - 86_400_000).toISOString(),
+    homeTeam: mockTeam('MEX', 'México', '🇲🇽'),
+    awayTeam: mockTeam('POL', 'Polonia', '🇵🇱'),
+  }
+
   return [
+    {
+      id: 'preview-played_matches',
+      type: 'played_matches',
+      emoji: '🏁',
+      title: 'PARTIDOS JUGADOS',
+      subtitle: '3 resultados · Sync diario con la API',
+      matches: [
+        finishedPreview,
+        {
+          ...finishedPreview,
+          id: 'preview-played-2',
+          homeScore: 0,
+          awayScore: 0,
+          homeTeam: mockTeam('KOR', 'Corea del Sur', '🇰🇷'),
+          awayTeam: mockTeam('CZE', 'Rep. Checa', '🇨🇿'),
+        },
+      ],
+      cta: { label: 'Ver todos', action: 'matches' },
+    },
     {
       id: 'preview-next_match',
       type: 'next_match',
       emoji: '⚽',
-      title: 'PRÓXIMO PARTIDO',
+      title: 'PRÓXIMOS PARTIDOS',
       match,
       countdownLabel: 'Faltan 2 días',
-      todayMatches: [
-        {
-          ...match,
-          id: 'preview-today-finished',
-          status: 'finished',
-          homeScore: 2,
-          awayScore: 0,
-          kickoff: new Date(new Date().setHours(16, 0, 0, 0)).toISOString(),
-        },
-        match,
-      ],
+      todayMatches: [match],
       cta: { label: 'Predecir ahora', action: 'predict' },
     },
     {
@@ -147,11 +206,18 @@ export function buildLiveCardsPreviewFixtures(): WorldCupLiveInsightPayload[] {
     {
       id: 'preview-ranking_move',
       type: 'ranking_move',
-      emoji: '🏆',
+      emoji: DEFAULT_RANKING_LORE.emoji,
       title: 'MOVIMIENTO RANKING',
-      lines: ['Martín subió 3 posiciones'],
-      leader: { rank: 1, name: 'Martín García', legajo: '10482', points: 24 },
-      runnerUp: { rank: 2, name: 'Laura Pérez', legajo: '09137', points: 21 },
+      lines: [],
+      leader: null,
+      runnerUp: null,
+      lore: toRankingLoreDisplay(
+        buildRankingLoreFromLeaderboard(PREVIEW_LEADERBOARD, {
+          ...DEFAULT_RANKING_LORE,
+          enabled: true,
+          autoFromLeaderboard: true,
+        })!,
+      ),
       cta: { label: 'Ver ranking', action: 'leaderboard' },
     },
     {
@@ -168,9 +234,9 @@ export function buildLiveCardsPreviewFixtures(): WorldCupLiveInsightPayload[] {
       emoji: '⚽',
       title: 'GOLEADORES',
       scorers: [
-        { name: 'Mbappé', goals: 4 },
-        { name: 'Haaland', goals: 3 },
-        { name: 'Messi', goals: 3 },
+        { id: 'p1', name: 'Kylian Mbappé', goals: 4, flag: '🇫🇷', countryCode: 'FRA' },
+        { id: 'p2', name: 'Erling Haaland', goals: 3, flag: '🇳🇴', countryCode: 'NOR' },
+        { id: 'p3', name: 'Lionel Messi', goals: 3, flag: '🇦🇷', countryCode: 'ARG' },
       ],
     },
     {

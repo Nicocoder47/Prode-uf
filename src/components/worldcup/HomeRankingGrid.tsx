@@ -13,10 +13,14 @@ type HomeRankingGridProps = {
 
 const PODIUM_ORDER = [2, 1, 3] as const
 
-function splitName(fullName?: string) {
-  const parts = (fullName ?? 'Jugador').trim().split(/\s+/).filter(Boolean)
-  if (parts.length <= 1) return { first: parts[0] ?? 'Jugador', last: '—' }
-  return { first: parts[0], last: parts.slice(1).join(' ') }
+const PODIUM_ELITE_LABEL: Record<number, string> = {
+  1: 'Líder',
+  2: 'Plata',
+  3: 'Bronce',
+}
+
+function displayName(entry: LeaderboardEntry): string {
+  return entry.profile?.fullName?.trim() || `Jugador #${entry.rank}`
 }
 
 function rankTone(rank: number) {
@@ -35,14 +39,16 @@ export function HomeRankingGrid({
   const rows = entries.slice(0, maxRows)
   const top3ByRank = new Map(rows.filter(r => (r.rank ?? 0) <= 3).map(entry => [entry.rank, entry]))
   const podiumEntries = PODIUM_ORDER.map(rank => top3ByRank.get(rank)).filter(
-    (entry): entry is LeaderboardEntry => entry != null
+    (entry): entry is LeaderboardEntry => entry != null,
   )
 
   return (
     <motion.section {...MOTION.enter} className="wc26-home-ranking mb-5">
       <div className="wc26-home-ranking__header">
-        <div className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-[#F8B91E]" />
+        <div className="flex items-center gap-2.5">
+          <span className="wc26-home-ranking__icon" aria-hidden>
+            <Trophy className="h-5 w-5" />
+          </span>
           <div>
             <p className="wc26-home-ranking__kicker">Lo más importante</p>
             <h2 className="wc26-home-ranking__title">Ranking de jugadores</h2>
@@ -69,9 +75,10 @@ export function HomeRankingGrid({
               className="wc26-home-ranking__podium"
             >
               {podiumEntries.map(entry => {
-                const { first, last } = splitName(entry.profile?.fullName)
                 const tone = rankTone(entry.rank)
                 const isMe = entry.userId === currentUserId
+                const name = displayName(entry)
+                const isLeader = entry.rank === 1
 
                 return (
                   <motion.div
@@ -79,13 +86,31 @@ export function HomeRankingGrid({
                     variants={MOTION.enterScale}
                     className={`wc26-home-ranking__podium-card wc26-home-ranking__podium-card--${tone}${isMe ? ' is-me' : ''}`}
                   >
-                    <span className="wc26-home-ranking__podium-rank">
-                      {entry.rank === 1 ? <Crown className="h-4 w-4" /> : null}#{entry.rank}
+                    {isLeader ? (
+                      <span className="wc26-home-ranking__podium-crown" aria-hidden>
+                        <Crown className="h-5 w-5" strokeWidth={2.2} />
+                      </span>
+                    ) : null}
+
+                    <div className="wc26-home-ranking__podium-rank-hero">
+                      <span className="wc26-home-ranking__podium-rank-num" aria-label={`Puesto ${entry.rank}`}>
+                        {entry.rank}
+                      </span>
+                      <span className="wc26-home-ranking__podium-elite">
+                        {PODIUM_ELITE_LABEL[entry.rank] ?? `#${entry.rank}`}
+                      </span>
+                    </div>
+
+                    <p className="wc26-home-ranking__podium-name" title={name}>
+                      {name}
+                    </p>
+                    <span className="wc26-home-ranking__podium-legajo">
+                      Leg. {entry.profile?.legajo ?? '—'}
                     </span>
-                    <p className="wc26-home-ranking__podium-name">{first}</p>
-                    <p className="wc26-home-ranking__podium-last">{last}</p>
-                    <p className="wc26-home-ranking__podium-legajo">{entry.profile?.legajo ?? '—'}</p>
-                    <p className="wc26-home-ranking__podium-points">{entry.points} pts</p>
+                    <p className="wc26-home-ranking__podium-points">
+                      <strong>{entry.points}</strong>
+                      <span>pts</span>
+                    </p>
                   </motion.div>
                 )
               })}
@@ -95,17 +120,16 @@ export function HomeRankingGrid({
           <div className="wc26-home-ranking__panel">
             <div className="wc26-home-ranking__grid wc26-home-ranking__grid--head">
               <span>#</span>
-              <span>Nombre</span>
-              <span>Apellido</span>
+              <span>Jugador</span>
               <span>Legajo</span>
               <span>Pts</span>
             </div>
 
             <div className="wc26-home-ranking__body">
               {rows.map(entry => {
-                const { first, last } = splitName(entry.profile?.fullName)
                 const isMe = entry.userId === currentUserId
                 const tone = rankTone(entry.rank)
+                const name = displayName(entry)
 
                 return (
                   <div
@@ -113,8 +137,9 @@ export function HomeRankingGrid({
                     className={`wc26-home-ranking__grid wc26-home-ranking__row wc26-home-ranking__row--${tone}${isMe ? ' is-me' : ''}`}
                   >
                     <span className="wc26-home-ranking__pos">#{entry.rank}</span>
-                    <span className="wc26-home-ranking__first">{first}</span>
-                    <span className="wc26-home-ranking__last">{last}</span>
+                    <span className="wc26-home-ranking__player-name" title={name}>
+                      {name}
+                    </span>
                     <span className="wc26-home-ranking__legajo">{entry.profile?.legajo ?? '—'}</span>
                     <span className="wc26-home-ranking__points">{entry.points}</span>
                   </div>

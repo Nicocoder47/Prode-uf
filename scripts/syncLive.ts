@@ -44,6 +44,8 @@ async function main() {
     liveMatchesUpserted: result.liveMatchesUpserted,
     todayResultsFetched: result.todayResultsFetched,
     todayResultsUpserted: result.todayResultsUpserted,
+    scorersFetched: result.scorersFetched,
+    scorersUpserted: result.scorersUpserted,
     liveBundlesProcessed: result.liveBundlesProcessed,
     errors: result.errors,
     warnings: result.warnings,

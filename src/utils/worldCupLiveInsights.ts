@@ -1,14 +1,19 @@
+import { buildRankingLoreFromLeaderboard, type RankingLoreConfig } from '../config/rankingLore.ts'
 import type { GroupProgress, OverallProgress } from './predictionProgress'
-import { getNextRewardMilestone, getRecommendedGroup, resolveNextMatchForHome } from './predictionProgress'
+import { getNextRewardMilestone, getRecommendedGroup } from './predictionProgress'
 import type { LeaderboardEntry, Match, Player, TopScorer } from '../types/worldcup'
 import type { LiveMatchStatRow } from '../services/worldcup/worldCupService'
+import { teamDisplayName } from './teamDisplay'
 
 export const LIVE_INSIGHTS_CACHE_MS = 30 * 60 * 1000
 /** Mínimo de predicciones para mostrar tendencia como dato de comunidad. */
 export const MIN_TREND_PREDICTIONS = 3
 const LB_SNAPSHOT_KEY = 'wc26_live_lb_snapshot_v2'
 
+export const PLAYED_MATCHES_CARD_LIMIT = 8
+
 export type WorldCupLiveCardType =
+  | 'played_matches'
   | 'next_match'
   | 'community_trend'
   | 'ranking_move'
@@ -24,6 +29,12 @@ export type WorldCupLiveCard = {
   title: string
   subtitle?: string
   cta?: { label: string; action: 'predict' | 'matches' | 'leaderboard' | 'login' }
+}
+
+export type PlayedMatchesInsight = WorldCupLiveCard & {
+  type: 'played_matches'
+  matches: Match[]
+  emptyMessage?: string
 }
 
 export type NextMatchInsight = WorldCupLiveCard & {
@@ -50,11 +61,20 @@ export type RankingPodiumEntry = {
   points: number
 }
 
+export type RankingLoreDisplay = {
+  emoji: string
+  headline: string
+  subjectName: string
+  body: string
+  subjectPoints: number
+}
+
 export type RankingMoveInsight = WorldCupLiveCard & {
   type: 'ranking_move'
   lines: string[]
   leader: RankingPodiumEntry | null
   runnerUp: RankingPodiumEntry | null
+  lore?: RankingLoreDisplay | null
 }
 
 export type PopularMatchInsight = WorldCupLiveCard & {
@@ -64,9 +84,17 @@ export type PopularMatchInsight = WorldCupLiveCard & {
   emptyMessage?: string
 }
 
+export type LiveScorerRow = {
+  id: string
+  name: string
+  goals: number
+  flag: string | null
+  countryCode: string | null
+}
+
 export type TopScorersInsight = WorldCupLiveCard & {
   type: 'top_scorers'
-  scorers: { name: string; goals: number }[]
+  scorers: LiveScorerRow[]
   emptyMessage?: string
 }
 
@@ -85,6 +113,7 @@ export type NextRewardInsight = WorldCupLiveCard & {
 }
 
 export type WorldCupLiveInsightPayload =
+  | PlayedMatchesInsight
   | NextMatchInsight
   | CommunityTrendInsight
   | RankingMoveInsight
@@ -173,16 +202,77 @@ function buildRankingPodium(leaderboard: LeaderboardEntry[]): {
   }
 }
 
-function shortTeamName(name: string): string {
-  const parts = name.trim().split(/\s+/)
-  return parts[parts.length - 1] ?? name
+function hasResolvedTeams(match: Match): boolean {
+  const homeCode = match.homeTeam?.code?.trim().toUpperCase()
+  const awayCode = match.awayTeam?.code?.trim().toUpperCase()
+  const homeName = match.homeTeam?.name?.trim().toLowerCase()
+  const awayName = match.awayTeam?.name?.trim().toLowerCase()
+
+  return Boolean(
+    homeCode &&
+      awayCode &&
+      homeCode !== 'TBD' &&
+      awayCode !== 'TBD' &&
+      homeName &&
+      awayName &&
+      !homeName.includes('por definir') &&
+      !awayName.includes('por definir'),
+  )
 }
 
 export function getTodayMatches(matches: Match[], now = Date.now()): Match[] {
   const todayKey = new Date(now).toDateString()
   return matches
-    .filter(m => m.homeTeam && m.awayTeam && new Date(m.kickoff).toDateString() === todayKey)
+    .filter(m => hasResolvedTeams(m) && new Date(m.kickoff).toDateString() === todayKey)
     .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
+}
+
+export function getPlayedMatches(
+  matches: Match[],
+  limit = PLAYED_MATCHES_CARD_LIMIT,
+): Match[] {
+  return matches
+    .filter(
+      m =>
+        hasResolvedTeams(m) &&
+        m.status === 'finished' &&
+        m.homeScore != null &&
+        m.awayScore != null,
+    )
+    .sort((a, b) => new Date(b.kickoff).getTime() - new Date(a.kickoff).getTime())
+    .slice(0, limit)
+}
+
+function formatPlayedResultsSubtitle(count: number, lastSyncAt: number | null): string {
+  if (!lastSyncAt) {
+    return count === 1 ? '1 resultado oficial' : `${count} resultados oficiales`
+  }
+  const hours = Math.max(0, Math.floor((Date.now() - lastSyncAt) / 3_600_000))
+  const syncLabel =
+    hours < 1
+      ? 'API actualizada hace minutos'
+      : hours < 24
+        ? `API actualizada hace ${hours}h`
+        : 'Sync diario con la API'
+  return count === 1 ? `1 resultado · ${syncLabel}` : `${count} resultados · ${syncLabel}`
+}
+
+function resolvePlayedMatches(
+  matches: Match[],
+  lastSyncAt: number | null,
+): PlayedMatchesInsight | null {
+  const played = getPlayedMatches(matches)
+  if (played.length === 0) return null
+
+  return {
+    id: 'played-matches',
+    type: 'played_matches',
+    emoji: '🏁',
+    title: 'Partidos jugados',
+    subtitle: formatPlayedResultsSubtitle(played.length, lastSyncAt),
+    matches: played,
+    cta: { label: 'Ver todos', action: 'matches' },
+  }
 }
 
 function buildRankingMoves(leaderboard: LeaderboardEntry[]): string[] {
@@ -242,37 +332,56 @@ function favoriteTrendLabel(
   hasEnoughData: boolean,
 ): string {
   if (!hasEnoughData) return 'Sin suficientes predicciones'
-  const home = match.homeTeam?.name ?? 'Local'
-  const away = match.awayTeam?.name ?? 'Visitante'
+  const home = teamDisplayName(match.homeTeam)
+  const away = teamDisplayName(match.awayTeam)
   const max = Math.max(homePct, drawPct, awayPct)
-  if (max === homePct) return `${homePct}% eligió ${shortTeamName(home)}`
-  if (max === awayPct) return `${awayPct}% eligió ${shortTeamName(away)}`
+  if (max === homePct) return `${homePct}% eligió ${home}`
+  if (max === awayPct) return `${awayPct}% eligió ${away}`
   return `${drawPct}% eligió empate`
+}
+
+function mapLiveScorerRow(scorer: TopScorer): LiveScorerRow {
+  const team = scorer.player.team
+  return {
+    id: scorer.player.id,
+    name: scorer.player.name.trim(),
+    goals: scorer.goals,
+    flag: team?.flag ?? null,
+    countryCode: team?.countryCode ?? team?.code ?? null,
+  }
+}
+
+function mapPlayerToLiveScorerRow(player: Player): LiveScorerRow {
+  const team = player.team
+  return {
+    id: player.id,
+    name: player.name.trim(),
+    goals: player.goals ?? 0,
+    flag: team?.flag ?? null,
+    countryCode: team?.countryCode ?? team?.code ?? null,
+  }
 }
 
 function buildScorersList(
   topScorers: TopScorer[],
   players: Player[],
-): { scorers: { name: string; goals: number }[]; emptyMessage?: string } {
+): { scorers: LiveScorerRow[]; emptyMessage?: string } {
   if (topScorers.length > 0) {
     return {
-      scorers: topScorers.slice(0, 5).map(s => ({
-        name: shortTeamName(s.player.name),
-        goals: s.goals,
-      })),
+      scorers: topScorers.slice(0, 5).map(mapLiveScorerRow),
     }
   }
   const fromPlayers = [...players]
     .filter(p => (p.goals ?? 0) > 0)
     .sort((a, b) => (b.goals ?? 0) - (a.goals ?? 0))
     .slice(0, 5)
-    .map(p => ({ name: shortTeamName(p.name), goals: p.goals ?? 0 }))
+    .map(mapPlayerToLiveScorerRow)
   if (fromPlayers.length > 0) {
     return { scorers: fromPlayers }
   }
   return {
     scorers: [],
-    emptyMessage: 'El torneo todavía no comenzó',
+    emptyMessage: 'Aún no hay goles registrados',
   }
 }
 
@@ -309,7 +418,19 @@ export type BuildWorldCupLiveInsightsInput = {
   userId?: string
   points: number
   rank: number | null
+  rankingLore?: RankingLoreConfig | null
+  playedResultsLastSync?: number | null
   now?: number
+}
+
+export function toRankingLoreDisplay(config: RankingLoreConfig): RankingLoreDisplay {
+  return {
+    emoji: config.emoji,
+    headline: config.headline,
+    subjectName: config.subjectName,
+    body: config.body,
+    subjectPoints: config.subjectPoints,
+  }
 }
 
 function pickTrendMatch(
@@ -374,38 +495,22 @@ function findPopularMatch(
 
 function resolveNextMatch(matches: Match[], now: number): NextMatchInsight | null {
   const todayMatches = getTodayMatches(matches, now)
-  const resolved = resolveNextMatchForHome(matches, now)
-  const next = resolved.featuredMatch
-  if (next?.homeTeam && next.awayTeam) {
-    const countdownLabel =
-      resolved.phase === 'live'
-        ? 'En vivo'
-        : formatCountdownLabel(next.kickoff, now)
-    return {
-      id: 'next-match',
-      type: 'next_match',
-      emoji: '⚽',
-      title: 'Próximo partido',
-      match: next,
-      countdownLabel,
-      todayMatches,
-      cta: { label: 'Predecir ahora', action: 'predict' },
-    }
-  }
+  if (todayMatches.length === 0) return null
 
-  const anyWithTeams = matches.find(m => m.homeTeam && m.awayTeam)
-  if (!anyWithTeams) return null
+  const predictMatch =
+    todayMatches.find(
+      m => m.status === 'scheduled' || m.status === 'live' || m.status === 'halftime',
+    ) ?? todayMatches[0]
 
   return {
-    id: 'next-match-fallback',
+    id: 'next-match',
     type: 'next_match',
     emoji: '⚽',
-    title: 'Próximo partido',
-    match: anyWithTeams,
-    countdownLabel: 'Fixture en actualización',
-    subtitle: 'Próximamente nuevos partidos',
+    title: 'Próximos partidos',
+    match: predictMatch,
+    countdownLabel: '',
     todayMatches,
-    cta: { label: 'Ver fixture', action: 'matches' },
+    cta: { label: 'Predecir ahora', action: 'predict' },
   }
 }
 
@@ -414,11 +519,16 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
   const now = input.now ?? Date.now()
   const stats = statsMap(input.matchStats)
 
+  const playedCard = resolvePlayedMatches(input.matches, input.playedResultsLastSync ?? null)
   const nextCard = resolveNextMatch(input.matches, now)
-  const trendMatch = pickTrendMatch(nextCard?.match ?? null, input.matches, stats)
+  const trendMatch = pickTrendMatch(
+    nextCard?.match ?? playedCard?.matches[0] ?? null,
+    input.matches,
+    stats,
+  )
   const scorersPayload = buildScorersList(input.topScorers, input.players)
 
-  if (!nextCard || !trendMatch) {
+  if (!trendMatch) {
     return []
   }
 
@@ -430,7 +540,8 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
   const awayPct = hasEnoughTrend ? (trendRow?.awayPct ?? 0) : 0
 
   const cards: WorldCupLiveInsightPayload[] = [
-    nextCard,
+    ...(playedCard ? [playedCard] : []),
+    ...(nextCard ? [nextCard] : []),
     {
       id: 'community-trend',
       type: 'community_trend',
@@ -446,24 +557,35 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
     },
     (() => {
       const podium = buildRankingPodium(input.leaderboard)
+      const loreTemplate = input.rankingLore
+      const resolvedLore =
+        loreTemplate?.enabled && loreTemplate
+          ? buildRankingLoreFromLeaderboard(input.leaderboard, loreTemplate)
+          : null
+      const loreActive = Boolean(resolvedLore?.headline.trim())
       return {
         id: 'ranking-move',
         type: 'ranking_move' as const,
-        emoji: '🏆',
+        emoji: loreActive ? resolvedLore!.emoji : '🏆',
         title: 'Movimiento del ranking',
-        lines: buildRankingMoves(input.leaderboard),
-        leader: podium.leader,
-        runnerUp: podium.runnerUp,
+        lines: loreActive ? [] : buildRankingMoves(input.leaderboard),
+        leader: loreActive ? null : podium.leader,
+        runnerUp: loreActive ? null : podium.runnerUp,
+        lore: loreActive && resolvedLore ? toRankingLoreDisplay(resolvedLore) : null,
         cta: { label: 'Ver ranking', action: 'leaderboard' as const },
       }
     })(),
-    findPopularMatch(input.matches, stats, nextCard.match),
+    findPopularMatch(input.matches, stats, nextCard?.match ?? trendMatch),
     {
       id: 'top-scorers',
       type: 'top_scorers',
       emoji: '👑',
       title: 'Goleadores',
-      subtitle: scorersPayload.emptyMessage ?? 'Top 5 actualizado',
+      subtitle:
+        scorersPayload.emptyMessage ??
+        (scorersPayload.scorers.length > 0
+          ? `${scorersPayload.scorers.reduce((sum, s) => sum + s.goals, 0)} goles · Top ${scorersPayload.scorers.length}`
+          : 'Top 5 actualizado'),
       scorers: scorersPayload.scorers,
       emptyMessage: scorersPayload.emptyMessage,
     },
