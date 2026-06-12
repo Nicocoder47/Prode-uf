@@ -9,6 +9,7 @@ import { footballApiClient } from './lib/api/footballApiClient';
 
 import { ENABLE_LIVE_INSIGHTS, ENABLE_REALTIME, BETA_POLL_INTERVAL_MS } from './config/betaMode';
 import { useBetaQuerySync } from './hooks/useBetaQuerySync';
+import { usePollingInterval } from './hooks/useDocumentVisible';
 
 
 
@@ -153,6 +154,12 @@ export const useMatchPlayers = (homeTeamId?: string, awayTeamId?: string) => {
 
 
 export const useWorldCupMatches = () => {
+  const basePollMs = ENABLE_REALTIME
+    ? false
+    : ENABLE_LIVE_INSIGHTS
+      ? 45_000
+      : BETA_POLL_INTERVAL_MS.matches;
+  const matchesPollMs = usePollingInterval(basePollMs || false);
 
   return useQuery<Match[]>({
 
@@ -162,11 +169,7 @@ export const useWorldCupMatches = () => {
 
     staleTime: ENABLE_LIVE_INSIGHTS ? 90_000 : 1000 * 60 * 60,
 
-    refetchInterval: ENABLE_REALTIME
-      ? false
-      : ENABLE_LIVE_INSIGHTS
-        ? 45_000
-        : BETA_POLL_INTERVAL_MS.matches,
+    refetchInterval: matchesPollMs,
 
   });
 
@@ -200,13 +203,14 @@ export const useLiveMatches = () => {
 
   }, [queryClient]);
 
-  const pollMs = useBetaQuerySync(
+  const basePollMs = useBetaQuerySync(
     true,
     'matches',
     invalidateLive,
     [invalidateLive],
     { pollMs: BETA_POLL_INTERVAL_MS.liveMatches },
   );
+  const pollMs = usePollingInterval(basePollMs || false);
 
   return useQuery<Match[]>({
 
@@ -216,7 +220,7 @@ export const useLiveMatches = () => {
 
     staleTime: 1000 * 15,
 
-    refetchInterval: pollMs || false,
+    refetchInterval: pollMs,
 
   });
 
@@ -234,13 +238,14 @@ export const useLeaderboard = () => {
 
   }, [queryClient]);
 
-  const pollMs = useBetaQuerySync(
+  const basePollMs = useBetaQuerySync(
     true,
     'leaderboard',
     invalidate,
     [invalidate],
     { pollMs: BETA_POLL_INTERVAL_MS.leaderboard },
   );
+  const pollMs = usePollingInterval(basePollMs || false);
 
   return useQuery<LeaderboardEntry[]>({
 
@@ -248,7 +253,7 @@ export const useLeaderboard = () => {
 
     queryFn: worldCupService.getLeaderboard,
 
-    refetchInterval: pollMs || false,
+    refetchInterval: pollMs,
 
   });
 
@@ -272,7 +277,7 @@ export const usePredictions = (userId?: string) => {
 
 
 
-  const pollMs = useBetaQuerySync(
+  const basePollMs = useBetaQuerySync(
 
     !!userId,
 
@@ -288,6 +293,7 @@ export const usePredictions = (userId?: string) => {
     },
 
   );
+  const pollMs = usePollingInterval(basePollMs || false);
 
   return useQuery<Prediction[]>({
 
@@ -297,7 +303,7 @@ export const usePredictions = (userId?: string) => {
 
     queryFn: () => worldCupService.getPredictions(userId!),
 
-    refetchInterval: pollMs || false,
+    refetchInterval: pollMs,
 
   });
 
@@ -360,6 +366,8 @@ export const useTopPlayers = (limit = 20) => {
 
 
 export const useTopScorers = () => {
+  const basePollMs = ENABLE_LIVE_INSIGHTS ? 120_000 : false;
+  const scorersPollMs = usePollingInterval(basePollMs || false);
 
   return useQuery<TopScorer[]>({
 
@@ -369,7 +377,7 @@ export const useTopScorers = () => {
 
     staleTime: ENABLE_LIVE_INSIGHTS ? 120_000 : 1000 * 60 * 30,
 
-    refetchInterval: ENABLE_LIVE_INSIGHTS ? 120_000 : false,
+    refetchInterval: scorersPollMs,
 
   });
 

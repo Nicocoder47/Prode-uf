@@ -1,0 +1,98 @@
+{
+  "generated_at": "2026-06-12T15:22:00.000Z",
+  "scope": "Fase A — Home / panel usuario (sin cambios visuales)",
+  "tasks_completed": [
+    "Eliminar useAllPlayers() del Home",
+    "Countdown aislado en WorldCupHero (HeroCountdownPanel + useMatchCountdown)",
+    "Polling pausado con document.visibilityState (usePollingInterval)",
+    "Sync unificado: solo useTodayResultsSync en Home (marca played-results + sin usePlayedResultsSync duplicado)"
+  ],
+  "before": {
+    "home_queries_on_mount": [
+      "matches (poll 45s)",
+      "leaderboard (poll 30s)",
+      "predictions (poll 30s)",
+      "topScorers (poll 120s)",
+      "allPlayers (poll 120s) — carga paginada completa players + teams",
+      "liveMatchStats (poll 60s)",
+      "rankingLore"
+    ],
+    "sync_hooks_home": ["useTodayResultsSync (5 min)", "usePlayedResultsSync (24h, misma edge function al montar)"],
+    "dashboard_rerender_interval_ms": 1000,
+    "polling_while_tab_hidden": true,
+    "estimated_requests_per_hour_visible": {
+      "matches": 80,
+      "leaderboard": 120,
+      "predictions": 120,
+      "topScorers": 30,
+      "allPlayers": 30,
+      "matchStats": 60,
+      "edge_sync_today": 12,
+      "edge_sync_played_on_mount": 1,
+      "total_polling_approx": 440
+    },
+    "memory_hot_path": "allPlayers JSON en memoria del cliente (miles de registros con join team)",
+    "cpu_hot_path": "Re-render completo Dashboard cada 1s por countdown"
+  },
+  "after": {
+    "home_queries_on_mount": [
+      "matches (poll 45s, pausa si hidden)",
+      "leaderboard (poll 30s, pausa si hidden)",
+      "predictions (poll 30s, pausa si hidden)",
+      "topScorers (poll 120s, pausa si hidden)",
+      "liveMatchStats (poll 60s, pausa si hidden)",
+      "rankingLore"
+    ],
+    "sync_hooks_home": ["useTodayResultsSync (5 min, pausa si hidden, marca played-results)"],
+    "dashboard_rerender_interval_ms": 10000,
+    "countdown_rerender_interval_ms": 1000,
+    "countdown_scope": "solo HeroCountdownPanel dentro de WorldCupHero",
+    "polling_while_tab_hidden": false,
+    "refetch_on_tab_focus": "TanStack Query refetchOnWindowFocus (default)",
+    "estimated_requests_per_hour_visible": {
+      "matches": 80,
+      "leaderboard": 120,
+      "predictions": 120,
+      "topScorers": 30,
+      "matchStats": 60,
+      "edge_sync_today": 12,
+      "total_polling_approx": 410
+    },
+    "estimated_requests_per_hour_hidden": {
+      "polling": 0,
+      "edge_sync": 0,
+      "note": "solo refetch al volver al foco"
+    },
+    "memory_hot_path": "eliminada carga allPlayers en Home",
+    "cpu_hot_path": "Dashboard estable; tick 1s limitado al hero countdown"
+  },
+  "gain_estimate": {
+    "queries_eliminated_on_home": ["allPlayers (worldcup/players)"],
+    "duplicate_edge_calls_removed": "usePlayedResultsSync ya no corre en Home junto con useTodayResultsSync",
+    "dashboard_rerender_reduction_pct": "~90 (de 3600/h a ~360/h por phase clock + 0 por countdown)",
+    "memory_reduction_estimate_pct": "15-40 en Home según tamaño tabla players",
+    "network_reduction_hidden_tab_pct": "~100 polling en background",
+    "visible_tab_requests_reduction_pct": "~7 (principalmente allPlayers)",
+    "components_optimized": [
+      "DashboardPage",
+      "WorldCupHero",
+      "useWorldCupData (matches, leaderboard, predictions, topScorers)",
+      "useWorldCupLiveInsights",
+      "useTodayResultsSync"
+    ],
+    "files_added": [
+      "src/hooks/useDocumentVisible.ts",
+      "src/hooks/useMatchCountdown.ts",
+      "src/hooks/useHomePhaseClock.ts"
+    ]
+  },
+  "validation": {
+    "typescript": "pass",
+    "production_build": "pass",
+    "visual_changes": false,
+    "scoring_touched": false,
+    "ranking_logic_touched": false,
+    "carousel_touched": false,
+    "lore_touched": false
+  }
+}

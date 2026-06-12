@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { MOTION } from '../../constants/design'
@@ -14,14 +14,13 @@ import {
   WorldCupLiveCarousel,
 } from '../../components/worldcup'
 import { useTodayResultsSync } from '../../hooks/useTodayResultsSync.ts'
-import { usePlayedResultsSync } from '../../hooks/usePlayedResultsSync.ts'
+import { useHomePhaseClock } from '../../hooks/useHomePhaseClock.ts'
 import { useWorldCupLiveInsights } from '../../hooks/useWorldCupLiveInsights'
-import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers, useAllPlayers } from '../../useWorldCupData'
+import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers } from '../../useWorldCupData'
 import { ENABLE_HEAVY_ANIMATIONS, ENABLE_LIVE_INSIGHTS } from '../../config/betaMode'
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
 import {
-  buildMatchCountdown,
   computeGroupProgress,
   computeOverallProgress,
   computeAchievements,
@@ -37,69 +36,52 @@ export default function DashboardPage() {
   const currentUserId = user?.id
   const savePrediction = useSavePrediction(currentUserId)
   const [predictMatch, setPredictMatch] = useState<Match | null>(null)
+  const phaseNow = useHomePhaseClock()
 
   const { data: matches = [] } = useWorldCupMatches()
   const { data: dbPredictions = [] } = usePredictions(currentUserId)
   const { data: dbLeaderboard = [], isLoading: leaderboardLoading } = useLeaderboard()
   const { data: topScorers = [] } = useTopScorers()
-  const { data: allPlayers = [] } = useAllPlayers()
 
   const predictionSet = useMemo(() => new Set(dbPredictions.map(p => p.matchId)), [dbPredictions])
   const groupProgress = useMemo(
     () => computeGroupProgress(matches, predictionSet),
-    [matches, predictionSet]
+    [matches, predictionSet],
   )
   const overallProgress = useMemo(
     () => computeOverallProgress(matches, predictionSet),
-    [matches, predictionSet]
+    [matches, predictionSet],
   )
   const meLeaderboard = useMemo(
     () => dbLeaderboard.find(lb => lb.userId === currentUserId),
-    [dbLeaderboard, currentUserId]
+    [dbLeaderboard, currentUserId],
   )
   const achievements = useMemo(
     () => computeAchievements(dbPredictions, meLeaderboard?.rank ?? null),
-    [dbPredictions, meLeaderboard?.rank]
+    [dbPredictions, meLeaderboard?.rank],
   )
   const streaks = useMemo(() => computeStreaks(dbPredictions, matches), [dbPredictions, matches])
 
-  const [now, setNow] = useState(() => Date.now())
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [])
-
-  const nextResolved = useMemo(() => resolveNextMatchForHome(matches, now), [matches, now])
+  const nextResolved = useMemo(
+    () => resolveNextMatchForHome(matches, phaseNow),
+    [matches, phaseNow],
+  )
   const nextMatch = nextResolved.predictMatch
   const featuredMatch = nextResolved.featuredMatch
   const heroMatch = useMemo(() => getHeroDisplayMatch(nextResolved), [nextResolved])
 
   useTodayResultsSync()
-  usePlayedResultsSync()
 
   const { cards: liveCards } = useWorldCupLiveInsights({
     matches,
     leaderboard: dbLeaderboard,
     topScorers,
-    players: allPlayers,
     overall: overallProgress,
     groupProgress,
     userId: currentUserId,
     points: meLeaderboard?.points ?? 0,
     rank: meLeaderboard?.rank ?? null,
   })
-
-  const countdown = useMemo(
-    () => buildMatchCountdown(nextResolved.countdownMatch, now),
-    [nextResolved.countdownMatch, now],
-  )
-
-  const countdownHint =
-    nextResolved.phase === 'starting_soon' && !countdown
-      ? '¡Arranca pronto!'
-      : nextResolved.phase === 'live' && !countdown
-        ? 'Partido en curso'
-        : undefined
 
   const liveCardsResolved = useMemo(() => {
     if (!featuredMatch) return liveCards
@@ -142,8 +124,9 @@ export default function DashboardPage() {
           <MobileHomeHeader />
           <WorldCupHero
             variant="mobile"
-            countdown={countdown}
-            countdownHint={countdownHint}
+            useIsolatedCountdown
+            countdownMatch={nextResolved.countdownMatch}
+            phase={nextResolved.phase}
             nextMatch={heroMatch}
             onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
             hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
@@ -191,8 +174,9 @@ export default function DashboardPage() {
       <div className="hidden space-y-6 md:block">
         <WorldCupHero
           variant="desktop"
-          countdown={countdown}
-          countdownHint={countdownHint}
+          useIsolatedCountdown
+          countdownMatch={nextResolved.countdownMatch}
+          phase={nextResolved.phase}
           nextMatch={heroMatch}
           hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
           onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}

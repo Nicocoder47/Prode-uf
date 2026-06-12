@@ -19,7 +19,7 @@ export function getPlayedResultsLastSync(): number | null {
   }
 }
 
-function markPlayedResultsSynced() {
+export function markPlayedResultsSynced() {
   try {
     localStorage.setItem(LAST_SYNC_KEY, String(Date.now()))
   } catch {

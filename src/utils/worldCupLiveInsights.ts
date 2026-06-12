@@ -1,7 +1,7 @@
 import { buildRankingLoreFromLeaderboard, type RankingLoreConfig } from '../config/rankingLore.ts'
 import type { GroupProgress, OverallProgress } from './predictionProgress'
 import { getNextRewardMilestone, getRecommendedGroup } from './predictionProgress'
-import type { LeaderboardEntry, Match, Player, TopScorer } from '../types/worldcup'
+import type { LeaderboardEntry, Match, TopScorer } from '../types/worldcup'
 import type { LiveMatchStatRow } from '../services/worldcup/worldCupService'
 import { teamDisplayName } from './teamDisplay'
 
@@ -351,33 +351,13 @@ function mapLiveScorerRow(scorer: TopScorer): LiveScorerRow {
   }
 }
 
-function mapPlayerToLiveScorerRow(player: Player): LiveScorerRow {
-  const team = player.team
-  return {
-    id: player.id,
-    name: player.name.trim(),
-    goals: player.goals ?? 0,
-    flag: team?.flag ?? null,
-    countryCode: team?.countryCode ?? team?.code ?? null,
-  }
-}
-
 function buildScorersList(
   topScorers: TopScorer[],
-  players: Player[],
 ): { scorers: LiveScorerRow[]; emptyMessage?: string } {
   if (topScorers.length > 0) {
     return {
       scorers: topScorers.slice(0, 5).map(mapLiveScorerRow),
     }
-  }
-  const fromPlayers = [...players]
-    .filter(p => (p.goals ?? 0) > 0)
-    .sort((a, b) => (b.goals ?? 0) - (a.goals ?? 0))
-    .slice(0, 5)
-    .map(mapPlayerToLiveScorerRow)
-  if (fromPlayers.length > 0) {
-    return { scorers: fromPlayers }
   }
   return {
     scorers: [],
@@ -411,7 +391,6 @@ export type BuildWorldCupLiveInsightsInput = {
   matches: Match[]
   leaderboard: LeaderboardEntry[]
   topScorers: TopScorer[]
-  players: Player[]
   overall: OverallProgress
   groupProgress: GroupProgress[]
   matchStats: LiveMatchStatRow[]
@@ -526,7 +505,7 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
     input.matches,
     stats,
   )
-  const scorersPayload = buildScorersList(input.topScorers, input.players)
+  const scorersPayload = buildScorersList(input.topScorers)
 
   if (!trendMatch) {
     return []

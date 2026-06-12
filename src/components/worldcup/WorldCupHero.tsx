@@ -1,12 +1,22 @@
+import { memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { HOME_PREMIUM, MOTION } from '../../constants/design'
+import { useMatchCountdown } from '../../hooks/useMatchCountdown'
 import type { Match } from '../../types/worldcup'
-import { formatNextMatchKickoff, shortTeamDisplayName } from '../../utils/predictionProgress'
+import {
+  formatNextMatchKickoff,
+  shortTeamDisplayName,
+  type NextMatchPhase,
+} from '../../utils/predictionProgress'
 import { TeamCrest } from './TeamCrest'
 import { TrophyIllustration } from './TrophyIllustration'
 
 interface WorldCupHeroProps {
   variant?: 'mobile' | 'desktop'
+  /** Countdown aislado (1 s) sin re-renderizar el Home. */
+  useIsolatedCountdown?: boolean
+  countdownMatch?: Match | null
+  phase?: NextMatchPhase
   countdown?: {
     days: number
     hours: number
@@ -19,6 +29,47 @@ interface WorldCupHeroProps {
   onFixture?: () => void
   hasPrediction?: boolean
 }
+
+function resolveLiveCountdownHint(
+  phase: NextMatchPhase | undefined,
+  countdown: ReturnType<typeof useMatchCountdown>,
+  externalHint?: string,
+) {
+  if (countdown) return undefined
+  if (externalHint) return externalHint
+  if (phase === 'starting_soon') return '¡Arranca pronto!'
+  if (phase === 'live') return 'Partido en curso'
+  return undefined
+}
+
+const HeroCountdownPanel = memo(function HeroCountdownPanel({
+  countdownMatch,
+  phase,
+  countdownHint,
+  nextMatch,
+  title,
+  compact,
+}: {
+  countdownMatch: Match | null
+  phase?: NextMatchPhase
+  countdownHint?: string
+  nextMatch?: Match | null
+  title: string
+  compact?: boolean
+}) {
+  const countdown = useMatchCountdown(countdownMatch)
+  const hint = resolveLiveCountdownHint(phase, countdown, countdownHint)
+
+  return (
+    <CountdownBlock
+      countdown={countdown}
+      countdownHint={hint}
+      nextMatch={nextMatch ?? countdownMatch}
+      title={title}
+      compact={compact}
+    />
+  )
+})
 
 function CountdownUnits({ countdown, compact }: { countdown: NonNullable<WorldCupHeroProps['countdown']>; compact?: boolean }) {
   const units = [
@@ -122,8 +173,11 @@ function CountdownBlock({
   )
 }
 
-export function WorldCupHero({
+export const WorldCupHero = memo(function WorldCupHero({
   variant = 'mobile',
+  useIsolatedCountdown = false,
+  countdownMatch = null,
+  phase,
   countdown,
   countdownHint,
   nextMatch,
@@ -131,6 +185,9 @@ export function WorldCupHero({
   onFixture,
   hasPrediction,
 }: WorldCupHeroProps) {
+  const showCountdownSection =
+    useIsolatedCountdown || countdown || countdownHint || nextMatch
+
   if (variant === 'desktop') {
     return (
       <motion.div
@@ -149,12 +206,22 @@ export function WorldCupHero({
               <p className="mt-1 text-base font-medium text-[#F4F7FA]/80">Viví el Mundial. Jugá el Prode.</p>
             </div>
           </div>
-          <CountdownBlock
-            countdown={countdown}
-            countdownHint={countdownHint}
-            nextMatch={nextMatch}
-            title="Próximo partido"
-          />
+          {useIsolatedCountdown ? (
+            <HeroCountdownPanel
+              countdownMatch={countdownMatch}
+              phase={phase}
+              countdownHint={countdownHint}
+              nextMatch={nextMatch}
+              title="Próximo partido"
+            />
+          ) : showCountdownSection ? (
+            <CountdownBlock
+              countdown={countdown}
+              countdownHint={countdownHint}
+              nextMatch={nextMatch}
+              title="Próximo partido"
+            />
+          ) : null}
           <div className="flex gap-3">
             <motion.button
               type="button"
@@ -199,15 +266,26 @@ export function WorldCupHero({
           <TrophyIllustration variant="hero" />
         </div>
 
-        {(countdown || countdownHint || nextMatch) && (
+        {showCountdownSection && (
           <motion.div {...MOTION.fadeIn} className="mx-auto w-full max-w-[22rem]">
-            <CountdownBlock
-              countdown={countdown}
-              countdownHint={countdownHint}
-              nextMatch={nextMatch}
-              title="Próximo partido"
-              compact
-            />
+            {useIsolatedCountdown ? (
+              <HeroCountdownPanel
+                countdownMatch={countdownMatch}
+                phase={phase}
+                countdownHint={countdownHint}
+                nextMatch={nextMatch}
+                title="Próximo partido"
+                compact
+              />
+            ) : (
+              <CountdownBlock
+                countdown={countdown}
+                countdownHint={countdownHint}
+                nextMatch={nextMatch}
+                title="Próximo partido"
+                compact
+              />
+            )}
           </motion.div>
         )}
 
@@ -224,4 +302,4 @@ export function WorldCupHero({
       </div>
     </motion.section>
   )
-}
+})

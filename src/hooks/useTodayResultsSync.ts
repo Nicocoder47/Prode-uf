@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { ENABLE_LIVE_INSIGHTS } from '../config/betaMode.ts'
 import { supabase } from '../lib/supabase.ts'
+import { useDocumentVisible } from './useDocumentVisible.ts'
+import { markPlayedResultsSynced } from './usePlayedResultsSync.ts'
 import { worldCupLiveKeys } from './useWorldCupLiveInsights.ts'
 import { worldCupKeys } from '../useWorldCupData.ts'
 
@@ -20,7 +22,6 @@ async function invalidateMatchQueries(queryClient: ReturnType<typeof useQueryCli
   await queryClient.invalidateQueries({ queryKey: worldCupKeys.liveMatches() })
   await queryClient.invalidateQueries({ queryKey: worldCupKeys.groups() })
   await queryClient.invalidateQueries({ queryKey: worldCupKeys.topScorers() })
-  await queryClient.invalidateQueries({ queryKey: worldCupKeys.players() })
   await queryClient.invalidateQueries({ queryKey: worldCupLiveKeys.matchStats() })
 }
 
@@ -33,12 +34,16 @@ function reportSyncError(message: string) {
   console.warn('[sync-today-results]', message)
 }
 
-/** Dispara sync de resultados del día desde la API → Supabase y refresca partidos en UI. */
+/**
+ * Sync único desde el cliente: resultados del día vía edge function.
+ * Reemplaza la duplicación con usePlayedResultsSync en Home (misma función, un solo intervalo).
+ */
 export function useTodayResultsSync() {
   const queryClient = useQueryClient()
+  const visible = useDocumentVisible()
 
   useEffect(() => {
-    if (!ENABLE_LIVE_INSIGHTS) return
+    if (!ENABLE_LIVE_INSIGHTS || !visible) return
 
     let cancelled = false
 
@@ -54,7 +59,6 @@ export function useTodayResultsSync() {
           reportSyncError(
             `Edge function no disponible o falló: ${error.message}. El workflow sync-live en GitHub Actions cubre el mismo caso si está activo.`,
           )
-          // Aunque falle la edge function, refrescar por si GH Actions ya actualizó Supabase.
           await invalidateMatchQueries(queryClient)
           return
         }
@@ -69,6 +73,7 @@ export function useTodayResultsSync() {
           console.info('[sync-today-results] ok', data)
         }
 
+        markPlayedResultsSynced()
         await invalidateMatchQueries(queryClient)
       } catch (err) {
         if (!cancelled) {
@@ -86,7 +91,7 @@ export function useTodayResultsSync() {
       cancelled = true
       window.clearInterval(id)
     }
-  }, [queryClient])
+  }, [queryClient, visible])
 }
 
 export { SYNC_ERROR_KEY }
