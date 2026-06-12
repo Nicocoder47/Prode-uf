@@ -39,17 +39,27 @@ async function main() {
 
   console.log('[SYNC:live] Resumen', {
     ok: result.ok,
+    critical: result.critical,
     provider: result.primaryProvider,
     liveMatchesUpserted: result.liveMatchesUpserted,
     todayResultsFetched: result.todayResultsFetched,
     todayResultsUpserted: result.todayResultsUpserted,
     liveBundlesProcessed: result.liveBundlesProcessed,
     errors: result.errors,
+    warnings: result.warnings,
     durationMs: result.durationMs,
   });
 
   console.log(JSON.stringify(result, null, 2));
-  process.exit(result.ok ? 0 : 1);
+
+  if (result.critical) {
+    console.error('[SYNC:live] Fallo crítico en today_results — exit 1');
+    process.exit(1);
+  }
+  if (result.warnings.length > 0) {
+    console.warn('[SYNC:live] Advertencias no críticas:', result.warnings.join('; '));
+  }
+  process.exit(0);
 }
 
 main().catch(err => {

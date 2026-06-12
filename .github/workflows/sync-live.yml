@@ -34,13 +34,27 @@ jobs:
         run: bash scripts/ci/prepare-sync-env.sh
 
       - name: Sync live matches & results → Supabase
+        shell: bash
         env:
-          SUPABASE_URL: ${{ env.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
-          FOOTBALL_DATA_API_KEY: ${{ env.FOOTBALL_DATA_API_KEY }}
-          API_FOOTBALL_KEY: ${{ env.API_FOOTBALL_KEY }}
+          INPUT_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          INPUT_VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          INPUT_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          INPUT_FOOTBALL_DATA: ${{ secrets.FOOTBALL_DATA_API_KEY }}
+          INPUT_API_FOOTBALL: ${{ secrets.API_FOOTBALL_KEY }}
         run: |
+          set -euo pipefail
+          resolve_supabase_url() {
+            if [ -n "${INPUT_SUPABASE_URL:-}" ]; then printf '%s' "$INPUT_SUPABASE_URL"
+            elif [ -n "${INPUT_VITE_SUPABASE_URL:-}" ]; then printf '%s' "$INPUT_VITE_SUPABASE_URL"
+            fi
+          }
+          export SUPABASE_URL="$(resolve_supabase_url)"
+          export SUPABASE_SERVICE_ROLE_KEY="${INPUT_SERVICE_ROLE}"
+          [ -n "${INPUT_FOOTBALL_DATA:-}" ] && export FOOTBALL_DATA_API_KEY="${INPUT_FOOTBALL_DATA}"
+          [ -n "${INPUT_API_FOOTBALL:-}" ] && export API_FOOTBALL_KEY="${INPUT_API_FOOTBALL}"
           echo "=== sync:live inicio $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
-          echo "Proveedor esperado: football-data.org si FOOTBALL_DATA_API_KEY está set"
+          echo "SUPABASE_URL set: $([ -n "${SUPABASE_URL:-}" ] && echo yes || echo no)"
+          echo "FOOTBALL_DATA_API_KEY set: $([ -n "${FOOTBALL_DATA_API_KEY:-}" ] && echo yes || echo no)"
+          echo "API_FOOTBALL_KEY set: $([ -n "${API_FOOTBALL_KEY:-}" ] && echo yes || echo no)"
           npm run sync:live
           echo "=== sync:live fin exit=$? ==="

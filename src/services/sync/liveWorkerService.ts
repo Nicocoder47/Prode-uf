@@ -7,6 +7,8 @@ import { syncTodayMatchResultsFromApi } from './todayMatchResultsSync'
 
 export type LiveSyncCycleResult = {
   ok: boolean
+  /** Fallo que impide confiar en resultados del día (CI debe fallar). */
+  critical: boolean
   primaryProvider: string | null
   liveMatchesUpserted: number
   todayResultsFetched: number
@@ -15,6 +17,7 @@ export type LiveSyncCycleResult = {
   liveBundlesProcessed: number
   apiFootballConfigured: boolean
   errors: string[]
+  warnings: string[]
   durationMs: number
 }
 
@@ -33,7 +36,7 @@ async function logSyncRun(input: SyncLogInput): Promise<void> {
   const metaJson = input.meta ? JSON.stringify(input.meta) : null
   const errorMessage = input.errorMessage ?? metaJson
 
-  await supabase.from('data_sync_logs').insert({
+  const { error } = await supabase.from('data_sync_logs').insert({
     provider: input.provider,
     sync_type: input.syncType,
     status: input.status,
@@ -43,6 +46,13 @@ async function logSyncRun(input: SyncLogInput): Promise<void> {
     started_at: input.startedAt,
     finished_at: new Date().toISOString(),
   })
+
+  if (error) {
+    console.error(
+      `[SYNC:log] insert failed sync_type=${input.syncType} status=${input.status}:`,
+      error.message,
+    )
+  }
 }
 
 async function writeWorkerHeartbeat(payload: Record<string, unknown>) {
@@ -75,6 +85,7 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
   const cycleStartedAt = new Date().toISOString()
   const started = Date.now()
   const errors: string[] = []
+  const warnings: string[] = []
   let primaryProvider: string | null = null
   let liveMatchesUpserted = 0
   let todayResultsFetched = 0
@@ -123,7 +134,8 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    errors.push(`live_matches: ${msg}`)
+    warnings.push(`live_matches: ${msg}`)
+    console.warn(`[SYNC:live_matches] ${msg}`)
     await logSyncRun({
       syncType: 'live_matches',
       provider: primaryProvider ?? 'unknown',
@@ -144,6 +156,8 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
 
     if (todaySync.errors.length > 0) {
       errors.push(...todaySync.errors.map(e => `today_results: ${e}`))
+    } else if (!todaySync.ok && todaySync.errors.length === 0) {
+      errors.push('today_results: sync incompleto sin detalle')
     }
 
     await logSyncRun({
@@ -188,7 +202,8 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
       })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      errors.push(`live_pipeline: ${msg}`)
+      warnings.push(`live_pipeline: ${msg}`)
+      console.warn(`[SYNC:live_pipeline] opcional — ${msg}`)
       await logSyncRun({
         syncType: 'live_pipeline',
         provider: 'api-football',
@@ -200,8 +215,10 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
     }
   }
 
+  const critical = errors.length > 0
   const result: LiveSyncCycleResult = {
-    ok: errors.length === 0,
+    ok: !critical && warnings.length === 0,
+    critical,
     primaryProvider,
     liveMatchesUpserted,
     todayResultsFetched,
@@ -210,6 +227,7 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
     liveBundlesProcessed,
     apiFootballConfigured,
     errors,
+    warnings,
     durationMs: Date.now() - started,
   }
 
@@ -218,11 +236,12 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
   await logSyncRun({
     syncType: 'live_cycle',
     provider: primaryProvider ?? 'unknown',
-    status: errors.length > 0 ? 'error' : 'done',
+    status: critical ? 'error' : 'done',
     recordsUpserted: todayResultsUpserted + liveMatchesUpserted,
     recordsSkipped: todayResultsSkipped,
     startedAt: cycleStartedAt,
-    errorMessage: errors.length > 0 ? errors.join('; ') : null,
+    errorMessage:
+      [...errors, ...warnings].length > 0 ? [...errors, ...warnings].join('; ') : null,
     meta: {
       liveMatchesUpserted,
       todayResultsFetched,
@@ -231,6 +250,8 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
       liveBundlesProcessed,
       apiFootballConfigured,
       errors,
+      warnings,
+      critical: result.critical,
       durationMs: result.durationMs,
     },
   })
