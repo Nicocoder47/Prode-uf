@@ -7,6 +7,19 @@ const TOURNAMENT_SCORERS_PROVIDER_MATCH_ID = '__tournament_scorers__'
 const FOOTBALL_DATA_TOURNAMENT_SCORERS_SOURCE = 'football_data_tournament'
 const TBD_TEAM_ID = '00000000-0000-4000-8000-000000000001'
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
+}
+
 function todayInArgentina(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date())
 }
@@ -348,7 +361,11 @@ async function syncFootballDataScorers(
   return { fetched: scorers.length, upserted: rows.length, skipped }
 }
 
-serve(async () => {
+serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const serviceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
@@ -360,10 +377,10 @@ serve(async () => {
     const wcSeason = Deno.env.get('FOOTBALL_DATA_SEASON') ?? season
 
     if (!supabaseUrl || !serviceRole) {
-      return new Response(JSON.stringify({ error: 'missing_supabase_env' }), { status: 500 })
+      return jsonResponse({ error: 'missing_supabase_env' }, 500)
     }
     if (!footballDataKey && !apiFootballKey) {
-      return new Response(JSON.stringify({ error: 'missing_football_api_key' }), { status: 503 })
+      return jsonResponse({ error: 'missing_football_api_key' }, 503)
     }
 
     const supabase = createClient(supabaseUrl, serviceRole)
@@ -375,7 +392,7 @@ serve(async () => {
       .eq('provider', provider)
 
     if (teamsError) {
-      return new Response(JSON.stringify({ error: teamsError.message }), { status: 500 })
+      return jsonResponse({ error: teamsError.message }, 500)
     }
 
     const teamMap = new Map((teams ?? []).map(t => [String(t.provider_team_id), String(t.id)]))
@@ -431,7 +448,7 @@ serve(async () => {
         .upsert(mergedRows, { onConflict: 'provider,provider_match_id' })
 
       if (upsertError) {
-        return new Response(JSON.stringify({ error: upsertError.message }), { status: 500 })
+        return jsonResponse({ error: upsertError.message }, 500)
       }
       upserted = rows.length
     }
@@ -451,21 +468,18 @@ serve(async () => {
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        ok: true,
-        upserted,
-        scorersFetched,
-        scorersUpserted,
-        provider,
-        day: todayInArgentina(),
-      }),
-      { headers: { 'Content-Type': 'application/json' } },
-    )
+    return jsonResponse({
+      ok: true,
+      upserted,
+      scorersFetched,
+      scorersUpserted,
+      provider,
+      day: todayInArgentina(),
+    })
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
-      { status: 500 },
+    return jsonResponse(
+      { error: err instanceof Error ? err.message : String(err) },
+      500,
     )
   }
 })
