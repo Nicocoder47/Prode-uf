@@ -1,3 +1,4 @@
+/* cache-bust 2026-06-12: force new asset hash to bypass stale immutable cache */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
