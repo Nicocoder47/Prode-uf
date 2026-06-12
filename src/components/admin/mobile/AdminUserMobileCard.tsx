@@ -1,8 +1,6 @@
-import { Calendar, ChevronRight, Hash, Lock, Target, Trophy } from 'lucide-react'
-import { PremiumButton } from '../../ui/PremiumButton'
+import { ChevronRight } from 'lucide-react'
 import type { AdminUserRow } from '../../../types/admin'
-import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL } from '../../../utils/reviewStatus'
-import { AdminUserAvatar } from './AdminUserAvatar'
+import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL, reviewRowClass } from '../../../utils/reviewStatus'
 
 type Props = {
   user: AdminUserRow
@@ -10,119 +8,62 @@ type Props = {
   accountClass: string
   isTest: boolean
   onView: () => void
-  onToggleBlock: () => void
-  busy?: boolean
+  onManage: () => void
 }
 
-function formatDate(value: string | null, empty = '—') {
-  if (!value) return empty
+function formatDate(value: string | null) {
+  if (!value) return 'Sin login'
   return new Date(value).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
-}
-
-function statusModifier(label: string) {
-  const l = label.toLowerCase()
-  if (l.includes('activo')) return 'active'
-  if (l.includes('bloqueado')) return 'blocked'
-  return 'deleted'
 }
 
 export function AdminUserMobileCard({
   user,
   accountLabel,
+  accountClass,
   isTest,
   onView,
-  onToggleBlock,
-  busy,
+  onManage,
 }: Props) {
-  const blocked = user.is_blocked || !user.is_active || !!user.deleted_at
+  const reviewStatus = user.review_status ?? 'pending'
+  const rowTone = reviewRowClass(reviewStatus)
+    || (reviewStatus === 'verified' ? 'admin-user-row--verified' : '')
 
   return (
-    <article
-      className={`admin-premium-card admin-user-mobile-card admin-user-mobile-card--${statusModifier(accountLabel)}`}
-      onClick={onView}
-      role="button"
-      tabIndex={0}
-      onKeyDown={e => { if (e.key === 'Enter') onView() }}
-    >
-      <div className="admin-user-mobile-card__shine" aria-hidden />
+    <div className={`admin-user-mobile-row ${rowTone}`}>
+      <button type="button" className="admin-user-mobile-row__main" onClick={onView}>
+        <div className="admin-user-mobile-row__top">
+          <div className="min-w-0 flex-1">
+            <p className="admin-user-mobile-row__name">{user.full_name}</p>
+            <p className="admin-user-mobile-row__sub">
+              {user.legajo ? `${user.legajo} · ` : ''}{user.dni_masked}
+            </p>
+            <p className="admin-user-mobile-row__email">{user.email}</p>
+          </div>
+          <div className="admin-user-mobile-row__scores">
+            <span className="admin-user-mobile-row__pts">{user.total_points} pts</span>
+            <span className="admin-user-mobile-row__pred">{user.predictions_count} pred.</span>
+          </div>
+          <ChevronRight className="admin-user-mobile-row__chevron h-4 w-4 shrink-0" />
+        </div>
 
-      <div className="admin-user-mobile-card__head">
-        <AdminUserAvatar name={user.full_name} size="md" />
-        <div className="min-w-0 flex-1">
-          <div className="admin-user-mobile-card__title-row">
-            <h3 className="admin-user-mobile-card__name">{user.full_name}</h3>
-            <ChevronRight className="admin-user-mobile-card__chevron h-5 w-5 shrink-0" />
-          </div>
-          <p className="admin-user-mobile-card__email">{user.email}</p>
-          <div className="admin-user-mobile-card__ids">
-            {user.legajo && (
-              <span className="admin-user-mobile-card__id">
-                <Hash className="h-3 w-3" />
-                {user.legajo}
-              </span>
-            )}
-            <span className="admin-user-mobile-card__id">
-              <Lock className="h-3 w-3" />
-              {user.dni_masked}
-            </span>
-          </div>
+        <div className="admin-user-mobile-row__badges">
+          <span className={REVIEW_STATUS_CLASS[reviewStatus]}>
+            {REVIEW_STATUS_LABEL[reviewStatus]}
+          </span>
+          <span className={`admin-user-mobile-row__account ${accountClass}`}>{accountLabel}</span>
+          {isTest && <span className="admin-user-mobile-row__tag">Test</span>}
         </div>
-        <span className={`admin-user-mobile-card__status admin-user-mobile-card__status--${statusModifier(accountLabel)}`}>
-          {accountLabel}
-        </span>
-      </div>
 
-      <div className="admin-user-mobile-card__meta">
-        <span className="admin-user-mobile-card__role">{user.role}</span>
-        <span className={REVIEW_STATUS_CLASS[user.review_status ?? 'pending']}>
-          {REVIEW_STATUS_LABEL[user.review_status ?? 'pending']}
-        </span>
-        {isTest && <span className="admin-user-mobile-card__test">Test</span>}
-        {user.active_last_7d && <span className="admin-user-mobile-card__active7d">Activo 7d</span>}
-        {user.must_change_password && <span className="admin-user-mobile-card__pwd">Cambiar clave</span>}
-      </div>
+        <p className="admin-user-mobile-row__meta">
+          Login: {formatDate(user.last_login_at)} · Alta: {formatDate(user.created_at)}
+        </p>
+      </button>
 
-      <div className="admin-user-mobile-card__stats">
-        <div className="admin-premium-inset admin-user-mobile-card__stat admin-user-mobile-card__stat--gold">
-          <Trophy className="h-4 w-4" />
-          <div>
-            <span className="admin-user-mobile-card__stat-value">{user.total_points}</span>
-            <span className="admin-user-mobile-card__stat-label">Puntos</span>
-          </div>
-        </div>
-        <div className="admin-premium-inset admin-user-mobile-card__stat">
-          <Target className="h-4 w-4" />
-          <div>
-            <span className="admin-user-mobile-card__stat-value">{user.predictions_count}</span>
-            <span className="admin-user-mobile-card__stat-label">Predicciones</span>
-          </div>
-        </div>
-        <div className="admin-premium-inset admin-user-mobile-card__stat admin-user-mobile-card__stat--wide">
-          <Calendar className="h-4 w-4" />
-          <div>
-            <span className="admin-user-mobile-card__stat-value admin-user-mobile-card__stat-value--sm">
-              {formatDate(user.last_login_at, 'Sin login')}
-            </span>
-            <span className="admin-user-mobile-card__stat-label">Último acceso · Alta {formatDate(user.created_at)}</span>
-          </div>
-        </div>
-      </div>
-
-      {!user.deleted_at && (
-        <div className="admin-user-mobile-card__actions" onClick={e => e.stopPropagation()}>
-          <PremiumButton size="sm" onClick={onView}>
-            Ver perfil
-          </PremiumButton>
-          <PremiumButton
-            size="sm"
-            variant={blocked ? 'success' : 'danger'}
-            disabled={busy}
-            onClick={onToggleBlock}
-          >
-            {blocked ? 'Desbloquear' : 'Bloquear'}
-          </PremiumButton>
-        </div>
+      {user.role !== 'admin' && !user.deleted_at && (
+        <button type="button" className="admin-user-mobile-row__manage" onClick={onManage}>
+          Gestionar
+        </button>
       )}
-    </article>
+    </div>
   )
 }

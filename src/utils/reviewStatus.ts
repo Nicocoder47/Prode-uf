@@ -18,6 +18,7 @@ export const REVIEW_STATUS_CLASS: Record<ReviewStatus, string> = {
 
 export function reviewRowClass(status?: ReviewStatus): string {
   if (status === 'review_required') return 'admin-user-row--review'
+  if (status === 'verified') return 'admin-user-row--verified'
   if (status === 'rejected') return 'admin-user-row--rejected'
   return ''
 }

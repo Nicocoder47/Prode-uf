@@ -369,11 +369,194 @@
 }
 
 .admin-user-row--review {
-  background: rgba(239, 68, 68, 0.08);
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 3px solid rgba(239, 68, 68, 0.75);
+}
+
+.admin-user-row--verified {
+  background: rgba(34, 197, 94, 0.08);
+  border-left: 3px solid rgba(34, 197, 94, 0.7);
 }
 
 .admin-user-row--rejected {
   background: rgba(64, 64, 64, 0.15);
+  border-left: 3px solid rgba(148, 163, 184, 0.5);
+}
+
+.admin-users-mobile-header {
+  margin-bottom: 0.5rem;
+}
+
+.admin-users-mobile-header__kicker {
+  margin: 0;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245, 196, 81, 0.75);
+}
+
+.admin-users-mobile-header__title {
+  margin: 0.15rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.admin-users-mobile-header__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.admin-users-mobile-header__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.admin-users-mobile-header__chip {
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-users-mobile-header__chip--green {
+  background: rgba(34, 197, 94, 0.14);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.admin-users-mobile-header__chip--red {
+  background: rgba(239, 68, 68, 0.14);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.admin-users-mobile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.admin-user-mobile-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.admin-user-mobile-row--skeleton {
+  padding: 0.85rem;
+}
+
+.admin-user-mobile-row__main {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0.7rem 0.65rem 0.7rem 0.75rem;
+  text-align: left;
+  color: inherit;
+}
+
+.admin-user-mobile-row__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.admin-user-mobile-row__name {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.admin-user-mobile-row__sub,
+.admin-user-mobile-row__email {
+  margin: 0.15rem 0 0;
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.admin-user-mobile-row__scores {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  flex-shrink: 0;
+}
+
+.admin-user-mobile-row__pts {
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: rgba(245, 196, 81, 0.95);
+}
+
+.admin-user-mobile-row__pred {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.admin-user-mobile-row__chevron {
+  margin-top: 0.15rem;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.admin-user-mobile-row__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.45rem;
+}
+
+.admin-user-mobile-row__account {
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-user-mobile-row__tag {
+  border-radius: 999px;
+  background: rgba(245, 196, 81, 0.14);
+  padding: 0.15rem 0.45rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: rgba(245, 196, 81, 0.95);
+}
+
+.admin-user-mobile-row__meta {
+  margin: 0.35rem 0 0;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.38);
+  line-height: 1.3;
+}
+
+.admin-user-mobile-row__manage {
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 4.5rem;
+  border: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(239, 68, 68, 0.08);
+  padding: 0.35rem 0.4rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #fca5a5;
 }
 
 /* ── Admin V2 — World Cup Control Center ── */

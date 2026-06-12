@@ -13,8 +13,6 @@ import { AdminUsersFiltersSheet } from '../../components/admin/mobile/AdminUsers
 import { AdminUsersMobileStats } from '../../components/admin/mobile/AdminUsersMobileStats.tsx'
 import { AdminUsersFiltersPanel } from '../../components/admin/AdminUsersFiltersPanel.tsx'
 import { EMPTY_ADMIN_USERS_FILTERS, countActiveAdminUserFilters } from '../../components/admin/AdminUsersFilterState.ts'
-import { useAppToast } from '../../components/ui/ToastProvider.tsx'
-import { adminBlockUser, adminUnblockUser } from '../../services/admin/adminService.ts'
 import { Eraser, SlidersHorizontal } from 'lucide-react'
 
 const PAGE_SIZE = 25
@@ -49,14 +47,11 @@ function ReviewBadge({ status }: { status?: ReviewStatus }) {
 export default function AdminUsersPage() {
   const { data: users = [], isLoading, error, refetch } = useAdminUsers()
   const { invalidateUsers, invalidateBetaOverview, invalidateDashboard } = useInvalidateAdmin()
-  const { showToast } = useAppToast()
   const [searchParams, setSearchParams] = useSearchParams()
   const [detailUser, setDetailUser] = useState<AdminUserRow | null>(null)
   const [detailTab, setDetailTab] = useState<'summary' | 'predictions' | 'security' | 'actions' | 'audit'>('summary')
   const [page, setPage] = useState(0)
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [cardBusy, setCardBusy] = useState<string | null>(null)
-
   const [search, setSearch] = useState('')
   const [reviewFilter, setReviewFilter] = useState('')
   const [accountFilter, setAccountFilter] = useState('')
@@ -132,25 +127,6 @@ export default function AdminUsersPage() {
     invalidateBetaOverview()
     invalidateDashboard()
     refetch()
-  }
-
-  async function toggleBlock(u: AdminUserRow) {
-    const blocked = u.is_blocked || !u.is_active
-    setCardBusy(u.id)
-    try {
-      if (blocked) {
-        await adminUnblockUser(u.id)
-        showToast('Usuario desbloqueado')
-      } else {
-        await adminBlockUser(u.id, 'Bloqueado desde listado mobile')
-        showToast('Usuario bloqueado')
-      }
-      handleChanged()
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Error')
-    } finally {
-      setCardBusy(null)
-    }
   }
 
   const filterState = {
@@ -293,15 +269,12 @@ export default function AdminUsersPage() {
         />
       </PremiumCard>
 
-      <div className="admin-users-mobile-list admin-mobile-card-stack md:hidden">
+      <div className="admin-users-mobile-list md:hidden">
         {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="admin-user-mobile-card admin-user-mobile-card--skeleton">
-              <div className="admin-ops-skeleton__bar h-12 w-12 rounded-full" />
-              <div className="flex-1 space-y-2">
-                <div className="admin-ops-skeleton__bar h-4 w-3/4" />
-                <div className="admin-ops-skeleton__bar h-3 w-1/2" />
-              </div>
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="admin-user-mobile-row admin-user-mobile-row--skeleton">
+              <div className="admin-ops-skeleton__bar h-4 w-2/3" />
+              <div className="admin-ops-skeleton__bar mt-2 h-3 w-1/2" />
             </div>
           ))
         ) : users.length === 0 && !error ? (
@@ -326,9 +299,8 @@ export default function AdminUsersPage() {
                 accountLabel={st.label}
                 accountClass={st.className}
                 isTest={isTestUser(u)}
-                busy={cardBusy === u.id}
                 onView={() => openUserDetail(u)}
-                onToggleBlock={() => toggleBlock(u)}
+                onManage={() => openUserDetail(u, 'actions')}
               />
             )
           })
