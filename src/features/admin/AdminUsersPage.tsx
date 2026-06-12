@@ -335,7 +335,7 @@ export default function AdminUsersPage() {
       </PremiumCard>
 
       {/* Mobile: cards */}
-      <div className="admin-users-mobile-list md:hidden">
+      <div className="admin-users-mobile-list flex md:hidden">
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="admin-user-mobile-card-v2 admin-user-tone--gray admin-user-mobile-card-v2--skeleton" />

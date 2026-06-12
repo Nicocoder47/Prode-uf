@@ -438,9 +438,18 @@
 }
 
 .admin-users-mobile-list {
-  display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+
+@media (min-width: 768px) {
+  .admin-users-mobile-list {
+    display: none !important;
+  }
+
+  .admin-users-split {
+    display: grid !important;
+  }
 }
 
 .admin-user-mobile-row {
@@ -3021,11 +3030,11 @@
 
 .admin-user-mobile-card-v2 {
   display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
+  align-items: stretch;
+  gap: 0.5rem;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0.85rem;
+  padding: 0.7rem 0.75rem;
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -3086,14 +3095,22 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
+.admin-user-mobile-card-v2__body {
+  flex: 1;
+  min-width: 0;
+}
+
 .admin-user-mobile-card-v2__cta {
-  width: 100%;
-  min-height: 44px;
+  flex-shrink: 0;
+  align-self: center;
+  min-height: 36px;
+  padding: 0 0.75rem;
   border: 1px solid rgba(245, 196, 81, 0.35);
-  border-radius: 12px;
+  border-radius: 10px;
   background: rgba(245, 196, 81, 0.12);
-  font-size: 0.78rem;
-  font-weight: 900;
+  font-size: 0.68rem;
+  font-weight: 800;
+  white-space: nowrap;
   color: rgba(245, 196, 81, 0.95);
 }
 
