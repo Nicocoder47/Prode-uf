@@ -3384,7 +3384,7 @@ body.wc26-modal-open {
   display: flex;
   gap: 0.9rem;
   overflow-x: auto;
-  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
   scroll-padding-inline: max(1rem, calc((100% - min(86vw, 350px)) / 2));
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -3397,7 +3397,6 @@ body.wc26-modal-open {
 .wc26-live-card {
   position: relative;
   flex: 0 0 min(86vw, 350px);
-  scroll-snap-align: center;
   min-height: 20rem;
   overflow: hidden;
   border-radius: 28px;
