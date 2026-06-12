@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useMotionEnabled } from '../../utils/adaptiveMotion'
 import { ArrowRight } from 'lucide-react'
 import { TeamCrest } from './TeamCrest'
 import type { WorldCupLiveInsightPayload } from '../../utils/worldCupLiveInsights'
@@ -58,6 +59,29 @@ function MatchFlags({ match }: { match: Match }) {
   )
 }
 
+function TrendBarFill({
+  pct,
+  className,
+  delay = 0,
+}: {
+  pct: number
+  className: string
+  delay?: number
+}) {
+  const motionOn = useMotionEnabled()
+  if (!motionOn) {
+    return <div className={className} style={{ width: `${pct}%` }} />
+  }
+  return (
+    <motion.div
+      className={className}
+      initial={{ width: 0 }}
+      animate={{ width: `${pct}%` }}
+      transition={{ duration: 0.45, delay }}
+    />
+  )
+}
+
 function TrendBars({
   homeTeam,
   awayTeam,
@@ -82,11 +106,9 @@ function TrendBars({
           <span>{homeLabel}</span>
         </span>
         <div className="wc26-live-card__bar">
-          <motion.div
+          <TrendBarFill
+            pct={homePct}
             className="wc26-live-card__bar-fill wc26-live-card__bar-fill--home"
-            initial={{ width: 0 }}
-            animate={{ width: `${homePct}%` }}
-            transition={{ duration: 0.45 }}
           />
         </div>
         <strong>{homePct}%</strong>
@@ -99,11 +121,10 @@ function TrendBars({
           <span>Empate</span>
         </span>
         <div className="wc26-live-card__bar">
-          <motion.div
+          <TrendBarFill
+            pct={drawPct}
             className="wc26-live-card__bar-fill wc26-live-card__bar-fill--draw"
-            initial={{ width: 0 }}
-            animate={{ width: `${drawPct}%` }}
-            transition={{ duration: 0.45, delay: 0.04 }}
+            delay={0.04}
           />
         </div>
         <strong>{drawPct}%</strong>
@@ -114,11 +135,10 @@ function TrendBars({
           <span>{awayLabel}</span>
         </span>
         <div className="wc26-live-card__bar">
-          <motion.div
+          <TrendBarFill
+            pct={awayPct}
             className="wc26-live-card__bar-fill wc26-live-card__bar-fill--away"
-            initial={{ width: 0 }}
-            animate={{ width: `${awayPct}%` }}
-            transition={{ duration: 0.45, delay: 0.08 }}
+            delay={0.08}
           />
         </div>
         <strong>{awayPct}%</strong>

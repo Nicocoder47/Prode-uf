@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell.tsx'
-import { AdminShell } from './components/layout/AdminShell.tsx'
 import { BackgroundProvider } from './components/layout/BackgroundProvider.tsx'
 import { ToastProvider } from './components/ui/ToastProvider.tsx'
 import { DeviceReporterBridge } from './components/layout/DeviceReporterBridge.tsx'
@@ -28,6 +27,9 @@ const RankingCompetitionPage = lazy(() => import('./features/leaderboard/Ranking
 const ProfilePage = lazy(() => import('./features/auth/ProfilePage.tsx'))
 const LoginPage = lazy(() => import('./features/auth/LoginPage.tsx'))
 const ChangePasswordPage = lazy(() => import('./features/auth/ChangePasswordPage.tsx'))
+const AdminShell = lazy(() =>
+  import('./components/layout/AdminShell.tsx').then(m => ({ default: m.AdminShell })),
+)
 const AdminHashRedirect = lazy(() => import('./features/admin/AdminHashRedirect.tsx'))
 const AdminDashboardPage = lazy(() => import('./features/admin/AdminDashboardPage.tsx'))
 const AdminUsersPage = lazy(() => import('./features/admin/AdminUsersPage.tsx'))

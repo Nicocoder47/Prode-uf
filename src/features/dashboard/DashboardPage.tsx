@@ -1,23 +1,18 @@
-import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MOTION } from '../../constants/design'
+import { AdaptiveSection } from '../../utils/adaptiveMotion'
 import {
-  HomeNextMatchCard,
-  MatchPredictionModal,
-  HomeContinuePredicting,
-  HomeGamificationPanel,
   WorldCupHero,
   MobileHomeHeader,
-  QuickActionGrid,
-  HomeRankingGrid,
-  WorldCupLiveCarousel,
+  HomeNextMatchCard,
 } from '../../components/worldcup'
+import { HomeSectionSkeleton } from '../../components/worldcup/HomeSectionSkeleton'
 import { useTodayResultsSync } from '../../hooks/useTodayResultsSync.ts'
 import { useHomePhaseClock } from '../../hooks/useHomePhaseClock.ts'
 import { useWorldCupLiveInsights } from '../../hooks/useWorldCupLiveInsights'
 import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers } from '../../useWorldCupData'
-import { ENABLE_HEAVY_ANIMATIONS, ENABLE_LIVE_INSIGHTS } from '../../config/betaMode'
+import { ENABLE_LIVE_INSIGHTS } from '../../config/betaMode'
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
 import {
@@ -29,6 +24,25 @@ import {
   resolveNextMatchForHome,
 } from '../../utils/predictionProgress'
 import type { Match } from '../../types/worldcup'
+
+const WorldCupLiveCarousel = lazy(() =>
+  import('../../components/worldcup/WorldCupLiveCarousel').then(m => ({ default: m.WorldCupLiveCarousel })),
+)
+const HomeRankingGrid = lazy(() =>
+  import('../../components/worldcup/HomeRankingGrid').then(m => ({ default: m.HomeRankingGrid })),
+)
+const QuickActionGrid = lazy(() =>
+  import('../../components/worldcup/QuickActionGrid').then(m => ({ default: m.QuickActionGrid })),
+)
+const HomeContinuePredicting = lazy(() =>
+  import('../../components/worldcup/HomeGameHub').then(m => ({ default: m.HomeContinuePredicting })),
+)
+const HomeGamificationPanel = lazy(() =>
+  import('../../components/worldcup/HomeGameHub').then(m => ({ default: m.HomeGamificationPanel })),
+)
+const MatchPredictionModal = lazy(() =>
+  import('../../components/worldcup/MatchPredictionModal').then(m => ({ default: m.MatchPredictionModal })),
+)
 
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -98,24 +112,12 @@ export default function DashboardPage() {
     setPredictMatch(match)
   }
 
-  const modal = predictMatch && (
-    <MatchPredictionModal
-      key={predictMatch.id}
-      match={predictMatch}
-      isOpen={!!predictMatch}
-      onClose={() => setPredictMatch(null)}
-      allMatches={matches}
-      onContinueNext={setPredictMatch}
-      existingPrediction={dbPredictions.find(p => p.matchId === predictMatch.id)}
-      onSave={async payload => {
-        await savePrediction.mutateAsync({
-          matchId: predictMatch.id,
-          homeScore: payload.exactScore?.home ?? 0,
-          awayScore: payload.exactScore?.away ?? 0,
-        })
-      }}
-    />
-  )
+  const belowFoldGamification = currentUserId ? (
+  <Suspense fallback={<HomeSectionSkeleton />}>
+    <HomeContinuePredicting groups={groupProgress} total={overallProgress.total} />
+    <HomeGamificationPanel achievements={achievements} streaks={streaks} />
+  </Suspense>
+  ) : null
 
   return (
     <>
@@ -134,39 +136,27 @@ export default function DashboardPage() {
 
           <div className="wc26-content-sheet wc26-content-sheet--home mt-1 px-3 pb-3 pt-5">
             {ENABLE_LIVE_INSIGHTS && (
-              <WorldCupLiveCarousel
-                cards={liveCardsResolved}
-                onPredict={openPredict}
+              <Suspense fallback={<HomeSectionSkeleton tall />}>
+                <WorldCupLiveCarousel cards={liveCardsResolved} onPredict={openPredict} />
+              </Suspense>
+            )}
+
+            <Suspense fallback={<HomeSectionSkeleton tall />}>
+              <HomeRankingGrid
+                entries={dbLeaderboard}
+                currentUserId={currentUserId}
+                isLoading={leaderboardLoading}
               />
-            )}
+            </Suspense>
 
-            <HomeRankingGrid
-              entries={dbLeaderboard}
-              currentUserId={currentUserId}
-              isLoading={leaderboardLoading}
-            />
-
-            {ENABLE_HEAVY_ANIMATIONS ? (
-              <motion.section {...MOTION.enter} className="mb-5">
-                <p className="wc26-section-title">Jugá ahora</p>
+            <AdaptiveSection motionProps={MOTION.enter} className="wc26-deferred-section mb-5">
+              <p className="wc26-section-title">Jugá ahora</p>
+              <Suspense fallback={<HomeSectionSkeleton />}>
                 <QuickActionGrid compact />
-              </motion.section>
-            ) : (
-              <section className="mb-5">
-                <p className="wc26-section-title">Jugá ahora</p>
-                <QuickActionGrid compact />
-              </section>
-            )}
+              </Suspense>
+            </AdaptiveSection>
 
-            {currentUserId && (
-              <>
-                <HomeContinuePredicting
-                  groups={groupProgress}
-                  total={overallProgress.total}
-                />
-                <HomeGamificationPanel achievements={achievements} streaks={streaks} />
-              </>
-            )}
+            {belowFoldGamification}
           </div>
         </div>
       </div>
@@ -184,7 +174,9 @@ export default function DashboardPage() {
         />
 
         {ENABLE_LIVE_INSIGHTS && (
-          <WorldCupLiveCarousel cards={liveCardsResolved} onPredict={openPredict} />
+          <Suspense fallback={<HomeSectionSkeleton tall />}>
+            <WorldCupLiveCarousel cards={liveCardsResolved} onPredict={openPredict} />
+          </Suspense>
         )}
 
         <HomeNextMatchCard
@@ -194,24 +186,37 @@ export default function DashboardPage() {
           onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
         />
 
-        <HomeRankingGrid
-          entries={dbLeaderboard}
-          currentUserId={currentUserId}
-          isLoading={leaderboardLoading}
-        />
+        <Suspense fallback={<HomeSectionSkeleton tall />}>
+          <HomeRankingGrid
+            entries={dbLeaderboard}
+            currentUserId={currentUserId}
+            isLoading={leaderboardLoading}
+          />
+        </Suspense>
 
-        {currentUserId && (
-          <>
-            <HomeContinuePredicting
-              groups={groupProgress}
-              total={overallProgress.total}
-            />
-            <HomeGamificationPanel achievements={achievements} streaks={streaks} />
-          </>
-        )}
+        {belowFoldGamification}
       </div>
 
-      {modal}
+      {predictMatch && (
+        <Suspense fallback={null}>
+          <MatchPredictionModal
+            key={predictMatch.id}
+            match={predictMatch}
+            isOpen={!!predictMatch}
+            onClose={() => setPredictMatch(null)}
+            allMatches={matches}
+            onContinueNext={setPredictMatch}
+            existingPrediction={dbPredictions.find(p => p.matchId === predictMatch.id)}
+            onSave={async payload => {
+              await savePrediction.mutateAsync({
+                matchId: predictMatch.id,
+                homeScore: payload.exactScore?.home ?? 0,
+                awayScore: payload.exactScore?.away ?? 0,
+              })
+            }}
+          />
+        </Suspense>
+      )}
     </>
   )
 }

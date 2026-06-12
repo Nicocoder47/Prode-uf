@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { Flame, Medal, Target } from 'lucide-react'
 import { MOTION } from '../../constants/design'
+import { AdaptiveSection } from '../../utils/adaptiveMotion'
 import { groupColor, WC26_GROUP_NAMES } from '../../constants/groups'
 import type { Achievement, GroupProgress, StreakInfo } from '../../utils/predictionProgress'
 import { TeamCrest } from './TeamCrest'
@@ -34,7 +34,7 @@ export function HomeContinuePredicting({
   }
 
   return (
-    <section className="wc26-predictions-groups mb-5">
+    <section className="wc26-predictions-groups wc26-deferred-section mb-5">
       <div className="wc26-predictions-groups__header">
         <p className="wc26-section-title !mb-1">Tus predicciones</p>
         <p className="wc26-predictions-groups__sub">Fase de grupos</p>
@@ -47,7 +47,7 @@ export function HomeContinuePredicting({
               const color = groupColor(groupId)
 
               return (
-                <motion.div key={groupId} {...MOTION.enter} className="wc26-group-carousel__item">
+                <div key={groupId} className="wc26-group-carousel__item">
                   <Link
                     to={`/matches?group=${groupId}`}
                     className="wc26-group-slide wc26-group-slide--letter-only"
@@ -56,7 +56,7 @@ export function HomeContinuePredicting({
                     <span className="wc26-group-slide__badge">Grupo</span>
                     <p className="wc26-group-slide__letter">{groupId}</p>
                   </Link>
-                </motion.div>
+                </div>
               )
             })}
           </div>
@@ -87,7 +87,7 @@ export function HomePersonalRank({
   if (rank == null && totalPlayers === 0) return null
 
   return (
-    <motion.section {...MOTION.enter} className="mb-5">
+    <AdaptiveSection motionProps={MOTION.enter} className="wc26-deferred-section mb-5">
       <Link to="/leaderboard" className="wc26-rank-snippet block">
         <div className="flex items-center gap-3">
           <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-wc26-gold to-amber-600 text-lg font-black text-[#1a1200] shadow-lg">
@@ -105,7 +105,7 @@ export function HomePersonalRank({
           <Target className="h-5 w-5 shrink-0 text-wc26-yellow" />
         </div>
       </Link>
-    </motion.section>
+    </AdaptiveSection>
   )
 }
 
@@ -120,7 +120,7 @@ export function HomeGamificationPanel({
   if (unlocked.length === 0 && streaks.predictionStreak < 3 && streaks.dayStreak < 3) return null
 
   return (
-    <section className="mb-5 space-y-3">
+    <section className="wc26-deferred-section mb-5 space-y-3">
       {(streaks.predictionStreak >= 3 || streaks.dayStreak >= 3) && (
         <div className="wc26-streak-card">
           <div className="flex items-center gap-2">

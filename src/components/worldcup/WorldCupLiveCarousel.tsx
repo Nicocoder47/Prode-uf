@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
 import { MOTION } from '../../constants/design'
+import { AdaptiveSection, useMotionEnabled } from '../../utils/adaptiveMotion'
 import { LiveInsightCard } from './LiveInsightCard'
 import type { WorldCupLiveInsightPayload } from '../../utils/worldCupLiveInsights'
 import type { Match } from '../../types/worldcup'
@@ -27,7 +27,7 @@ function closestCardIndex(el: HTMLDivElement) {
 }
 
 export function WorldCupLiveCarousel({ cards, onPredict }: WorldCupLiveCarouselProps) {
-  const reduceMotion = useReducedMotion()
+  const motionEnabled = useMotionEnabled()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const activeRef = useRef(0)
@@ -41,7 +41,7 @@ export function WorldCupLiveCarousel({ cards, onPredict }: WorldCupLiveCarouselP
   }, [])
 
   const scrollToIndex = useCallback(
-    (index: number, behavior: ScrollBehavior = reduceMotion ? 'auto' : 'smooth') => {
+    (index: number, behavior: ScrollBehavior = motionEnabled ? 'smooth' : 'auto') => {
       const el = scrollRef.current
       if (!el) return
       const child = el.children[index] as HTMLElement | undefined
@@ -58,7 +58,7 @@ export function WorldCupLiveCarousel({ cards, onPredict }: WorldCupLiveCarouselP
         programmaticScrollRef.current = false
       }, behavior === 'smooth' ? 650 : 0)
     },
-    [reduceMotion],
+    [motionEnabled],
   )
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export function WorldCupLiveCarousel({ cards, onPredict }: WorldCupLiveCarouselP
   }, [cards])
 
   useEffect(() => {
-    if (cards.length <= 1 || reduceMotion) return
+    if (cards.length <= 1 || !motionEnabled) return
     const id = window.setInterval(() => {
       if (Date.now() < pauseUntilRef.current) return
       if (programmaticScrollRef.current) return
@@ -80,7 +80,7 @@ export function WorldCupLiveCarousel({ cards, onPredict }: WorldCupLiveCarouselP
       scrollToIndex(next)
     }, 5500)
     return () => window.clearInterval(id)
-  }, [cards.length, reduceMotion, scrollToIndex])
+  }, [cards.length, motionEnabled, scrollToIndex])
 
   const handleScroll = () => {
     const el = scrollRef.current
@@ -104,7 +104,7 @@ export function WorldCupLiveCarousel({ cards, onPredict }: WorldCupLiveCarouselP
   if (cards.length === 0) return null
 
   return (
-    <motion.section {...MOTION.enter} className="wc26-live-carousel mb-5">
+    <AdaptiveSection motionProps={MOTION.enter} className="wc26-live-carousel mb-5">
       <div className="wc26-live-carousel__head">
         <div>
           <p className="wc26-live-carousel__title">🔥 MUNDIAL EN VIVO</p>
@@ -144,6 +144,6 @@ export function WorldCupLiveCarousel({ cards, onPredict }: WorldCupLiveCarouselP
           />
         ))}
       </div>
-    </motion.section>
+    </AdaptiveSection>
   )
 }

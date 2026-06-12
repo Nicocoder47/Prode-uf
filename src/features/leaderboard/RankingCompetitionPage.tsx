@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { AdaptiveDiv } from '../../utils/adaptiveMotion'
 import { Crown, Trophy, TrendingDown, TrendingUp, Minus } from 'lucide-react'
 import { useAuth } from '../../lib/auth'
 import { useLeaderboard } from '../../useWorldCupData'
@@ -114,9 +114,9 @@ export default function RankingCompetitionPage() {
       )}
 
       {!isLoading && top3.length > 0 && (
-        <motion.div
-          {...MOTION.enter}
-          className="wc26-ranking-board__podium"
+        <AdaptiveDiv
+          motionProps={MOTION.enter}
+          className="wc26-ranking-board__podium wc26-deferred-section"
           aria-label="Podio top 3"
         >
           {top3.map(entry => {
@@ -139,11 +139,11 @@ export default function RankingCompetitionPage() {
               </div>
             )
           })}
-        </motion.div>
+        </AdaptiveDiv>
       )}
 
       {!isLoading && top25.length > 0 && (
-        <div className="wc26-ranking-board__panel">
+        <div className="wc26-ranking-board__panel wc26-deferred-section">
           <div className="wc26-ranking-board__panel-head">
             <Trophy className="h-4 w-4 text-[#F8B91E]" aria-hidden />
             <span>Tabla de posiciones</span>

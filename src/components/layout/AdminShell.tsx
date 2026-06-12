@@ -1,3 +1,4 @@
+import '../../styles/admin.css'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import {
   Activity,

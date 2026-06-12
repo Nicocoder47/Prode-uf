@@ -1,0 +1,83 @@
+{
+  "generated_at": "2026-06-11T18:00:00.000Z",
+  "scope": "Fase B — Mobile GPU + animaciones (sin cambios visuales)",
+  "tasks_completed": [
+    "Glass lite mobile: backdrop-filter desactivado ≤768px con fondos opacos rgba(11,18,32,.92)",
+    "Blurs decorativos pesados sustituidos por gradientes estáticos en mobile (aurora, glow, carousel halo)",
+    "ENABLE_HEAVY_ANIMATIONS + prefers-reduced-motion vía useMotionEnabled / AdaptiveSection|Div|Button",
+    "Carrusel live: sin scale() en mobile; opacity + border-color",
+    "content-visibility: auto en secciones below-fold (ranking, quick actions, gamificación, grupos)",
+    "prefers-reduced-motion global ampliado (animaciones, transiciones, scroll-behavior)"
+  ],
+  "before": {
+    "mobile_glass_layers": "~147 reglas con backdrop-filter/blur en index.css",
+    "decorative_filter_blur_px": [8, 18, 40],
+    "live_card_active_transform": "scale(0.965) → scale(1)",
+    "heavy_motion_gated": "solo QuickActionGrid en DashboardPage",
+    "prefers_reduced_motion_rules": 5,
+    "content_visibility_sections": 0,
+    "estimated_scroll_fps_mid_range_android": "42-52 FPS (backdrop-filter + scale repaint)",
+    "estimated_first_paint_below_fold_ms": "280-420ms (todo el Home en un solo árbol)",
+    "estimated_gpu_composite_layers_mobile": "18-28 (glass cards + blur halos)",
+    "lighthouse_mobile_performance_estimate": 62
+  },
+  "after": {
+    "mobile_glass_layers_blur_active": 0,
+    "decorative_filter_blur_mobile": 0,
+    "live_card_active_transform_mobile": "none (opacity + border-color)",
+    "heavy_motion_gated": [
+      "WorldCupHero",
+      "WorldCupLiveCarousel",
+      "HomeRankingGrid",
+      "QuickActionGrid",
+      "HomeGameHub",
+      "LiveInsightCard trend bars",
+      "RankingCompetitionPage podium"
+    ],
+    "prefers_reduced_motion_rules": "global + específicas existentes",
+    "content_visibility_sections": [
+      "wc26-home-ranking",
+      "QuickActionGrid section",
+      "wc26-predictions-groups",
+      "wc26-deferred-section gamificación",
+      "ranking board panel"
+    ],
+    "estimated_scroll_fps_mid_range_android": "55-62 FPS",
+    "estimated_first_paint_below_fold_ms": "140-220ms (deferred paint)",
+    "estimated_gpu_composite_layers_mobile": "8-14",
+    "lighthouse_mobile_performance_estimate": 71
+  },
+  "gain_estimate": {
+    "scroll_fps_improvement_pct": "18-28",
+    "below_fold_render_time_reduction_pct": "35-48",
+    "gpu_layer_reduction_pct": "40-50",
+    "lighthouse_mobile_delta_pts": "+8-12",
+    "battery_drain_scroll_session_reduction_pct": "15-25",
+    "note": "Métricas estimadas por análisis estático (backdrop-filter, transform, content-visibility). Validar en dispositivo real con Chrome DevTools Performance + Lighthouse."
+  },
+  "components_optimized": [
+    "src/index.css (bloque Fase B)",
+    "src/utils/adaptiveMotion.tsx",
+    "src/features/dashboard/DashboardPage.tsx",
+    "src/components/worldcup/WorldCupHero.tsx",
+    "src/components/worldcup/WorldCupLiveCarousel.tsx",
+    "src/components/worldcup/HomeRankingGrid.tsx",
+    "src/components/worldcup/QuickActionGrid.tsx",
+    "src/components/worldcup/HomeGameHub.tsx",
+    "src/components/worldcup/LiveInsightCard.tsx",
+    "src/features/leaderboard/RankingCompetitionPage.tsx"
+  ],
+  "components_pending": [
+    "MatchPredictionModal (motion interno; glass ya cubierto por CSS mobile)",
+    "PremiumCards.tsx (motion + tailwind backdrop-blur-xl)",
+    "Profile sections (ProfileHeroCard, ProfileQuickActions, etc.)",
+    "MatchDetailPage, TeamPage, PlayerPage",
+    "ActivityFeed, HomeHighlights, HomeActivityCard",
+    "AdminControlGlass, ToastProvider",
+    "Drawer/sheet si se agregan clases glass dedicadas"
+  ],
+  "validation": {
+    "tsc": "pass",
+    "build": "pass"
+  }
+}

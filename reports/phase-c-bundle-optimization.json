@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-06-12T15:50:00.000Z",
+  "scope": "Fase C — Carga inicial y bundle (sin cambios visuales/UX)",
+  "before": {
+    "initialBundleKb": 934.1,
+    "initialBundleGzipKb": 272.3,
+    "totalBundleKb": 1227.3,
+    "cssKb": 293.2,
+    "cssGzipKb": 49.8,
+    "largestChunks": [
+      { "name": "index-D_b-SzZL.js", "kb": 934.1 },
+      { "name": "index-35JMBerj.css", "kb": 293.2 },
+      { "name": "AdminUsersPage-DVkKw4vt.js", "kb": 117.4 },
+      { "name": "MatchesPage-CgJYBJ8Y.js", "kb": 48.8 },
+      { "name": "DashboardPage-DvbD1oYL.js", "kb": 23.4 }
+    ],
+    "lighthouseMobileEstimate": 62,
+    "notes": "Monolito único index.js con React, Supabase, Framer, admin deps en grafo estático; CSS admin mezclado en index.css"
+  },
+  "after": {
+    "initialBundleKb": 828,
+    "initialBundleGzipKb": 256.2,
+    "indexEntryKb": 87.7,
+    "indexEntryGzipKb": 21.7,
+    "totalBundleKb": 2085.4,
+    "cssKb": 286.6,
+    "userCssKb": 198.6,
+    "adminCssKb": 88,
+    "cssGzipKb": 49.9,
+    "largestChunks": [
+      { "name": "react-vendor-x1XMOcY_.js", "kb": 331.9 },
+      { "name": "supabase-D2gm834s.js", "kb": 202.2 },
+      { "name": "index-DXK9h1Me.css", "kb": 198.6 },
+      { "name": "framer-motion-CbLuG1Xp.js", "kb": 127.4 },
+      { "name": "AdminUsersPage-BMzSY56e.js", "kb": 112.6 },
+      { "name": "AdminShell-D2fcFCax.css", "kb": 88 },
+      { "name": "index-Cu5qVe0e.js", "kb": 87.7 },
+      { "name": "DashboardPage-COemcxBw.js", "kb": 15.5 },
+      { "name": "LiveInsightCard-B3xyl-vd.js", "kb": 26.9 },
+      { "name": "MatchPredictionModal-Bt3rc4Mz.js", "kb": 26.3 }
+    ],
+    "deferredHomeChunks": [
+      "WorldCupLiveCarousel (lazy)",
+      "HomeRankingGrid (lazy)",
+      "QuickActionGrid (lazy)",
+      "HomeGameHub gamificación (lazy)",
+      "MatchPredictionModal (lazy on open)"
+    ],
+    "lighthouseMobileEstimate": 71
+  },
+  "estimatedGain": {
+    "initialLoad": "Chunk de entrada −91% (934→88 KB). CSS usuario −32% (293→199 KB). Admin CSS (+88 KB) solo al entrar a /admin. Home below-fold diferido con Suspense.",
+    "lighthouseMobile": "+8–12 pts estimados (menor JS parse en primer paint, CSS más liviano, imágenes WebP)",
+    "networkSavings": "Fondos WebP mobile ~60–75% vs PNG en rutas con mural/play; admin bundle ya no en cold path público"
+  },
+  "changedFiles": [
+    "vite.config.ts",
+    "src/App.tsx",
+    "src/features/dashboard/DashboardPage.tsx",
+    "src/components/worldcup/HomeSectionSkeleton.tsx",
+    "src/components/layout/AdminShell.tsx",
+    "src/index.css",
+    "src/styles/admin.css",
+    "src/constants/design.ts",
+    "src/features/auth/AuthShell.tsx",
+    "scripts/extractAdminCss.mjs",
+    "scripts/convertBackgrounds.mjs",
+    "scripts/bundleReport.mjs",
+    "package.json",
+    "public/fondo-jugar.webp",
+    "public/fondo-jugar-mobile.webp",
+    "public/fondo-vertical.webp",
+    "public/fondo-vertical-mobile.webp",
+    "public/fondo-nav.webp",
+    "public/fondo-nav-mobile.webp"
+  ],
+  "risks": [
+    "Ruta crítica JS total (~828 KB raw) sigue por encima del objetivo 600–700 KB por vendors (react-vendor + supabase + framer-motion); mejoras futuras: lazy auth/supabase en rutas públicas o dynamic import de framer-motion en shell",
+    "Safari antiguo sin WebP usa fallback PNG en CSS (doble url en variable)",
+    "Skeletons del Home pueden mostrar placeholder breve en conexiones lentas (misma UX, sin layout shift gracias a min-height)",
+    "sharp añadido como devDependency para conversión de fondos"
+  ],
+  "validation": [
+    "npm run build — pass",
+    "tsc -b — pass",
+    "manualChunks: framer-motion, supabase, react-query, react-router, react-vendor, lucide",
+    "AdminShell lazy + admin.css separado",
+    "Rutas lazy existentes intactas en App.tsx"
+  ],
+  "tasks_completed": {
+    "task1_codeSplitting": true,
+    "task2_homeLazy": true,
+    "task3_imagesWebp": true,
+    "task4_adminCss": true,
+    "task5_bundleReport": true
+  }
+}

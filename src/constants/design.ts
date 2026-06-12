@@ -172,9 +172,9 @@ export const LIVE_INSIGHTS = {
 /** Assets estáticos en /public */
 export const WC26_ASSETS = {
   copita: '/copita.png',
-  fondoVertical: '/fondo%20vertical.png',
-  fondoNav: '/fondo%20nav.png',
-  fondoJugar: '/fondo-jugar.png',
+  fondoVertical: '/fondo-vertical.webp',
+  fondoNav: '/fondo-nav.webp',
+  fondoJugar: '/fondo-jugar.webp',
 } as const;
 
 export const BREAKPOINTS = { sm: 640, md: 768, lg: 1024, xl: 1280 };

@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { HOME_PREMIUM, MOTION } from '../../constants/design'
+import { AdaptiveButton, AdaptiveDiv, AdaptiveSection, useMotionEnabled } from '../../utils/adaptiveMotion'
 import { useMatchCountdown } from '../../hooks/useMatchCountdown'
 import type { Match } from '../../types/worldcup'
 import {
@@ -72,6 +73,7 @@ const HeroCountdownPanel = memo(function HeroCountdownPanel({
 })
 
 function CountdownUnits({ countdown, compact }: { countdown: NonNullable<WorldCupHeroProps['countdown']>; compact?: boolean }) {
+  const motionOn = useMotionEnabled()
   const units = [
     { v: countdown.days, l: compact ? 'DÍAS' : 'D' },
     { v: countdown.hours, l: compact ? 'HRS' : 'H' },
@@ -81,23 +83,30 @@ function CountdownUnits({ countdown, compact }: { countdown: NonNullable<WorldCu
 
   return (
     <div className={`wc26-countdown-grid ${compact ? 'wc26-countdown-grid--compact' : ''}`}>
-      {units.map(({ v, l }) => (
-        <motion.div key={l} layout className="wc26-countdown-card">
-          <AnimatePresence mode="popLayout">
-            <motion.span
-              key={v}
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 6 }}
-              transition={{ duration: 0.18 }}
-              className="wc26-countdown-number"
-            >
-              {String(v).padStart(2, '0')}
-            </motion.span>
-          </AnimatePresence>
-          <span className="wc26-countdown-label">{l}</span>
-        </motion.div>
-      ))}
+      {units.map(({ v, l }) =>
+        motionOn ? (
+          <motion.div key={l} layout className="wc26-countdown-card">
+            <AnimatePresence mode="popLayout">
+              <motion.span
+                key={v}
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.18 }}
+                className="wc26-countdown-number"
+              >
+                {String(v).padStart(2, '0')}
+              </motion.span>
+            </AnimatePresence>
+            <span className="wc26-countdown-label">{l}</span>
+          </motion.div>
+        ) : (
+          <div key={l} className="wc26-countdown-card">
+            <span className="wc26-countdown-number">{String(v).padStart(2, '0')}</span>
+            <span className="wc26-countdown-label">{l}</span>
+          </div>
+        ),
+      )}
     </div>
   )
 }
@@ -137,27 +146,36 @@ function CountdownBlock({
   title: string
   compact?: boolean
 }) {
+  const motionOn = useMotionEnabled()
+
   if (!countdown && !countdownHint && !nextMatch) return null
 
   const kickoffLabel = nextMatch ? formatNextMatchKickoff(nextMatch) : null
+  const matchTeams =
+    nextMatch?.homeTeam && nextMatch?.awayTeam ? (
+      <CountdownMatchTeams match={nextMatch} compact={compact} />
+    ) : null
 
   return (
     <div className={`wc26-countdown-panel${compact ? '' : ' wc26-countdown-panel--desktop'}`}>
       <p className="wc26-countdown-title mb-2 text-center">{title}</p>
-      {nextMatch?.homeTeam && nextMatch?.awayTeam ? (
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={nextMatch.id}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.22 }}
-            className="mb-2"
-          >
-            <CountdownMatchTeams match={nextMatch} compact={compact} />
-          </motion.div>
-        </AnimatePresence>
-      ) : null}
+      {matchTeams &&
+        (motionOn ? (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={nextMatch!.id}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22 }}
+              className="mb-2"
+            >
+              {matchTeams}
+            </motion.div>
+          </AnimatePresence>
+        ) : (
+          <div className="mb-2">{matchTeams}</div>
+        ))}
       {kickoffLabel && countdown ? (
         <p className="wc26-countdown-kickoff mb-3 text-center">{kickoffLabel}</p>
       ) : null}
@@ -190,8 +208,8 @@ export const WorldCupHero = memo(function WorldCupHero({
 
   if (variant === 'desktop') {
     return (
-      <motion.div
-        {...MOTION.enter}
+      <AdaptiveDiv
+        motionProps={MOTION.enter}
         className="wc26-hero-desktop relative overflow-hidden rounded-[36px] p-8"
         style={{ background: HOME_PREMIUM.heroGradient }}
       >
@@ -223,30 +241,30 @@ export const WorldCupHero = memo(function WorldCupHero({
             />
           ) : null}
           <div className="flex gap-3">
-            <motion.button
+            <AdaptiveButton
               type="button"
               onClick={onPredict}
               className="wc26-home-hero__cta"
-              {...MOTION.tap}
+              motionProps={MOTION.tap}
             >
               {hasPrediction ? 'Editar predicción' : 'Predecir ahora'}
-            </motion.button>
-            <motion.button
+            </AdaptiveButton>
+            <AdaptiveButton
               type="button"
               onClick={onFixture}
               className="wc26-btn-fixture px-8 py-3 text-sm"
-              {...MOTION.tap}
+              motionProps={MOTION.tap}
             >
               Ver fixture
-            </motion.button>
+            </AdaptiveButton>
           </div>
         </div>
-      </motion.div>
+      </AdaptiveDiv>
     )
   }
 
   return (
-    <motion.section {...MOTION.slideUp} className="wc26-home-hero relative px-4 pb-3 pt-1 text-center">
+    <AdaptiveSection motionProps={MOTION.slideUp} className="wc26-home-hero relative px-4 pb-3 pt-1 text-center">
       <div className="wc26-home-hero__aurora" aria-hidden="true" />
       <div className="relative mx-auto flex w-full max-w-sm flex-col items-center">
         <p className="w-full text-center text-[10px] font-black uppercase tracking-[0.32em] text-[#F8B91E] drop-shadow-sm">
@@ -267,7 +285,7 @@ export const WorldCupHero = memo(function WorldCupHero({
         </div>
 
         {showCountdownSection && (
-          <motion.div {...MOTION.fadeIn} className="mx-auto w-full max-w-[22rem]">
+          <AdaptiveDiv motionProps={MOTION.fadeIn} className="mx-auto w-full max-w-[22rem]">
             {useIsolatedCountdown ? (
               <HeroCountdownPanel
                 countdownMatch={countdownMatch}
@@ -286,20 +304,20 @@ export const WorldCupHero = memo(function WorldCupHero({
                 compact
               />
             )}
-          </motion.div>
+          </AdaptiveDiv>
         )}
 
         {onPredict && (
-          <motion.button
+          <AdaptiveButton
             type="button"
             onClick={onPredict}
             className="wc26-home-hero__cta wc26-home-hero__cta--mobile mx-auto mt-4 w-full max-w-[22rem]"
-            {...MOTION.tap}
+            motionProps={MOTION.tap}
           >
             {hasPrediction ? 'Editar predicción' : 'Predecir ahora'}
-          </motion.button>
+          </AdaptiveButton>
         )}
       </div>
-    </motion.section>
+    </AdaptiveSection>
   )
 })

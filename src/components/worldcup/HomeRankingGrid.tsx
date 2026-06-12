@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ChevronRight, Crown, Trophy } from 'lucide-react'
 import { MOTION } from '../../constants/design'
+import { AdaptiveSection, useMotionEnabled } from '../../utils/adaptiveMotion'
 import type { LeaderboardEntry } from '../../types/worldcup'
 
 type HomeRankingGridProps = {
@@ -30,12 +31,48 @@ function rankTone(rank: number) {
   return 'default'
 }
 
+function PodiumCardContent({ entry }: { entry: LeaderboardEntry }) {
+  const name = displayName(entry)
+  const isLeader = entry.rank === 1
+
+  return (
+    <>
+      {isLeader ? (
+        <span className="wc26-home-ranking__podium-crown" aria-hidden>
+          <Crown className="h-5 w-5" strokeWidth={2.2} />
+        </span>
+      ) : null}
+
+      <div className="wc26-home-ranking__podium-rank-hero">
+        <span className="wc26-home-ranking__podium-rank-num" aria-label={`Puesto ${entry.rank}`}>
+          {entry.rank}
+        </span>
+        <span className="wc26-home-ranking__podium-elite">
+          {PODIUM_ELITE_LABEL[entry.rank] ?? `#${entry.rank}`}
+        </span>
+      </div>
+
+      <p className="wc26-home-ranking__podium-name" title={name}>
+        {name}
+      </p>
+      <span className="wc26-home-ranking__podium-legajo">
+        Leg. {entry.profile?.legajo ?? '—'}
+      </span>
+      <p className="wc26-home-ranking__podium-points">
+        <strong>{entry.points}</strong>
+        <span>pts</span>
+      </p>
+    </>
+  )
+}
+
 export function HomeRankingGrid({
   entries,
   currentUserId,
   isLoading = false,
   maxRows = 5,
 }: HomeRankingGridProps) {
+  const motionOn = useMotionEnabled()
   const rows = entries.slice(0, maxRows)
   const top3ByRank = new Map(rows.filter(r => (r.rank ?? 0) <= 3).map(entry => [entry.rank, entry]))
   const podiumEntries = PODIUM_ORDER.map(rank => top3ByRank.get(rank)).filter(
@@ -43,7 +80,10 @@ export function HomeRankingGrid({
   )
 
   return (
-    <motion.section {...MOTION.enter} className="wc26-home-ranking mb-5">
+    <AdaptiveSection
+      motionProps={MOTION.enter}
+      className="wc26-home-ranking wc26-deferred-section mb-5"
+    >
       <div className="wc26-home-ranking__header">
         <div className="flex items-center gap-2.5">
           <span className="wc26-home-ranking__icon" aria-hidden>
@@ -68,54 +108,45 @@ export function HomeRankingGrid({
         </div>
       ) : (
         <>
-          {podiumEntries.length > 0 && (
-            <motion.div
-              initial={MOTION.stagger.initial}
-              animate={MOTION.stagger.animate}
-              className="wc26-home-ranking__podium"
-            >
-              {podiumEntries.map(entry => {
-                const tone = rankTone(entry.rank)
-                const isMe = entry.userId === currentUserId
-                const name = displayName(entry)
-                const isLeader = entry.rank === 1
+          {podiumEntries.length > 0 &&
+            (motionOn ? (
+              <motion.div
+                initial={MOTION.stagger.initial}
+                animate={MOTION.stagger.animate}
+                className="wc26-home-ranking__podium"
+              >
+                {podiumEntries.map(entry => {
+                  const tone = rankTone(entry.rank)
+                  const isMe = entry.userId === currentUserId
 
-                return (
-                  <motion.div
-                    key={entry.userId}
-                    variants={MOTION.enterScale}
-                    className={`wc26-home-ranking__podium-card wc26-home-ranking__podium-card--${tone}${isMe ? ' is-me' : ''}`}
-                  >
-                    {isLeader ? (
-                      <span className="wc26-home-ranking__podium-crown" aria-hidden>
-                        <Crown className="h-5 w-5" strokeWidth={2.2} />
-                      </span>
-                    ) : null}
+                  return (
+                    <motion.div
+                      key={entry.userId}
+                      variants={MOTION.enterScale}
+                      className={`wc26-home-ranking__podium-card wc26-home-ranking__podium-card--${tone}${isMe ? ' is-me' : ''}`}
+                    >
+                      <PodiumCardContent entry={entry} />
+                    </motion.div>
+                  )
+                })}
+              </motion.div>
+            ) : (
+              <div className="wc26-home-ranking__podium">
+                {podiumEntries.map(entry => {
+                  const tone = rankTone(entry.rank)
+                  const isMe = entry.userId === currentUserId
 
-                    <div className="wc26-home-ranking__podium-rank-hero">
-                      <span className="wc26-home-ranking__podium-rank-num" aria-label={`Puesto ${entry.rank}`}>
-                        {entry.rank}
-                      </span>
-                      <span className="wc26-home-ranking__podium-elite">
-                        {PODIUM_ELITE_LABEL[entry.rank] ?? `#${entry.rank}`}
-                      </span>
+                  return (
+                    <div
+                      key={entry.userId}
+                      className={`wc26-home-ranking__podium-card wc26-home-ranking__podium-card--${tone}${isMe ? ' is-me' : ''}`}
+                    >
+                      <PodiumCardContent entry={entry} />
                     </div>
-
-                    <p className="wc26-home-ranking__podium-name" title={name}>
-                      {name}
-                    </p>
-                    <span className="wc26-home-ranking__podium-legajo">
-                      Leg. {entry.profile?.legajo ?? '—'}
-                    </span>
-                    <p className="wc26-home-ranking__podium-points">
-                      <strong>{entry.points}</strong>
-                      <span>pts</span>
-                    </p>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
-          )}
+                  )
+                })}
+              </div>
+            ))}
 
           <div className="wc26-home-ranking__panel">
             <div className="wc26-home-ranking__grid wc26-home-ranking__grid--head">
@@ -149,6 +180,6 @@ export function HomeRankingGrid({
           </div>
         </>
       )}
-    </motion.section>
+    </AdaptiveSection>
   )
 }
