@@ -8,6 +8,19 @@ export const TICKER_CONTENT_KEYS = {
   important: 'important_message',
 } as const
 
+/** Cards de ticker/puntos que deben publicarse siempre en la app. */
+export const TICKER_PUBLIC_CARD_KEYS = [
+  TICKER_CONTENT_KEYS.welcome,
+  TICKER_CONTENT_KEYS.tipTitle,
+  TICKER_CONTENT_KEYS.tipMessage,
+  'scoring_exact_pts',
+  'scoring_result_pts',
+] as const
+
+export function shouldPublishTickerCard(key: string): boolean {
+  return (TICKER_PUBLIC_CARD_KEYS as readonly string[]).includes(key)
+}
+
 export const DEFAULT_TICKER_CONTENT = {
   welcomeTitle: 'PRODEMUNDIAL 2026',
   welcomeMessage: 'Viví el Mundial · Hacé tus predicciones antes de cada partido',

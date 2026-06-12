@@ -10,6 +10,7 @@ import {
 import {
   DEFAULT_TICKER_CONTENT,
   TICKER_CONTENT_KEYS,
+  shouldPublishTickerCard,
 } from '../../config/tickerContent.ts'
 import { useAdminCards, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
 import { scoringDisplayKeys } from '../../hooks/useScoringDisplayConfig.ts'
@@ -75,6 +76,11 @@ export default function AdminTickerContentPage() {
 
   async function saveCard(card: AdminCard | undefined, patch: Partial<AdminCard>) {
     if (!card) return
+    const nextValue = patch.value ?? card.value ?? ''
+    const importantActive =
+      card.key === TICKER_CONTENT_KEYS.important &&
+      Boolean(String(nextValue).trim() && String(nextValue).trim() !== '—')
+
     await adminUpdateCard({
       key: card.key,
       title: patch.title ?? card.title,
@@ -84,7 +90,7 @@ export default function AdminTickerContentPage() {
       icon: card.icon ?? undefined,
       status: card.status,
       orderIndex: card.order_index,
-      isActive: card.is_active,
+      isActive: shouldPublishTickerCard(card.key) ? true : importantActive ? true : card.is_active,
     })
   }
 
@@ -202,7 +208,7 @@ export default function AdminTickerContentPage() {
                 <textarea
                   rows={2}
                   required
-                  maxLength={160}
+                  maxLength={500}
                   className="admin-ticker-panel__textarea"
                   value={welcomeMessage}
                   onChange={e => setWelcomeMessage(e.target.value)}
@@ -226,8 +232,8 @@ export default function AdminTickerContentPage() {
               <label className="admin-ticker-panel__field">
                 <span>Mensaje personalizado</span>
                 <textarea
-                  rows={3}
-                  maxLength={200}
+                  rows={4}
+                  maxLength={500}
                   placeholder="Dejá vacío para el texto automático con los puntos configurados en «Puntos y ticker»"
                   className="admin-ticker-panel__textarea"
                   value={tipMessage}
@@ -254,8 +260,8 @@ export default function AdminTickerContentPage() {
               <label className="admin-ticker-panel__field">
                 <span>Mensaje</span>
                 <textarea
-                  rows={2}
-                  maxLength={160}
+                  rows={3}
+                  maxLength={500}
                   placeholder="Dejá vacío para ocultar este aviso"
                   className="admin-ticker-panel__textarea"
                   value={importantMessage}

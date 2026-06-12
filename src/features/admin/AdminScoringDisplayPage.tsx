@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
@@ -6,6 +7,7 @@ import {
   buildScoringTipMessage,
   SCORING_DISPLAY_CARD_KEYS,
 } from '../../config/scoringDisplay.ts'
+import { resolveTickerContent, shouldPublishTickerCard } from '../../config/tickerContent.ts'
 import { useAdminCards, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
 import { scoringDisplayKeys } from '../../hooks/useScoringDisplayConfig.ts'
 import { adminUpdateCard } from '../../services/admin/adminService.ts'
@@ -39,16 +41,6 @@ export default function AdminScoringDisplayPage() {
     setCustomTip(tipCard?.value ?? '')
   }, [exactCard, resultCard, tipCard])
 
-  const previewTip = useMemo(() => {
-    const exact = Number.parseInt(exactPts, 10)
-    const result = Number.parseInt(resultPts, 10)
-    return buildScoringTipMessage(
-      Number.isFinite(exact) ? exact : 5,
-      Number.isFinite(result) ? result : 3,
-      customTip,
-    )
-  }, [exactPts, resultPts, customTip])
-
   async function saveCard(card: AdminCard | undefined, value: string) {
     if (!card) return
     await adminUpdateCard({
@@ -60,9 +52,28 @@ export default function AdminScoringDisplayPage() {
       icon: card.icon ?? undefined,
       status: card.status,
       orderIndex: card.order_index,
-      isActive: card.is_active,
+      isActive: shouldPublishTickerCard(card.key) ? true : card.is_active,
     })
   }
+
+  const previewItems = useMemo(() => {
+    const exact = Number.parseInt(exactPts, 10)
+    const result = Number.parseInt(resultPts, 10)
+    const scoring = {
+      exactPts: Number.isFinite(exact) ? exact : 5,
+      resultPts: Number.isFinite(result) ? result : 3,
+      tickerTipMessage: buildScoringTipMessage(
+        Number.isFinite(exact) ? exact : 5,
+        Number.isFinite(result) ? result : 3,
+        customTip,
+      ),
+    }
+    const content = resolveTickerContent(cards, scoring)
+    return [
+      { title: content.welcomeTitle, message: content.welcomeMessage },
+      { title: content.tipTitle, message: content.tipMessage },
+    ]
+  }, [cards, exactPts, resultPts, customTip])
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -117,7 +128,15 @@ export default function AdminScoringDisplayPage() {
         </div>
       )}
 
-      <PremiumCard title="Vista previa del ticker" description="Así se verá el mensaje de puntos en la app">
+      <div className="rounded-2xl border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-50">
+        Para editar el mensaje de bienvenida, avisos y todos los textos del ticker, usá{' '}
+        <Link to="/admin/ticker-content" className="font-bold text-emerald-200 underline underline-offset-2">
+          Textos del ticker
+        </Link>
+        .
+      </div>
+
+      <PremiumCard title="Vista previa del ticker" description="Así rotan los mensajes en la app">
         <div className="wc26-notification-ticker">
           <div className="wc26-notification-ticker__inner">
             <span className="wc26-notification-ticker__badge" aria-hidden>
@@ -125,8 +144,13 @@ export default function AdminScoringDisplayPage() {
             </span>
             <div className="wc26-notification-ticker__viewport">
               <p className="wc26-notification-ticker__preview">
-                <strong>Tip</strong>
-                <span className="opacity-80"> · {previewTip}</span>
+                {previewItems.map((item, index) => (
+                  <span key={`${item.title}-${index}`}>
+                    {index > 0 ? <span className="opacity-40"> · </span> : null}
+                    <strong>{item.title}</strong>
+                    <span className="opacity-80"> · {item.message}</span>
+                  </span>
+                ))}
               </p>
             </div>
             <span className="wc26-notification-ticker__more" aria-hidden>
@@ -175,14 +199,18 @@ export default function AdminScoringDisplayPage() {
               />
             </label>
             <label className="space-y-1 text-sm">
-              <span className="text-white/50">Mensaje personalizado del ticker (opcional)</span>
+              <span className="text-white/50">Mensaje del Tip (opcional)</span>
               <textarea
-                rows={3}
+                rows={4}
+                maxLength={500}
                 placeholder="Dejá vacío para el texto automático con los puntos de arriba"
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white"
                 value={customTip}
                 onChange={e => setCustomTip(e.target.value)}
               />
+              <span className="text-xs text-white/45">
+                Este texto reemplaza el Tip de puntos. Para bienvenida y avisos, usá Textos del ticker.
+              </span>
             </label>
             {error && <p className="text-sm text-red-300">{error}</p>}
             <div>
