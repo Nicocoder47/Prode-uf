@@ -3384,7 +3384,7 @@ body.wc26-modal-open {
   display: flex;
   gap: 0.9rem;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   scroll-padding-inline: max(1rem, calc((100% - min(86vw, 350px)) / 2));
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;

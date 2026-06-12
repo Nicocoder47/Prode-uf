@@ -14,37 +14,42 @@ export function WorldCupLiveCarousel({ cards, onPredict }: WorldCupLiveCarouselP
   const reduceMotion = useReducedMotion()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
+  const activeRef = useRef(0)
   const pauseRef = useRef(false)
 
   const scrollToIndex = useCallback(
-    (index: number) => {
+    (index: number, behavior: ScrollBehavior = reduceMotion ? 'auto' : 'smooth') => {
       const el = scrollRef.current
       if (!el) return
       const child = el.children[index] as HTMLElement | undefined
-      child?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', inline: 'center', block: 'nearest' })
+      if (!child) return
+      pauseRef.current = true
+      child.scrollIntoView({ behavior, inline: 'center', block: 'nearest' })
+      activeRef.current = index
       setActive(index)
+      window.setTimeout(() => {
+        pauseRef.current = false
+      }, behavior === 'smooth' ? 700 : 50)
     },
     [reduceMotion],
   )
 
   useEffect(() => {
+    activeRef.current = active
+  }, [active])
+
+  useEffect(() => {
     if (cards.length <= 1 || reduceMotion) return
     const id = window.setInterval(() => {
       if (pauseRef.current) return
-      setActive(prev => {
-        const next = (prev + 1) % cards.length
-        scrollToIndex(next)
-        return next
-      })
+      const next = (activeRef.current + 1) % cards.length
+      scrollToIndex(next)
     }, 5500)
     return () => window.clearInterval(id)
   }, [cards.length, reduceMotion, scrollToIndex])
 
-  useEffect(() => {
-    window.requestAnimationFrame(() => scrollToIndex(active))
-  }, [active, cards.length, scrollToIndex])
-
   const handleScroll = () => {
+    if (pauseRef.current) return
     const el = scrollRef.current
     if (!el || el.children.length === 0) return
     const center = el.scrollLeft + el.clientWidth / 2
@@ -60,6 +65,7 @@ export function WorldCupLiveCarousel({ cards, onPredict }: WorldCupLiveCarouselP
       }
     })
     setActive(closest)
+    activeRef.current = closest
   }
 
   if (cards.length === 0) return null
