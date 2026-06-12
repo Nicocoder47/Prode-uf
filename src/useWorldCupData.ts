@@ -375,7 +375,9 @@ export const useTopScorers = () => {
 
     queryFn: () => worldCupService.getTopScorers(10),
 
-    staleTime: ENABLE_LIVE_INSIGHTS ? 120_000 : 1000 * 60 * 30,
+    enabled: ENABLE_LIVE_INSIGHTS,
+
+    staleTime: 120_000,
 
     refetchInterval: scorersPollMs,
 

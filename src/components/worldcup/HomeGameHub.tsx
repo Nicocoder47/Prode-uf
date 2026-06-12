@@ -1,8 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Flame, Medal, Target } from 'lucide-react'
-import { MOTION } from '../../constants/design'
-import { AdaptiveSection } from '../../utils/adaptiveMotion'
+import { Flame, Medal } from 'lucide-react'
 import { groupColor, WC26_GROUP_NAMES } from '../../constants/groups'
 import type { Achievement, GroupProgress, StreakInfo } from '../../utils/predictionProgress'
 import { TeamCrest } from './TeamCrest'
@@ -72,40 +70,6 @@ export function HomeContinuePredicting({
       )}
 
     </section>
-  )
-}
-
-export function HomePersonalRank({
-  rank,
-  points,
-  totalPlayers,
-}: {
-  rank: number | null
-  points: number
-  totalPlayers: number
-}) {
-  if (rank == null && totalPlayers === 0) return null
-
-  return (
-    <AdaptiveSection motionProps={MOTION.enter} className="wc26-deferred-section mb-5">
-      <Link to="/leaderboard" className="wc26-rank-snippet block">
-        <div className="flex items-center gap-3">
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-wc26-gold to-amber-600 text-lg font-black text-[#1a1200] shadow-lg">
-            #{rank ?? '—'}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-white/50">Tu posición</p>
-            <p className="text-base font-extrabold text-white">{points} puntos</p>
-            {totalPlayers > 0 && (
-              <p className="text-xs text-white/55">
-                de {totalPlayers} jugador{totalPlayers === 1 ? '' : 'es'}
-              </p>
-            )}
-          </div>
-          <Target className="h-5 w-5 shrink-0 text-wc26-yellow" />
-        </div>
-      </Link>
-    </AdaptiveSection>
   )
 }
 

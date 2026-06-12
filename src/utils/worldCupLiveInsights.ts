@@ -3,12 +3,12 @@ import type { GroupProgress, OverallProgress } from './predictionProgress'
 import { getNextRewardMilestone, getRecommendedGroup } from './predictionProgress'
 import type { LeaderboardEntry, Match, TopScorer } from '../types/worldcup'
 import type { LiveMatchStatRow } from '../services/worldcup/worldCupService'
+import { buildRankingMoveLines } from './leaderboardMovement'
 import { teamDisplayName } from './teamDisplay'
 
 export const LIVE_INSIGHTS_CACHE_MS = 30 * 60 * 1000
 /** Mínimo de predicciones para mostrar tendencia como dato de comunidad. */
 export const MIN_TREND_PREDICTIONS = 3
-const LB_SNAPSHOT_KEY = 'wc26_live_lb_snapshot_v2'
 
 export const PLAYED_MATCHES_CARD_LIMIT = 8
 
@@ -122,30 +122,8 @@ export type WorldCupLiveInsightPayload =
   | YourProgressInsight
   | NextRewardInsight
 
-type LbSnapshot = { bucket: number; ranks: Record<string, number> }
-
 function cacheBucket(now = Date.now()): number {
   return Math.floor(now / LIVE_INSIGHTS_CACHE_MS)
-}
-
-function readLbSnapshot(): LbSnapshot | null {
-  try {
-    const raw = localStorage.getItem(LB_SNAPSHOT_KEY)
-    if (!raw) return null
-    return JSON.parse(raw) as LbSnapshot
-  } catch {
-    return null
-  }
-}
-
-function writeLbSnapshot(leaderboard: LeaderboardEntry[], bucket: number) {
-  const ranks: Record<string, number> = {}
-  for (const e of leaderboard) ranks[e.userId] = e.rank
-  try {
-    localStorage.setItem(LB_SNAPSHOT_KEY, JSON.stringify({ bucket, ranks }))
-  } catch {
-    /* ignore quota */
-  }
 }
 
 export function formatCountdownLabel(kickoff: string, now = Date.now()): string {
@@ -157,12 +135,6 @@ export function formatCountdownLabel(kickoff: string, now = Date.now()): string 
   if (hours > 0) return `Faltan ${hours} ${hours === 1 ? 'hora' : 'horas'}`
   const mins = Math.max(1, Math.floor((diff % 3_600_000) / 60_000))
   return `Faltan ${mins} min`
-}
-
-function displayName(entry: LeaderboardEntry): string {
-  const name = entry.profile?.fullName?.trim()
-  if (name) return name.split(' ')[0]
-  return entry.profile?.legajo ?? `Jugador #${entry.rank}`
 }
 
 function fullDisplayName(entry: LeaderboardEntry): string {
@@ -273,51 +245,6 @@ function resolvePlayedMatches(
     matches: played,
     cta: { label: 'Ver todos', action: 'matches' },
   }
-}
-
-function buildRankingMoves(leaderboard: LeaderboardEntry[]): string[] {
-  const bucket = cacheBucket()
-  const prev = readLbSnapshot()
-  const lines: string[] = []
-
-  if (leaderboard.length === 0) {
-    writeLbSnapshot(leaderboard, bucket)
-    return []
-  }
-
-  let hasMovement = false
-
-  if (prev && prev.bucket < bucket && Object.keys(prev.ranks).length > 0) {
-    for (const entry of leaderboard) {
-      const prevRank = prev.ranks[entry.userId]
-      if (prevRank == null) continue
-      if (prevRank > 10 && entry.rank <= 10) {
-        lines.push(`${displayName(entry)} ingresó al Top 10`)
-        hasMovement = true
-      }
-    }
-
-    const movers = leaderboard
-      .map(e => ({
-        name: displayName(e),
-        delta: (prev.ranks[e.userId] ?? e.rank) - e.rank,
-      }))
-      .filter(m => m.delta >= 2)
-      .sort((a, b) => b.delta - a.delta)
-      .slice(0, 2)
-
-    for (const m of movers) {
-      lines.push(`${m.name} subió ${m.delta} posiciones`)
-      hasMovement = true
-    }
-  }
-
-  if (!hasMovement) {
-    return []
-  }
-
-  writeLbSnapshot(leaderboard, bucket)
-  return lines.slice(0, 2)
 }
 
 function statsMap(rows: LiveMatchStatRow[]): Map<string, LiveMatchStatRow> {
@@ -547,7 +474,7 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
         type: 'ranking_move' as const,
         emoji: loreActive ? resolvedLore!.emoji : '🏆',
         title: 'Movimiento del ranking',
-        lines: loreActive ? [] : buildRankingMoves(input.leaderboard),
+        lines: loreActive ? [] : buildRankingMoveLines(input.leaderboard, new Date(now)),
         leader: loreActive ? null : podium.leader,
         runnerUp: loreActive ? null : podium.runnerUp,
         lore: loreActive && resolvedLore ? toRankingLoreDisplay(resolvedLore) : null,

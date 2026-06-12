@@ -3247,76 +3247,6 @@ body.wc26-modal-open {
   50% { opacity: 0.7; }
 }
 
-.wc26-activity-card {
-  border-radius: 22px;
-  padding: 1rem 1rem 0.95rem;
-  background:
-    radial-gradient(120% 90% at 100% 0%, rgba(248, 185, 30, 0.12) 0%, transparent 55%),
-    linear-gradient(155deg, var(--wc26-glass-bg-hover) 0%, var(--wc26-glass-bg-hover) 100%);
-  border: 1px solid var(--pm-nav-glass-edge);
-  box-shadow:
-    0 16px 40px rgba(4, 20, 24, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  color: var(--pm-nav-white);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-
-.wc26-activity-card__header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.wc26-activity-card__title {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--pm-nav-gold);
-}
-
-.wc26-activity-card__meta {
-  margin: 0;
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: var(--pm-nav-muted);
-  white-space: nowrap;
-}
-
-.wc26-activity-card__grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-}
-
-.wc26-activity-card__stat {
-  text-align: center;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.55rem 0.25rem;
-}
-
-.wc26-activity-card__value {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 900;
-  line-height: 1.2;
-}
-
-.wc26-activity-card__label {
-  margin: 0.15rem 0 0;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.72);
-}
-
 /* ── Mundial En Vivo — premium hourly carousel (Home) ── */
 .wc26-live-carousel {
   position: relative;
@@ -4843,129 +4773,7 @@ body.wc26-modal-open {
   transform: scale(0.97);
 }
 
-/* ─── Grupos / equipos / FIFA cards ─── */
-.wc26-group-chip {
-  display: flex;
-  min-width: 4.5rem;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.1rem;
-  border-radius: 18px;
-  padding: 0.65rem 0.75rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid color-mix(in srgb, var(--group-color) 50%, rgba(255,255,255,0.12));
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.20);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  transition: transform 250ms ease, box-shadow 250ms ease;
-}
-
-.wc26-group-chip:active {
-  transform: scale(0.96);
-}
-
-.wc26-group-chip__letter {
-  font-size: 1.35rem;
-  font-weight: 900;
-  line-height: 1;
-  color: var(--group-color);
-}
-
-.wc26-group-chip__meta {
-  font-size: 9px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--wc26-text);
-  opacity: 0.55;
-}
-
-.wc26-group-chip__count {
-  font-size: 8px;
-  font-weight: 700;
-  color: var(--group-color);
-  opacity: 0.85;
-}
-
-.wc26-highlights {
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  padding: 1rem 1rem 0.5rem;
-}
-
-.wc26-highlight-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 20px;
-  padding: 0.85rem 0.75rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.20);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  text-align: center;
-  transition: transform 250ms ease, box-shadow 250ms ease;
-}
-
-.wc26-highlight-card:active {
-  transform: scale(0.97);
-}
-
-.wc26-highlight-card--skeleton {
-  min-height: 132px;
-  background: linear-gradient(180deg, #fafafa, #f3f4f6);
-  border-style: dashed;
-  border-color: rgba(0, 0, 0, 0.06);
-  box-shadow: none;
-}
-
-.wc26-highlight-badge {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  border-radius: 9999px;
-  padding: 0.15rem 0.45rem;
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  color: #1a1200;
-  background: linear-gradient(135deg, #FFD447, #D4AF37);
-}
-
-.wc26-group-pill {
-  display: flex;
-  min-width: 3.5rem;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-  border-radius: 14px;
-  padding: 0.55rem 0.65rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid color-mix(in srgb, var(--group-color) 45%, rgba(255,255,255,0.12));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.20);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  transition: transform 160ms ease;
-}
-
-.wc26-group-pill:active {
-  transform: scale(0.95);
-}
-
-.wc26-group-pill__letter {
-  font-size: 1.25rem;
-  font-weight: 900;
-  line-height: 1;
-  color: var(--group-color);
-}
-
+/* ─── Grupos / equipos ─── */
 .wc26-groups-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -8218,8 +8026,11 @@ body.wc26-modal-open {
   .wc26-card,
   .wc26-card-dark,
   .wc26-live-card,
+  .wc26-live-carousel,
   .wc26-home-ranking__panel,
   .wc26-home-ranking__podium-card,
+  .wc26-home-ranking__podium-card--gold,
+  .wc26-content-sheet,
   .wc26-bottom-nav__inner,
   .wc26-predict-backdrop,
   .wc26-predict-modal,
@@ -8313,6 +8124,17 @@ body.wc26-modal-open {
 .wc26-deferred-section {
   content-visibility: auto;
   contain-intrinsic-size: auto 480px;
+}
+
+@media (max-width: 768px) {
+  .wc26-deferred-section {
+    contain-intrinsic-size: auto 360px;
+  }
+
+  .wc26-live-carousel {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 280px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

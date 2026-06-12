@@ -1,11 +1,13 @@
 import type { ComponentPropsWithoutRef, CSSProperties, ReactNode } from 'react'
 import { motion, useReducedMotion, type HTMLMotionProps } from 'framer-motion'
 import { ENABLE_HEAVY_ANIMATIONS } from '../config/betaMode'
+import { useLowEndMobile } from '../hooks/useLowEndMobile'
 
 /** Animaciones Framer solo si heavy animations está ON y el usuario no pidió reducir movimiento. */
 export function useMotionEnabled(): boolean {
   const reduced = useReducedMotion()
-  return ENABLE_HEAVY_ANIMATIONS && !reduced
+  const lowEndMobile = useLowEndMobile()
+  return ENABLE_HEAVY_ANIMATIONS && !reduced && !lowEndMobile
 }
 
 type AdaptiveSectionProps = {

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MOTION } from '../../constants/design'
 import { AdaptiveSection } from '../../utils/adaptiveMotion'
@@ -8,6 +8,7 @@ import {
   HomeNextMatchCard,
 } from '../../components/worldcup'
 import { HomeSectionSkeleton } from '../../components/worldcup/HomeSectionSkeleton'
+import { useLowEndMobile } from '../../hooks/useLowEndMobile.ts'
 import { useTodayResultsSync } from '../../hooks/useTodayResultsSync.ts'
 import { useHomePhaseClock } from '../../hooks/useHomePhaseClock.ts'
 import { useWorldCupLiveInsights } from '../../hooks/useWorldCupLiveInsights'
@@ -55,7 +56,29 @@ export default function DashboardPage() {
   const { data: matches = [] } = useWorldCupMatches()
   const { data: dbPredictions = [] } = usePredictions(currentUserId)
   const { data: dbLeaderboard = [], isLoading: leaderboardLoading } = useLeaderboard()
+  const lowEndMobile = useLowEndMobile()
+  const [deferHomeHeavy, setDeferHomeHeavy] = useState(() => !lowEndMobile)
   const { data: topScorers = [] } = useTopScorers()
+
+  useEffect(() => {
+    if (!lowEndMobile) {
+      setDeferHomeHeavy(true)
+      return
+    }
+
+    const win = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+
+    if (win.requestIdleCallback) {
+      const id = win.requestIdleCallback(() => setDeferHomeHeavy(true), { timeout: 1500 })
+      return () => win.cancelIdleCallback?.(id)
+    }
+
+    const timer = window.setTimeout(() => setDeferHomeHeavy(true), 450)
+    return () => window.clearTimeout(timer)
+  }, [lowEndMobile])
 
   const predictionSet = useMemo(() => new Set(dbPredictions.map(p => p.matchId)), [dbPredictions])
   const groupProgress = useMemo(
@@ -95,6 +118,7 @@ export default function DashboardPage() {
     userId: currentUserId,
     points: meLeaderboard?.points ?? 0,
     rank: meLeaderboard?.rank ?? null,
+    enabled: deferHomeHeavy,
   })
 
   const liveCardsResolved = useMemo(() => {
@@ -135,7 +159,7 @@ export default function DashboardPage() {
           />
 
           <div className="wc26-content-sheet wc26-content-sheet--home mt-1 px-3 pb-3 pt-5">
-            {ENABLE_LIVE_INSIGHTS && (
+            {deferHomeHeavy && ENABLE_LIVE_INSIGHTS && (
               <Suspense fallback={<HomeSectionSkeleton tall />}>
                 <WorldCupLiveCarousel cards={liveCardsResolved} onPredict={openPredict} />
               </Suspense>
@@ -156,7 +180,7 @@ export default function DashboardPage() {
               </Suspense>
             </AdaptiveSection>
 
-            {belowFoldGamification}
+            {deferHomeHeavy ? belowFoldGamification : null}
           </div>
         </div>
       </div>
@@ -173,7 +197,7 @@ export default function DashboardPage() {
           onFixture={() => navigate('/matches')}
         />
 
-        {ENABLE_LIVE_INSIGHTS && (
+        {deferHomeHeavy && ENABLE_LIVE_INSIGHTS && (
           <Suspense fallback={<HomeSectionSkeleton tall />}>
             <WorldCupLiveCarousel cards={liveCardsResolved} onPredict={openPredict} />
           </Suspense>
@@ -194,7 +218,7 @@ export default function DashboardPage() {
           />
         </Suspense>
 
-        {belowFoldGamification}
+        {deferHomeHeavy ? belowFoldGamification : null}
       </div>
 
       {predictMatch && (

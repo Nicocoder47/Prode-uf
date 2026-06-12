@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useLowEndMobile } from './useLowEndMobile.ts'
 import { usePollingInterval } from './useDocumentVisible.ts'
 import { useRankingLoreConfig } from './useRankingLoreConfig.ts'
 import { worldCupService } from '../services/worldcup/worldCupService'
@@ -35,8 +36,9 @@ type UseWorldCupLiveInsightsInput = {
 export function useWorldCupLiveInsights(input: UseWorldCupLiveInsightsInput) {
   const bucket = getLiveInsightsCacheBucket()
   const enabled = input.enabled ?? true
+  const lowEndMobile = useLowEndMobile()
   const { data: rankingLore } = useRankingLoreConfig()
-  const matchStatsPollMs = usePollingInterval(60_000)
+  const matchStatsPollMs = usePollingInterval(lowEndMobile ? 120_000 : 60_000)
 
   const { data: matchStats = [] } = useQuery({
     queryKey: worldCupLiveKeys.matchStats(),
