@@ -1,19 +1,25 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { Eraser, SlidersHorizontal } from 'lucide-react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
 import { useAdminUsers, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
-import type { AdminUserRow, ReviewStatus } from '../../types/admin.ts'
-import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL, reviewRowClass } from '../../utils/reviewStatus.ts'
+import { useAdminMobile } from '../../hooks/useAdminMobile.ts'
+import type { AdminUserRow } from '../../types/admin.ts'
 import { isTestUserEmail } from '../../utils/adminTestUser.ts'
+import {
+  adminUserToneRowClass,
+  getAccountStateLabel,
+  getVerificationListLabel,
+} from '../../utils/adminUserVisualStatus.ts'
 import { downloadCsv } from '../../utils/exportCsv'
-import { AdminUserDetailDrawer } from './AdminUserDetailDrawer.tsx'
 import { AdminUserMobileCard } from '../../components/admin/mobile/AdminUserMobileCard.tsx'
 import { AdminUsersFiltersSheet } from '../../components/admin/mobile/AdminUsersFiltersSheet.tsx'
 import { AdminUsersMobileStats } from '../../components/admin/mobile/AdminUsersMobileStats.tsx'
 import { AdminUsersFiltersPanel } from '../../components/admin/AdminUsersFiltersPanel.tsx'
 import { EMPTY_ADMIN_USERS_FILTERS, countActiveAdminUserFilters } from '../../components/admin/AdminUsersFilterState.ts'
-import { Eraser, SlidersHorizontal } from 'lucide-react'
+import { AdminUserDetailPanel } from '../../components/admin/users/AdminUserDetailPanel.tsx'
+import { AdminUserDetailSheet } from '../../components/admin/users/AdminUserDetailSheet.tsx'
 
 const PAGE_SIZE = 25
 
@@ -29,29 +35,21 @@ function isToday(value: string | null) {
   return d.toDateString() === now.toDateString()
 }
 
-function accountStatus(u: AdminUserRow) {
-  if (u.deleted_at) return { label: 'Eliminado', className: 'text-red-400' }
-  if (u.is_blocked || !u.is_active) return { label: 'Bloqueado', className: 'text-red-300' }
-  return { label: 'Activo', className: 'text-emerald-300' }
-}
-
 function isTestUser(u: AdminUserRow) {
   return u.is_test_user ?? isTestUserEmail(u.email)
 }
 
-function ReviewBadge({ status }: { status?: ReviewStatus }) {
-  const s = status ?? 'pending'
-  return <span className={REVIEW_STATUS_CLASS[s]}>{REVIEW_STATUS_LABEL[s]}</span>
-}
-
 export default function AdminUsersPage() {
+  const isMobile = useAdminMobile()
   const { data: users = [], isLoading, error, refetch } = useAdminUsers()
   const { invalidateUsers, invalidateBetaOverview, invalidateDashboard } = useInvalidateAdmin()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [detailUser, setDetailUser] = useState<AdminUserRow | null>(null)
-  const [detailTab, setDetailTab] = useState<'summary' | 'predictions' | 'security' | 'actions' | 'audit'>('summary')
+
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
   const [page, setPage] = useState(0)
   const [filtersOpen, setFiltersOpen] = useState(false)
+
   const [search, setSearch] = useState('')
   const [reviewFilter, setReviewFilter] = useState('')
   const [accountFilter, setAccountFilter] = useState('')
@@ -63,17 +61,19 @@ export default function AdminUsersPage() {
   const [todayFilter, setTodayFilter] = useState(false)
   const [noLoginFilter, setNoLoginFilter] = useState(false)
 
-  useEffect(() => {
-    const userId = searchParams.get('userId')
-    const tab = searchParams.get('tab')
-    if (tab === 'summary' || tab === 'predictions' || tab === 'security' || tab === 'actions' || tab === 'audit') {
-      setDetailTab(tab)
-    }
-    if (userId && users.length) {
-      const found = users.find(u => u.id === userId)
-      if (found) setDetailUser(found)
-    }
-  }, [searchParams, users])
+  const filterState = {
+    reviewFilter,
+    accountFilter,
+    roleFilter,
+    predFilter,
+    passwordFilter,
+    active7dFilter,
+    testFilter,
+    todayFilter,
+    noLoginFilter,
+  }
+
+  const activeFilterCount = countActiveAdminUserFilters(search, filterState)
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -102,25 +102,17 @@ export default function AdminUsersPage() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const pageUsers = filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
-
-  function exportCsv() {
-    downloadCsv(
-      `usuarios-${new Date().toISOString().slice(0, 10)}.csv`,
-      ['legajo', 'nombre', 'email', 'dni_masked', 'rol', 'estado', 'predicciones', 'puntos'],
-      filtered.map(u => [
-        u.legajo ?? '',
-        u.full_name,
-        u.email,
-        u.dni_masked,
-        u.role,
-        u.deleted_at ? 'desactivado' : u.is_blocked ? 'bloqueado' : 'activo',
-        String(u.predictions_count),
-        String(u.total_points),
-      ]),
-    )
-  }
-
+  const selectedUser = users.find(u => u.id === selectedUserId) ?? null
   const reviewCount = users.filter(u => u.review_status === 'review_required').length
+
+  useEffect(() => {
+    const userId = searchParams.get('userId')
+    if (!userId || !users.length) return
+    const found = users.find(u => u.id === userId)
+    if (!found) return
+    setSelectedUserId(found.id)
+    if (isMobile) setMobileSheetOpen(true)
+  }, [searchParams, users, isMobile])
 
   function handleChanged() {
     invalidateUsers()
@@ -128,20 +120,6 @@ export default function AdminUsersPage() {
     invalidateDashboard()
     refetch()
   }
-
-  const filterState = {
-    reviewFilter,
-    accountFilter,
-    roleFilter,
-    predFilter,
-    passwordFilter,
-    active7dFilter,
-    testFilter,
-    todayFilter,
-    noLoginFilter,
-  }
-
-  const activeFilterCount = countActiveAdminUserFilters(search, filterState)
 
   function resetFilters() {
     setSearch('')
@@ -175,21 +153,112 @@ export default function AdminUsersPage() {
     applyFilterPatch({ [key]: EMPTY_ADMIN_USERS_FILTERS[key as keyof typeof EMPTY_ADMIN_USERS_FILTERS] } as Partial<typeof filterState>)
   }
 
-  function openUserDetail(
-    u: AdminUserRow,
-    tab: 'summary' | 'predictions' | 'security' | 'actions' | 'audit' = 'summary',
-  ) {
-    setDetailUser(u)
-    setDetailTab(tab)
-    setSearchParams(tab === 'summary' ? { userId: u.id } : { userId: u.id, tab })
+  function selectUser(u: AdminUserRow, openMobileSheet = false) {
+    setSelectedUserId(u.id)
+    setSearchParams({ userId: u.id })
+    if (openMobileSheet || isMobile) setMobileSheetOpen(true)
   }
 
+  function closeDetail() {
+    setSelectedUserId(null)
+    setMobileSheetOpen(false)
+    setSearchParams({})
+  }
+
+  function exportCsv() {
+    downloadCsv(
+      `usuarios-${new Date().toISOString().slice(0, 10)}.csv`,
+      ['legajo', 'nombre', 'email', 'dni_masked', 'estado', 'verificacion', 'ultimo_login'],
+      filtered.map(u => [
+        u.legajo ?? '',
+        u.full_name,
+        u.email,
+        u.dni_masked,
+        getAccountStateLabel(u),
+        getVerificationListLabel(u),
+        u.last_login_at ?? '',
+      ]),
+    )
+  }
+
+  const listContent = isLoading ? (
+    <p className="p-4 text-sm text-white/50">Cargando usuarios…</p>
+  ) : pageUsers.length === 0 ? (
+    <div className="admin-users-empty-premium">
+      <p className="admin-users-empty-premium__title">Sin resultados</p>
+      <p className="admin-users-empty-premium__hint">Probá otro término o limpiá los filtros.</p>
+      <PremiumButton size="sm" variant="ghost" onClick={resetFilters}>Limpiar filtros</PremiumButton>
+    </div>
+  ) : (
+    <>
+      <table className="admin-users-table-v2 w-full text-left text-sm">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Legajo</th>
+            <th>DNI</th>
+            <th>Estado</th>
+            <th>Verificación</th>
+            <th>Último login</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pageUsers.map(u => {
+            const tone = adminUserToneRowClass(u)
+            const isSelected = selectedUserId === u.id
+            return (
+              <tr
+                key={u.id}
+                className={`${tone}${isSelected ? ' is-selected' : ''}`}
+                onClick={() => selectUser(u)}
+              >
+                <td>
+                  <p className="admin-users-table-v2__name">{u.full_name}</p>
+                  <p className="admin-users-table-v2__sub">{u.email}</p>
+                </td>
+                <td className="font-mono text-xs">{u.legajo ?? '—'}</td>
+                <td className="font-mono text-xs">{u.dni_masked}</td>
+                <td className="text-xs">{getAccountStateLabel(u)}</td>
+                <td>
+                  <span className={`admin-users-table-v2__verification admin-users-table-v2__verification--${tone.replace('admin-user-tone--', '')}`}>
+                    {getVerificationListLabel(u)}
+                  </span>
+                </td>
+                <td className="text-xs text-white/55">{formatDate(u.last_login_at)}</td>
+                <td>
+                  <PremiumButton
+                    size="sm"
+                    variant="ghost"
+                    onClick={e => { e.stopPropagation(); selectUser(u) }}
+                  >
+                    Ver detalles
+                  </PremiumButton>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+      {filtered.length > PAGE_SIZE && (
+        <div className="admin-users-table-v2__pager">
+          <span>Página {page + 1} de {totalPages}</span>
+          <div className="flex gap-2">
+            <PremiumButton size="sm" variant="ghost" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Anterior</PremiumButton>
+            <PremiumButton size="sm" variant="ghost" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Siguiente</PremiumButton>
+          </div>
+        </div>
+      )}
+    </>
+  )
+
   return (
-    <div className="space-y-6">
-      <div className="hidden md:block">
+    <div className="admin-users-page space-y-4">
+      <header className="hidden md:block">
         <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Identidad</p>
         <h2 className="text-xl font-extrabold text-white md:text-2xl">Usuarios</h2>
-      </div>
+        <p className="mt-1 text-sm text-white/50">Revisión automática por DNI vs padrón Excel</p>
+      </header>
 
       <div className="md:hidden">
         <AdminUsersMobileStats users={users} filteredCount={filtered.length} />
@@ -245,11 +314,7 @@ export default function AdminUsersPage() {
         totalCount={users.length}
       />
 
-      <PremiumCard
-        title="Filtros"
-        description={`${filtered.length} de ${users.length} usuarios`}
-        className="hidden md:block"
-      >
+      <PremiumCard title="Filtros" description={`${filtered.length} de ${users.length} usuarios`} className="hidden md:block">
         <div className="mb-3 flex flex-wrap gap-2">
           <PremiumButton size="sm" variant="ghost" onClick={exportCsv}>Exportar CSV</PremiumButton>
           {activeFilterCount > 0 && (
@@ -269,41 +334,21 @@ export default function AdminUsersPage() {
         />
       </PremiumCard>
 
+      {/* Mobile: cards */}
       <div className="admin-users-mobile-list md:hidden">
         {isLoading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="admin-user-mobile-row admin-user-mobile-row--skeleton">
-              <div className="admin-ops-skeleton__bar h-4 w-2/3" />
-              <div className="admin-ops-skeleton__bar mt-2 h-3 w-1/2" />
-            </div>
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="admin-user-mobile-card-v2 admin-user-tone--gray admin-user-mobile-card-v2--skeleton" />
           ))
-        ) : users.length === 0 && !error ? (
-          <div className="admin-users-empty-premium">
-            <p className="admin-users-empty-premium__title">Sin usuarios cargados</p>
-            <p className="admin-users-empty-premium__hint">Verificá la conexión o permisos de admin.</p>
-            <PremiumButton size="sm" variant="ghost" onClick={() => refetch()}>Reintentar</PremiumButton>
-          </div>
-        ) : pageUsers.length === 0 ? (
-          <div className="admin-users-empty-premium">
-            <p className="admin-users-empty-premium__title">Sin resultados</p>
-            <p className="admin-users-empty-premium__hint">Probá otro término o limpiá los filtros.</p>
-            <PremiumButton size="sm" variant="ghost" onClick={resetFilters}>Limpiar filtros</PremiumButton>
-          </div>
         ) : (
-          pageUsers.map(u => {
-            const st = accountStatus(u)
-            return (
-              <AdminUserMobileCard
-                key={u.id}
-                user={u}
-                accountLabel={st.label}
-                accountClass={st.className}
-                isTest={isTestUser(u)}
-                onView={() => openUserDetail(u)}
-                onManage={() => openUserDetail(u, 'actions')}
-              />
-            )
-          })
+          pageUsers.map(u => (
+            <AdminUserMobileCard
+              key={u.id}
+              user={u}
+              selected={selectedUserId === u.id}
+              onViewDetails={() => selectUser(u, true)}
+            />
+          ))
         )}
         {!isLoading && filtered.length > PAGE_SIZE && (
           <div className="flex items-center justify-between text-sm text-white/60">
@@ -316,80 +361,32 @@ export default function AdminUsersPage() {
         )}
       </div>
 
-      <PremiumCard title="Usuarios" description="Revisión automática por DNI vs padrón Excel" className="hidden md:block">
-        {isLoading ? (
-          <p className="text-white/60">Cargando…</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1200px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-white/10 text-xs uppercase text-white/50">
-                  <th className="py-2 pr-3">Nombre</th>
-                  <th className="py-2 pr-3">Email</th>
-                  <th className="py-2 pr-3">DNI</th>
-                  <th className="py-2 pr-3">Padrón</th>
-                  <th className="py-2 pr-3">Pred.</th>
-                  <th className="py-2 pr-3">Pts</th>
-                  <th className="py-2 pr-3">Login</th>
-                  <th className="py-2 pr-3">Alta</th>
-                  <th className="py-2 pr-3">Estado</th>
-                  <th className="py-2 pr-3">Rol</th>
-                  <th className="py-2">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pageUsers.map(u => {
-                  const st = accountStatus(u)
-                  const test = isTestUser(u)
-                  return (
-                    <tr key={u.id} className={`border-b border-white/5 ${reviewRowClass(u.review_status)}`}>
-                      <td className="py-2 pr-3 text-white">
-                        <div className="font-semibold">{u.full_name}</div>
-                        <div className="text-xs text-white/45">{u.legajo ?? '—'}</div>
-                        {test && <span className="mt-1 inline-block rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-200">Test</span>}
-                      </td>
-                      <td className="py-2 pr-3 text-white/70 text-xs">{u.email}</td>
-                      <td className="py-2 pr-3 font-mono text-white/80">{u.dni_masked}</td>
-                      <td className="py-2 pr-3"><ReviewBadge status={u.review_status} /></td>
-                      <td className="py-2 pr-3">{u.predictions_count}</td>
-                      <td className="py-2 pr-3 font-bold text-wc26-yellow">{u.total_points}</td>
-                      <td className="py-2 pr-3 text-xs text-white/50">{formatDate(u.last_login_at)}</td>
-                      <td className="py-2 pr-3 text-xs text-white/50">{formatDate(u.created_at)}</td>
-                      <td className={`py-2 pr-3 text-xs font-semibold ${st.className}`}>{st.label}</td>
-                      <td className="py-2 pr-3 text-xs uppercase text-white/60">{u.role}</td>
-                      <td className="py-2">
-                        <div className="flex flex-wrap gap-1">
-                          <PremiumButton size="sm" variant="ghost" onClick={() => openUserDetail(u)}>
-                            Ver
-                          </PremiumButton>
-                          {u.role !== 'admin' && (
-                            <PremiumButton size="sm" variant="danger" onClick={() => openUserDetail(u, 'actions')}>
-                              Gestionar
-                            </PremiumButton>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-            <div className="mt-4 flex items-center justify-between text-sm text-white/60">
-              <span>Página {page + 1} de {totalPages}</span>
-              <div className="flex gap-2">
-                <PremiumButton size="sm" variant="ghost" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Anterior</PremiumButton>
-                <PremiumButton size="sm" variant="ghost" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)}>Siguiente</PremiumButton>
-              </div>
+      {/* Desktop: split list + fixed detail panel */}
+      <div className="admin-users-split hidden md:grid">
+        <PremiumCard className="admin-users-split__list !p-0 overflow-hidden">
+          {listContent}
+        </PremiumCard>
+        <aside className="admin-users-split__detail">
+          {selectedUser ? (
+            <AdminUserDetailPanel
+              user={selectedUser}
+              onClose={closeDetail}
+              onChanged={handleChanged}
+              variant="panel"
+            />
+          ) : (
+            <div className="admin-users-split__placeholder">
+              <p className="admin-users-split__placeholder-title">Detalle de usuario</p>
+              <p className="admin-users-split__placeholder-hint">Seleccioná un usuario de la lista o tocá «Ver detalles».</p>
             </div>
-          </div>
-        )}
-      </PremiumCard>
+          )}
+        </aside>
+      </div>
 
-      {detailUser && (
-        <AdminUserDetailDrawer
-          user={detailUser}
-          initialTab={detailTab}
-          onClose={() => { setDetailUser(null); setDetailTab('summary'); setSearchParams({}) }}
+      {mobileSheetOpen && selectedUser && (
+        <AdminUserDetailSheet
+          user={selectedUser}
+          onClose={closeDetail}
           onChanged={handleChanged}
         />
       )}

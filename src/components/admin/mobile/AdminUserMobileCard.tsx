@@ -1,14 +1,14 @@
-import { ChevronRight } from 'lucide-react'
 import type { AdminUserRow } from '../../../types/admin'
-import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL, reviewRowClass } from '../../../utils/reviewStatus'
+import {
+  adminUserToneRowClass,
+  getAccountStateLabel,
+  getVerificationListLabel,
+} from '../../../utils/adminUserVisualStatus'
 
 type Props = {
   user: AdminUserRow
-  accountLabel: string
-  accountClass: string
-  isTest: boolean
-  onView: () => void
-  onManage: () => void
+  selected?: boolean
+  onViewDetails: () => void
 }
 
 function formatDate(value: string | null) {
@@ -16,54 +16,29 @@ function formatDate(value: string | null) {
   return new Date(value).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
 }
 
-export function AdminUserMobileCard({
-  user,
-  accountLabel,
-  accountClass,
-  isTest,
-  onView,
-  onManage,
-}: Props) {
-  const reviewStatus = user.review_status ?? 'pending'
-  const rowTone = reviewRowClass(reviewStatus)
-    || (reviewStatus === 'verified' ? 'admin-user-row--verified' : '')
+export function AdminUserMobileCard({ user, selected, onViewDetails }: Props) {
+  const toneClass = adminUserToneRowClass(user)
+  const verification = getVerificationListLabel(user)
 
   return (
-    <div className={`admin-user-mobile-row ${rowTone}`}>
-      <button type="button" className="admin-user-mobile-row__main" onClick={onView}>
-        <div className="admin-user-mobile-row__top">
-          <div className="min-w-0 flex-1">
-            <p className="admin-user-mobile-row__name">{user.full_name}</p>
-            <p className="admin-user-mobile-row__sub">
-              {user.legajo ? `${user.legajo} · ` : ''}{user.dni_masked}
-            </p>
-            <p className="admin-user-mobile-row__email">{user.email}</p>
-          </div>
-          <div className="admin-user-mobile-row__scores">
-            <span className="admin-user-mobile-row__pts">{user.total_points} pts</span>
-            <span className="admin-user-mobile-row__pred">{user.predictions_count} pred.</span>
-          </div>
-          <ChevronRight className="admin-user-mobile-row__chevron h-4 w-4 shrink-0" />
-        </div>
-
-        <div className="admin-user-mobile-row__badges">
-          <span className={REVIEW_STATUS_CLASS[reviewStatus]}>
-            {REVIEW_STATUS_LABEL[reviewStatus]}
-          </span>
-          <span className={`admin-user-mobile-row__account ${accountClass}`}>{accountLabel}</span>
-          {isTest && <span className="admin-user-mobile-row__tag">Test</span>}
-        </div>
-
-        <p className="admin-user-mobile-row__meta">
-          Login: {formatDate(user.last_login_at)} · Alta: {formatDate(user.created_at)}
+    <article className={`admin-user-mobile-card-v2 ${toneClass}${selected ? ' is-selected' : ''}`}>
+      <div className="admin-user-mobile-card-v2__body">
+        <p className="admin-user-mobile-card-v2__name">{user.full_name}</p>
+        <p className="admin-user-mobile-card-v2__line">{user.email}</p>
+        <p className="admin-user-mobile-card-v2__line">
+          Legajo {user.legajo ?? '—'} · DNI {user.dni_masked}
         </p>
+        <div className="admin-user-mobile-card-v2__meta">
+          <span className="admin-user-mobile-card-v2__pill">{verification}</span>
+          <span className="admin-user-mobile-card-v2__pill admin-user-mobile-card-v2__pill--muted">
+            {getAccountStateLabel(user)}
+          </span>
+        </div>
+        <p className="admin-user-mobile-card-v2__login">Último login: {formatDate(user.last_login_at)}</p>
+      </div>
+      <button type="button" className="admin-user-mobile-card-v2__cta" onClick={onViewDetails}>
+        Ver detalles
       </button>
-
-      {user.role !== 'admin' && !user.deleted_at && (
-        <button type="button" className="admin-user-mobile-row__manage" onClick={onManage}>
-          Gestionar
-        </button>
-      )}
-    </div>
+    </article>
   )
 }
