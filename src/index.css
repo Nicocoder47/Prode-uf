@@ -8227,7 +8227,13 @@ body.wc26-modal-open {
   .wc26-content-zone,
   .wc26-action-premium,
   .wc26-streak-card,
-  .wc26-achievements-card {
+  .wc26-achievements-card,
+  .wc26-profile-premium-hero,
+  .wc26-profile-stat-card,
+  .wc26-profile-progress-card,
+  .wc26-profile-rank-card,
+  .wc26-toast,
+  .backdrop-blur-xl {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }

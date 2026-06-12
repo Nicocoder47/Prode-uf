@@ -1,3 +1,4 @@
+import '../../styles/profile.css'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DataState } from '../../components/ui/DataState.tsx'

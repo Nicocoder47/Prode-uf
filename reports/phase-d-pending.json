@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-06-12T16:10:00.000Z",
+  "scope": "Optimizaciones pendientes — riesgo visual o pantalla blanca",
+  "pending_high_risk": [
+    {
+      "id": "defer-supabase-public",
+      "risk": "alto",
+      "reason": "Auth y queries dependen de Supabase en el grafo raíz; lazy load puede causar pantalla blanca o flash en login/Home si no hay Suspense/fallback correcto",
+      "estimated_gain": "−200 KB de ruta crítica",
+      "recommendation": "Dynamic import solo en rutas protegidas con provider dedicado"
+    },
+    {
+      "id": "defer-framer-shell",
+      "risk": "alto",
+      "reason": "AppShell, ToastProvider y múltiples rutas importan framer-motion síncronamente; diferir puede romper animaciones de entrada o layout",
+      "estimated_gain": "−127 KB de ruta crítica",
+      "recommendation": "Lazy framer solo tras first paint con requestIdleCallback"
+    },
+    {
+      "id": "match-prediction-modal-motion",
+      "risk": "medio-alto",
+      "reason": "AnimatePresence multi-step dentro del modal; cambiar a div plano puede afectar transiciones entre pasos del flujo de predicción",
+      "file": "src/components/worldcup/MatchPredictionModal.tsx"
+    },
+    {
+      "id": "premium-cards-refactor",
+      "risk": "medio",
+      "reason": "MatchCard con whileHover y animate pulse en LIVE; quitar motion puede cambiar feedback visual en desktop",
+      "file": "src/components/ui/PremiumCards.tsx"
+    },
+    {
+      "id": "match-detail-team-player-pages",
+      "risk": "medio",
+      "reason": "Muchos motion.* anidados; refactor masivo sin prueba manual en dispositivo",
+      "files": ["MatchDetailPage", "TeamPage", "PlayerPage"]
+    },
+    {
+      "id": "lazy-live-insights-hook",
+      "risk": "medio",
+      "reason": "Diferir useWorldCupLiveInsights podría retrasar datos del carrusel o mostrar skeleton prolongado",
+      "file": "DashboardPage.tsx"
+    }
+  ],
+  "pending_low_risk_next": [
+    "HomeActivityCard, HomeHighlights, HomeGroupsStrip — adaptiveMotion",
+    "CollapsibleSection, MobileHomeSection",
+    "AdminControlGlass — solo admin, bajo impacto usuario",
+    "Corregir scripts/extractAdminCss.mjs para no mezclar bloques de usuario en futuras extracciones"
+  ],
+  "bugs_fixed_this_phase": [
+    "Estilos de /profile y /matches no cargaban para usuarios que nunca visitaban /admin"
+  ]
+}

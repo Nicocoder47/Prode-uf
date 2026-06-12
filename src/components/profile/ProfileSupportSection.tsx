@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
 import { LifeBuoy, Send } from 'lucide-react'
 import { MOTION } from '../../constants/design'
+import { AdaptiveButton, AdaptiveSection } from '../../utils/adaptiveMotion'
 import { useCreateSupportTicket, useMySupportTickets } from '../../hooks/useSupportTickets'
 import {
   SUPPORT_CATEGORY_LABELS,
@@ -61,7 +61,7 @@ export function ProfileSupportSection({ userId }: ProfileSupportSectionProps) {
   }
 
   return (
-    <motion.section {...MOTION.enter} className="wc26-profile-section">
+    <AdaptiveSection motionProps={MOTION.enter} className="wc26-profile-section wc26-deferred-section">
       <div className="wc26-profile-section__header">
         <div className="flex items-center gap-2">
           <LifeBuoy className="h-5 w-5 text-[#F8B91E]" />
@@ -131,15 +131,15 @@ export function ProfileSupportSection({ userId }: ProfileSupportSectionProps) {
         {formError ? <p className="wc26-profile-support-error">{formError}</p> : null}
         {formSuccess ? <p className="wc26-profile-support-success">{formSuccess}</p> : null}
 
-        <motion.button
+        <AdaptiveButton
           type="submit"
           disabled={createTicket.isPending}
           className="wc26-profile-cta"
-          {...MOTION.tap}
+          motionProps={MOTION.tap}
         >
           <Send className="h-4 w-4" />
           {createTicket.isPending ? 'Enviando…' : 'Enviar consulta'}
-        </motion.button>
+        </AdaptiveButton>
       </form>
 
       <div className="wc26-profile-support-history">
@@ -185,6 +185,6 @@ export function ProfileSupportSection({ userId }: ProfileSupportSectionProps) {
           </div>
         )}
       </div>
-    </motion.section>
+    </AdaptiveSection>
   )
 }

@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-06-12T16:10:00.000Z",
+  "scope": "Fase D — Auditoría incremental (sin commit)",
+  "baseline_build": {
+    "status": "pass",
+    "indexEntryKb": 87.7,
+    "initialBundleKb": 828,
+    "userCssKb": 198.6,
+    "adminCssKb": 88,
+    "criticalFinding": "profile.css y fixture.css estaban incorrectamente dentro de admin.css (solo cargaba en /admin)"
+  },
+  "after_phase_d_build": {
+    "status": "pass",
+    "indexEntryKb": 91.2,
+    "initialBundleKb": 832,
+    "userCssKb": 198.9,
+    "routeCssKb": {
+      "profile": "lazy con ProfilePage",
+      "fixture": "lazy con MatchesPage",
+      "admin": "lazy con AdminShell (~reducido)"
+    },
+    "profilePageJsKb": 35.1,
+    "matchesPageJsKb": 47.8
+  },
+  "tasks_applied_low_to_medium_risk": [
+    {
+      "id": "D-fix-css-split",
+      "risk": "bajo (bugfix crítico)",
+      "description": "Separar profile.css y fixture.css de admin.css; import en ProfilePage y MatchesPage"
+    },
+    {
+      "id": "D-profile-motion",
+      "risk": "bajo",
+      "description": "adaptiveMotion en todos los componentes de perfil + content-visibility deferred"
+    },
+    {
+      "id": "D-toast-motion",
+      "risk": "bajo",
+      "description": "ToastProvider sin AnimatePresence cuando motion desactivado"
+    },
+    {
+      "id": "D-home-next-match",
+      "risk": "bajo",
+      "description": "HomeNextMatchCard con AdaptiveSection/Button"
+    },
+    {
+      "id": "D-auth-status",
+      "risk": "bajo",
+      "description": "AuthStatusMessage con AdaptiveDiv"
+    },
+    {
+      "id": "D-mobile-glass-profile",
+      "risk": "bajo",
+      "description": "Glass lite mobile ampliado a perfil, toast y backdrop-blur-xl"
+    },
+    {
+      "id": "D-fixture-mobile-glass",
+      "risk": "bajo",
+      "description": "Glass lite en fixture.css para /matches en mobile"
+    },
+    {
+      "id": "D-bundle-script",
+      "risk": "nulo",
+      "description": "npm run bundle:report"
+    }
+  ],
+  "validation": [
+    "npm run build — pass",
+    "tsc -b — pass",
+    "sin commit / sin push (pedido explícito)"
+  ]
+}

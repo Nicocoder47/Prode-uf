@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { MOTION } from '../../constants/design'
+import { AdaptiveSection, useMotionEnabled } from '../../utils/adaptiveMotion'
 
 type ProfileWorldProgressProps = {
   predicted: number
@@ -8,10 +9,11 @@ type ProfileWorldProgressProps = {
 }
 
 export function ProfileWorldProgress({ predicted, total }: ProfileWorldProgressProps) {
+  const motionOn = useMotionEnabled()
   const percent = total > 0 ? Math.round((predicted / total) * 100) : 0
 
   return (
-    <motion.section {...MOTION.enter} className="wc26-profile-section">
+    <AdaptiveSection motionProps={MOTION.enter} className="wc26-profile-section wc26-deferred-section">
       <div className="wc26-profile-section__header">
         <p className="wc26-profile-section__kicker">Mundial 2026</p>
         <h2 className="wc26-profile-section__title">Progreso del Mundial</h2>
@@ -25,12 +27,16 @@ export function ProfileWorldProgress({ predicted, total }: ProfileWorldProgressP
           <span className="wc26-profile-progress-card__percent">{percent}%</span>
         </div>
         <div className="wc26-profile-progress-card__track">
-          <motion.div
-            className="wc26-profile-progress-card__fill"
-            initial={{ width: 0 }}
-            animate={{ width: `${percent}%` }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          />
+          {motionOn ? (
+            <motion.div
+              className="wc26-profile-progress-card__fill"
+              initial={{ width: 0 }}
+              animate={{ width: `${percent}%` }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            />
+          ) : (
+            <div className="wc26-profile-progress-card__fill" style={{ width: `${percent}%` }} />
+          )}
         </div>
         <p className="wc26-profile-progress-card__hint">
           Partidos predichos del fixture disponible
@@ -39,6 +45,6 @@ export function ProfileWorldProgress({ predicted, total }: ProfileWorldProgressP
           Completar mis predicciones
         </Link>
       </div>
-    </motion.section>
+    </AdaptiveSection>
   )
 }

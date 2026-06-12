@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion'
 import { Trophy } from 'lucide-react'
 import { MOTION } from '../../constants/design'
+import { AdaptiveSection } from '../../utils/adaptiveMotion'
 import { getInitials, maskDni } from '../../utils/maskDni'
 
 type ProfileHeroCardProps = {
@@ -25,7 +25,7 @@ export function ProfileHeroCard({
   email,
 }: ProfileHeroCardProps) {
   return (
-    <motion.section {...MOTION.enter} className="wc26-profile-premium-hero">
+    <AdaptiveSection motionProps={MOTION.enter} className="wc26-profile-premium-hero">
       <div className="wc26-profile-premium-hero__glow" aria-hidden="true" />
       <div className="wc26-profile-premium-hero__top">
         <div className="wc26-profile-premium-hero__avatar">{getInitials(fullName)}</div>
@@ -71,7 +71,7 @@ export function ProfileHeroCard({
           Sin posición aún
         </span>
       )}
-    </motion.section>
+    </AdaptiveSection>
   )
 }
 

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "bundle:report": "node scripts/bundleReport.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "worker": "tsx src/workers/scheduler.ts",

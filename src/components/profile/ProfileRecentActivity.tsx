@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { AdaptiveSection } from '../../utils/adaptiveMotion'
+import { MOTION } from '../../constants/design'
 import { ChevronRight } from 'lucide-react'
 import { TeamCrest } from '../worldcup/TeamCrest'
-import { MOTION } from '../../constants/design'
 import type { Match, Prediction } from '../../types/worldcup'
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
@@ -29,7 +29,7 @@ export function ProfileRecentActivity({ predictions, matches }: ProfileRecentAct
     .slice(0, 5)
 
   return (
-    <motion.section {...MOTION.enter} className="wc26-profile-section">
+    <AdaptiveSection motionProps={MOTION.enter} className="wc26-profile-section wc26-deferred-section">
       <div className="wc26-profile-section__header">
         <p className="wc26-profile-section__kicker">Historial</p>
         <h2 className="wc26-profile-section__title">Actividad reciente</h2>
@@ -87,6 +87,6 @@ export function ProfileRecentActivity({ predictions, matches }: ProfileRecentAct
           })}
         </div>
       )}
-    </motion.section>
+    </AdaptiveSection>
   )
 }

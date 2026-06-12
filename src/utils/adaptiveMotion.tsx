@@ -45,6 +45,7 @@ type AdaptiveDivProps = {
   className?: string
   style?: CSSProperties
   id?: string
+  role?: string
   'aria-label'?: string
   children?: ReactNode
 }
@@ -55,18 +56,19 @@ export function AdaptiveDiv({
   className,
   style,
   id,
+  role,
   'aria-label': ariaLabel,
 }: AdaptiveDivProps) {
   const enabled = useMotionEnabled()
   if (!enabled) {
     return (
-      <div className={className} style={style} id={id} aria-label={ariaLabel}>
+      <div className={className} style={style} id={id} role={role} aria-label={ariaLabel}>
         {children}
       </div>
     )
   }
   return (
-    <motion.div {...motionProps} className={className} style={style} id={id} aria-label={ariaLabel}>
+    <motion.div {...motionProps} className={className} style={style} id={id} role={role} aria-label={ariaLabel}>
       {children}
     </motion.div>
   )

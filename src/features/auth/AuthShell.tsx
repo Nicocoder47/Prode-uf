@@ -1,6 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react'
-import { motion } from 'framer-motion'
 import { CheckCircle2, Mail } from 'lucide-react'
+import { AdaptiveDiv } from '../../utils/adaptiveMotion'
 import { SeccionalLogo } from '../../components/layout/SeccionalLogo'
 
 type UiStatus = 'idle' | 'loading' | 'error' | 'pending' | 'success'
@@ -117,11 +117,10 @@ export function AuthStatusMessage({ status, message }: { status: UiStatus; messa
           : 'border-white/20 bg-white/[0.04] text-white/80'
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      role="status"
+    <AdaptiveDiv
+      motionProps={{ initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 } }}
       className={`rounded-2xl border px-4 py-3 text-sm ${tone}`}
+      role="status"
     >
       {status === 'pending' && (
         <div className="mb-1 flex items-center gap-2 font-semibold">
@@ -134,7 +133,7 @@ export function AuthStatusMessage({ status, message }: { status: UiStatus; messa
           <CheckCircle2 className="h-4 w-4" /> Listo
         </div>
       )}
-    </motion.div>
+    </AdaptiveDiv>
   )
 }
 
