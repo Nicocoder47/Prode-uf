@@ -1,10 +1,35 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>prode</title>
+    <script>
+      (function () {
+        var KEY = 'prode_asset_recover';
+        if (sessionStorage.getItem(KEY)) return;
+        function recover() {
+          sessionStorage.setItem(KEY, '1');
+          var u = new URL(window.location.href);
+          u.searchParams.set('_v', String(Date.now()));
+          window.location.replace(u.toString());
+        }
+        window.addEventListener('DOMContentLoaded', function () {
+          var link = document.querySelector('link[rel="stylesheet"][href*="/assets/"]');
+          if (!link || !link.href) return;
+          fetch(link.href, { cache: 'no-store', credentials: 'same-origin' })
+            .then(function (res) {
+              var type = res.headers.get('content-type') || '';
+              if (!res.ok || type.indexOf('text/css') === -1) recover();
+            })
+            .catch(recover);
+        });
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
