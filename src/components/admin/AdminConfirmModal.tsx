@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 import { PremiumButton } from '../ui/PremiumButton'
 
@@ -40,7 +41,7 @@ export function AdminConfirmModal({
   const reasonOk = !reasonRequired || Boolean(reason?.trim())
   const canConfirm = phraseOk && reasonOk && !busy
 
-  return (
+  return createPortal(
     <div className="admin-confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="admin-confirm-title">
       <button type="button" className="admin-confirm-modal__backdrop" aria-label="Cancelar" onClick={onCancel} />
       <div className="admin-confirm-modal__panel">
@@ -82,6 +83,7 @@ export function AdminConfirmModal({
           </PremiumButton>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

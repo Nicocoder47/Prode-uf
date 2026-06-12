@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { AdminConfirmModal } from '../../components/admin/AdminConfirmModal.tsx'
 import { useAdminMobile } from '../../hooks/useAdminMobile.ts'
@@ -23,7 +23,7 @@ import type { AdminUserRow } from '../../types/admin.ts'
 import { isTestUserEmail } from '../../utils/adminTestUser.ts'
 import { AdminUserDetailMobileHero } from '../../components/admin/mobile/AdminUserDetailMobileHero.tsx'
 import { AdminUserPredictionsTab } from '../../components/admin/mobile/AdminUserPredictionsTab.tsx'
-import { AdminUserSummaryMobile } from '../../components/admin/mobile/AdminUserSummaryMobile.tsx'
+import { AdminUserInfoSections } from '../../components/admin/AdminUserInfoSections.tsx'
 import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL } from '../../utils/reviewStatus.ts'
 
 type Tab = 'summary' | 'predictions' | 'security' | 'actions' | 'audit'
@@ -49,17 +49,22 @@ function accountStatus(u: AdminUserRow) {
 
 interface Props {
   user: AdminUserRow
+  initialTab?: Tab
   onClose: () => void
   onChanged: () => void
 }
 
-export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
+export function AdminUserDetailDrawer({ user, initialTab = 'summary', onClose, onChanged }: Props) {
   const isMobile = useAdminMobile()
   const { data: detail, isLoading, error: queryError, refetch } = useAdminUserDetail(user.id)
   const { invalidateUserDetail, invalidateBetaOverview, invalidateDashboard, invalidateUsers } = useInvalidateAdmin()
   const { showToast } = useAppToast()
 
-  const [tab, setTab] = useState<Tab>('summary')
+  const [tab, setTab] = useState<Tab>(initialTab)
+
+  useEffect(() => {
+    setTab(initialTab)
+  }, [initialTab, user.id])
   const [actionReason, setActionReason] = useState('')
   const [notifyTitle, setNotifyTitle] = useState('')
   const [notifyMessage, setNotifyMessage] = useState('')
@@ -152,11 +157,7 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
           {displayError && <p className="rounded-xl bg-red-500/20 px-3 py-2 text-sm text-red-200">{displayError}</p>}
           {isLoading && <p className="text-white/60">Cargando detalle…</p>}
 
-          {tab === 'summary' && isMobile && (
-            <AdminUserSummaryMobile user={u} padron={padron} accountLabel={accountLabel} formatDate={formatDate} />
-          )}
-
-          {tab === 'summary' && !isMobile && (
+          {tab === 'summary' && (
             <>
               <div className="flex flex-wrap items-center gap-2">
                 <span className={REVIEW_STATUS_CLASS[u.review_status ?? 'pending']}>
@@ -172,7 +173,7 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
                   <ul className="space-y-1 text-sm text-white/85">
                     <li><strong>Nombre:</strong> {u.full_name}</li>
                     <li><strong>Legajo:</strong> {u.legajo ?? '—'}</li>
-                    <li><strong>DNI:</strong> {u.dni_masked}</li>
+                    <li><strong>DNI:</strong> {u.dni ?? u.dni_masked}</li>
                     <li><strong>Email:</strong> {u.email}</li>
                     <li><strong>Registro:</strong> {formatDate(u.created_at)}</li>
                     <li><strong>Último login:</strong> {formatDate(u.last_login_at)}</li>
@@ -186,7 +187,7 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
                       <li><strong>Apellido:</strong> {padron.last_name ?? '—'}</li>
                       <li><strong>Nombre:</strong> {padron.first_name ?? '—'}</li>
                       <li><strong>Completo:</strong> {padron.full_name ?? '—'}</li>
-                      <li><strong>DNI padrón:</strong> {padron.dni ? `****${String(padron.dni).slice(-4)}` : '—'}</li>
+                      <li><strong>DNI padrón:</strong> {padron.dni ?? '—'}</li>
                     </ul>
                   ) : (
                     <p className="text-sm font-semibold text-red-300">DNI no encontrado en padrón de referencia</p>
@@ -212,6 +213,19 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
                   <p className="font-bold text-white">{u.hit_predictions ?? 0}</p>
                 </div>
               </div>
+
+              <details className="admin-user-info-expand">
+                <summary>Ver información completa del usuario</summary>
+                <div className="admin-user-info-expand__body">
+                  <AdminUserInfoSections
+                    user={u}
+                    padron={padron}
+                    formatDate={formatDate}
+                    accountLabel={accountLabel}
+                    isTest={isTest}
+                  />
+                </div>
+              </details>
             </>
           )}
 
@@ -385,6 +399,26 @@ export function AdminUserDetailDrawer({ user, onClose, onChanged }: Props) {
           </div>
           )}
         </div>
+
+        {u.role !== 'admin' && !u.deleted_at && (
+          <div className="admin-user-detail__footer">
+            <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => setTab('actions')}>
+              Más acciones
+            </PremiumButton>
+            <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowDeactivate(true)}>
+              Desactivar
+            </PremiumButton>
+            {isTest ? (
+              <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowDeleteTest(true)}>
+                Eliminar test
+              </PremiumButton>
+            ) : (
+              <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => setShowDeleteFull(true)}>
+                Eliminar
+              </PremiumButton>
+            )}
+          </div>
+        )}
       </div>
 
       <AdminConfirmModal

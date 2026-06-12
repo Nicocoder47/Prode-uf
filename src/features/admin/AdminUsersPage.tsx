@@ -11,9 +11,11 @@ import { AdminUserDetailDrawer } from './AdminUserDetailDrawer.tsx'
 import { AdminUserMobileCard } from '../../components/admin/mobile/AdminUserMobileCard.tsx'
 import { AdminUsersFiltersSheet } from '../../components/admin/mobile/AdminUsersFiltersSheet.tsx'
 import { AdminUsersMobileStats } from '../../components/admin/mobile/AdminUsersMobileStats.tsx'
+import { AdminUsersFiltersPanel } from '../../components/admin/AdminUsersFiltersPanel.tsx'
+import { EMPTY_ADMIN_USERS_FILTERS, countActiveAdminUserFilters } from '../../components/admin/AdminUsersFilterState.ts'
 import { useAppToast } from '../../components/ui/ToastProvider.tsx'
 import { adminBlockUser, adminUnblockUser } from '../../services/admin/adminService.ts'
-import { SlidersHorizontal } from 'lucide-react'
+import { Eraser, SlidersHorizontal } from 'lucide-react'
 
 const PAGE_SIZE = 25
 
@@ -50,6 +52,7 @@ export default function AdminUsersPage() {
   const { showToast } = useAppToast()
   const [searchParams, setSearchParams] = useSearchParams()
   const [detailUser, setDetailUser] = useState<AdminUserRow | null>(null)
+  const [detailTab, setDetailTab] = useState<'summary' | 'predictions' | 'security' | 'actions' | 'audit'>('summary')
   const [page, setPage] = useState(0)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [cardBusy, setCardBusy] = useState<string | null>(null)
@@ -67,6 +70,10 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     const userId = searchParams.get('userId')
+    const tab = searchParams.get('tab')
+    if (tab === 'summary' || tab === 'predictions' || tab === 'security' || tab === 'actions' || tab === 'audit') {
+      setDetailTab(tab)
+    }
     if (userId && users.length) {
       const found = users.find(u => u.id === userId)
       if (found) setDetailUser(found)
@@ -158,7 +165,10 @@ export default function AdminUsersPage() {
     noLoginFilter,
   }
 
+  const activeFilterCount = countActiveAdminUserFilters(search, filterState)
+
   function resetFilters() {
+    setSearch('')
     setReviewFilter('')
     setAccountFilter('')
     setRoleFilter('')
@@ -168,6 +178,34 @@ export default function AdminUsersPage() {
     setTestFilter('')
     setTodayFilter(false)
     setNoLoginFilter(false)
+    setPage(0)
+  }
+
+  function applyFilterPatch(patch: Partial<typeof filterState>) {
+    if ('reviewFilter' in patch) setReviewFilter(patch.reviewFilter ?? '')
+    if ('accountFilter' in patch) setAccountFilter(patch.accountFilter ?? '')
+    if ('roleFilter' in patch) setRoleFilter(patch.roleFilter ?? '')
+    if ('predFilter' in patch) setPredFilter(patch.predFilter ?? '')
+    if ('passwordFilter' in patch) setPasswordFilter(patch.passwordFilter ?? '')
+    if ('active7dFilter' in patch) setActive7dFilter(patch.active7dFilter ?? false)
+    if ('testFilter' in patch) setTestFilter(patch.testFilter ?? '')
+    if ('todayFilter' in patch) setTodayFilter(patch.todayFilter ?? false)
+    if ('noLoginFilter' in patch) setNoLoginFilter(patch.noLoginFilter ?? false)
+    setPage(0)
+  }
+
+  function clearFilterChip(key: string) {
+    if (key === 'search') { setSearch(''); setPage(0); return }
+    applyFilterPatch({ [key]: EMPTY_ADMIN_USERS_FILTERS[key as keyof typeof EMPTY_ADMIN_USERS_FILTERS] } as Partial<typeof filterState>)
+  }
+
+  function openUserDetail(
+    u: AdminUserRow,
+    tab: 'summary' | 'predictions' | 'security' | 'actions' | 'audit' = 'summary',
+  ) {
+    setDetailUser(u)
+    setDetailTab(tab)
+    setSearchParams(tab === 'summary' ? { userId: u.id } : { userId: u.id, tab })
   }
 
   return (
@@ -201,11 +239,22 @@ export default function AdminUsersPage() {
           onChange={e => { setSearch(e.target.value); setPage(0) }}
         />
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xs text-white/50">{filtered.length} de {users.length}</span>
-          <button type="button" className="admin-users-mobile-toolbar__filters" onClick={() => setFiltersOpen(true)}>
-            <SlidersHorizontal className="h-4 w-4" />
-            Filtros
-          </button>
+          <span className="text-xs text-white/50">
+            {filtered.length} de {users.length}
+            {activeFilterCount > 0 && <span className="ml-1 text-amber-300/90">· {activeFilterCount} filtro{activeFilterCount === 1 ? '' : 's'}</span>}
+          </span>
+          <div className="flex items-center gap-2">
+            {activeFilterCount > 0 && (
+              <button type="button" className="admin-users-mobile-toolbar__clear" onClick={resetFilters} title="Limpiar filtros">
+                <Eraser className="h-4 w-4" />
+              </button>
+            )}
+            <button type="button" className="admin-users-mobile-toolbar__filters" onClick={() => setFiltersOpen(true)}>
+              <SlidersHorizontal className="h-4 w-4" />
+              Filtros
+              {activeFilterCount > 0 && <span className="admin-users-mobile-toolbar__filters-badge">{activeFilterCount}</span>}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -213,82 +262,35 @@ export default function AdminUsersPage() {
         open={filtersOpen}
         onClose={() => setFiltersOpen(false)}
         filters={filterState}
-        onChange={patch => {
-          Object.entries(patch).forEach(([k, v]) => {
-            if (k === 'reviewFilter') setReviewFilter(v as string)
-            if (k === 'accountFilter') setAccountFilter(v as string)
-            if (k === 'roleFilter') setRoleFilter(v as string)
-            if (k === 'predFilter') setPredFilter(v as string)
-            if (k === 'passwordFilter') setPasswordFilter(v as string)
-            if (k === 'active7dFilter') setActive7dFilter(v as boolean)
-            if (k === 'testFilter') setTestFilter(v as string)
-            if (k === 'todayFilter') setTodayFilter(v as boolean)
-            if (k === 'noLoginFilter') setNoLoginFilter(v as boolean)
-          })
-          setPage(0)
-        }}
+        activeFilterCount={activeFilterCount}
+        onChange={applyFilterPatch}
         onReset={resetFilters}
         resultCount={filtered.length}
         totalCount={users.length}
       />
 
-      <PremiumCard title="Filtros" description={`${filtered.length} de ${users.length} usuarios`} className="hidden md:block">
+      <PremiumCard
+        title="Filtros"
+        description={`${filtered.length} de ${users.length} usuarios`}
+        className="hidden md:block"
+      >
         <div className="mb-3 flex flex-wrap gap-2">
           <PremiumButton size="sm" variant="ghost" onClick={exportCsv}>Exportar CSV</PremiumButton>
+          {activeFilterCount > 0 && (
+            <PremiumButton size="sm" variant="ghost" onClick={resetFilters}>
+              <Eraser className="h-3.5 w-3.5" />
+              Limpiar filtros
+            </PremiumButton>
+          )}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-          <input
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white lg:col-span-2"
-            placeholder="Buscar legajo, nombre, email o DNI"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          <select className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={reviewFilter} onChange={e => setReviewFilter(e.target.value)}>
-            <option value="">Revisión: todos</option>
-            <option value="verified">Verificado</option>
-            <option value="review_required">En revisión</option>
-            <option value="manually_approved">Aprobado manual</option>
-            <option value="rejected">Rechazado</option>
-          </select>
-          <select className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={accountFilter} onChange={e => setAccountFilter(e.target.value)}>
-            <option value="">Cuenta: todas</option>
-            <option value="active">Activos</option>
-            <option value="blocked">Bloqueados</option>
-            <option value="deleted">Eliminados</option>
-          </select>
-          <select className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
-            <option value="">Rol: todos</option>
-            <option value="member">Member</option>
-            <option value="admin">Admin</option>
-          </select>
-          <select className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={predFilter} onChange={e => setPredFilter(e.target.value)}>
-            <option value="">Predicciones: todas</option>
-            <option value="with">Con predicciones</option>
-            <option value="without">Sin predicciones</option>
-          </select>
-          <select className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={passwordFilter} onChange={e => setPasswordFilter(e.target.value)}>
-            <option value="">Contraseña: todas</option>
-            <option value="must">Debe cambiar</option>
-            <option value="ok">Actualizada</option>
-          </select>
-          <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
-            <input type="checkbox" checked={active7dFilter} onChange={e => setActive7dFilter(e.target.checked)} />
-            Activos 7d
-          </label>
-          <select className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" value={testFilter} onChange={e => setTestFilter(e.target.value)}>
-            <option value="">Tipo: todos</option>
-            <option value="real">Usuarios reales</option>
-            <option value="test">Usuarios de prueba</option>
-          </select>
-          <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
-            <input type="checkbox" checked={todayFilter} onChange={e => setTodayFilter(e.target.checked)} />
-            Registrados hoy
-          </label>
-          <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
-            <input type="checkbox" checked={noLoginFilter} onChange={e => setNoLoginFilter(e.target.checked)} />
-            Sin login
-          </label>
-        </div>
+        <AdminUsersFiltersPanel
+          search={search}
+          filters={filterState}
+          onSearchChange={value => { setSearch(value); setPage(0) }}
+          onFilterChange={applyFilterPatch}
+          onClearChip={clearFilterChip}
+          onClearAll={resetFilters}
+        />
       </PremiumCard>
 
       <div className="admin-users-mobile-list admin-mobile-card-stack md:hidden">
@@ -325,7 +327,7 @@ export default function AdminUsersPage() {
                 accountClass={st.className}
                 isTest={isTestUser(u)}
                 busy={cardBusy === u.id}
-                onView={() => { setDetailUser(u); setSearchParams({ userId: u.id }) }}
+                onView={() => openUserDetail(u)}
                 onToggleBlock={() => toggleBlock(u)}
               />
             )
@@ -385,9 +387,14 @@ export default function AdminUsersPage() {
                       <td className="py-2 pr-3 text-xs uppercase text-white/60">{u.role}</td>
                       <td className="py-2">
                         <div className="flex flex-wrap gap-1">
-                          <PremiumButton size="sm" variant="ghost" onClick={() => { setDetailUser(u); setSearchParams({ userId: u.id }) }}>
+                          <PremiumButton size="sm" variant="ghost" onClick={() => openUserDetail(u)}>
                             Ver
                           </PremiumButton>
+                          {u.role !== 'admin' && (
+                            <PremiumButton size="sm" variant="danger" onClick={() => openUserDetail(u, 'actions')}>
+                              Gestionar
+                            </PremiumButton>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -409,7 +416,8 @@ export default function AdminUsersPage() {
       {detailUser && (
         <AdminUserDetailDrawer
           user={detailUser}
-          onClose={() => { setDetailUser(null); setSearchParams({}) }}
+          initialTab={detailTab}
+          onClose={() => { setDetailUser(null); setDetailTab('summary'); setSearchParams({}) }}
           onChanged={handleChanged}
         />
       )}

@@ -1,29 +1,19 @@
-import { SlidersHorizontal, X } from 'lucide-react'
+import { Eraser, SlidersHorizontal, X } from 'lucide-react'
 import { PremiumButton } from '../../ui/PremiumButton'
-
-type FilterState = {
-  reviewFilter: string
-  accountFilter: string
-  roleFilter: string
-  predFilter: string
-  passwordFilter: string
-  active7dFilter: boolean
-  testFilter: string
-  todayFilter: boolean
-  noLoginFilter: boolean
-}
+import type { AdminUsersFilterState } from '../AdminUsersFilterState'
 
 type Props = {
   open: boolean
   onClose: () => void
-  filters: FilterState
-  onChange: (patch: Partial<FilterState>) => void
+  filters: AdminUsersFilterState
+  activeFilterCount: number
+  onChange: (patch: Partial<AdminUsersFilterState>) => void
   onReset: () => void
   resultCount: number
   totalCount: number
 }
 
-export function AdminUsersFiltersSheet({ open, onClose, filters, onChange, onReset, resultCount, totalCount }: Props) {
+export function AdminUsersFiltersSheet({ open, onClose, filters, activeFilterCount, onChange, onReset, resultCount, totalCount }: Props) {
   if (!open) return null
 
   return (
@@ -41,6 +31,7 @@ export function AdminUsersFiltersSheet({ open, onClose, filters, onChange, onRes
         </div>
         <p className="admin-users-filters-sheet__count">
           {resultCount} de {totalCount} usuarios
+          {activeFilterCount > 0 && <span className="admin-users-filters-sheet__badge">{activeFilterCount} activo{activeFilterCount === 1 ? '' : 's'}</span>}
         </p>
 
         <div className="admin-users-filters-sheet__grid">
@@ -120,11 +111,12 @@ export function AdminUsersFiltersSheet({ open, onClose, filters, onChange, onRes
         </div>
 
         <div className="admin-users-filters-sheet__actions">
-          <PremiumButton size="sm" variant="ghost" onClick={onReset}>
-            Limpiar
+          <PremiumButton size="sm" variant="ghost" onClick={onReset} disabled={activeFilterCount === 0}>
+            <Eraser className="h-3.5 w-3.5" />
+            Limpiar todo
           </PremiumButton>
           <PremiumButton size="sm" onClick={onClose}>
-            Aplicar
+            Ver {resultCount} resultado{resultCount === 1 ? '' : 's'}
           </PremiumButton>
         </div>
       </div>
