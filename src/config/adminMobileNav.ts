@@ -13,6 +13,7 @@ import {
   Server,
   Sparkles,
   Target,
+  Trophy,
   Users,
 } from 'lucide-react'
 
@@ -38,6 +39,7 @@ export const ADMIN_MOBILE_MORE: AdminNavItem[] = [
   { to: '/admin/support', label: 'Soporte', icon: LifeBuoy },
   { to: '/admin/activity', label: 'Actividad', icon: Activity },
   { to: '/admin/notifications', label: 'Notificaciones', icon: Bell },
+  { to: '/admin/scoring-display', label: 'Puntos y ticker', icon: Trophy, searchTerms: ['puntos', 'exacto', 'resultado', 'ticker'] },
   { to: '/admin/cards', label: 'Cards', icon: CreditCard },
   { to: '/admin/live-cards', label: 'Mundial Vivo', icon: Sparkles },
 ]

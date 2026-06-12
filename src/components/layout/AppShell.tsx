@@ -29,6 +29,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col md:max-w-[1700px] md:px-6 md:py-4 lg:px-8">
         {!isHome && (
           <MobileTopHeader
+            variant={isFixture ? 'fixture' : 'default'}
             className={`mx-1 mb-1 mt-[max(0.75rem,env(safe-area-inset-top))] md:hidden ${
               isFixture ? 'border border-amber-400/20' : ''
             }`}

@@ -1,5 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { HOME_PREMIUM, MOTION } from '../../constants/design'
+import type { Match } from '../../types/worldcup'
+import { formatNextMatchKickoff, shortTeamDisplayName } from '../../utils/predictionProgress'
+import { TeamCrest } from './TeamCrest'
 import { TrophyIllustration } from './TrophyIllustration'
 
 interface WorldCupHeroProps {
@@ -11,6 +14,7 @@ interface WorldCupHeroProps {
     seconds: number
   }
   countdownHint?: string
+  nextMatch?: Match | null
   onPredict?: () => void
   onFixture?: () => void
   hasPrediction?: boolean
@@ -47,29 +51,73 @@ function CountdownUnits({ countdown, compact }: { countdown: NonNullable<WorldCu
   )
 }
 
+function CountdownMatchTeams({ match, compact }: { match: Match; compact?: boolean }) {
+  const home = match.homeTeam
+  const away = match.awayTeam
+  if (!home || !away) return null
+
+  const crestSize = compact ? 'sm' : 'md'
+
+  return (
+    <div className={`wc26-countdown-teams${compact ? ' wc26-countdown-teams--compact' : ''}`}>
+      <div className="wc26-countdown-teams__side">
+        <TeamCrest flag={home.flag} code={home.code} name={home.name} size={crestSize} />
+        <span className="wc26-countdown-teams__name">{shortTeamDisplayName(home.name)}</span>
+      </div>
+      <span className="wc26-countdown-teams__vs">vs</span>
+      <div className="wc26-countdown-teams__side">
+        <TeamCrest flag={away.flag} code={away.code} name={away.name} size={crestSize} />
+        <span className="wc26-countdown-teams__name">{shortTeamDisplayName(away.name)}</span>
+      </div>
+    </div>
+  )
+}
+
 function CountdownBlock({
   countdown,
   countdownHint,
+  nextMatch,
   title,
   compact,
 }: {
   countdown?: WorldCupHeroProps['countdown']
   countdownHint?: string
+  nextMatch?: Match | null
   title: string
   compact?: boolean
 }) {
-  if (!countdown && !countdownHint) return null
+  if (!countdown && !countdownHint && !nextMatch) return null
+
+  const kickoffLabel = nextMatch ? formatNextMatchKickoff(nextMatch) : null
 
   return (
     <div className={`wc26-countdown-panel${compact ? '' : ' wc26-countdown-panel--desktop'}`}>
-      <p className="wc26-countdown-title mb-3 text-center">{title}</p>
+      <p className="wc26-countdown-title mb-2 text-center">{title}</p>
+      {nextMatch?.homeTeam && nextMatch?.awayTeam ? (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={nextMatch.id}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.22 }}
+            className="mb-2"
+          >
+            <CountdownMatchTeams match={nextMatch} compact={compact} />
+          </motion.div>
+        </AnimatePresence>
+      ) : null}
+      {kickoffLabel && countdown ? (
+        <p className="wc26-countdown-kickoff mb-3 text-center">{kickoffLabel}</p>
+      ) : null}
       {countdown ? (
         <CountdownUnits countdown={countdown} compact={compact} />
-      ) : (
-        <p className="text-center text-lg font-black uppercase tracking-wide text-[#F8B91E]">
-          {countdownHint}
-        </p>
-      )}
+      ) : countdownHint ? (
+        <p className="wc26-countdown-hint text-center">{countdownHint}</p>
+      ) : null}
+      {kickoffLabel && !countdown && countdownHint ? (
+        <p className="wc26-countdown-kickoff mt-2 text-center">{kickoffLabel}</p>
+      ) : null}
     </div>
   )
 }
@@ -78,6 +126,7 @@ export function WorldCupHero({
   variant = 'mobile',
   countdown,
   countdownHint,
+  nextMatch,
   onPredict,
   onFixture,
   hasPrediction,
@@ -103,6 +152,7 @@ export function WorldCupHero({
           <CountdownBlock
             countdown={countdown}
             countdownHint={countdownHint}
+            nextMatch={nextMatch}
             title="Próximo partido"
           />
           <div className="flex gap-3">
@@ -149,12 +199,13 @@ export function WorldCupHero({
           <TrophyIllustration variant="hero" />
         </div>
 
-        {(countdown || countdownHint) && (
+        {(countdown || countdownHint || nextMatch) && (
           <motion.div {...MOTION.fadeIn} className="mx-auto w-full max-w-[22rem]">
             <CountdownBlock
               countdown={countdown}
               countdownHint={countdownHint}
-              title="Falta para el próximo partido"
+              nextMatch={nextMatch}
+              title="Próximo partido"
               compact
             />
           </motion.div>

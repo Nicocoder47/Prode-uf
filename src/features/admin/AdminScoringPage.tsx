@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { AdminMatchResultEditor } from '../../components/admin/AdminMatchResultEditor.tsx'
 import { AdminOrphanScoredAlert } from '../../components/admin/AdminOrphanScoredPanel.tsx'
 import { AdminConfirmModal } from '../../components/admin/AdminConfirmModal.tsx'
 import { AdminScoringMatchCard } from '../../components/admin/mobile/AdminScoringMatchCard.tsx'
@@ -13,6 +14,7 @@ import {
   adminRescoreMatch,
   adminScoreMatch,
   adminScoreRound,
+  adminUpdateMatchResult,
 } from '../../services/admin/adminService.ts'
 import type { AdminScoringMatchRow } from '../../types/admin.ts'
 
@@ -80,6 +82,23 @@ export default function AdminScoringPage() {
       showToast(err instanceof Error ? err.message : 'Error')
     } finally {
       setBusy(null)
+    }
+  }
+
+  async function saveMatchResult(match: AdminScoringMatchRow, scoreHome: number, scoreAway: number) {
+    const oldHome = match.score_home
+    const oldAway = match.score_away
+    const wasScored = match.scoring_status === 'scored' && oldHome != null && oldAway != null
+
+    await adminUpdateMatchResult({
+      matchId: match.id,
+      scoreHome,
+      scoreAway,
+      status: 'finished',
+    })
+
+    if (wasScored && (oldHome !== scoreHome || oldAway !== scoreAway)) {
+      await adminRescoreMatch(match.id, oldHome, oldAway)
     }
   }
 
@@ -217,6 +236,7 @@ export default function AdminScoringPage() {
                 busy={busy === m.id}
                 onScore={() => run(`Scoring ${m.id}`, () => adminScoreMatch(m.id))}
                 onRescore={() => run(`Rescore ${m.id}`, () => adminRescoreMatch(m.id, m.score_home!, m.score_away!))}
+                onSaveResult={(home, away) => run(`Resultado ${m.id}`, () => saveMatchResult(m, home, away))}
               />
             ))
           )}
@@ -243,8 +263,14 @@ export default function AdminScoringPage() {
                   </td>
                   <td className="py-2 pr-3">
                     <AdminStatusLight status={scoringStatusLight(m.scoring_status)} label={m.scoring_status} />
-                    <div className="mt-1 font-mono text-xs text-white/60">
-                      {m.score_home != null ? `${m.score_home}-${m.score_away}` : '—'}
+                    <div className="mt-2">
+                      <AdminMatchResultEditor
+                        scoreHome={m.score_home}
+                        scoreAway={m.score_away}
+                        busy={busy === m.id}
+                        compact
+                        onSave={(home, away) => run(`Resultado ${m.id}`, () => saveMatchResult(m, home, away))}
+                      />
                     </div>
                   </td>
                   <td className="py-2 pr-3">{m.predictions_scored}/{m.predictions_total}</td>

@@ -118,6 +118,17 @@ export function buildLiveCardsPreviewFixtures(): WorldCupLiveInsightPayload[] {
       title: 'PRÓXIMO PARTIDO',
       match,
       countdownLabel: 'Faltan 2 días',
+      todayMatches: [
+        {
+          ...match,
+          id: 'preview-today-finished',
+          status: 'finished',
+          homeScore: 2,
+          awayScore: 0,
+          kickoff: new Date(new Date().setHours(16, 0, 0, 0)).toISOString(),
+        },
+        match,
+      ],
       cta: { label: 'Predecir ahora', action: 'predict' },
     },
     {
@@ -138,7 +149,9 @@ export function buildLiveCardsPreviewFixtures(): WorldCupLiveInsightPayload[] {
       type: 'ranking_move',
       emoji: '🏆',
       title: 'MOVIMIENTO RANKING',
-      lines: ['Subiste 3 puestos · ahora #12', 'Líder: Martín G. (+24 pts)', 'Zona premium: top 10'],
+      lines: ['Martín subió 3 posiciones'],
+      leader: { rank: 1, name: 'Martín García', legajo: '10482', points: 24 },
+      runnerUp: { rank: 2, name: 'Laura Pérez', legajo: '09137', points: 21 },
       cta: { label: 'Ver ranking', action: 'leaderboard' },
     },
     {

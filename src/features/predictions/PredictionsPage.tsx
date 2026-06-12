@@ -175,6 +175,8 @@ export default function PredictionsPage() {
       match={predictMatch}
       isOpen={!!predictMatch}
       onClose={() => setPredictMatch(null)}
+      allMatches={matches}
+      onContinueNext={setPredictMatch}
       existingPrediction={predictions.find(p => p.matchId === predictMatch.id)}
       onSave={async payload => {
         await savePrediction.mutateAsync({

@@ -1,3 +1,4 @@
+import { AdminMatchResultEditor } from '../AdminMatchResultEditor.tsx'
 import { PremiumButton } from '../../ui/PremiumButton'
 import { AdminStatusLight, scoringStatusLight } from '../AdminStatusLight'
 import type { AdminScoringMatchRow } from '../../../types/admin'
@@ -7,6 +8,7 @@ type Props = {
   busy: boolean
   onScore: () => void
   onRescore: () => void
+  onSaveResult: (home: number, away: number) => void | Promise<void>
 }
 
 function formatDate(v: string | null | undefined) {
@@ -14,7 +16,7 @@ function formatDate(v: string | null | undefined) {
   return new Date(v).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
 }
 
-export function AdminScoringMatchCard({ match: m, busy, onScore, onRescore }: Props) {
+export function AdminScoringMatchCard({ match: m, busy, onScore, onRescore, onSaveResult }: Props) {
   const finished = m.status === 'finished'
   const canScore = finished && m.scoring_status === 'pending_scoring'
   const canRescore = finished && m.scoring_status === 'scored' && m.score_home != null && m.score_away != null
@@ -33,10 +35,15 @@ export function AdminScoringMatchCard({ match: m, busy, onScore, onRescore }: Pr
 
       <div className="admin-scoring-match-card__row">
         <AdminStatusLight status={scoringStatusLight(m.scoring_status)} label={m.scoring_status} />
-        <span className="font-mono text-sm text-white/70">
-          {m.score_home != null ? `${m.score_home}-${m.score_away}` : '—'}
-        </span>
       </div>
+
+      <AdminMatchResultEditor
+        scoreHome={m.score_home}
+        scoreAway={m.score_away}
+        busy={busy}
+        compact
+        onSave={onSaveResult}
+      />
 
       <div className="admin-scoring-match-card__stats">
         <span>

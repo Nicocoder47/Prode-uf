@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bell } from 'lucide-react'
+import { getDefaultScoringDisplay } from '../../hooks/useScoringDisplayConfig.ts'
 import { fetchActiveAdminCards, fetchMyNotifications, markNotificationRead } from '../../services/admin/adminService.ts'
+import { resolveScoringDisplay } from '../../config/scoringDisplay.ts'
 import type { AppNotification } from '../../types/admin.ts'
 
 type TickerItem = {
@@ -11,23 +13,26 @@ type TickerItem = {
   isRead: boolean
 }
 
-const FALLBACK_ITEMS: TickerItem[] = [
-  {
-    id: 'welcome',
-    title: 'PRODEMUNDIAL 2026',
-    message: 'Viví el Mundial · Hacé tus predicciones antes de cada partido',
-    isRead: true,
-  },
-  {
-    id: 'tip',
-    title: 'Tip',
-    message: 'Sumá puntos acertando el marcador exacto (5) o el resultado (3)',
-    isRead: true,
-  },
-]
+function buildFallbackItems(): TickerItem[] {
+  const scoring = getDefaultScoringDisplay()
+  return [
+    {
+      id: 'welcome',
+      title: 'PRODEMUNDIAL 2026',
+      message: 'Viví el Mundial · Hacé tus predicciones antes de cada partido',
+      isRead: true,
+    },
+    {
+      id: 'tip',
+      title: 'Tip',
+      message: scoring.tickerTipMessage,
+      isRead: true,
+    },
+  ]
+}
 
 export function NotificationTicker() {
-  const [items, setItems] = useState<TickerItem[]>(FALLBACK_ITEMS)
+  const [items, setItems] = useState<TickerItem[]>(buildFallbackItems)
 
   const reload = useCallback(async () => {
     try {
@@ -35,6 +40,8 @@ export function NotificationTicker() {
         fetchMyNotifications().catch(() => [] as AppNotification[]),
         fetchActiveAdminCards().catch(() => []),
       ])
+
+      const scoring = resolveScoringDisplay(cards)
 
       const fromNotifs: TickerItem[] = notifications.map(n => ({
         id: n.id,
@@ -48,10 +55,24 @@ export function NotificationTicker() {
         ? [{ id: 'card-important', title: important.title, message: important.value ?? important.subtitle ?? '', isRead: true }]
         : []
 
-      const merged = [...fromNotifs, ...fromCard]
-      setItems(merged.length > 0 ? merged : FALLBACK_ITEMS)
+      const scoringTip: TickerItem = {
+        id: 'tip',
+        title: 'Tip',
+        message: scoring.tickerTipMessage,
+        isRead: true,
+      }
+
+      const welcome: TickerItem = {
+        id: 'welcome',
+        title: 'PRODEMUNDIAL 2026',
+        message: 'Viví el Mundial · Hacé tus predicciones antes de cada partido',
+        isRead: true,
+      }
+
+      const merged = [welcome, scoringTip, ...fromNotifs, ...fromCard]
+      setItems(merged.length > 0 ? merged : buildFallbackItems())
     } catch {
-      setItems(FALLBACK_ITEMS)
+      setItems(buildFallbackItems())
     }
   }, [])
 
@@ -62,7 +83,7 @@ export function NotificationTicker() {
   }, [reload])
 
   const loopItems = useMemo(() => {
-    if (items.length === 0) return FALLBACK_ITEMS
+    if (items.length === 0) return buildFallbackItems()
     if (items.length === 1) return [...items, ...items, ...items]
     return [...items, ...items]
   }, [items])
@@ -80,7 +101,7 @@ export function NotificationTicker() {
     <div className="wc26-notification-ticker mx-3 mt-2">
       <div className="wc26-notification-ticker__inner">
         <span className="wc26-notification-ticker__badge" aria-hidden>
-          <Bell className="h-3.5 w-3.5" />
+          <Bell className="h-4 w-4" />
           {unread > 0 && <span className="wc26-notification-ticker__dot">{unread > 9 ? '9+' : unread}</span>}
         </span>
         <div className="wc26-notification-ticker__viewport">
@@ -92,11 +113,11 @@ export function NotificationTicker() {
               <button
                 key={`${item.id}-${index}`}
                 type="button"
-                className={`wc26-notification-ticker__item ${item.isRead ? '' : 'is-unread'}`}
+                className={`wc26-notification-ticker__item ${item.isRead ? '' : 'is-unread'} ${item.id === 'tip' ? 'is-scoring-tip' : ''}`}
                 onClick={() => handleClick(item)}
               >
                 <strong>{item.title}</strong>
-                <span className="opacity-80"> · {item.message}</span>
+                <span className="wc26-notification-ticker__message"> · {item.message}</span>
               </button>
             ))}
           </div>

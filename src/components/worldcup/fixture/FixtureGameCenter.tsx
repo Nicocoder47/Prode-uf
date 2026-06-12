@@ -1,215 +1,100 @@
-import { useEffect, useMemo, useState } from 'react'
-
 import { Link } from 'react-router-dom'
 
-import { motion, useReducedMotion } from 'framer-motion'
+import { CircleDot, Star, Target, User } from 'lucide-react'
 
-import { Calendar, Pencil, Trophy, User } from 'lucide-react'
-
-import { MOTION } from '../../../constants/design'
-
+import { useScoringDisplayConfig } from '../../../hooks/useScoringDisplayConfig.ts'
 import type { OverallProgress } from '../../../utils/predictionProgress'
-
-import { getPlaySteps } from '../../../utils/predictionProgress'
 
 import type { Match, Prediction } from '../../../types/worldcup'
 
+const SCORING_RULE_TONES = [
+  { id: 'exact' as const, icon: Target, label: 'Exacto', tone: 'blue' as const },
+  { id: 'result' as const, icon: CircleDot, label: 'Resultado', tone: 'green' as const },
+]
 
-
-const MINI_TIPS = ['Exacto = 5 pts', 'Resultado = 3 pts', 'Se bloquea al iniciar'] as const
-
-
-
-const STEP_ICONS = {
-
-  group: Calendar,
-
-  predict: Pencil,
-
-  points: Trophy,
-
-} as const
-
-
-
-function PlayStepper({
-
-  overall,
-
-  predictions,
-
-  reduceMotion,
-
-}: {
-
-  overall: OverallProgress
-
-  predictions: Prediction[]
-
-  reduceMotion: boolean | null
-
-}) {
-
-  const steps = useMemo(() => getPlaySteps(overall, predictions), [overall, predictions])
-
-
-
-  return (
-
-    <motion.section {...MOTION.enter} className="wc26-fgc-stepper" aria-label="Cómo jugar">
-
-      <ol className="wc26-fgc-stepper__list">
-
-        {steps.map((step, index) => {
-
-          const Icon = STEP_ICONS[step.id as keyof typeof STEP_ICONS] ?? Calendar
-
-          return (
-
-            <motion.li
-
-              key={step.id}
-
-              initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-
-              animate={{ opacity: 1, y: 0 }}
-
-              transition={{ delay: reduceMotion ? 0 : index * 0.06 }}
-
-              className={`wc26-fgc-stepper__step wc26-fgc-stepper__step--${step.state}`}
-
-            >
-
-              <span className="wc26-fgc-stepper__num">{index + 1}</span>
-
-              <span className="wc26-fgc-stepper__icon" aria-hidden="true">
-
-                <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
-
-              </span>
-
-              <span className="wc26-fgc-stepper__label">{step.label}</span>
-
-            </motion.li>
-
-          )
-
-        })}
-
-      </ol>
-
-    </motion.section>
-
-  )
-
-}
-
-
-
+/** @deprecated Puntos ahora viven en la card hero del centro del juego. */
 export function FixturePlayHeader({ points }: { points: number }) {
-
   return (
-
     <header className="wc26-fgc-header">
-
-      <p className="wc26-fgc-header__brand">PRODE 2026</p>
-
+      <p className="wc26-fgc-header__brand">PRODEMUNDIAL 2026</p>
       <div className="wc26-fgc-header__actions">
-
         <span className="wc26-fgc-header__pts">
-
           <strong>{points}</strong> pts
-
         </span>
-
         <Link to="/profile" className="wc26-fgc-header__avatar" aria-label="Perfil">
-
           <User className="h-4 w-4" />
-
         </Link>
-
       </div>
-
     </header>
-
   )
-
 }
-
-
 
 type FixtureGameCenterProps = {
-
   overall: OverallProgress
-
   predictions: Prediction[]
-
   matches: Match[]
-
+  points?: number
+  onStartPredict?: () => void
 }
 
+export function FixtureGameCenter({
+  overall: _overall,
+  predictions: _predictions,
+  matches: _matches,
+  points = 0,
+  onStartPredict,
+}: FixtureGameCenterProps) {
+  const { data: scoring } = useScoringDisplayConfig()
 
-
-export function FixtureGameCenter({ overall, predictions }: FixtureGameCenterProps) {
-
-  const reduceMotion = useReducedMotion()
-
-  const [tipIndex, setTipIndex] = useState(0)
-
-
-
-  useEffect(() => {
-
-    if (reduceMotion) return
-
-    const id = window.setInterval(() => setTipIndex(i => (i + 1) % MINI_TIPS.length), 4000)
-
-    return () => window.clearInterval(id)
-
-  }, [reduceMotion])
-
-
+  const scoringRules = SCORING_RULE_TONES.map(rule => ({
+    ...rule,
+    pts: rule.id === 'exact' ? (scoring?.exactPts ?? 5) : (scoring?.resultPts ?? 3),
+  }))
 
   return (
+    <div className="wc26-fgc">
+      <section className="wc26-fgc-prode-banner">
+        <button type="button" className="wc26-fgc-prode-banner__main" onClick={onStartPredict}>
+          <div className="wc26-fgc-prode-banner__lead">
+            <span className="wc26-fgc-prode-banner__ball" aria-hidden="true">
+              ⚽
+            </span>
+            <div className="wc26-fgc-prode-banner__copy">
+              <h2 className="wc26-fgc-prode-banner__title">Arrancá tu prode</h2>
+              <p className="wc26-fgc-prode-banner__text">
+                Elegí un grupo, cargá tus predicciones y empezá a sumar puntos.
+              </p>
+            </div>
+          </div>
+          <div className="wc26-fgc-prode-banner__divider" aria-hidden="true" />
+          <div className="wc26-fgc-prode-banner__pts" aria-label={`${points} puntos`}>
+            <span className="wc26-fgc-prode-banner__pts-value">{points}</span>
+            <span className="wc26-fgc-prode-banner__pts-label">PTS</span>
+            <span className="wc26-fgc-prode-banner__pts-star" aria-hidden="true">
+              <Star className="h-2.5 w-2.5 fill-current" />
+            </span>
+          </div>
+        </button>
 
-    <div className="wc26-fgc space-y-3">
-
-      <motion.section {...MOTION.enter} className="wc26-fgc-intro">
-
-        <h2 className="wc26-fgc-intro__title">Centro del juego</h2>
-
-        <p className="wc26-fgc-intro__text">Elegí un grupo, predecí los partidos y sumá puntos.</p>
-
-      </motion.section>
-
-
-
-      <PlayStepper overall={overall} predictions={predictions} reduceMotion={reduceMotion} />
-
-
-
-      <motion.p
-
-        key={tipIndex}
-
-        initial={reduceMotion ? false : { opacity: 0 }}
-
-        animate={{ opacity: 1 }}
-
-        className="wc26-fgc-mini-tip"
-
-        aria-live="polite"
-
-      >
-
-        {MINI_TIPS[tipIndex]}
-
-      </motion.p>
-
+        <div className="wc26-fgc-prode-banner__scoring" aria-label="Puntos por acierto">
+          {scoringRules.map((rule, index) => {
+            const Icon = rule.icon
+            return (
+              <div
+                key={rule.id}
+                className={`wc26-fgc-prode-banner__score wc26-fgc-prode-banner__score--${rule.tone}`}
+              >
+                {index > 0 ? <span className="wc26-fgc-prode-banner__score-sep" aria-hidden="true" /> : null}
+                <span className="wc26-fgc-prode-banner__score-icon" aria-hidden="true">
+                  <Icon className="h-2.5 w-2.5" strokeWidth={2.2} />
+                </span>
+                <span className="wc26-fgc-prode-banner__score-label">{rule.label}</span>
+                <span className="wc26-fgc-prode-banner__score-pts">{rule.pts} pts</span>
+              </div>
+            )
+          })}
+        </div>
+      </section>
     </div>
-
   )
-
 }
-
-

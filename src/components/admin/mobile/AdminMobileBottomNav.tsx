@@ -15,7 +15,7 @@ export function AdminMobileBottomNav() {
   const [moreOpen, setMoreOpen] = useState(false)
 
   const moreActive = ADMIN_MOBILE_MORE_TRIGGER
-    ? ['/admin/analytics', '/admin/system', '/admin/beta-capacity', '/admin/support', '/admin/activity', '/admin/notifications', '/admin/cards', '/admin/live-cards'].some(
+    ? ['/admin/analytics', '/admin/system', '/admin/beta-capacity', '/admin/support', '/admin/activity', '/admin/notifications', '/admin/scoring-display', '/admin/cards', '/admin/live-cards'].some(
         p => pathname === p || pathname.startsWith(`${p}/`),
       )
     : false

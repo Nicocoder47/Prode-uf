@@ -8,7 +8,7 @@ import { TeamCrest } from './TeamCrest'
 import type { Match, Prediction } from '../../types/worldcup'
 import type { PredictionResult } from '../../types/api'
 import { useAppToast } from '../ui/ToastProvider'
-import { MAX_POINTS_PER_MATCH } from '../../utils/predictionProgress'
+import { getNextGroupMatch, MAX_POINTS_PER_MATCH } from '../../utils/predictionProgress'
 import {
   getResultLabel,
   getWinnerFromScore,
@@ -27,33 +27,27 @@ interface MatchPredictionModalProps {
     exactScore: { home: number; away: number }
   }) => Promise<void>
   existingPrediction?: Partial<Prediction>
+  allMatches?: Match[]
+  onContinueNext?: (next: Match) => void
 }
 
 function ScoreDial({
   value,
   onChange,
-  team,
-  align,
+  code,
 }: {
   value: number
   onChange: (next: number) => void
-  team: { flag?: string | null; code: string; name: string }
-  align: 'left' | 'right'
+  code: string
 }) {
   const dec = () => onChange(Math.max(0, value - 1))
   const inc = () => onChange(Math.min(9, value + 1))
 
   return (
-    <div className={`wc26-predict-score-side wc26-predict-score-side--${align}`}>
-      <div className="wc26-predict-score-side__team">
-        <div className="wc26-predict-score-side__crest">
-          <TeamCrest flag={team.flag} code={team.code} name={team.name} size="md" />
-        </div>
-        <p className="wc26-predict-score-side__name">{team.name}</p>
-        <span className="wc26-predict-score-side__code">{team.code}</span>
-      </div>
-      <div className="wc26-predict-score-dial">
-        <button type="button" onClick={dec} className="wc26-predict-score-dial__btn" aria-label={`Menos goles ${team.name}`}>
+    <div className="wc26-predict-score-side">
+      <span className="wc26-predict-score-side__badge">{code}</span>
+      <div className="wc26-predict-score-dial wc26-predict-score-dial--premium">
+        <button type="button" onClick={dec} className="wc26-predict-score-dial__btn" aria-label={`Menos goles ${code}`}>
           <Minus className="h-4 w-4" />
         </button>
         <motion.span
@@ -64,7 +58,7 @@ function ScoreDial({
         >
           {value}
         </motion.span>
-        <button type="button" onClick={inc} className="wc26-predict-score-dial__btn" aria-label={`Más goles ${team.name}`}>
+        <button type="button" onClick={inc} className="wc26-predict-score-dial__btn" aria-label={`Más goles ${code}`}>
           <Plus className="h-4 w-4" />
         </button>
       </div>
@@ -78,6 +72,8 @@ export function MatchPredictionModal({
   onClose,
   onSave,
   existingPrediction,
+  allMatches = [],
+  onContinueNext,
 }: MatchPredictionModalProps) {
   const homeTeam = match.homeTeam
   const awayTeam = match.awayTeam
@@ -96,6 +92,11 @@ export function MatchPredictionModal({
 
   const { showToast } = useAppToast()
 
+  const nextGroupMatch = useMemo(
+    () => (allMatches.length > 0 ? getNextGroupMatch(allMatches, match) : null),
+    [allMatches, match],
+  )
+
   const derivedResult = useMemo(
     () => getWinnerFromScore(homeScore, awayScore),
     [homeScore, awayScore]
@@ -106,9 +107,11 @@ export function MatchPredictionModal({
     setSaved(false)
     setSaveError(null)
     setStep(existingPrediction ? 'review' : 'score')
+    setHomeScore(existingPrediction?.exactScore?.home ?? existingPrediction?.predictedHomeScore ?? 1)
+    setAwayScore(existingPrediction?.exactScore?.away ?? existingPrediction?.predictedAwayScore ?? 0)
     document.body.classList.add('wc26-modal-open')
     return () => document.body.classList.remove('wc26-modal-open')
-  }, [isOpen, existingPrediction])
+  }, [isOpen, existingPrediction, match.id])
 
   if (!homeTeam || !awayTeam) return null
 
@@ -126,6 +129,13 @@ export function MatchPredictionModal({
         result: derivedResult,
         exactScore: { home: homeScore, away: awayScore },
       })
+
+      if (nextGroupMatch && onContinueNext) {
+        showToast('✔ Guardada · siguiente del grupo')
+        onContinueNext(nextGroupMatch)
+        return
+      }
+
       showToast('✔ Predicción guardada')
       onClose()
     } catch (error) {
@@ -133,6 +143,18 @@ export function MatchPredictionModal({
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleNextStep = () => {
+    if (step === 'score' && nextGroupMatch && onContinueNext) {
+      void handleSave()
+      return
+    }
+    if (stepIndex < STEPS.length - 1) {
+      setStep(STEPS[stepIndex + 1])
+      return
+    }
+    void handleSave()
   }
 
   return (
@@ -153,7 +175,7 @@ export function MatchPredictionModal({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 16 }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="wc26-predict-modal pointer-events-auto flex max-h-[min(92vh,720px)] w-full max-w-[min(95vw,32rem)] flex-col overflow-hidden box-border"
+              className="wc26-predict-modal wc26-predict-modal--premium pointer-events-auto flex max-h-[min(92vh,720px)] w-full max-w-[min(95vw,32rem)] flex-col overflow-hidden box-border"
               onClick={e => e.stopPropagation()}
             >
               <header className="wc26-predict-modal__header shrink-0 px-5 pb-4 pt-5">
@@ -161,7 +183,7 @@ export function MatchPredictionModal({
                   <div className="flex min-w-0 flex-1 items-center justify-center gap-3 sm:gap-5">
                     <div className="wc26-predict-match-team">
                       <div className="wc26-predict-match-team__crest">
-                        <TeamCrest flag={homeTeam.flag} code={homeTeam.code} name={homeTeam.name} size="lg" />
+                        <TeamCrest flag={homeTeam.flag} code={homeTeam.code} name={homeTeam.name} size="lg" premium />
                       </div>
                       <p className="wc26-predict-match-team__name">{homeTeam.name}</p>
                       <span className="wc26-predict-match-team__code">{homeTeam.code}</span>
@@ -171,7 +193,7 @@ export function MatchPredictionModal({
                     </div>
                     <div className="wc26-predict-match-team">
                       <div className="wc26-predict-match-team__crest">
-                        <TeamCrest flag={awayTeam.flag} code={awayTeam.code} name={awayTeam.name} size="lg" />
+                        <TeamCrest flag={awayTeam.flag} code={awayTeam.code} name={awayTeam.name} size="lg" premium />
                       </div>
                       <p className="wc26-predict-match-team__name">{awayTeam.name}</p>
                       <span className="wc26-predict-match-team__code">{awayTeam.code}</span>
@@ -233,17 +255,11 @@ export function MatchPredictionModal({
                     <p className="text-sm text-white/55">Ya estás compitiendo en este partido</p>
 
                     <div className="mt-5 flex w-full items-center justify-center gap-3 rounded-2xl bg-white/5 px-4 py-4 ring-1 ring-white/10">
-                      <div className="flex flex-col items-center gap-1.5">
-                        <TeamCrest flag={homeTeam.flag} code={homeTeam.code} name={homeTeam.name} size="md" />
-                        <span className="max-w-[5rem] truncate text-[11px] font-bold text-white/80">{homeTeam.code}</span>
-                      </div>
+                      <span className="text-sm font-black text-white/80">{homeTeam.code}</span>
                       <span className="text-3xl font-black tabular-nums text-wc26-yellow">
                         {homeScore} - {awayScore}
                       </span>
-                      <div className="flex flex-col items-center gap-1.5">
-                        <TeamCrest flag={awayTeam.flag} code={awayTeam.code} name={awayTeam.name} size="md" />
-                        <span className="max-w-[5rem] truncate text-[11px] font-bold text-white/80">{awayTeam.code}</span>
-                      </div>
+                      <span className="text-sm font-black text-white/80">{awayTeam.code}</span>
                     </div>
 
                     <div className="mt-3 w-full space-y-2 rounded-2xl bg-white/5 px-4 py-3 text-sm ring-1 ring-white/10">
@@ -297,30 +313,20 @@ export function MatchPredictionModal({
                     className="wc26-predict-score-step space-y-5"
                   >
                     <div className="text-center">
-                      <h3 className="text-xl font-black tracking-tight text-white">Marcador exacto</h3>
-                      <p className="mt-1 text-sm text-white/55">El ganador se infiere automáticamente del marcador</p>
+                      <h3 className="wc26-predict-step-title">Marcador exacto</h3>
+                      <p className="wc26-predict-step-sub">El ganador se infiere del marcador</p>
                     </div>
 
-                    <div className="wc26-predict-scoreboard">
+                    <div className="wc26-predict-scoreboard wc26-predict-scoreboard--premium">
                       <span className="wc26-predict-scoreboard__shine" aria-hidden="true" />
-                      <ScoreDial
-                        value={homeScore}
-                        onChange={setHomeScore}
-                        team={homeTeam}
-                        align="left"
-                      />
+                      <ScoreDial value={homeScore} onChange={setHomeScore} code={homeTeam.code} />
                       <div className="wc26-predict-scoreboard__center" aria-hidden="true">
                         <span className="wc26-predict-scoreboard__colon">:</span>
                       </div>
-                      <ScoreDial
-                        value={awayScore}
-                        onChange={setAwayScore}
-                        team={awayTeam}
-                        align="right"
-                      />
+                      <ScoreDial value={awayScore} onChange={setAwayScore} code={awayTeam.code} />
                     </div>
 
-                    <div className="wc26-predict-score-preview">
+                    <div className="wc26-predict-score-preview wc26-predict-score-preview--premium">
                       <span className="wc26-predict-score-preview__label">Resultado inferido</span>
                       <span className="wc26-predict-score-preview__value is-ok">
                         {getResultLabel(derivedResult, homeTeam.code, awayTeam.code)}
@@ -359,8 +365,14 @@ export function MatchPredictionModal({
 
                 {step === 'review' && (
                   <motion.div key="review" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                    <h3 className="text-lg font-extrabold text-white">Confirmá tu predicción</h3>
-                    <div className="wc26-predict-review space-y-3 rounded-2xl p-4">
+                    <h3 className="wc26-predict-step-title">Confirmá tu predicción</h3>
+                    <div className="wc26-predict-review wc26-predict-review--premium space-y-3 rounded-2xl p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-white/60">Partido</span>
+                        <span className="text-right text-sm font-bold text-white">
+                          {homeTeam.code} vs {awayTeam.code}
+                        </span>
+                      </div>
                       <div className="flex items-center justify-between">
                         <span className="text-white/60">Marcador:</span>
                         <span className="font-bold text-lg text-wc26-yellow">{homeScore} - {awayScore}</span>
@@ -371,6 +383,11 @@ export function MatchPredictionModal({
                           {getResultLabel(derivedResult, homeTeam.code, awayTeam.code)}
                         </span>
                       </div>
+                      {nextGroupMatch && (
+                        <p className="border-t border-white/10 pt-3 text-xs text-white/50">
+                          Al guardar, seguís con el próximo partido del Grupo {match.group}.
+                        </p>
+                      )}
                     </div>
                   </motion.div>
                 )}
@@ -397,9 +414,7 @@ export function MatchPredictionModal({
                 {step !== 'review' ? (
                   <button
                     type="button"
-                    onClick={() => {
-                      if (stepIndex < STEPS.length - 1) setStep(STEPS[stepIndex + 1])
-                    }}
+                    onClick={handleNextStep}
                     className="wc26-predict-btn wc26-predict-btn--primary flex-1"
                   >
                     Siguiente
@@ -407,11 +422,15 @@ export function MatchPredictionModal({
                 ) : (
                   <button
                     type="button"
-                    onClick={handleSave}
+                    onClick={() => void handleSave()}
                     disabled={isLoading || match.isLocked || match.status !== 'scheduled'}
                     className="wc26-predict-btn wc26-predict-btn--cta flex-[1.4] disabled:opacity-50"
                   >
-                    {isLoading ? 'Guardando…' : 'Guardar predicción'}
+                    {isLoading
+                      ? 'Guardando…'
+                      : nextGroupMatch
+                        ? 'Guardar y siguiente'
+                        : 'Guardar predicción'}
                   </button>
                 )}
               </footer>

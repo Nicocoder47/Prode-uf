@@ -1,3 +1,11 @@
+import { teamNameEs } from './teamNamesEs'
+
+/** Nombre de selección en español para toda la UI. */
+export function teamDisplayName(team?: { code?: string | null; name?: string | null } | null): string {
+  if (!team) return '—'
+  return teamNameEs(team.code, team.name)
+}
+
 /** Códigos FIFA (3 letras) → ISO2 para banderas. */
 const FIFA_TO_ISO2: Record<string, string> = {
   ALG: 'dz',

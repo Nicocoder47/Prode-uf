@@ -365,18 +365,38 @@ function kickoffMs(match: Match): number {
   return new Date(match.kickoff).getTime()
 }
 
+/** Ventana estimada de un partido; después se asume terminado aunque el sync tarde. */
+const MATCH_RUNTIME_MS = 2.5 * 60 * 60 * 1000
+
 export type NextMatchPhase = 'countdown' | 'starting_soon' | 'live' | 'none'
+
+export function shortTeamDisplayName(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  return parts.length > 1 ? parts[parts.length - 1]! : parts[0] ?? name
+}
 
 /** Próximo partido para home: countdown al futuro; card puede mostrar en vivo o arranca pronto. */
 export function resolveNextMatchForHome(matches: Match[], now = Date.now()) {
-  const withTeams = matches.filter(m => m.homeTeam && m.awayTeam)
+  const withTeams = matches.filter(
+    m =>
+      m.homeTeam &&
+      m.awayTeam &&
+      m.status !== 'finished' &&
+      m.status !== 'cancelled' &&
+      m.status !== 'postponed',
+  )
 
   const futureScheduled = withTeams
     .filter(m => m.status === 'scheduled' && kickoffMs(m) > now)
     .sort((a, b) => kickoffMs(a) - kickoffMs(b))
 
   const overdueScheduled = withTeams
-    .filter(m => m.status === 'scheduled' && kickoffMs(m) <= now)
+    .filter(
+      m =>
+        m.status === 'scheduled' &&
+        kickoffMs(m) <= now &&
+        now - kickoffMs(m) < MATCH_RUNTIME_MS,
+    )
     .sort((a, b) => kickoffMs(a) - kickoffMs(b))
 
   const live = withTeams.find(m => m.status === 'live' || m.status === 'halftime')
@@ -418,6 +438,30 @@ export function resolveNextMatchForHome(matches: Match[], now = Date.now()) {
   }
 }
 
+export function formatNextMatchTeams(match: Match): string {
+  const home = match.homeTeam?.name ? shortTeamDisplayName(match.homeTeam.name) : 'Local'
+  const away = match.awayTeam?.name ? shortTeamDisplayName(match.awayTeam.name) : 'Visitante'
+  return `${home} vs ${away}`
+}
+
+export function formatNextMatchKickoff(match: Match): string {
+  return new Date(match.kickoff).toLocaleString('es-AR', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+}
+
+/** Partido que debe mostrar el hero (countdown futuro o el que está por empezar / en vivo). */
+export function getHeroDisplayMatch(
+  resolved: ReturnType<typeof resolveNextMatchForHome>,
+): Match | null {
+  return resolved.countdownMatch ?? resolved.featuredMatch
+}
+
 export function buildMatchCountdown(match: Match | null, now = Date.now()) {
   if (!match) return undefined
   const diff = kickoffMs(match) - now
@@ -428,6 +472,41 @@ export function buildMatchCountdown(match: Match | null, now = Date.now()) {
     minutes: Math.floor((diff % 3_600_000) / 60_000),
     seconds: Math.floor((diff % 60_000) / 1000),
   }
+}
+
+/** Partido anterior/siguiente del mismo grupo (orden por kickoff). */
+export function getAdjacentGroupMatch(
+  matches: Match[],
+  current: Match,
+  direction: 'prev' | 'next',
+): Match | null {
+  if (!current.group) return null
+  const list = matches
+    .filter(m => m.group === current.group && m.homeTeam && m.awayTeam)
+    .sort((a, b) => kickoffMs(a) - kickoffMs(b))
+  const idx = list.findIndex(m => m.id === current.id)
+  if (idx < 0) return null
+  const target = direction === 'next' ? idx + 1 : idx - 1
+  return list[target] ?? null
+}
+
+/** Siguiente partido programado del mismo grupo (por fecha de kickoff). */
+export function getNextGroupMatch(matches: Match[], current: Match): Match | null {
+  if (!current.group) return null
+  const currentKick = kickoffMs(current)
+  const candidates = matches
+    .filter(
+      m =>
+        m.group === current.group &&
+        m.id !== current.id &&
+        m.status === 'scheduled' &&
+        !m.isLocked &&
+        m.homeTeam &&
+        m.awayTeam,
+    )
+    .sort((a, b) => kickoffMs(a) - kickoffMs(b))
+
+  return candidates.find(m => kickoffMs(m) > currentKick) ?? null
 }
 
 export function getDaysUntilNextMatch(matches: Match[]): number | null {
@@ -503,4 +582,17 @@ export function listGroupsWithMatches(matches: Match[]): string[] {
     if (g) set.add(g)
   }
   return WC26_GROUP_NAMES.filter(g => set.has(g))
+}
+
+/** Grupo anterior/siguiente según el orden oficial A→L (solo grupos con partidos). */
+export function getAdjacentGroupId(
+  groups: string[],
+  currentGroupId: string,
+  direction: 'prev' | 'next',
+): string | null {
+  const id = normalizeGroupId(currentGroupId)
+  const idx = groups.findIndex(g => normalizeGroupId(g) === id)
+  if (idx < 0) return null
+  const target = direction === 'next' ? idx + 1 : idx - 1
+  return groups[target] ?? null
 }

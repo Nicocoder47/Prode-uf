@@ -1,3 +1,4 @@
+import { teamDisplayName } from './teamDisplay';
 import type {
   Match,
   Team,
@@ -51,10 +52,12 @@ export function normalizeStage(phase?: string | null): MatchStage {
 }
 
 export function mapDbTeamToTeam(dbTeam: Record<string, unknown>): Team {
+  const code = String(dbTeam.code ?? dbTeam.short_name ?? 'TBD');
+  const rawName = String(dbTeam.name ?? 'Equipo por definir');
   return {
     id: String(dbTeam.id),
-    name: String(dbTeam.name ?? 'Equipo por definir'),
-    code: String(dbTeam.code ?? dbTeam.short_name ?? 'TBD'),
+    name: teamDisplayName({ code, name: rawName }),
+    code,
     shortName: String(dbTeam.code ?? dbTeam.short_name ?? 'TBD'),
     countryCode: String(dbTeam.country_code ?? dbTeam.code ?? ''),
     flag: String(dbTeam.flag_url ?? dbTeam.crest_url ?? dbTeam.flag ?? '🏳️'),

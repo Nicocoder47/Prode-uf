@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Sparkles,
   Target,
+  Trophy,
   Users,
 } from 'lucide-react'
 import { useAuth } from '../../lib/auth.tsx'
@@ -30,6 +31,7 @@ const nav = [
   { to: '/admin/activity', label: 'Actividad', icon: Activity },
   { to: '/admin/notifications', label: 'Notificaciones', icon: Bell },
   { to: '/admin/scoring', label: 'Scoring', icon: Target },
+  { to: '/admin/scoring-display', label: 'Puntos y ticker', icon: Trophy },
   { to: '/admin/health', label: 'Salud', icon: HeartPulse },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/admin/system', label: 'Sistema', icon: Server },

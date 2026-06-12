@@ -1,14 +1,17 @@
 // Match Detail Page - Sofascore-inspired AAA layout
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
 import { COLORS } from '../../constants/design'
 import { MatchTimeline, MatchPredictionModal } from '../../components/worldcup'
-import { useWorldCupMatch, useMatchEvents, useMatchStats, usePredictions, usePlayerLiveStatus } from '../../useWorldCupData'
+import { useWorldCupMatch, useWorldCupMatches, useMatchEvents, useMatchStats, usePredictions, usePlayerLiveStatus } from '../../useWorldCupData'
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
+import type { Match } from '../../types/worldcup'
+import { teamDisplayName } from '../../utils/teamDisplay'
+import { getMatchResultSummary } from '../../utils/matchResultSummary'
 
 function mapEventToTimeline(ev: any, homeTeamId: string) {
   const typeRaw = (ev.event_type || '').toLowerCase()
@@ -35,13 +38,20 @@ export default function MatchDetailPage() {
   const savePrediction = useSavePrediction(user?.id)
 
   const { data: match, isLoading } = useWorldCupMatch(id)
+  const { data: allMatches = [] } = useWorldCupMatches()
   const { data: rawEvents = [] } = useMatchEvents(id)
   const { data: stats } = useMatchStats(id)
   const { data: predictions = [] } = usePredictions(user?.id)
   const { data: liveStatus = [] } = usePlayerLiveStatus(id)
   const [showPredictionModal, setShowPredictionModal] = useState(false)
+  const [modalMatch, setModalMatch] = useState<Match | null>(null)
 
-  const userPrediction = predictions.find(p => p.matchId === id)
+  const activeMatch = modalMatch ?? match
+  const userPrediction = predictions.find(p => p.matchId === activeMatch?.id)
+
+  useEffect(() => {
+    setModalMatch(null)
+  }, [id])
 
   if (isLoading) {
     return <div className="text-center p-12 text-white/50">Cargando partido...</div>
@@ -60,7 +70,10 @@ export default function MatchDetailPage() {
   const awayTeam = match.awayTeam!
   const isLive = match.status === 'live' || match.status === 'halftime'
   const isFinished = match.status === 'finished'
+  const resultSummary = getMatchResultSummary(match)
   const timelineEvents = rawEvents.map(ev => mapEventToTimeline(ev, match.homeTeamId))
+  const homeLabel = teamDisplayName(homeTeam)
+  const awayLabel = teamDisplayName(awayTeam)
 
   return (
     <div className="min-h-screen pb-20 lg:pb-0">
@@ -92,7 +105,7 @@ export default function MatchDetailPage() {
               ) : (
                 <div className="text-6xl mb-3">{homeTeam.flag}</div>
               )}
-              <h2 className="text-2xl font-black text-white">{homeTeam.name}</h2>
+              <h2 className="text-2xl font-black text-white">{homeLabel}</h2>
             </div>
             <div className="text-center px-4">
               <p className="text-6xl font-black" style={{ color: COLORS.trophy }}>
@@ -108,7 +121,7 @@ export default function MatchDetailPage() {
               ) : (
                 <div className="text-6xl mb-3">{awayTeam.flag}</div>
               )}
-              <h2 className="text-2xl font-black text-white">{awayTeam.name}</h2>
+              <h2 className="text-2xl font-black text-white">{awayLabel}</h2>
             </div>
           </div>
           {!isFinished && user && match.status === 'scheduled' && !match.isLocked && (
@@ -142,7 +155,19 @@ export default function MatchDetailPage() {
             >
               <h3 className="text-2xl font-black text-white mb-8">Timeline del Partido</h3>
               {timelineEvents.length === 0 ? (
-                <p className="text-center text-white/40 p-8 border border-white/10 rounded-lg">Sin eventos registrados aún.</p>
+                <div className="space-y-3 rounded-lg border border-white/10 p-8 text-center">
+                  <p className="text-white/70">
+                    {isFinished
+                      ? 'No hay goles, tarjetas ni cambios cargados para este partido.'
+                      : 'Sin eventos registrados aún.'}
+                  </p>
+                  {isFinished ? (
+                    <p className="text-sm text-white/45">
+                      El marcador final ({match.homeScore ?? 0}-{match.awayScore ?? 0}) se cargó desde admin,
+                      pero el detalle en vivo depende de la sincronización con la fuente de datos del torneo.
+                    </p>
+                  ) : null}
+                </div>
               ) : (
                 <MatchTimeline events={timelineEvents} />
               )}
@@ -156,7 +181,27 @@ export default function MatchDetailPage() {
             >
               <h3 className="text-2xl font-black text-white mb-8">Estadísticas</h3>
               {!stats ? (
-                <p className="text-center text-white/40 p-8">Estadísticas disponibles cuando se sincronicen ratings del partido.</p>
+                <div className="space-y-4">
+                  {resultSummary ? (
+                    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                      {[
+                        { label: 'Resultado', value: resultSummary.outcomeLabel },
+                        { label: `Goles ${homeLabel}`, value: resultSummary.homeGoals },
+                        { label: `Goles ${awayLabel}`, value: resultSummary.awayGoals },
+                        { label: 'Goles totales', value: resultSummary.totalGoals },
+                      ].map(s => (
+                        <div key={s.label} className="rounded-xl border border-white/10 bg-white/5 p-4 text-center">
+                          <p className="text-2xl font-black text-white">{s.value}</p>
+                          <p className="mt-1 text-xs uppercase tracking-wider text-white/50">{s.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                  <p className="rounded-lg border border-white/10 p-4 text-center text-sm text-white/45">
+                    Las estadísticas avanzadas (xG, asistencias, tarjetas por jugador) aparecen cuando se sincronizan
+                    los ratings del partido desde la fuente en vivo.
+                  </p>
+                </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {[
@@ -223,20 +268,27 @@ export default function MatchDetailPage() {
         </div>
       </div>
 
-      <MatchPredictionModal
-        match={match}
-        isOpen={showPredictionModal}
-        onClose={() => setShowPredictionModal(false)}
-        existingPrediction={userPrediction}
-        onSave={async (payload) => {
-          await savePrediction.mutateAsync({
-            matchId: match.id,
-            homeScore: payload.exactScore.home,
-            awayScore: payload.exactScore.away,
-          })
-          setShowPredictionModal(false)
-        }}
-      />
+      {activeMatch && (
+        <MatchPredictionModal
+          key={activeMatch.id}
+          match={activeMatch}
+          isOpen={showPredictionModal}
+          onClose={() => {
+            setShowPredictionModal(false)
+            setModalMatch(null)
+          }}
+          allMatches={allMatches}
+          onContinueNext={next => setModalMatch(next)}
+          existingPrediction={userPrediction}
+          onSave={async payload => {
+            await savePrediction.mutateAsync({
+              matchId: activeMatch.id,
+              homeScore: payload.exactScore.home,
+              awayScore: payload.exactScore.away,
+            })
+          }}
+        />
+      )}
     </div>
   )
 }

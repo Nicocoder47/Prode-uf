@@ -42,6 +42,7 @@ const LiveCardsPreviewPage = import.meta.env.DEV
 const AdminSupportPage = lazy(() => import('./features/admin/AdminSupportPage.tsx'))
 const AdminBetaCapacityPage = lazy(() => import('./features/admin/AdminBetaCapacityPage.tsx'))
 const AdminScoringPage = lazy(() => import('./features/admin/AdminScoringPage.tsx'))
+const AdminScoringDisplayPage = lazy(() => import('./features/admin/AdminScoringDisplayPage.tsx'))
 const AdminSystemHealthPage = lazy(() => import('./features/admin/AdminSystemHealthPage.tsx'))
 const AdminAnalyticsPage = lazy(() => import('./features/admin/AdminAnalyticsPage.tsx'))
 const NotificationsPage = lazy(() => import('./features/notifications/NotificationsPage.tsx'))
@@ -83,6 +84,7 @@ function App() {
               <Route path="system" element={<AdminSystemOverviewPage />} />
               <Route path="health" element={<AdminSystemHealthPage />} />
               <Route path="scoring" element={<AdminScoringPage />} />
+              <Route path="scoring-display" element={<AdminScoringDisplayPage />} />
               <Route path="analytics" element={<AdminAnalyticsPage />} />
               <Route path="beta-capacity" element={<AdminBetaCapacityPage />} />
               <Route path="cards" element={<AdminCardsPage />} />

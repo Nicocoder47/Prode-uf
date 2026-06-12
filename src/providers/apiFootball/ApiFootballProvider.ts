@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { Match } from '../../types/worldcup';
 import { supabase } from '../../database/supabaseClient';
 import { resolveEventPlayerId, resetEventIdentityCaches } from '../../services/sync/eventPlayerIdentityResolver';
+import { todayInArgentina } from '../../utils/matchDay';
 import { formatCoachName, resolveTeamConfederation } from '../../utils/teamMetadata';
 
 const API_URL = 'https://v3.football.api-sports.io';
@@ -275,6 +276,19 @@ export class ApiFootballProvider {
   // ============================================================================
   // PARTIDOS EN VIVO
   // ============================================================================
+
+  static async syncTodayMatchResults(): Promise<any[]> {
+    if (!this.isConfigured()) return [];
+    const day = todayInArgentina();
+    const response = await axios.get(
+      `${API_URL}/fixtures?date=${day}&league=${LEAGUE_ID}&season=${SEASON}`,
+      { headers: HEADERS },
+    );
+    const teamMap = await getTeamUuidMap();
+    return (response.data.response || [])
+      .map((item: any) => this.normalizeFixture(item, teamMap))
+      .filter((row: any) => row.home_team_id && row.away_team_id);
+  }
 
   static async syncLiveMatches(): Promise<any[]> {
     if (!this.isConfigured()) return [];

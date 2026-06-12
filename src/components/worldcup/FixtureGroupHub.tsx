@@ -1,20 +1,18 @@
 import { Link } from 'react-router-dom'
 
-import { motion, useReducedMotion } from 'framer-motion'
-
 import { ArrowRight, Check, ChevronLeft, Clock, Star } from 'lucide-react'
 
 import { CompactMatchCard } from './CompactMatchCard'
+
+import { GroupFixtureFit } from './fixture/GroupFixtureFit'
 
 import { TeamCrest } from './TeamCrest'
 
 import { groupColor } from '../../constants/groups'
 
-import { MOTION } from '../../constants/design'
-
 import type { Match, Prediction, Team } from '../../types/worldcup'
 
-import { teamAbbreviation } from '../../utils/teamDisplay'
+import { teamAbbreviation, teamDisplayName } from '../../utils/teamDisplay'
 
 import {
 
@@ -25,8 +23,6 @@ import {
   formatPredictionClose,
 
   getGroupCardState,
-
-  getGroupMaxPoints,
 
   getGroupPointsEarned,
 
@@ -64,32 +60,37 @@ type FixtureGroupHubProps = {
 
   onPredict: (match: Match) => void
 
+  onCompletePredictions?: () => void
+
+  showCompleteCta?: boolean
+
+  activeMatchId?: string | null
+
 }
 
 
 
 function TeamCodesRow({ teams }: { teams: Team[] }) {
-
   return (
-
     <div className="wc26-fgc-group-card__teams">
-
       {teams.map(team => (
-
         <div key={team.id} className="wc26-fgc-group-card__team">
-
-          <TeamCrest flag={team.flag} code={team.code} size="md" premium />
-
-          <span>{teamAbbreviation(team.code, team.name)}</span>
-
+          <TeamCrest
+            flag={team.flag}
+            code={team.code}
+            name={team.name}
+            size="md"
+            premium
+            className="wc26-fgc-group-card__crest"
+          />
+          <span className="wc26-fgc-group-card__team-code">
+            {teamAbbreviation(team.code, team.name)}
+          </span>
+          <span className="wc26-fgc-group-card__team-name">{teamDisplayName(team)}</span>
         </div>
-
       ))}
-
     </div>
-
   )
-
 }
 
 
@@ -124,170 +125,104 @@ function GroupCard({
 
 }) {
 
-  const reduceMotion = useReducedMotion()
-
   const pct = progress.total > 0 ? Math.round((progress.predicted / progress.total) * 100) : 0
 
   const earnedPts = getGroupPointsEarned(predictions, matches, progress.groupId)
-
-  const maxPts = getGroupMaxPoints(progress.total)
-
   const cardState = getGroupCardState(progress, recommendedGroupId ?? null)
-
-  const statusLabel = getGroupStatusLabel(cardState)
-
+  const statusLabel = cardState === 'complete' ? 'COMPLETADO' : getGroupStatusLabel(cardState)
   const closeDate = getGroupPredictionClose(matches, progress.groupId)
 
-
-
   const ctaLabel =
-
     cardState === 'not_started'
-
-      ? `JUGAR GRUPO ${progress.groupId}`
-
+      ? `Jugar ${progress.groupId}`
       : cardState === 'complete'
-
-        ? 'VER GRUPO'
-
-        : 'CONTINUAR'
-
-
+        ? 'Ver grupo'
+        : 'Continuar'
 
   return (
-
     <article
-
       id={`fixture-group-${progress.groupId}`}
-
       className={`wc26-fgc-group-card wc26-fgc-group-card--${cardState}`}
-
       style={{ '--group-color': groupColor(progress.groupId) } as React.CSSProperties}
-
     >
-
-      <div className="wc26-fgc-group-card__head">
-
-        <span className="wc26-fgc-group-card__letter">{progress.groupId}</span>
-
-        <div className="wc26-fgc-group-card__title-wrap">
-
-          <p className="wc26-fgc-group-card__title">Grupo {progress.groupId}</p>
-
-          <span className={`wc26-fgc-group-card__status wc26-fgc-group-card__status--${cardState}`}>
-
-            {statusLabel}
-
-          </span>
-
+      <span className="wc26-fgc-group-card__shine" aria-hidden="true" />
+      {cardState === 'recommended' ? (
+        <span className="wc26-fgc-group-card__glow" aria-hidden="true" />
+      ) : null}
+      <header className="wc26-fgc-group-card__head">
+        <span className="wc26-fgc-group-card__letter" aria-hidden="true">
+          {progress.groupId}
+        </span>
+        <div className="wc26-fgc-group-card__head-main">
+          <div className="wc26-fgc-group-card__head-top">
+            <p className="wc26-fgc-group-card__title">Grupo {progress.groupId}</p>
+            <span className={`wc26-fgc-group-card__status wc26-fgc-group-card__status--${cardState}`}>
+              {cardState === 'complete' ? <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" /> : null}
+              {statusLabel}
+            </span>
+          </div>
+          <div className="wc26-fgc-group-card__bar">
+            <div className="wc26-fgc-group-card__bar-fill" style={{ width: `${pct}%` }} />
+          </div>
         </div>
-
-        <span className="wc26-fgc-group-card__max-badge">MÁX. {maxPts} PTS</span>
-
-      </div>
-
-
+        <span className="wc26-fgc-group-card__pct">{pct}% completado</span>
+      </header>
 
       <TeamCodesRow teams={teams} />
 
-
-
-      <ul className="wc26-fgc-group-card__stats">
-
-        <li>
-
-          <Check className="h-3 w-3" aria-hidden="true" />
-
-          {progress.predicted} / {progress.total} predichos
-
-        </li>
-
-        <li>
-
-          <Clock className="h-3 w-3" aria-hidden="true" />
-
-          {progress.pending} pendientes
-
-        </li>
-
-        <li>
-
-          <Star className="h-3 w-3" aria-hidden="true" />
-
-          {earnedPts} pts ganados
-
-        </li>
-
-      </ul>
-
-
-
-      <div className="wc26-fgc-group-card__bar">
-
-        <motion.div
-
-          className="wc26-fgc-group-card__bar-fill"
-
-          initial={reduceMotion ? false : { width: 0 }}
-
-          animate={{ width: `${pct}%` }}
-
-          transition={{ duration: reduceMotion ? 0 : 0.55 }}
-
-        />
-
+      <div className="wc26-fgc-group-card__stats" role="list">
+        <div className="wc26-fgc-group-card__stat" role="listitem">
+          <Check className="wc26-fgc-group-card__stat-icon" aria-hidden="true" />
+          <div className="wc26-fgc-group-card__stat-body">
+            <span className="wc26-fgc-group-card__stat-value">
+              {progress.predicted}/{progress.total}
+            </span>
+            <span className="wc26-fgc-group-card__stat-label">Predichos</span>
+          </div>
+        </div>
+        <span className="wc26-fgc-group-card__stat-sep" aria-hidden="true" />
+        <div className="wc26-fgc-group-card__stat" role="listitem">
+          <Clock className="wc26-fgc-group-card__stat-icon" aria-hidden="true" />
+          <div className="wc26-fgc-group-card__stat-body">
+            <span className="wc26-fgc-group-card__stat-value">{progress.pending}</span>
+            <span className="wc26-fgc-group-card__stat-label">Pendientes</span>
+          </div>
+        </div>
+        <span className="wc26-fgc-group-card__stat-sep" aria-hidden="true" />
+        <div className="wc26-fgc-group-card__stat" role="listitem">
+          <Star className="wc26-fgc-group-card__stat-icon" aria-hidden="true" />
+          <div className="wc26-fgc-group-card__stat-body">
+            <span className="wc26-fgc-group-card__stat-value">{earnedPts}</span>
+            <span className="wc26-fgc-group-card__stat-label">Pts ganados</span>
+          </div>
+        </div>
       </div>
 
-      <div className="wc26-fgc-group-card__progress-foot">
-
-        <span>
-
-          {progress.predicted} / {progress.total} partidos
-
-        </span>
-
-        <span>{pct}% completado</span>
-
-      </div>
-
-
-
-      {closeDate ? (
-
+      <footer className="wc26-fgc-group-card__foot">
         <p className="wc26-fgc-group-card__close">
-
-          <Clock className="h-3 w-3" aria-hidden="true" />
-
-          Cierre: {formatPredictionClose(closeDate)}
-
+          {closeDate ? (
+            <>
+              <Clock className="h-3 w-3" aria-hidden="true" />
+              Cierre: {formatPredictionClose(closeDate)}
+            </>
+          ) : (
+            <span className="wc26-fgc-group-card__close-placeholder">Sin cierre próximo</span>
+          )}
         </p>
-
-      ) : null}
-
-
-
-      <motion.button
-
-        type="button"
-
-        {...MOTION.tap}
-
-        onClick={onPlay}
-
-        className={`wc26-fgc-group-card__play wc26-fgc-group-card__play--${cardState}`}
-
-      >
-
-        {ctaLabel}
-
-        <ArrowRight className="h-4 w-4" aria-hidden="true" />
-
-      </motion.button>
-
+        <span className="wc26-fgc-group-card__matches-count">
+          {progress.total} {progress.total === 1 ? 'partido' : 'partidos'}
+        </span>
+        <button
+          type="button"
+          onClick={onPlay}
+          className={`wc26-fgc-group-card__play wc26-fgc-group-card__play--${cardState}`}
+        >
+          {ctaLabel}
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+        </button>
+      </footer>
     </article>
-
   )
-
 }
 
 
@@ -336,6 +271,12 @@ export function FixtureGroupHub({
 
   onPredict,
 
+  onCompletePredictions,
+
+  showCompleteCta,
+
+  activeMatchId,
+
 }: FixtureGroupHubProps) {
 
   const predictionMap = buildPredictionMap(predictions)
@@ -357,101 +298,76 @@ export function FixtureGroupHub({
 
 
     return (
+      <>
+        <GroupFixtureFit
+          groupId={selectedGroup}
+          groupIds={listGroupsWithMatches(matches)}
+          matches={groupList}
+          teams={teams}
+          progress={progress}
+          predictionMap={predictionMap}
+          activeMatchId={activeMatchId}
+          onBack={() => onSelectGroup(null)}
+          onPredict={onPredict}
+          onGoToGroup={onSelectGroup}
+          onContinue={onCompletePredictions}
+          showContinue={showCompleteCta}
+        />
 
-      <div>
+        <div className="hidden md:block">
+          <button
+            type="button"
+            onClick={() => onSelectGroup(null)}
+            className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-white/70"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Todos los grupos
+          </button>
 
-        <button
+          <div
+            className="wc26-page-header mb-4 !py-4"
+            style={{ borderLeft: `4px solid ${groupColor(selectedGroup)}` }}
+          >
+            <p className="text-[11px] font-bold uppercase tracking-wider text-white/60">Grupo {selectedGroup}</p>
+            <h2 className="text-xl font-extrabold text-white">{groupList.length} partidos</h2>
+            {progress && (
+              <p className="mt-1 text-xs text-white/60">
+                {progress.predicted} predichos · {progress.pending} pendientes
+              </p>
+            )}
+          </div>
 
-          type="button"
+          <TeamCodesRow teams={teams} />
 
-          onClick={() => onSelectGroup(null)}
+          <div className="mt-4 space-y-3">
+            {groupList.map(match => {
+              const pred = predictionMap.get(match.id)
+              const status = getMatchPredictUiStatus(match, pred)
+              const canPredict =
+                status === 'available' ||
+                (status === 'predicted' && match.status === 'scheduled' && !match.isLocked)
 
-          className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-white/70"
-
-        >
-
-          <ChevronLeft className="h-4 w-4" />
-
-          Todos los grupos
-
-        </button>
-
-        <div
-
-          className="wc26-page-header mb-4 !py-4"
-
-          style={{ borderLeft: `4px solid ${groupColor(selectedGroup)}` }}
-
-        >
-
-          <p className="text-[11px] font-bold uppercase tracking-wider text-white/60">Grupo {selectedGroup}</p>
-
-          <h2 className="text-xl font-extrabold text-white">{groupList.length} partidos</h2>
-
-          {progress && (
-
-            <p className="mt-1 text-xs text-white/60">
-
-              {progress.predicted} predichos · {progress.pending} pendientes
-
-            </p>
-
-          )}
-
-        </div>
-
-        <TeamCodesRow teams={teams} />
-
-        <div className="mt-4 space-y-3">
-
-          {groupList.map(match => {
-
-            const pred = predictionMap.get(match.id)
-
-            const status = getMatchPredictUiStatus(match, pred)
-
-            const canPredict =
-
-              status === 'available' ||
-
-              (status === 'predicted' && match.status === 'scheduled' && !match.isLocked)
-
-            return (
-
-              <div key={match.id} className="space-y-2">
-
-                <div className="flex justify-end px-1">
-
-                  <StatusPill status={status} />
-
+              return (
+                <div key={match.id} className="space-y-2">
+                  <div className="flex justify-end px-1">
+                    <StatusPill status={status} />
+                  </div>
+                  <CompactMatchCard
+                    match={match}
+                    hasPrediction={!!pred}
+                    predictedHome={pred?.exactScore?.home ?? pred?.predictedHomeScore}
+                    predictedAway={pred?.exactScore?.away ?? pred?.predictedAwayScore}
+                    onPredict={canPredict ? () => onPredict(match) : undefined}
+                  />
+                  {status === 'scored' && pred && (
+                    <p className="text-center text-xs font-bold text-wc26-yellow">+{pred.points} pts obtenidos</p>
+                  )}
                 </div>
-
-                <CompactMatchCard
-
-                  match={match}
-
-                  hasPrediction={!!pred}
-
-                  onPredict={canPredict ? () => onPredict(match) : undefined}
-
-                />
-
-                {status === 'scored' && pred && (
-
-                  <p className="text-center text-xs font-bold text-wc26-yellow">+{pred.points} pts obtenidos</p>
-
-                )}
-
-              </div>
-
-            )
-
-          })}
-
+              )
+            })}
+          </div>
         </div>
-
-      </div>
-
+      </>
     )
 
   }
@@ -468,19 +384,9 @@ export function FixtureGroupHub({
 
     <div className="wc26-fgc-groups-grid">
 
-      {cards.map((progress, index) => (
+      {cards.map(progress => (
 
-        <motion.div
-
-          key={progress.groupId}
-
-          initial={{ opacity: 0, y: 12 }}
-
-          animate={{ opacity: 1, y: 0 }}
-
-          transition={{ delay: index * 0.04 }}
-
-        >
+        <div key={progress.groupId}>
 
           <GroupCard
 
@@ -498,7 +404,7 @@ export function FixtureGroupHub({
 
           />
 
-        </motion.div>
+        </div>
 
       ))}
 
