@@ -66,17 +66,6 @@
 @media (min-width: 768px) {
   .admin-shell-main {
     padding-bottom: 0;
-    /* App shell: el main ocupa el alto disponible y gestiona su propio scroll */
-    height: calc(100vh - 7.25rem);
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* La página de usuarios llena el alto restante para encuadrar lista + detalle */
-  .admin-shell-main > .admin-users-page {
-    flex: 1;
-    min-height: 0;
   }
 }
 
@@ -476,12 +465,61 @@
     display: none !important;
   }
 
+  .admin-users-mobile-only {
+    display: none !important;
+  }
+
+  .admin-users-desktop-only {
+    display: block;
+  }
+
   .admin-users-split {
     display: grid !important;
   }
 
   .admin-mobile-bottom-nav {
     display: none !important;
+  }
+
+  .admin-shell-body {
+    height: calc(100vh - 4.75rem);
+    min-height: 0;
+    overflow: hidden;
+    align-items: stretch;
+  }
+
+  .admin-shell-main {
+    padding-bottom: 0;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .admin-shell-main > .admin-users-page {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 767px) {
+  .admin-users-desktop-only {
+    display: none !important;
+  }
+
+  .admin-users-split {
+    display: none !important;
+  }
+
+  .admin-users-mobile-only {
+    display: block;
+  }
+
+  .admin-users-mobile-list.admin-users-mobile-only {
+    display: flex !important;
+    flex-direction: column;
   }
 }
 
@@ -2935,6 +2973,17 @@
   flex-direction: column;
   gap: var(--admin-page-gap);
   padding-inline: var(--admin-page-px);
+  min-height: 0;
+}
+
+.admin-users-filters-card {
+  flex-shrink: 0;
+  padding: 0.85rem 1rem !important;
+  border-radius: 16px !important;
+}
+
+.admin-users-filters-card .rounded-\[32px\] {
+  border-radius: 16px !important;
 }
 
 .admin-users-page__header {
@@ -2952,6 +3001,7 @@
   padding: 0.15rem 0 0.35rem;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  flex-shrink: 0;
 }
 
 .admin-users-tabs::-webkit-scrollbar {
@@ -3331,18 +3381,12 @@
 
 /* ── Split layout: tabla izquierda + panel detalle derecha ── */
 .admin-users-split {
-  grid-template-columns: minmax(0, 1fr) 380px;
+  display: none;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
   gap: 0.85rem;
   align-items: stretch;
   min-height: 0;
-}
-
-/* En desktop el split llena el alto restante de la página (app shell) */
-@media (min-width: 768px) {
-  .admin-users-split {
-    flex: 1;
-    min-height: 0;
-  }
+  flex: 1;
 }
 
 /* Contenedor de la lista en el split desktop */

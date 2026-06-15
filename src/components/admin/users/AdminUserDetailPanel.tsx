@@ -87,7 +87,7 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
   const isTest = u.is_test_user ?? isTestUserEmail(u.email)
   const accountLabel = getAccountStateLabel(u)
 
-  async function runAction(action: () => Promise<void>, message: string, closeAfter = false) {
+  async function runAction(action: () => Promise<unknown>, message: string, closeAfter = false) {
     setBusy(true)
     setError(null)
     try {

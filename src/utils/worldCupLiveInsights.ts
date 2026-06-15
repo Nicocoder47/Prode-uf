@@ -272,7 +272,7 @@ function favoriteTrendLabel(
   return `${drawPct}% eligió empate`
 }
 
-function mapLiveScorerRow(scorer: TopScorer): LiveScorerRow {
+function mapLiveScorerRow(scorer: TopScorer): Omit<LiveScorerRow, 'rank'> {
   const team = scorer.player.team
   return {
     id: scorer.player.id,

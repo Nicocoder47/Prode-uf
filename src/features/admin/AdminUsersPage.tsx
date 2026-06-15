@@ -26,11 +26,6 @@ import { AdminUsersTabs, type AdminUsersTab } from '../../components/admin/users
 
 const PAGE_SIZE = 25
 
-function formatDate(value: string | null) {
-  if (!value) return '—'
-  return new Date(value).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })
-}
-
 function isToday(value: string | null) {
   if (!value) return false
   const d = new Date(value)
@@ -297,7 +292,7 @@ export default function AdminUsersPage() {
 
   return (
     <div className="admin-users-page">
-      <header className="admin-users-page__header hidden md:block">
+      <header className="admin-users-page__header admin-users-desktop-only">
         <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Identidad</p>
         <h2 className="text-xl font-extrabold text-white md:text-2xl">Usuarios</h2>
         <p className="mt-1 text-sm text-white/50">Revisión automática por DNI vs padrón Excel</p>
@@ -312,7 +307,7 @@ export default function AdminUsersPage() {
       )}
 
       {!isRecoveryTab && (
-      <div className="admin-users-mobile-toolbar sticky top-[calc(3.25rem+env(safe-area-inset-top))] z-20 -mx-1 space-y-2 border-b border-white/10 bg-[#041418]/95 px-1 py-2 backdrop-blur-xl md:hidden">
+      <div className="admin-users-mobile-toolbar admin-users-mobile-only sticky top-[calc(3.25rem+env(safe-area-inset-top))] z-20 -mx-1 space-y-2 border-b border-white/10 bg-[#041418]/95 px-1 py-2 backdrop-blur-xl">
         <input
           className="admin-users-mobile-toolbar__search"
           placeholder="Buscar legajo, nombre, email o DNI"
@@ -352,7 +347,7 @@ export default function AdminUsersPage() {
       />
 
       {!isRecoveryTab && (
-      <PremiumCard title="Filtros" description={`${tabFiltered.length} de ${users.length} usuarios`} className="hidden md:block">
+      <PremiumCard title="Filtros" description={`${tabFiltered.length} de ${users.length} usuarios`} className="admin-users-filters-card admin-users-desktop-only">
         <div className="mb-3 flex flex-wrap gap-2">
           <PremiumButton size="sm" variant="ghost" onClick={exportCsv}>Exportar CSV</PremiumButton>
           {activeFilterCount > 0 && (
@@ -374,13 +369,13 @@ export default function AdminUsersPage() {
       )}
 
       {isRecoveryTab ? (
-        <PremiumCard className="admin-users-recovery-card md:hidden">
+        <PremiumCard className="admin-users-recovery-card admin-users-mobile-only">
           <AdminDeletedUsersRecovery />
         </PremiumCard>
       ) : (
       <>
       {/* Mobile: cards */}
-      <div className="admin-users-mobile-list flex md:hidden">
+      <div className="admin-users-mobile-list admin-users-mobile-only">
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="admin-user-mobile-card-v2 admin-user-tone--gray admin-user-mobile-card-v2--skeleton" />
@@ -398,7 +393,7 @@ export default function AdminUsersPage() {
       </div>
 
       {!isLoading && (
-        <div className="admin-users-page__pager-mobile md:hidden">
+        <div className="admin-users-page__pager-mobile admin-users-mobile-only">
           <AdminUsersPager {...pagerProps} sticky />
         </div>
       )}
@@ -406,7 +401,7 @@ export default function AdminUsersPage() {
       )}
 
       {/* Desktop: split list + fixed detail panel */}
-      <div className={`admin-users-split hidden md:grid${isRecoveryTab ? ' admin-users-split--recovery' : ''}`}>
+      <div className={`admin-users-split${isRecoveryTab ? ' admin-users-split--recovery' : ''}`}>
         <div className="admin-users-split__list">
           {isRecoveryTab ? <AdminDeletedUsersRecovery /> : listContent}
         </div>
