@@ -66,6 +66,17 @@
 @media (min-width: 768px) {
   .admin-shell-main {
     padding-bottom: 0;
+    /* App shell: el main ocupa el alto disponible y gestiona su propio scroll */
+    height: calc(100vh - 7.25rem);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* La página de usuarios llena el alto restante para encuadrar lista + detalle */
+  .admin-shell-main > .admin-users-page {
+    flex: 1;
+    min-height: 0;
   }
 }
 
@@ -3320,10 +3331,18 @@
 
 /* ── Split layout: tabla izquierda + panel detalle derecha ── */
 .admin-users-split {
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1fr) 380px;
   gap: 0.85rem;
   align-items: stretch;
   min-height: 0;
+}
+
+/* En desktop el split llena el alto restante de la página (app shell) */
+@media (min-width: 768px) {
+  .admin-users-split {
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 /* Contenedor de la lista en el split desktop */
@@ -3331,12 +3350,12 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(12px);
-  min-height: 400px;
-  max-height: 72vh;
+  min-height: 0;
+  height: 100%;
   overflow: hidden;
   display: flex !important;
   flex-direction: column;
-  border-radius: 16px !important;
+  border-radius: 16px;
 }
 
 .admin-users-split__list-inner {
@@ -3386,18 +3405,14 @@
 }
 
 .admin-users-split__detail {
-  position: sticky;
-  top: 1rem;
-  align-self: start;
   display: flex;
   flex-direction: column;
-  min-height: 400px;
-  max-height: 72vh;
+  min-height: 0;
+  height: 100%;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.03);
   overflow: hidden;
-  overflow-y: auto;
 }
 
 .admin-users-split__placeholder {
