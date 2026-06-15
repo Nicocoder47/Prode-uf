@@ -234,9 +234,9 @@ export function buildLiveCardsPreviewFixtures(): WorldCupLiveInsightPayload[] {
       emoji: '⚽',
       title: 'GOLEADORES',
       scorers: [
-        { id: 'p1', name: 'Kylian Mbappé', goals: 4, flag: '🇫🇷', countryCode: 'FRA' },
-        { id: 'p2', name: 'Erling Haaland', goals: 3, flag: '🇳🇴', countryCode: 'NOR' },
-        { id: 'p3', name: 'Lionel Messi', goals: 3, flag: '🇦🇷', countryCode: 'ARG' },
+        { id: 'p1', name: 'Kylian Mbappé', goals: 4, rank: 1, flag: '🇫🇷', countryCode: 'FRA' },
+        { id: 'p2', name: 'Erling Haaland', goals: 3, rank: 2, flag: '🇳🇴', countryCode: 'NOR' },
+        { id: 'p3', name: 'Lionel Messi', goals: 3, rank: 2, flag: '🇦🇷', countryCode: 'ARG' },
       ],
     },
     {

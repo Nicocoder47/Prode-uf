@@ -387,8 +387,8 @@ function CardBody({
     case 'top_scorers':
       return card.scorers.length > 0 ? (
         <ol className="wc26-live-card__scorers">
-          {card.scorers.map((s, i) => (
-            <ScorerRow key={`${s.id}-${i}`} rank={i + 1} scorer={s} />
+          {card.scorers.map(s => (
+            <ScorerRow key={s.id} rank={s.rank} scorer={s} />
           ))}
         </ol>
       ) : (

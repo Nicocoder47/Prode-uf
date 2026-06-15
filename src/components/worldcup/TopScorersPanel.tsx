@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { COLORS, TYPOGRAPHY } from '../../constants/design';
 import { useTopScorers } from '../../useWorldCupData';
 import { Link } from 'react-router-dom';
+import { withCompetitionRanks } from '../../utils/scorerRanking';
 
 export function TopScorersPanel() {
   const { data: scorers = [], isLoading } = useTopScorers();
@@ -20,7 +21,11 @@ export function TopScorersPanel() {
 
   return (
     <div className="space-y-3">
-      {scorers.map(({ player, goals, assists }, idx) => (
+      {withCompetitionRanks(scorers.map(({ player, goals, assists }) => ({
+        player,
+        goals,
+        assists,
+      }))).map(({ player, goals, assists, rank }, idx) => (
         <motion.div
           key={player.id}
           initial={{ opacity: 0, x: -16 }}
@@ -29,8 +34,8 @@ export function TopScorersPanel() {
           className="p-4 rounded-xl border flex items-center gap-4 hover:bg-white/5 transition-colors"
           style={{ backgroundColor: `${COLORS.cardDark}`, borderColor: `${COLORS.lightGray}20` }}
         >
-          <span className="text-2xl font-black w-8 text-center" style={{ color: idx < 3 ? COLORS.trophy : COLORS.lightGray }}>
-            {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}
+          <span className="text-2xl font-black w-8 text-center" style={{ color: rank <= 3 ? COLORS.trophy : COLORS.lightGray }}>
+            {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}
           </span>
           <div className="w-12 h-12 rounded-full overflow-hidden bg-worldcup-surface shrink-0">
             {player.photo ? (

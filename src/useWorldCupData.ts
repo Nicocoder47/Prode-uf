@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 import type { Match, Team, Player, Prediction, TopScorer, Standing, LeaderboardEntry, PlayerLiveStatusEntry } from './types/worldcup';
 
@@ -255,6 +255,12 @@ export const useLeaderboard = () => {
 
     refetchInterval: pollMs,
 
+    placeholderData: keepPreviousData,
+
+    retry: 3,
+
+    retryDelay: attemptIndex => Math.min(2000 * 2 ** attemptIndex, 30_000),
+
   });
 
 };
@@ -380,6 +386,10 @@ export const useTopScorers = () => {
     staleTime: 120_000,
 
     refetchInterval: scorersPollMs,
+
+    placeholderData: keepPreviousData,
+
+    retry: 3,
 
   });
 

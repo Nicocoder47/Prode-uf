@@ -4292,14 +4292,23 @@ body.wc26-modal-open {
 }
 
 .wc26-live-card__scorer-rank {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
   display: inline-grid;
   place-items: center;
-  width: 1.45rem;
-  height: 1.45rem;
+  width: 1.55rem;
+  height: 1.55rem;
   border-radius: 999px;
-  background: rgba(248, 185, 30, 0.12);
-  color: #f8b91e;
+  background: rgba(4, 20, 24, 0.94);
+  border: 1px solid rgba(248, 185, 30, 0.5);
+  color: #fde68a;
+  font-size: 0.7rem;
   font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .wc26-live-card__scorer-name {

@@ -3,6 +3,7 @@ import type { GroupProgress, OverallProgress } from './predictionProgress'
 import { getNextRewardMilestone, getRecommendedGroup } from './predictionProgress'
 import type { LeaderboardEntry, Match, TopScorer } from '../types/worldcup'
 import type { LiveMatchStatRow } from '../services/worldcup/worldCupService'
+import { withCompetitionRanks } from './scorerRanking'
 import { buildRankingMoveLines } from './leaderboardMovement'
 import { teamDisplayName } from './teamDisplay'
 
@@ -88,6 +89,7 @@ export type LiveScorerRow = {
   id: string
   name: string
   goals: number
+  rank: number
   flag: string | null
   countryCode: string | null
 }
@@ -282,8 +284,9 @@ function buildScorersList(
   topScorers: TopScorer[],
 ): { scorers: LiveScorerRow[]; emptyMessage?: string } {
   if (topScorers.length > 0) {
+    const rows = topScorers.slice(0, 5).map(mapLiveScorerRow)
     return {
-      scorers: topScorers.slice(0, 5).map(mapLiveScorerRow),
+      scorers: withCompetitionRanks(rows),
     }
   }
   return {
