@@ -407,9 +407,9 @@ export default function AdminUsersPage() {
 
       {/* Desktop: split list + fixed detail panel */}
       <div className={`admin-users-split hidden md:grid${isRecoveryTab ? ' admin-users-split--recovery' : ''}`}>
-        <PremiumCard className="admin-users-split__list !rounded-2xl !p-0 overflow-hidden">
+        <div className="admin-users-split__list">
           {isRecoveryTab ? <AdminDeletedUsersRecovery /> : listContent}
-        </PremiumCard>
+        </div>
         {!isRecoveryTab && (
         <aside className="admin-users-split__detail">
           {selectedUser ? (

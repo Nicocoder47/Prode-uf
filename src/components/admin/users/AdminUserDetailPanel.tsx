@@ -209,6 +209,29 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
           <DetailField label="Estado de actividad" value={getActivityStateLabel(u)} />
         </DetailSection>
 
+        {/* Predicciones siempre visibles */}
+        <section className="admin-user-detail-section">
+          <h3 className="admin-user-detail-section__title">Predicciones</h3>
+          {isLoading ? (
+            <p className="text-xs text-white/40">Cargando…</p>
+          ) : (detail?.predictions ?? []).length ? (
+            <div className="admin-user-detail-predictions">
+              {detail!.predictions.map(p => (
+                <div key={p.id} className="admin-user-detail-pred-row">
+                  <span className="admin-user-detail-pred-row__match">{p.home_team ?? '?'} vs {p.away_team ?? '?'}</span>
+                  <span className="admin-user-detail-pred-row__score">
+                    {p.predicted_score_home ?? '—'} - {p.predicted_score_away ?? '—'}
+                    {p.result_home != null && ` · ${p.result_home}-${p.result_away}`}
+                  </span>
+                  <span className="admin-user-detail-pred-row__pts">{p.points ?? 0} pts</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-white/45">Sin predicciones registradas.</p>
+          )}
+        </section>
+
         {showFullInfo && (
           <div className="admin-user-detail-panel__expand">
             <p className="admin-user-detail-panel__expand-title">Ficha completa del usuario</p>
@@ -222,26 +245,6 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
               accountLabel={accountLabel}
               isTest={isTest}
             />
-
-            <section className="admin-user-detail-section">
-              <h3 className="admin-user-detail-section__title">Predicciones</h3>
-              {(detail?.predictions ?? []).length ? (
-                <div className="admin-user-detail-predictions">
-                  {detail!.predictions.map(p => (
-                    <div key={p.id} className="admin-user-detail-pred-row">
-                      <span className="admin-user-detail-pred-row__match">{p.home_team ?? '?'} vs {p.away_team ?? '?'}</span>
-                      <span className="admin-user-detail-pred-row__score">
-                        {p.predicted_score_home ?? '—'} - {p.predicted_score_away ?? '—'}
-                        {p.result_home != null && ` · Res: ${p.result_home}-${p.result_away}`}
-                      </span>
-                      <span className="admin-user-detail-pred-row__pts">{p.points} pts</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-white/45">Sin predicciones registradas.</p>
-              )}
-            </section>
 
             <section className="admin-user-detail-section">
               <h3 className="admin-user-detail-section__title">Movimientos y notificaciones</h3>

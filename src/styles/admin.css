@@ -3318,46 +3318,52 @@
   background: rgba(148, 163, 184, 0.08);
 }
 
+/* ── Split layout: tabla izquierda + panel detalle derecha ── */
 .admin-users-split {
-  grid-template-columns: minmax(280px, 1fr) minmax(300px, 380px);
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 0.85rem;
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
 }
 
+/* Contenedor de la lista en el split desktop */
 .admin-users-split__list {
-  min-height: 420px;
-  height: calc(100vh - 8.5rem);
-  max-height: calc(100vh - 8.5rem);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  min-height: 400px;
+  max-height: 72vh;
   overflow: hidden;
   display: flex !important;
   flex-direction: column;
+  border-radius: 16px !important;
 }
 
 .admin-users-split__list-inner {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
   flex: 1;
-  height: 100%;
   overflow: hidden;
 }
 
 .admin-users-split__list-inner .admin-users-table-v2__wrap {
+  flex: 1;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
+/* Paginador dentro del split: fila compacta, siempre visible al fondo */
 .admin-users-split__list-inner .admin-users-pager {
   flex-shrink: 0;
-  flex-direction: row;
+  flex-direction: row !important;
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.6rem 0.75rem;
+  padding: 0.55rem 0.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(4, 20, 24, 0.92);
+  background: rgba(4, 20, 24, 0.97);
 }
 
 .admin-users-split__list-inner .admin-users-pager__info {
@@ -3367,30 +3373,31 @@
 
 .admin-users-split__list-inner .admin-users-pager__actions {
   width: auto;
-  min-width: 0;
   flex-shrink: 0;
   gap: 0.35rem;
 }
 
 .admin-users-split__list-inner .admin-users-pager__btn {
   flex: 0 0 auto;
-  min-height: 34px;
-  padding: 0.35rem 0.65rem;
-  font-size: 0.68rem;
+  min-height: 32px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.67rem;
   white-space: nowrap;
 }
 
 .admin-users-split__detail {
   position: sticky;
   top: 1rem;
+  align-self: start;
   display: flex;
   flex-direction: column;
-  min-height: 420px;
-  max-height: calc(100vh - 8.5rem);
-  border-radius: 22px;
+  min-height: 400px;
+  max-height: 72vh;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.03);
   overflow: hidden;
+  overflow-y: auto;
 }
 
 .admin-users-split__placeholder {
@@ -3427,11 +3434,26 @@
 
 .admin-users-table-v2--compact {
   table-layout: fixed;
+  min-width: 0;
 }
 
-.admin-users-table-v2--compact .admin-users-table-v2__col-user { width: auto; }
-.admin-users-table-v2--compact .admin-users-table-v2__col-verify { width: 6.5rem; }
-.admin-users-table-v2--compact .admin-users-table-v2__col-action { width: 3.5rem; }
+.admin-users-table-v2--compact .admin-users-table-v2__col-user { width: auto; min-width: 0; }
+.admin-users-table-v2--compact .admin-users-table-v2__col-verify { width: 5.5rem; }
+.admin-users-table-v2--compact .admin-users-table-v2__col-action { width: 3rem; }
+
+/* Fila seleccionada */
+.admin-users-table-v2 tbody tr.is-selected {
+  background: rgba(245, 196, 81, 0.1) !important;
+  box-shadow: inset 3px 0 0 rgba(245, 196, 81, 0.7);
+}
+
+.admin-users-table-v2 tbody tr {
+  cursor: pointer;
+}
+
+.admin-users-table-v2 tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
 
 .admin-users-table-v2__col-user { width: auto; }
 .admin-users-table-v2__col-narrow { width: 5.5rem; }
@@ -4060,17 +4082,23 @@
 
 .admin-user-detail-pred-row {
   display: grid;
-  gap: 0.1rem;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(0, 0, 0, 0.15);
-  padding: 0.45rem 0.55rem;
-  font-size: 0.72rem;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.7rem;
 }
 
 .admin-user-detail-pred-row__match {
+  grid-column: 1 / -1;
   font-weight: 800;
   color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-user-detail-pred-row__score {
