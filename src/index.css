@@ -4258,7 +4258,30 @@ body.wc26-modal-open {
 }
 
 .wc26-live-card--top_scorers .wc26-live-card__subtitle {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.wc26-live-card--top_scorers .wc26-live-card__scorers {
+  max-height: 17.5rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(248, 185, 30, 0.35) transparent;
+  padding-right: 0.1rem;
+}
+
+.wc26-live-card--top_scorers .wc26-live-card__scorers::-webkit-scrollbar {
+  width: 4px;
+}
+
+.wc26-live-card--top_scorers .wc26-live-card__scorers::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(248, 185, 30, 0.35);
+}
+
+.wc26-live-card--top_scorers .wc26-live-card__scorer-row {
+  min-height: 2.35rem;
+  padding: 0.42rem 0.55rem;
 }
 
 .wc26-live-card__scorers {

@@ -13,6 +13,9 @@ export const MIN_TREND_PREDICTIONS = 3
 
 export const PLAYED_MATCHES_CARD_LIMIT = 8
 
+/** Goleadores visibles en la card del carrusel en vivo. */
+export const LIVE_SCORERS_CARD_LIMIT = 10
+
 export type WorldCupLiveCardType =
   | 'played_matches'
   | 'next_match'
@@ -284,7 +287,7 @@ function buildScorersList(
   topScorers: TopScorer[],
 ): { scorers: LiveScorerRow[]; emptyMessage?: string } {
   if (topScorers.length > 0) {
-    const rows = topScorers.slice(0, 5).map(mapLiveScorerRow)
+    const rows = topScorers.slice(0, LIVE_SCORERS_CARD_LIMIT).map(mapLiveScorerRow)
     return {
       scorers: withCompetitionRanks(rows),
     }
@@ -494,7 +497,7 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
         scorersPayload.emptyMessage ??
         (scorersPayload.scorers.length > 0
           ? `${scorersPayload.scorers.reduce((sum, s) => sum + s.goals, 0)} goles · Top ${scorersPayload.scorers.length}`
-          : 'Top 5 actualizado'),
+          : 'Tabla de goleadores'),
       scorers: scorersPayload.scorers,
       emptyMessage: scorersPayload.emptyMessage,
     },

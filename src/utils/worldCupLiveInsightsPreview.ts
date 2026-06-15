@@ -117,7 +117,7 @@ export const LIVE_CARD_TYPE_META: Record<
   top_scorers: {
     label: 'Goleadores',
     emoji: '⚽',
-    description: 'Top 3 goleadores del torneo con datos reales.',
+    description: 'Top 10 goleadores del torneo con datos reales.',
     sources: ['src/utils/worldCupLiveInsights.ts', 'src/hooks/useWorldCupLiveInsights.ts'],
   },
   your_progress: {
