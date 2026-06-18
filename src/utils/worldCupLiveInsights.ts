@@ -78,6 +78,7 @@ export type RankingMoveInsight = WorldCupLiveCard & {
   lines: string[]
   leader: RankingPodiumEntry | null
   runnerUp: RankingPodiumEntry | null
+  thirdPlace: RankingPodiumEntry | null
   lore?: RankingLoreDisplay | null
 }
 
@@ -152,31 +153,42 @@ function legajoLabel(entry: LeaderboardEntry): string {
   return entry.profile?.legajo?.trim() || '—'
 }
 
-function buildRankingPodium(leaderboard: LeaderboardEntry[]): {
+/** Ganadores oficiales de premiación (solo card histórica). Orden: 1°, 2°, 3°. */
+export const HISTORICAL_WINNER_LEGAJOS = ['26861', '11855', '26211'] as const
+
+function buildHistoricalWinnersPodium(leaderboard: LeaderboardEntry[]): {
   leader: RankingPodiumEntry | null
   runnerUp: RankingPodiumEntry | null
+  thirdPlace: RankingPodiumEntry | null
 } {
-  const leader = leaderboard[0]
-  const second = leaderboard[1]
+  const byLegajo = new Map(
+    leaderboard.map(entry => [legajoLabel(entry), entry] as const),
+  )
+  const slots: Array<['leader' | 'runnerUp' | 'thirdPlace', number]> = [
+    ['leader', 1],
+    ['runnerUp', 2],
+    ['thirdPlace', 3],
+  ]
 
-  return {
-    leader: leader
-      ? {
-          rank: 1,
-          name: fullDisplayName(leader),
-          legajo: legajoLabel(leader),
-          points: leader.points,
-        }
-      : null,
-    runnerUp: second
-      ? {
-          rank: 2,
-          name: fullDisplayName(second),
-          legajo: legajoLabel(second),
-          points: second.points,
-        }
-      : null,
-  }
+  const result: {
+    leader: RankingPodiumEntry | null
+    runnerUp: RankingPodiumEntry | null
+    thirdPlace: RankingPodiumEntry | null
+  } = { leader: null, runnerUp: null, thirdPlace: null }
+
+  HISTORICAL_WINNER_LEGAJOS.forEach((legajo, index) => {
+    const entry = byLegajo.get(legajo)
+    const slot = slots[index]
+    if (!entry || !slot) return
+    result[slot[0]] = {
+      rank: slot[1],
+      name: fullDisplayName(entry),
+      legajo,
+      points: entry.points,
+    }
+  })
+
+  return result
 }
 
 function hasResolvedTeams(match: Match): boolean {
@@ -452,6 +464,27 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
   const awayPct = hasEnoughTrend ? (trendRow?.awayPct ?? 0) : 0
 
   const cards: WorldCupLiveInsightPayload[] = [
+    (() => {
+      const podium = buildHistoricalWinnersPodium(input.leaderboard)
+      const loreTemplate = input.rankingLore
+      const resolvedLore =
+        loreTemplate?.enabled && loreTemplate
+          ? buildRankingLoreFromLeaderboard(input.leaderboard, loreTemplate)
+          : null
+      const loreActive = Boolean(resolvedLore?.headline.trim())
+      return {
+        id: 'ranking-move',
+        type: 'ranking_move' as const,
+        emoji: '🏆',
+        title: 'Ganadores históricos',
+        lines: loreActive ? [] : buildRankingMoveLines(input.leaderboard, new Date(now)),
+        leader: podium.leader,
+        runnerUp: podium.runnerUp,
+        thirdPlace: podium.thirdPlace,
+        lore: loreActive && resolvedLore ? toRankingLoreDisplay(resolvedLore) : null,
+        cta: { label: 'Ver ranking', action: 'leaderboard' as const },
+      }
+    })(),
     ...(playedCard ? [playedCard] : []),
     ...(nextCard ? [nextCard] : []),
     {
@@ -467,26 +500,6 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
       favoriteLabel: favoriteTrendLabel(trendMatch, homePct, drawPct, awayPct, hasEnoughTrend),
       hasEnoughData: hasEnoughTrend,
     },
-    (() => {
-      const podium = buildRankingPodium(input.leaderboard)
-      const loreTemplate = input.rankingLore
-      const resolvedLore =
-        loreTemplate?.enabled && loreTemplate
-          ? buildRankingLoreFromLeaderboard(input.leaderboard, loreTemplate)
-          : null
-      const loreActive = Boolean(resolvedLore?.headline.trim())
-      return {
-        id: 'ranking-move',
-        type: 'ranking_move' as const,
-        emoji: loreActive ? resolvedLore!.emoji : '🏆',
-        title: 'Movimiento del ranking',
-        lines: loreActive ? [] : buildRankingMoveLines(input.leaderboard, new Date(now)),
-        leader: loreActive ? null : podium.leader,
-        runnerUp: loreActive ? null : podium.runnerUp,
-        lore: loreActive && resolvedLore ? toRankingLoreDisplay(resolvedLore) : null,
-        cta: { label: 'Ver ranking', action: 'leaderboard' as const },
-      }
-    })(),
     findPopularMatch(input.matches, stats, nextCard?.match ?? trendMatch),
     {
       id: 'top-scorers',

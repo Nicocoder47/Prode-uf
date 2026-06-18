@@ -78,6 +78,8 @@
     "validate:player-data": "tsx scripts/validatePlayerData.ts",
     "status:player-linking": "tsx scripts/playerLinkingStatus.ts",
     "audit:predictions": "tsx scripts/auditPredictions.ts",
+    "audit:logins": "tsx scripts/release/auditLogins.ts",
+    "admin:reset-password-dni": "tsx scripts/release/fixUserLogin.ts",
     "audit:system-health": "tsx scripts/generateSystemHealthReport.ts",
     "audit:live-events": "tsx scripts/generateLiveEventsAuditReport.ts",
     "audit:knockout": "tsx scripts/auditKnockout.ts",

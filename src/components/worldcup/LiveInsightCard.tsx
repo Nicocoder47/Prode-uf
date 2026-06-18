@@ -289,66 +289,26 @@ function NextMatchCardBody({
 
 const PRIZE_IMAGE_SRC = '/foto%20primer%20premio.png'
 
-const PRIZE_CONFETTI = [
-  { x: '6%', size: '0.32rem', color: '#f8b91e', rotate: '18deg', delay: '0s', duration: '2.8s' },
-  { x: '14%', size: '0.28rem', color: '#ffffff', rotate: '-24deg', delay: '0.4s', duration: '3.1s' },
-  { x: '22%', size: '0.36rem', color: '#22c55e', rotate: '42deg', delay: '0.15s', duration: '2.6s' },
-  { x: '31%', size: '0.3rem', color: '#ef4444', rotate: '-8deg', delay: '0.55s', duration: '3.4s' },
-  { x: '40%', size: '0.34rem', color: '#f8b91e', rotate: '30deg', delay: '0.25s', duration: '2.9s' },
-  { x: '48%', size: '0.26rem', color: '#86efac', rotate: '-36deg', delay: '0.7s', duration: '3.2s' },
-  { x: '56%', size: '0.38rem', color: '#fde68a', rotate: '12deg', delay: '0.1s', duration: '2.7s' },
-  { x: '64%', size: '0.3rem', color: '#ffffff', rotate: '-18deg', delay: '0.45s', duration: '3s' },
-  { x: '72%', size: '0.33rem', color: '#22c55e', rotate: '48deg', delay: '0.35s', duration: '2.85s' },
-  { x: '80%', size: '0.29rem', color: '#f8b91e', rotate: '-12deg', delay: '0.6s', duration: '3.15s' },
-  { x: '88%', size: '0.35rem', color: '#fca5a5', rotate: '22deg', delay: '0.2s', duration: '2.75s' },
-  { x: '94%', size: '0.27rem', color: '#d4af37', rotate: '-30deg', delay: '0.5s', duration: '3.05s' },
-] as const
-
-function PrizeConfetti() {
-  return (
-    <div className="wc26-live-card__award-confetti" aria-hidden>
-      {PRIZE_CONFETTI.map((piece, index) => (
-        <span
-          key={index}
-          className="wc26-live-card__award-confetti-piece"
-          style={
-            {
-              '--x': piece.x,
-              '--size': piece.size,
-              '--color': piece.color,
-              '--rotate': piece.rotate,
-              '--delay': piece.delay,
-              '--duration': piece.duration,
-            } as React.CSSProperties
-          }
-        />
-      ))}
-    </div>
-  )
-}
-
 function HistoricalWinnersCardBody() {
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   return (
     <>
-      <div className="wc26-live-card__prize-stage">
-        <PrizeConfetti />
-        <button
-          type="button"
-          className="wc26-live-card__prize-thumb"
-          onClick={() => setLightboxOpen(true)}
-          aria-label="Ver imagen del premio en pantalla completa"
-        >
-          <img
-            src={PRIZE_IMAGE_SRC}
-            alt=""
-            className="wc26-live-card__prize-thumb-img"
-            loading="lazy"
-            decoding="async"
-          />
-        </button>
-      </div>
+      <button
+        type="button"
+        className="wc26-live-card__prize-thumb"
+        onClick={() => setLightboxOpen(true)}
+        aria-label="Ver imagen del premio en pantalla completa"
+      >
+        <img
+          src={PRIZE_IMAGE_SRC}
+          alt=""
+          className="wc26-live-card__prize-thumb-img"
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
+        />
+      </button>
       <PrizeImageLightbox
         src={PRIZE_IMAGE_SRC}
         open={lightboxOpen}

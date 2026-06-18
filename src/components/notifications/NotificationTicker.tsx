@@ -2,9 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bell } from 'lucide-react'
 import { getDefaultScoringDisplay } from '../../hooks/useScoringDisplayConfig.ts'
+import { useGlobalAlertIndicator } from '../../hooks/useGlobalAlertIndicator.ts'
 import { fetchActiveAdminCards, fetchMyNotifications, markNotificationRead } from '../../services/admin/adminService.ts'
 import { resolveScoringDisplay } from '../../config/scoringDisplay.ts'
 import { resolveTickerContent } from '../../config/tickerContent.ts'
+import { requestOpenGlobalAlert } from '../../utils/globalAlertEvents.ts'
 import type { AppNotification } from '../../types/admin.ts'
 
 type TickerItem = {
@@ -12,6 +14,7 @@ type TickerItem = {
   title: string
   message: string
   isRead: boolean
+  isGlobalAlert?: boolean
 }
 
 function buildFallbackItems(): TickerItem[] {
@@ -35,6 +38,7 @@ function buildFallbackItems(): TickerItem[] {
 
 export function NotificationTicker() {
   const [items, setItems] = useState<TickerItem[]>(buildFallbackItems)
+  const { alert: globalAlert, hasActiveAlert, isPending: globalAlertPending } = useGlobalAlertIndicator()
 
   const reload = useCallback(async () => {
     try {
@@ -91,28 +95,73 @@ export function NotificationTicker() {
     return () => window.clearInterval(id)
   }, [reload])
 
-  const loopItems = useMemo(() => {
-    if (items.length === 0) return buildFallbackItems()
-    if (items.length === 1) return [...items, ...items, ...items]
-    return [...items, ...items]
-  }, [items])
+  const displayItems = useMemo(() => {
+    if (!hasActiveAlert || !globalAlert) return items
 
-  const unread = items.filter(i => !i.isRead).length
+    const globalItem: TickerItem = {
+      id: 'global-alert',
+      title: globalAlert.title || globalAlert.kicker,
+      message: globalAlert.message || 'Tocá la campana para leer el aviso completo',
+      isRead: !globalAlertPending,
+      isGlobalAlert: true,
+    }
+
+    return [globalItem, ...items.filter(item => item.id !== 'global-alert')]
+  }, [globalAlert, globalAlertPending, hasActiveAlert, items])
+
+  const loopItems = useMemo(() => {
+    if (displayItems.length === 0) return buildFallbackItems()
+    if (displayItems.length === 1) return [...displayItems, ...displayItems, ...displayItems]
+    return [...displayItems, ...displayItems]
+  }, [displayItems])
+
+  const unread = displayItems.filter(i => !i.isRead).length
+  const badgeCount = unread > 0 ? (unread > 9 ? '9+' : String(unread)) : globalAlertPending ? '!' : null
 
   async function handleClick(item: TickerItem) {
+    if (item.isGlobalAlert) {
+      requestOpenGlobalAlert()
+      return
+    }
     if (!item.isRead && item.id !== 'welcome' && item.id !== 'tip' && item.id !== 'card-important') {
       await markNotificationRead(item.id).catch(() => undefined)
       reload()
     }
   }
 
+  function handleBellClick() {
+    if (hasActiveAlert) {
+      requestOpenGlobalAlert()
+      return
+    }
+    if (unread > 0) {
+      const nextUnread = displayItems.find(item => !item.isRead && !item.isGlobalAlert)
+      if (nextUnread) void handleClick(nextUnread)
+    }
+  }
+
   return (
     <div className="wc26-notification-ticker mx-3 mt-2">
-      <div className="wc26-notification-ticker__inner">
-        <span className="wc26-notification-ticker__badge" aria-hidden>
+      <div
+        className={`wc26-notification-ticker__inner${globalAlertPending ? ' has-unread-alert' : hasActiveAlert || unread > 0 ? ' has-unread' : ''}`}
+      >
+        <button
+          type="button"
+          className={`wc26-notification-ticker__badge${globalAlertPending ? ' is-attention' : hasActiveAlert ? ' is-live' : ''}`}
+          aria-label={
+            hasActiveAlert
+              ? globalAlertPending
+                ? 'Aviso importante sin leer. Tocá para abrir.'
+                : 'Aviso importante. Tocá para volver a leer.'
+              : 'Notificaciones'
+          }
+          onClick={handleBellClick}
+        >
           <Bell className="h-4 w-4" />
-          {unread > 0 && <span className="wc26-notification-ticker__dot">{unread > 9 ? '9+' : unread}</span>}
-        </span>
+          {badgeCount ? (
+            <span className={`wc26-notification-ticker__dot${globalAlertPending ? ' is-pulse' : ''}`}>{badgeCount}</span>
+          ) : null}
+        </button>
         <div className="wc26-notification-ticker__viewport">
           <div
             className="wc26-notification-ticker__track"
@@ -122,7 +171,7 @@ export function NotificationTicker() {
               <button
                 key={`${item.id}-${index}`}
                 type="button"
-                className={`wc26-notification-ticker__item ${item.isRead ? '' : 'is-unread'} ${item.id === 'tip' ? 'is-scoring-tip' : ''}`}
+                className={`wc26-notification-ticker__item ${item.isRead ? '' : 'is-unread'} ${item.id === 'tip' ? 'is-scoring-tip' : ''} ${item.isGlobalAlert ? 'is-global-alert' : ''}`}
                 onClick={() => handleClick(item)}
               >
                 <strong>{item.title}</strong>

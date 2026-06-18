@@ -364,7 +364,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initSession()
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, nextSession) => {
-      if (event === 'SIGNED_OUT' || !nextSession) {
+      if (event === 'SIGNED_OUT') {
         clearGlobalAlertDismiss()
       }
       setSession(nextSession)

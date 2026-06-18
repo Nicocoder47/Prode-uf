@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState<AuthMode>('register')
   const [fullName, setFullName] = useState('')
   const [dni, setDni] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
   const [legajo, setLegajo] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -99,6 +100,7 @@ export default function LoginPage() {
     setMode(next)
     setStatus('idle')
     setMessage('')
+    if (next === 'login') setLoginPassword('')
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -116,7 +118,7 @@ export default function LoginPage() {
               email: cleanEmail,
               phone: normalizePhone(phone),
             })
-          : await login(cleanEmail, dni)
+          : await login(cleanEmail, loginPassword)
 
       if (result.suggestLogin) setMode('login')
       if (result.suggestRegister) setMode('register')
@@ -230,18 +232,18 @@ export default function LoginPage() {
             </AuthField>
           </>
         ) : (
-          <AuthField label="DNI (tu contraseña)" id="dni-login" required>
+          <AuthField label="Contraseña" id="login-password" required>
             <input
-              id="dni-login"
+              id="login-password"
               type="password"
-              inputMode="numeric"
-              value={dni}
-              onChange={e => setDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
-              placeholder="Tu DNI sin puntos"
+              value={loginPassword}
+              onChange={e => setLoginPassword(e.target.value)}
+              placeholder="Tu contraseña o DNI"
               autoComplete="current-password"
-              className="wc26-login-input font-mono tracking-wider"
+              className="wc26-login-input"
               required
             />
+            <p className="mt-1 text-[11px] text-white/45">Si no la cambiaste, usá tu DNI sin puntos.</p>
           </AuthField>
         )}
 

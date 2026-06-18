@@ -12,9 +12,11 @@ import {
   adminDeleteTestUser,
   adminDeleteUserFull,
   adminForcePasswordChange,
+  adminResetPasswordToDni,
   adminRejectUser,
   adminResetUserPredictions,
   adminResetUserScore,
+  adminSetNotificationActive,
   adminSetUserRole,
   adminSoftDeleteUser,
   adminUnblockUser,
@@ -70,6 +72,8 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
   const [notifyTitle, setNotifyTitle] = useState('')
   const [notifyMessage, setNotifyMessage] = useState('')
 
+  const [showNotifyControl, setShowNotifyControl] = useState(false)
+  const [showPredictions, setShowPredictions] = useState(false)
   const [showDeactivate, setShowDeactivate] = useState(false)
   const [deactivateConfirm, setDeactivateConfirm] = useState('')
   const [showPromote, setShowPromote] = useState(false)
@@ -78,14 +82,47 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
   const [showDeleteFull, setShowDeleteFull] = useState(false)
   const [showResetPred, setShowResetPred] = useState(false)
   const [showResetScore, setShowResetScore] = useState(false)
+  const [showResetPasswordDni, setShowResetPasswordDni] = useState(false)
+  const [resetPasswordDniConfirm, setResetPasswordDniConfirm] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteReason, setDeleteReason] = useState('')
 
   const u = detail?.user ?? user
   const padron = detail?.padron ?? null
   const lastActivity = detail?.activity?.[0] ?? null
+  const userNotifications = detail?.notifications ?? []
+  const activeNotifications = userNotifications.filter(n => n.is_active !== false)
+  const predictions = detail?.predictions ?? []
+  const predictionsPoints = predictions.reduce((sum, p) => sum + (p.points ?? 0), 0)
   const isTest = u.is_test_user ?? isTestUserEmail(u.email)
   const accountLabel = getAccountStateLabel(u)
+
+  async function toggleNotification(notificationId: string, nextActive: boolean) {
+    await runAction(
+      () => adminSetNotificationActive(notificationId, nextActive),
+      nextActive ? 'Notificación activada' : 'Notificación desactivada',
+    )
+  }
+
+  async function deactivateAllUserNotifications() {
+    const targets = userNotifications.filter(n => n.is_active !== false)
+    if (targets.length === 0) return
+    setBusy(true)
+    setError(null)
+    try {
+      for (const n of targets) {
+        await adminSetNotificationActive(n.id, false)
+      }
+      onChanged()
+      invalidateUserDetail(user.id)
+      await refetch()
+      showToast(`${targets.length} notificación(es) desactivada(s)`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   async function runAction(action: () => Promise<unknown>, message: string, closeAfter = false) {
     setBusy(true)
@@ -98,6 +135,8 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
       invalidateBetaOverview()
       invalidateDashboard()
       await refetch()
+      setNotifyTitle('')
+      setNotifyMessage('')
       showToast(message)
       if (closeAfter) onClose()
     } catch (err) {
@@ -129,14 +168,16 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
       : 'No disponible en padrón'
 
   return (
-    <div className={`admin-user-detail-panel admin-user-detail-panel--${variant}`}>
+    <div className={`admin-user-detail-panel admin-user-detail-panel--light admin-user-detail-panel--${variant}`}>
       <header className="admin-user-detail-panel__header">
         <div className="min-w-0 flex-1">
           <p className="admin-user-detail-panel__kicker">Detalle de usuario</p>
           <h2 className="admin-user-detail-panel__name">{u.full_name}</h2>
           <p className="admin-user-detail-panel__email">{u.email}</p>
         </div>
-        <PremiumButton size="sm" variant="ghost" onClick={onClose}>Cerrar</PremiumButton>
+        <button type="button" className="admin-user-detail-panel__inline-action" onClick={onClose}>
+          Cerrar
+        </button>
       </header>
 
       <div className="admin-user-detail-panel__toolbar">
@@ -175,7 +216,7 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
 
       <div className="admin-user-detail-panel__body">
         {error && <p className="admin-user-detail-panel__error">{error}</p>}
-        {isLoading && <p className="text-sm text-white/50">Cargando datos…</p>}
+        {isLoading && <p className="admin-user-detail-panel__loading">Cargando datos…</p>}
 
         <DetailSection title="Datos declarados">
           <DetailField label="Nombre completo" value={u.full_name} wide />
@@ -209,26 +250,149 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
           <DetailField label="Estado de actividad" value={getActivityStateLabel(u)} />
         </DetailSection>
 
-        {/* Predicciones siempre visibles */}
+        <section className="admin-user-detail-section admin-user-detail-section--control">
+          <div className="admin-user-detail-section__head">
+            <h3 className="admin-user-detail-section__title">Notificaciones</h3>
+            <div className="admin-user-detail-section__head-actions">
+              {activeNotifications.length > 0 ? (
+                <button
+                  type="button"
+                  className="admin-user-detail-panel__inline-action admin-user-detail-panel__inline-action--danger"
+                  disabled={busy || !showNotifyControl}
+                  onClick={() => void deactivateAllUserNotifications()}
+                >
+                  Desactivar todas
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className="admin-user-detail-panel__inline-action"
+                onClick={() => setShowNotifyControl(v => !v)}
+              >
+                {showNotifyControl ? 'Ocultar' : 'Gestionar'}
+              </button>
+            </div>
+          </div>
+          {!showNotifyControl ? (
+            <p className="admin-user-detail-panel__empty">
+              {userNotifications.length
+                ? `${userNotifications.length} en total · ${activeNotifications.length} activa(s)`
+                : 'Sin notificaciones para este usuario.'}
+            </p>
+          ) : (
+            <>
+              {userNotifications.length ? (
+                <ul className="admin-user-detail-notify-list">
+                  {userNotifications.map(n => {
+                    const isActive = n.is_active !== false
+                    const scope =
+                      n.target_type === 'user' ? 'Personal' : n.target_type === 'role' ? 'Por rol' : 'Global'
+                    return (
+                      <li key={n.id} className="admin-user-detail-notify-row">
+                        <div className="admin-user-detail-notify-row__main">
+                          <p className="admin-user-detail-notify-row__title">{n.title}</p>
+                          <p className="admin-user-detail-notify-row__meta">
+                            {scope} · {n.is_read ? 'Leída' : 'No leída'} · {formatDate(n.created_at)}
+                          </p>
+                        </div>
+                        <div className="admin-user-detail-notify-row__actions">
+                          <span className={`admin-user-detail-notify-row__badge${isActive ? ' is-active' : ''}`}>
+                            {isActive ? 'Activa' : 'Inactiva'}
+                          </span>
+                          <button
+                            type="button"
+                            className="admin-user-detail-panel__inline-action"
+                            disabled={busy}
+                            onClick={() => void toggleNotification(n.id, !isActive)}
+                          >
+                            {isActive ? 'Desactivar' : 'Activar'}
+                          </button>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              ) : (
+                <p className="admin-user-detail-panel__empty">Sin notificaciones para este usuario.</p>
+              )}
+
+              <div className="admin-user-detail-panel__notify">
+                <p className="admin-user-detail-panel__expand-title">Enviar personal</p>
+                <input
+                  className="admin-user-detail-panel__reason-input"
+                  placeholder="Título"
+                  value={notifyTitle}
+                  onChange={e => setNotifyTitle(e.target.value)}
+                />
+                <textarea
+                  rows={2}
+                  className="admin-user-detail-panel__reason-input"
+                  placeholder="Mensaje"
+                  value={notifyMessage}
+                  onChange={e => setNotifyMessage(e.target.value)}
+                />
+                <PremiumButton
+                  size="sm"
+                  className="admin-user-detail-panel__compact-btn"
+                  disabled={busy || !notifyTitle.trim() || !notifyMessage.trim()}
+                  onClick={() =>
+                    runAction(
+                      () =>
+                        adminCreateNotification({
+                          title: notifyTitle,
+                          message: notifyMessage,
+                          targetType: 'user',
+                          targetUserId: u.id,
+                        }),
+                      'Notificación enviada',
+                    )
+                  }
+                >
+                  Enviar
+                </PremiumButton>
+              </div>
+            </>
+          )}
+        </section>
+
         <section className="admin-user-detail-section">
-          <h3 className="admin-user-detail-section__title">Predicciones</h3>
+          <div className="admin-user-detail-section__head">
+            <h3 className="admin-user-detail-section__title">Predicciones</h3>
+            {predictions.length > 0 ? (
+              <button
+                type="button"
+                className="admin-user-detail-panel__inline-action"
+                onClick={() => setShowPredictions(v => !v)}
+              >
+                {showPredictions ? 'Ocultar' : `Ver (${predictions.length})`}
+              </button>
+            ) : null}
+          </div>
           {isLoading ? (
-            <p className="text-xs text-white/40">Cargando…</p>
-          ) : (detail?.predictions ?? []).length ? (
+            <p className="admin-user-detail-panel__empty">Cargando…</p>
+          ) : !showPredictions ? (
+            <p className="admin-user-detail-panel__empty">
+              {predictions.length
+                ? `${predictions.length} predicciones · ${predictionsPoints} pts total`
+                : 'Sin predicciones registradas.'}
+            </p>
+          ) : predictions.length ? (
             <div className="admin-user-detail-predictions">
-              {detail!.predictions.map(p => (
+              {predictions.map(p => (
                 <div key={p.id} className="admin-user-detail-pred-row">
-                  <span className="admin-user-detail-pred-row__match">{p.home_team ?? '?'} vs {p.away_team ?? '?'}</span>
+                  <span className="admin-user-detail-pred-row__match">
+                    {p.home_team ?? '?'} vs {p.away_team ?? '?'}
+                  </span>
                   <span className="admin-user-detail-pred-row__score">
-                    {p.predicted_score_home ?? '—'} - {p.predicted_score_away ?? '—'}
-                    {p.result_home != null && ` · ${p.result_home}-${p.result_away}`}
+                    {p.predicted_score_home ?? '—'}-{p.predicted_score_away ?? '—'}
+                    {p.result_home != null ? ` · ${p.result_home}-${p.result_away}` : ''}
                   </span>
                   <span className="admin-user-detail-pred-row__pts">{p.points ?? 0} pts</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-white/45">Sin predicciones registradas.</p>
+            <p className="admin-user-detail-panel__empty">Sin predicciones registradas.</p>
           )}
         </section>
 
@@ -249,22 +413,22 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
             <section className="admin-user-detail-section">
               <h3 className="admin-user-detail-section__title">Movimientos y notificaciones</h3>
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40">Movimientos</p>
+                <p className="admin-user-detail-panel__sub-label">Movimientos</p>
                 {(detail?.activity ?? []).length ? detail!.activity.slice(0, 8).map(a => (
                   <div key={a.id} className="admin-user-detail-audit-row">
                     <span>{a.title}</span>
                     <span className="text-white/45">{formatDate(a.created_at)}</span>
                   </div>
-                )) : <p className="text-sm text-white/45">Sin movimientos.</p>}
+                )) : <p className="admin-user-detail-panel__empty">Sin movimientos.</p>}
               </div>
               <div className="mt-3 space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white/40">Notificaciones</p>
+                <p className="admin-user-detail-panel__sub-label">Historial de notificaciones</p>
                 {(detail?.notifications ?? []).length ? detail!.notifications.slice(0, 5).map(n => (
                   <div key={n.id} className="admin-user-detail-audit-row">
                     <span>{n.title}</span>
-                    <span className="text-white/45">{n.is_read ? 'Leída' : 'No leída'}</span>
+                    <span>{n.is_read ? 'Leída' : 'No leída'}</span>
                   </div>
-                )) : <p className="text-sm text-white/45">Sin notificaciones.</p>}
+                )) : <p className="admin-user-detail-panel__empty">Sin notificaciones.</p>}
               </div>
             </section>
           </div>
@@ -281,6 +445,9 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
               onChange={e => setActionReason(e.target.value)}
             />
             <div className="admin-user-detail-panel__more-grid">
+              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => setShowResetPasswordDni(true)}>
+                Restablecer clave a DNI
+              </PremiumButton>
               <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminForcePasswordChange(u.id), 'Cambio de contraseña forzado')}>
                 Forzar cambio clave
               </PremiumButton>
@@ -305,42 +472,55 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
                 Eliminar definitivo
               </PremiumButton>
             </div>
-            <div className="admin-user-detail-panel__notify">
-              <p className="admin-user-detail-panel__expand-title">Notificación personal</p>
-              <input className="admin-user-detail-panel__reason-input" placeholder="Título" value={notifyTitle} onChange={e => setNotifyTitle(e.target.value)} />
-              <textarea rows={2} className="admin-user-detail-panel__reason-input" placeholder="Mensaje" value={notifyMessage} onChange={e => setNotifyMessage(e.target.value)} />
-              <PremiumButton
-                size="sm"
-                disabled={busy || !notifyTitle.trim() || !notifyMessage.trim()}
-                onClick={() => runAction(() => adminCreateNotification({ title: notifyTitle, message: notifyMessage, targetType: 'user', targetUserId: u.id }), 'Notificación enviada')}
-              >
-                Enviar notificación
-              </PremiumButton>
-            </div>
           </div>
         )}
       </div>
 
       {u.role !== 'admin' && !u.deleted_at && (
         <footer className="admin-user-detail-panel__actions">
-          <PremiumButton size="sm" disabled={busy} onClick={() => runAction(() => adminApproveUser(u.id, actionReason || 'Aprobado por admin'), 'Usuario aprobado')}>
-            Aprobar usuario
+          <PremiumButton size="sm" className="admin-user-detail-panel__compact-btn" disabled={busy} onClick={() => runAction(() => adminApproveUser(u.id, actionReason || 'Aprobado por admin'), 'Usuario aprobado')}>
+            Aprobar
           </PremiumButton>
-          <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminRejectUser(u.id, actionReason || 'Marcado para revisión por admin'), 'Usuario marcado para revisión')}>
-            Marcar para revisar
+          <PremiumButton size="sm" className="admin-user-detail-panel__compact-btn" variant="ghost" disabled={busy} onClick={() => runAction(() => adminRejectUser(u.id, actionReason || 'Marcado para revisión por admin'), 'Usuario marcado para revisión')}>
+            Revisar
           </PremiumButton>
           {u.is_blocked || !u.is_active ? (
-            <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminUnblockUser(u.id), 'Usuario desbloqueado')}>
-              Desbloquear usuario
+            <PremiumButton size="sm" className="admin-user-detail-panel__compact-btn" variant="ghost" disabled={busy} onClick={() => runAction(() => adminUnblockUser(u.id), 'Usuario desbloqueado')}>
+              Desbloquear
             </PremiumButton>
           ) : (
-            <PremiumButton size="sm" variant="danger" disabled={busy} onClick={() => runAction(() => adminBlockUser(u.id, actionReason || 'Bloqueado desde panel admin'), 'Usuario bloqueado')}>
-              Bloquear usuario
+            <PremiumButton size="sm" className="admin-user-detail-panel__compact-btn" variant="danger" disabled={busy} onClick={() => runAction(() => adminBlockUser(u.id, actionReason || 'Bloqueado desde panel admin'), 'Usuario bloqueado')}>
+              Bloquear
             </PremiumButton>
           )}
-          <PremiumButton size="sm" variant="ghost" onClick={onClose}>Cerrar</PremiumButton>
+          <PremiumButton size="sm" className="admin-user-detail-panel__compact-btn" variant="ghost" disabled={busy} onClick={() => setShowResetPasswordDni(true)}>
+            Clave → DNI
+          </PremiumButton>
         </footer>
       )}
+
+      <AdminConfirmModal
+        open={showResetPasswordDni}
+        title="Restablecer contraseña a DNI"
+        description={
+          <p>
+            <strong>{u.full_name}</strong> podrá entrar con su email y su DNI como contraseña (solo números).
+            Se pierde la clave personalizada que haya elegido.
+          </p>
+        }
+        confirmLabel="Restablecer a DNI"
+        confirmPhrase="RESTABLECER DNI"
+        confirmValue={resetPasswordDniConfirm}
+        onConfirmValueChange={setResetPasswordDniConfirm}
+        reversible
+        busy={busy}
+        onCancel={() => { setShowResetPasswordDni(false); setResetPasswordDniConfirm('') }}
+        onConfirm={() => runAction(async () => {
+          await adminResetPasswordToDni(u.id)
+          setShowResetPasswordDni(false)
+          setResetPasswordDniConfirm('')
+        }, 'Contraseña restablecida al DNI')}
+      />
 
       <AdminConfirmModal
         open={showDeactivate}

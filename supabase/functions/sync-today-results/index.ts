@@ -24,6 +24,31 @@ function todayInArgentina(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date())
 }
 
+function kickOffDateInArgentina(kickOff: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(
+    new Date(kickOff),
+  )
+}
+
+const TERMINAL_STATUSES = new Set(['finished', 'postponed', 'cancelled'])
+
+function preventStatusDowngrade(
+  row: MatchRow,
+  prev?: { status?: string; score_home?: number | null; score_away?: number | null } | null,
+): MatchRow {
+  if (!prev?.status || !TERMINAL_STATUSES.has(prev.status)) return row
+  if (TERMINAL_STATUSES.has(row.status)) return row
+  console.warn(
+    `[sync-today-results] WARN provider_match_id=${row.provider_match_id}: bloqueado downgrade ${prev.status}→${row.status}`,
+  )
+  return {
+    ...row,
+    status: prev.status,
+    score_home: row.score_home ?? prev.score_home ?? null,
+    score_away: row.score_away ?? prev.score_away ?? null,
+  }
+}
+
 function mapFootballDataStatus(status: string): string {
   const map: Record<string, string> = {
     SCHEDULED: 'scheduled',
@@ -115,6 +140,134 @@ async function fetchFootballDataToday(apiKey: string, wcCode: string, teamMap: M
     })
   }
 
+  return rows
+}
+
+function normalizeFootballDataRawMatch(
+  raw: Record<string, unknown>,
+  teamMap: Map<string, string>,
+): MatchRow | null {
+  const home = raw.homeTeam as { id?: number } | undefined
+  const away = raw.awayTeam as { id?: number } | undefined
+  const homeUuid = home?.id != null ? teamMap.get(String(home.id)) : undefined
+  const awayUuid = away?.id != null ? teamMap.get(String(away.id)) : undefined
+  if (!homeUuid || !awayUuid) return null
+
+  const score = raw.score as {
+    fullTime?: { home?: number | null; away?: number | null }
+    halfTime?: { home?: number | null; away?: number | null }
+  } | undefined
+  const ftHome = score?.fullTime?.home
+  const ftAway = score?.fullTime?.away
+  const mappedStatus = mapFootballDataStatus(String(raw.status ?? 'SCHEDULED'))
+  const scoreHome =
+    ftHome != null && ftAway != null
+      ? ftHome
+      : mappedStatus === 'live' || mappedStatus === 'halftime'
+        ? (score?.halfTime?.home ?? null)
+        : (ftHome ?? null)
+  const scoreAway =
+    ftHome != null && ftAway != null
+      ? ftAway
+      : mappedStatus === 'live' || mappedStatus === 'halftime'
+        ? (score?.halfTime?.away ?? null)
+        : (ftAway ?? null)
+  const stage = String(raw.stage ?? raw.matchday ?? '')
+
+  return {
+    provider: FOOTBALL_DATA_PROVIDER,
+    provider_match_id: String(raw.id ?? ''),
+    home_team_id: homeUuid,
+    away_team_id: awayUuid,
+    kick_off: String(raw.utcDate ?? new Date().toISOString()),
+    phase: stage || null,
+    round: stage || null,
+    group_label: extractGroupLabel(raw.group as string | undefined),
+    status: mappedStatus,
+    score_home: scoreHome,
+    score_away: scoreAway,
+    updated_at: new Date().toISOString(),
+  }
+}
+
+async function fetchFootballDataMatchById(
+  apiKey: string,
+  providerMatchId: string,
+  teamMap: Map<string, string>,
+): Promise<MatchRow | null> {
+  const res = await fetch(`https://api.football-data.org/v4/matches/${providerMatchId}`, {
+    headers: { 'X-Auth-Token': apiKey },
+  })
+  if (!res.ok) return null
+  const raw = await res.json() as Record<string, unknown>
+  return normalizeFootballDataRawMatch(raw, teamMap)
+}
+
+async function fetchStaleLiveRows(
+  supabase: ReturnType<typeof createClient>,
+  provider: string,
+  footballDataKey: string | undefined,
+  apiFootballKey: string | undefined,
+  wcCode: string,
+  leagueId: string,
+  season: string,
+  teamMap: Map<string, string>,
+): Promise<MatchRow[]> {
+  const today = todayInArgentina()
+  const { data: stale } = await supabase
+    .from('matches')
+    .select('provider,provider_match_id,kick_off')
+    .eq('provider', provider)
+    .in('status', ['live', 'halftime'])
+
+  const refs = (stale ?? []).filter(
+    row => kickOffDateInArgentina(String(row.kick_off)) < today,
+  )
+
+  const rows: MatchRow[] = []
+  for (const ref of refs) {
+    const id = String(ref.provider_match_id)
+    if (provider === FOOTBALL_DATA_PROVIDER && footballDataKey) {
+      const row = await fetchFootballDataMatchById(footballDataKey, id, teamMap)
+      if (row) rows.push(row)
+    } else if (provider === API_FOOTBALL_PROVIDER && apiFootballKey) {
+      const res = await fetch(`https://v3.football.api-sports.io/fixtures?id=${id}`, {
+        headers: {
+          'x-rapidapi-host': 'v3.football.api-sports.io',
+          'x-rapidapi-key': apiFootballKey,
+        },
+      })
+      if (!res.ok) continue
+      const body = await res.json() as { response?: Record<string, unknown>[] }
+      const item = body.response?.[0]
+      if (!item) continue
+      const fixture = item.fixture as { id?: number; date?: string; status?: { short?: string } }
+      const teams = item.teams as { home?: { id?: number }; away?: { id?: number } }
+      const goals = item.goals as { home?: number | null; away?: number | null }
+      const league = item.league as { round?: string }
+      const homeUuid = teams.home?.id != null ? teamMap.get(String(teams.home.id)) : undefined
+      const awayUuid = teams.away?.id != null ? teamMap.get(String(teams.away.id)) : undefined
+      if (!homeUuid || !awayUuid || fixture.id == null) continue
+      rows.push({
+        provider: API_FOOTBALL_PROVIDER,
+        provider_match_id: String(fixture.id),
+        home_team_id: homeUuid,
+        away_team_id: awayUuid,
+        kick_off: String(fixture.date ?? new Date().toISOString()),
+        phase: league.round ?? null,
+        round: league.round ?? null,
+        group_label: null,
+        status: mapApiFootballStatus(String(fixture.status?.short ?? 'NS')),
+        score_home: goals.home ?? null,
+        score_away: goals.away ?? null,
+        updated_at: new Date().toISOString(),
+      })
+    }
+  }
+
+  if (rows.length > 0) {
+    console.log(`[sync-today-results] stale_live resolved=${rows.length}`)
+  }
   return rows
 }
 
@@ -396,11 +549,25 @@ serve(async (req: Request) => {
     }
 
     const teamMap = new Map((teams ?? []).map(t => [String(t.provider_team_id), String(t.id)]))
-    const rows = footballDataKey
+    const todayRows = footballDataKey
       ? await fetchFootballDataToday(footballDataKey, wcCode, teamMap)
       : await fetchApiFootballToday(apiFootballKey!, leagueId, season, teamMap)
+    const staleRows = await fetchStaleLiveRows(
+      supabase,
+      provider,
+      footballDataKey,
+      apiFootballKey,
+      wcCode,
+      leagueId,
+      season,
+      teamMap,
+    )
+    const mergedById = new Map<string, MatchRow>()
+    for (const row of todayRows) mergedById.set(row.provider_match_id, row)
+    for (const row of staleRows) mergedById.set(row.provider_match_id, row)
+    const rows = [...mergedById.values()]
 
-    console.log(`[sync-today-results] provider=${provider} day=${todayInArgentina()} fetched=${rows.length}`)
+    console.log(`[sync-today-results] provider=${provider} day=${todayInArgentina()} fetched=${rows.length} stale=${staleRows.length}`)
 
     let upserted = 0
     if (rows.length > 0) {
@@ -434,7 +601,7 @@ serve(async (req: Request) => {
           )
           next = { ...next, status: fallback }
         }
-        return next
+        return preventStatusDowngrade(next, prev ?? null)
       })
 
       for (const row of mergedRows) {

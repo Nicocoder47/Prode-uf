@@ -61,8 +61,33 @@ type ExistingMatch = {
   score_away?: number | null
 }
 
+const TERMINAL_STATUSES = new Set(['finished', 'postponed', 'cancelled'])
+
 function hasCompleteScore(home: number | null | undefined, away: number | null | undefined): boolean {
   return home != null && away != null
+}
+
+/**
+ * No degradar un partido ya finalizado a live/halftime/scheduled.
+ * Evita huérfanas cuando la API o live sync devuelve estado viejo.
+ */
+export function preventStatusDowngrade<T extends MatchRow>(
+  row: T,
+  existing?: ExistingMatch | null,
+): T {
+  if (!existing?.status || !TERMINAL_STATUSES.has(existing.status)) return row
+  if (TERMINAL_STATUSES.has(row.status)) return row
+
+  console.warn(
+    `[SYNC:match] WARN provider_match_id=${row.provider_match_id}: bloqueado downgrade ${existing.status}→${row.status}`,
+  )
+
+  return {
+    ...row,
+    status: existing.status,
+    score_home: row.score_home ?? existing.score_home ?? null,
+    score_away: row.score_away ?? existing.score_away ?? null,
+  }
 }
 
 /**
@@ -125,7 +150,8 @@ export async function protectExistingScores<T extends MatchRow>(rows: T[]): Prom
       }
     }
 
-    return sanitizeFinishedWithoutScores(next, prev ?? null)
+    next = sanitizeFinishedWithoutScores(next, prev ?? null)
+    return preventStatusDowngrade(next, prev ?? null)
   })
 }
 
@@ -156,6 +182,17 @@ export function wouldUpdateMatch(
     return {
       wouldUpdate: false,
       reason: 'API finished sin marcador — se bloquea para evitar FIN 0-0 falso',
+    }
+  }
+
+  if (
+    TERMINAL_STATUSES.has(db.status) &&
+    !TERMINAL_STATUSES.has(api.status) &&
+    api.status !== db.status
+  ) {
+    return {
+      wouldUpdate: false,
+      reason: `bloqueado downgrade ${db.status}→${api.status}`,
     }
   }
 

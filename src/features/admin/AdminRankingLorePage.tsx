@@ -32,6 +32,7 @@ function buildPreviewCard(config: RankingLoreConfig | null): RankingMoveInsight 
     lines: [],
     leader: null,
     runnerUp: null,
+    thirdPlace: null,
     lore: config ? toRankingLoreDisplay(config) : null,
     cta: { label: 'Ver ranking', action: 'leaderboard' },
   }

@@ -290,6 +290,20 @@ export class ApiFootballProvider {
       .filter((row: any) => row.home_team_id && row.away_team_id);
   }
 
+  static async fetchFixtureByProviderId(providerMatchId: string): Promise<any | null> {
+    if (!this.isConfigured()) return null;
+    const response = await axios.get(`${API_URL}/fixtures`, {
+      headers: HEADERS,
+      params: { id: providerMatchId },
+      timeout: 12_000,
+    });
+    const item = response.data.response?.[0];
+    if (!item) return null;
+    const teamMap = await getTeamUuidMap();
+    const row = this.normalizeFixture(item, teamMap);
+    return row.home_team_id && row.away_team_id ? row : null;
+  }
+
   static async syncLiveMatches(): Promise<any[]> {
     if (!this.isConfigured()) return [];
     const response = await axios.get(`${API_URL}/fixtures?live=all&league=${LEAGUE_ID}`, { headers: HEADERS });

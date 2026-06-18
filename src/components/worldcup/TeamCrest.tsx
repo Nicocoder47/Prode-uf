@@ -1,11 +1,17 @@
-import { isLikelyImageUrl, resolveTeamFlagUrl, teamAbbreviation } from '../../utils/teamDisplay'
+import {
+  isLikelyImageUrl,
+  resolveTeamFlagSrcSet,
+  resolveTeamFlagUrl,
+  teamAbbreviation,
+  type TeamFlagSize,
+} from '../../utils/teamDisplay'
 
 interface TeamCrestProps {
   flag?: string | null
   code?: string
   name?: string
   countryCode?: string | null
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  size?: TeamFlagSize
   className?: string
   premium?: boolean
 }
@@ -27,17 +33,19 @@ export function TeamCrest({
   className = '',
   premium = false,
 }: TeamCrestProps) {
-  const imageUrl = resolveTeamFlagUrl(flag, flag, countryCode, code)
+  const imageUrl = resolveTeamFlagUrl(flag, flag, countryCode, code, size)
+  const srcSet = resolveTeamFlagSrcSet(flag, flag, countryCode, code, size)
   const emojiFlag = flag && !isLikelyImageUrl(flag) && flag !== '🏳️' ? flag : null
   const innerSize = sizes[size]
 
   const content = imageUrl ? (
     <img
       src={imageUrl}
+      srcSet={srcSet ?? undefined}
       alt={name || code || 'Equipo'}
       loading="lazy"
       decoding="async"
-      className="h-full w-full rounded-full object-cover"
+      className="wc26-team-crest__img"
     />
   ) : (
     <span className="text-[1.35em] leading-none" aria-hidden>
@@ -50,7 +58,7 @@ export function TeamCrest({
       <span className={`wc26-crest-premium wc26-crest-premium--${size} ${className}`.trim()}>
         <span className="wc26-crest-premium__halo" aria-hidden="true" />
         <span className="wc26-crest-premium__ring">
-          <span className={`wc26-crest-premium__inner ${innerSize}`}>{content}</span>
+          <span className={`wc26-crest-premium__inner wc26-team-crest ${innerSize}`}>{content}</span>
         </span>
       </span>
     )
@@ -58,7 +66,7 @@ export function TeamCrest({
 
   return (
     <span
-      className={`${innerSize} grid shrink-0 place-items-center rounded-full bg-white shadow-sm ring-1 ring-wc26-gray300/70 ${className}`}
+      className={`wc26-team-crest ${innerSize} grid shrink-0 place-items-center rounded-full bg-white ring-1 ring-wc26-gray300/70 ${className}`}
     >
       {content}
     </span>

@@ -257,4 +257,18 @@ router.get('/system/health', async (_req, res, next) => {
   }
 });
 
+router.post('/users/:userId/reset-password-dni', async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.replace(/^Bearer\s+/i, '').trim();
+    if (!token) {
+      res.status(401).json({ error: 'Missing bearer token' });
+      return;
+    }
+    const { resetUserPasswordToDni } = await import('../services/adminAuthService.js');
+    res.json(await resetUserPasswordToDni(req.params.userId, token));
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

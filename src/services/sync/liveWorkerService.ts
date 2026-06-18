@@ -2,7 +2,7 @@ import { supabase } from '../../database/supabaseClient'
 import { ApiFootballProvider } from '../../providers/apiFootball/ApiFootballProvider'
 import { resolveSportsDataProvider } from './DataProviderManager'
 import { SyncEngine } from './SyncEngine'
-import { logSyncPhase } from './matchSyncDiagnostics'
+import { logSyncPhase, protectExistingScores } from './matchSyncDiagnostics'
 import { syncTodayMatchResultsFromApi } from './todayMatchResultsSync'
 import { syncFootballDataScorers } from './scorersSync'
 
@@ -117,14 +117,23 @@ export async function runLiveSyncCycle(): Promise<LiveSyncCycleResult> {
       logSyncPhase('live_matches', { event: 'fetched', provider: primaryProvider, count: live.length })
 
       if (live.length > 0) {
+        const protectedLive = await protectExistingScores(
+          live as Array<{
+            provider: string
+            provider_match_id: string
+            status: string
+            score_home: number | null
+            score_away: number | null
+          }>,
+        )
         await SyncEngine.upsertAndCache(
           'matches',
-          live,
+          protectedLive,
           `cache:matches:live:${provider.name}`,
           30,
           'provider,provider_match_id',
         )
-        liveMatchesUpserted = live.length
+        liveMatchesUpserted = protectedLive.length
       }
 
       await logSyncRun({

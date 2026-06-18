@@ -11,6 +11,7 @@ import {
   adminDeleteTestUser,
   adminDeleteUserFull,
   adminForcePasswordChange,
+  adminResetPasswordToDni,
   adminRejectUser,
   adminResetUserPredictions,
   adminResetUserScore,
@@ -78,6 +79,8 @@ export function AdminUserDetailDrawer({ user, initialTab = 'summary', onClose, o
   const [showDeleteFull, setShowDeleteFull] = useState(false)
   const [showResetPred, setShowResetPred] = useState(false)
   const [showResetScore, setShowResetScore] = useState(false)
+  const [showResetPasswordDni, setShowResetPasswordDni] = useState(false)
+  const [resetPasswordDniConfirm, setResetPasswordDniConfirm] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteReason, setDeleteReason] = useState('')
 
@@ -353,6 +356,9 @@ export function AdminUserDetailDrawer({ user, initialTab = 'summary', onClose, o
                   Desbloquear
                 </PremiumButton>
               )}
+              <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => setShowResetPasswordDni(true)}>
+                Restablecer clave a DNI
+              </PremiumButton>
               <PremiumButton size="sm" variant="ghost" disabled={busy} onClick={() => runAction(() => adminForcePasswordChange(u.id), 'Cambio de contraseña forzado')}>
                 Forzar cambio clave
               </PremiumButton>
@@ -450,6 +456,29 @@ export function AdminUserDetailDrawer({ user, initialTab = 'summary', onClose, o
         busy={busy}
         onCancel={() => { setShowPromote(false); setPromoteConfirm('') }}
         onConfirm={() => runAction(async () => { await adminSetUserRole(u.id, 'admin'); setShowPromote(false); setPromoteConfirm('') }, 'Promovido a admin')}
+      />
+
+      <AdminConfirmModal
+        open={showResetPasswordDni}
+        title="Restablecer contraseña a DNI"
+        description={
+          <p>
+            <strong>{u.full_name}</strong> podrá entrar con su email y su DNI como contraseña (solo números).
+            Se pierde la clave personalizada que haya elegido.
+          </p>
+        }
+        confirmLabel="Restablecer a DNI"
+        confirmPhrase="RESTABLECER DNI"
+        confirmValue={resetPasswordDniConfirm}
+        onConfirmValueChange={setResetPasswordDniConfirm}
+        reversible
+        busy={busy}
+        onCancel={() => { setShowResetPasswordDni(false); setResetPasswordDniConfirm('') }}
+        onConfirm={() => runAction(async () => {
+          await adminResetPasswordToDni(u.id)
+          setShowResetPasswordDni(false)
+          setResetPasswordDniConfirm('')
+        }, 'Contraseña restablecida al DNI')}
       />
 
       <AdminConfirmModal

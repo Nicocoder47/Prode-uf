@@ -462,6 +462,8 @@ export interface AdminUserDetail {
     created_at: string
     expires_at: string | null
     is_read: boolean
+    is_active?: boolean
+    target_type?: string
   }>
 }
 

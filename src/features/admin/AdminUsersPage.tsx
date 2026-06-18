@@ -4,7 +4,6 @@ import { Eraser, SlidersHorizontal } from 'lucide-react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
 import { useAdminUsers, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
-import { useAdminMobile } from '../../hooks/useAdminMobile.ts'
 import type { AdminUserRow } from '../../types/admin.ts'
 import { isTestUserEmail } from '../../utils/adminTestUser.ts'
 import {
@@ -19,7 +18,6 @@ import { AdminUsersFiltersSheet } from '../../components/admin/mobile/AdminUsers
 import { AdminUsersFiltersPanel } from '../../components/admin/AdminUsersFiltersPanel.tsx'
 import { EMPTY_ADMIN_USERS_FILTERS, countActiveAdminUserFilters } from '../../components/admin/AdminUsersFilterState.ts'
 import { AdminDeletedUsersRecovery, useAdminDeletedUsersPendingCount } from '../../components/admin/users/AdminDeletedUsersRecovery.tsx'
-import { AdminUserDetailPanel } from '../../components/admin/users/AdminUserDetailPanel.tsx'
 import { AdminUserDetailSheet } from '../../components/admin/users/AdminUserDetailSheet.tsx'
 import { AdminUsersPager } from '../../components/admin/users/AdminUsersPager.tsx'
 import { AdminUsersTabs, type AdminUsersTab } from '../../components/admin/users/AdminUsersTabs.tsx'
@@ -38,13 +36,12 @@ function isTestUser(u: AdminUserRow) {
 }
 
 export default function AdminUsersPage() {
-  const isMobile = useAdminMobile()
   const { data: users = [], isLoading, error, refetch } = useAdminUsers()
   const { invalidateUsers, invalidateBetaOverview, invalidateDashboard } = useInvalidateAdmin()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
-  const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
+  const [detailOpen, setDetailOpen] = useState(false)
   const [page, setPage] = useState(0)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<AdminUsersTab>('all')
@@ -129,8 +126,8 @@ export default function AdminUsersPage() {
     const found = users.find(u => u.id === userId)
     if (!found) return
     setSelectedUserId(found.id)
-    if (isMobile) setMobileSheetOpen(true)
-  }, [searchParams, users, isMobile])
+    setDetailOpen(true)
+  }, [searchParams, users])
 
   useEffect(() => {
     if (page > 0 && page >= totalPages) setPage(totalPages - 1)
@@ -158,7 +155,7 @@ export default function AdminUsersPage() {
     setPage(0)
     if (tab === 'recovery') {
       setSelectedUserId(null)
-      setMobileSheetOpen(false)
+      setDetailOpen(false)
       setSearchParams({})
     }
   }
@@ -202,15 +199,15 @@ export default function AdminUsersPage() {
     applyFilterPatch({ [key]: EMPTY_ADMIN_USERS_FILTERS[key as keyof typeof EMPTY_ADMIN_USERS_FILTERS] } as Partial<typeof filterState>)
   }
 
-  function selectUser(u: AdminUserRow, openMobileSheet = false) {
+  function selectUser(u: AdminUserRow) {
     setSelectedUserId(u.id)
     setSearchParams({ userId: u.id })
-    if (openMobileSheet || isMobile) setMobileSheetOpen(true)
+    setDetailOpen(true)
   }
 
   function closeDetail() {
     setSelectedUserId(null)
-    setMobileSheetOpen(false)
+    setDetailOpen(false)
     setSearchParams({})
   }
 
@@ -230,68 +227,8 @@ export default function AdminUsersPage() {
     )
   }
 
-  const listContent = isLoading ? (
-    <p className="p-4 text-sm text-white/50">Cargando usuarios…</p>
-  ) : pageUsers.length === 0 ? (
-    <div className="admin-users-empty-premium">
-      <p className="admin-users-empty-premium__title">Sin resultados</p>
-      <p className="admin-users-empty-premium__hint">Probá otro término o limpiá los filtros.</p>
-      <PremiumButton size="sm" variant="ghost" onClick={resetFilters}>Limpiar filtros</PremiumButton>
-    </div>
-  ) : (
-    <div className="admin-users-split__list-inner">
-      <div className="admin-users-table-v2__wrap">
-        <table className="admin-users-table-v2 admin-users-table-v2--compact w-full text-left text-sm">
-          <thead>
-            <tr>
-              <th className="admin-users-table-v2__col-user">Usuario</th>
-              <th className="admin-users-table-v2__col-verify">Verificación</th>
-              <th className="admin-users-table-v2__col-action" aria-label="Acción" />
-            </tr>
-          </thead>
-          <tbody>
-            {pageUsers.map(u => {
-              const tone = adminUserToneRowClass(u)
-              const isSelected = selectedUserId === u.id
-              return (
-                <tr
-                  key={u.id}
-                  className={`${tone}${isSelected ? ' is-selected' : ''}`}
-                  onClick={() => selectUser(u)}
-                >
-                  <td className="admin-users-table-v2__col-user">
-                    <p className="admin-users-table-v2__name">{u.full_name}</p>
-                    <p className="admin-users-table-v2__sub">{u.email}</p>
-                    <p className="admin-users-table-v2__meta">
-                      Legajo {u.legajo ?? '—'} · DNI {u.dni_masked} · {getAccountStateLabel(u)}
-                    </p>
-                  </td>
-                  <td className="admin-users-table-v2__col-verify">
-                    <span className={`admin-users-table-v2__verification admin-users-table-v2__verification--${tone.replace('admin-user-tone--', '')}`}>
-                      {getVerificationListLabel(u)}
-                    </span>
-                  </td>
-                  <td className="admin-users-table-v2__col-action">
-                    <button
-                      type="button"
-                      className="admin-users-table-v2__action"
-                      onClick={e => { e.stopPropagation(); selectUser(u) }}
-                    >
-                      Ver
-                    </button>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-      <AdminUsersPager {...pagerProps} />
-    </div>
-  )
-
   return (
-    <div className="admin-users-page">
+    <div className="admin-users-page admin-users-page--scroll">
       <header className="admin-users-page__header admin-users-desktop-only">
         <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Identidad</p>
         <h2 className="text-xl font-extrabold text-white md:text-2xl">Usuarios</h2>
@@ -386,7 +323,7 @@ export default function AdminUsersPage() {
               key={u.id}
               user={u}
               selected={selectedUserId === u.id}
-              onViewDetails={() => selectUser(u, true)}
+              onViewDetails={() => selectUser(u)}
             />
           ))
         )}
@@ -400,31 +337,79 @@ export default function AdminUsersPage() {
       </>
       )}
 
-      {/* Desktop: split list + fixed detail panel */}
-      <div className={`admin-users-split${isRecoveryTab ? ' admin-users-split--recovery' : ''}`}>
-        <div className="admin-users-split__list">
-          {isRecoveryTab ? <AdminDeletedUsersRecovery /> : listContent}
+      {isRecoveryTab && (
+        <div className="admin-users-desktop-only">
+          <PremiumCard className="admin-users-recovery-card">
+            <AdminDeletedUsersRecovery />
+          </PremiumCard>
         </div>
-        {!isRecoveryTab && (
-        <aside className="admin-users-split__detail">
-          {selectedUser ? (
-            <AdminUserDetailPanel
-              user={selectedUser}
-              onClose={closeDetail}
-              onChanged={handleChanged}
-              variant="panel"
-            />
-          ) : (
-            <div className="admin-users-split__placeholder">
-              <p className="admin-users-split__placeholder-title">Detalle de usuario</p>
-              <p className="admin-users-split__placeholder-hint">Seleccioná un usuario de la lista o tocá «Ver detalles».</p>
-            </div>
-          )}
-        </aside>
-        )}
-      </div>
+      )}
 
-      {mobileSheetOpen && selectedUser && (
+      {!isRecoveryTab && (
+        <div className="admin-users-desktop-table admin-users-desktop-only">
+          {isLoading ? (
+            <p className="admin-users-desktop-table__loading">Cargando usuarios…</p>
+          ) : pageUsers.length === 0 ? (
+            <div className="admin-users-empty-premium">
+              <p className="admin-users-empty-premium__title">Sin resultados</p>
+              <p className="admin-users-empty-premium__hint">Probá otro término o limpiá los filtros.</p>
+              <PremiumButton size="sm" variant="ghost" onClick={resetFilters}>Limpiar filtros</PremiumButton>
+            </div>
+          ) : (
+            <>
+              <div className="admin-users-desktop-table__scroll">
+                <table className="admin-users-table-v2 admin-users-table-v2--full w-full text-left text-sm">
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Legajo</th>
+                      <th>DNI</th>
+                      <th>Estado</th>
+                      <th>Verificación</th>
+                      <th>Puntos</th>
+                      <th className="admin-users-table-v2__col-action">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageUsers.map(u => {
+                      const tone = adminUserToneRowClass(u)
+                      return (
+                        <tr key={u.id} className={tone}>
+                          <td className="admin-users-table-v2__col-user">
+                            <p className="admin-users-table-v2__name">{u.full_name}</p>
+                            <p className="admin-users-table-v2__sub">{u.email}</p>
+                          </td>
+                          <td className="admin-users-table-v2__col-narrow">{u.legajo ?? '—'}</td>
+                          <td className="admin-users-table-v2__col-narrow">{u.dni_masked}</td>
+                          <td className="admin-users-table-v2__col-status">{getAccountStateLabel(u)}</td>
+                          <td className="admin-users-table-v2__col-verify">
+                            <span className={`admin-users-table-v2__verification admin-users-table-v2__verification--${tone.replace('admin-user-tone--', '')}`}>
+                              {getVerificationListLabel(u)}
+                            </span>
+                          </td>
+                          <td className="admin-users-table-v2__col-narrow">{u.total_points}</td>
+                          <td className="admin-users-table-v2__col-action">
+                            <button
+                              type="button"
+                              className="admin-users-table-v2__details-btn"
+                              onClick={() => selectUser(u)}
+                            >
+                              Detalles
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <AdminUsersPager {...pagerProps} />
+            </>
+          )}
+        </div>
+      )}
+
+      {detailOpen && selectedUser && (
         <AdminUserDetailSheet
           user={selectedUser}
           onClose={closeDetail}

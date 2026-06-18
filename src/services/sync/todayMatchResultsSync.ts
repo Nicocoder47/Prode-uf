@@ -9,6 +9,7 @@ import {
   protectExistingScores,
   type MatchSyncDiagnostic,
 } from './matchSyncDiagnostics'
+import { fetchStaleLiveMatchRows } from './staleLiveMatchesSync'
 
 export type TodayMatchResultsSyncResult = {
   ok: boolean
@@ -76,7 +77,16 @@ export async function syncTodayMatchResultsFromApi(): Promise<TodayMatchResultsS
       }
     }
 
-    const rows = await provider.syncTodayMatchResults()
+    const todayRows = await provider.syncTodayMatchResults()
+    const staleRows = await fetchStaleLiveMatchRows(provider)
+    const mergedById = new Map<string, Record<string, unknown>>()
+    for (const row of todayRows as Record<string, unknown>[]) {
+      mergedById.set(String(row.provider_match_id), row)
+    }
+    for (const row of staleRows) {
+      mergedById.set(String(row.provider_match_id), row)
+    }
+    const rows = [...mergedById.values()]
     fetched = rows.length
 
     if (rows.length === 0) {

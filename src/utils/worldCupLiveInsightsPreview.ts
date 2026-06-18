@@ -135,10 +135,10 @@ export const LIVE_CARD_TYPE_META: Record<
 }
 
 const ORDER: WorldCupLiveCardType[] = [
+  'ranking_move',
   'played_matches',
   'next_match',
   'community_trend',
-  'ranking_move',
   'popular_match',
   'top_scorers',
   'your_progress',
@@ -211,6 +211,7 @@ export function buildLiveCardsPreviewFixtures(): WorldCupLiveInsightPayload[] {
       lines: [],
       leader: null,
       runnerUp: null,
+      thirdPlace: null,
       lore: toRankingLoreDisplay(
         buildRankingLoreFromLeaderboard(PREVIEW_LEADERBOARD, {
           ...DEFAULT_RANKING_LORE,

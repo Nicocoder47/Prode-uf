@@ -1,3 +1,4 @@
+import { adminFetch, isAdminApiAvailable } from '../../lib/adminApi'
 import { supabase } from '../../lib/supabase'
 import type {
   AdminActivityRow,
@@ -402,6 +403,33 @@ export async function adminSetRegistrationStatus(enabled: boolean) {
 export async function adminForcePasswordChange(userId: string) {
   const { error } = await supabase.rpc('admin_force_password_change', { p_user_id: userId })
   if (error) throw error
+}
+
+export async function adminResetPasswordToDni(userId: string) {
+  const { data, error } = await supabase.functions.invoke('admin-reset-password-dni', {
+    body: { user_id: userId },
+  })
+
+  if (!error) {
+    const payload = data as { ok?: boolean; error?: string } | null
+    if (payload?.error) throw new Error(payload.error)
+    if (payload?.ok) return
+    if (data == null) return
+  }
+
+  if (isAdminApiAvailable()) {
+    const res = await adminFetch(`/api/admin/users/${userId}/reset-password-dni`, { method: 'POST' })
+    if (!res.ok) {
+      const body = (await res.json().catch(() => ({}))) as { error?: string }
+      throw new Error(body.error ?? `HTTP ${res.status}`)
+    }
+    return
+  }
+
+  throw new Error(
+    error?.message ??
+      'No se pudo restablecer la clave. Desplegá la Edge Function admin-reset-password-dni en Supabase.',
+  )
 }
 
 export async function adminBlockUser(userId: string, reason: string) {

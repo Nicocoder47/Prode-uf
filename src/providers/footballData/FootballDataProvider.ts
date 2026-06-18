@@ -183,6 +183,12 @@ export class FootballDataProvider {
     return rows;
   }
 
+  static async fetchMatchByProviderId(providerMatchId: string): Promise<DbMatchRow | null> {
+    const { data } = await footballDataGet<Record<string, unknown>>(`/matches/${providerMatchId}`)
+    const teamMap = await getTeamUuidMap()
+    return normalizeFootballDataMatch(data, teamMap, TBD_TEAM_ID)
+  }
+
   static async syncTodayMatchResults(): Promise<DbMatchRow[]> {
     const day = todayInArgentina();
     const path = `${this.getCompetitionPath()}/matches?dateFrom=${day}&dateTo=${day}`;

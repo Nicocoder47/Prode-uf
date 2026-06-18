@@ -41,9 +41,21 @@ function writeFallback(alert: GlobalAppAlert) {
   }
 }
 
+function normalizeRpcJson(data: unknown): unknown {
+  if (typeof data === 'string') {
+    try {
+      return JSON.parse(data) as unknown
+    } catch {
+      return null
+    }
+  }
+  return data
+}
+
 function parseActiveAlert(data: unknown): GlobalAppAlert | null {
-  if (!data || typeof data !== 'object') return null
-  const row = data as Record<string, unknown>
+  const normalized = normalizeRpcJson(data)
+  if (!normalized || typeof normalized !== 'object') return null
+  const row = normalized as Record<string, unknown>
   if (row.is_active === false) return null
   const title = String(row.title ?? '').trim()
   const message = String(row.message ?? '').trim()
@@ -58,7 +70,8 @@ function parseActiveAlert(data: unknown): GlobalAppAlert | null {
 }
 
 function parseAdminAlert(data: unknown): GlobalAppAlert {
-  const row = (data && typeof data === 'object' ? data : {}) as Record<string, unknown>
+  const normalized = normalizeRpcJson(data)
+  const row = (normalized && typeof normalized === 'object' ? normalized : {}) as Record<string, unknown>
   return {
     kicker: String(row.kicker ?? 'Aviso importante'),
     title: String(row.title ?? ''),

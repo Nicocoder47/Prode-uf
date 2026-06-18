@@ -37,7 +37,7 @@ export function AdminUserMobileCard({ user, selected, onViewDetails }: Props) {
         <p className="admin-user-mobile-card-v2__login">Último login: {formatDate(user.last_login_at)}</p>
       </div>
       <button type="button" className="admin-user-mobile-card-v2__cta" onClick={onViewDetails}>
-        Ver detalles
+        Detalles
       </button>
     </article>
   )
