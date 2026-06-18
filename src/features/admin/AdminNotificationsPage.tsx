@@ -4,6 +4,7 @@ import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
 import { useAppToast } from '../../components/ui/ToastProvider.tsx'
 import { adminCreateNotification, adminSetNotificationActive } from '../../services/admin/adminService.ts'
 import { useAdminNotifications, useAdminUsers, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
+import { AdminGlobalAlertPanel } from './AdminGlobalAlertPanel.tsx'
 
 function formatDate(value: string | null) {
   if (!value) return '—'
@@ -60,6 +61,8 @@ export default function AdminNotificationsPage() {
         <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Comunicación</p>
         <h2 className="text-xl font-extrabold text-white md:text-2xl">Notificaciones</h2>
       </div>
+
+      <AdminGlobalAlertPanel />
 
       <PremiumCard title="Nueva notificación">
         <form className="space-y-3" onSubmit={handleCreate}>

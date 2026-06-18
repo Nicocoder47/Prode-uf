@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
 import { logUserLogin } from '../services/admin/adminService.ts'
+import { clearGlobalAlertDismiss } from '../utils/globalAlertSession.ts'
 import { supabase } from './supabase'
 import {
   clearPendingRegistration,
@@ -55,7 +56,7 @@ interface AuthContextValue {
   profile: Profile | null
   loading: boolean
   register: (input: AccessRegistrationInput) => Promise<AuthStepResult>
-  login: (email: string, dni: string) => Promise<AuthStepResult>
+  login: (email: string, password: string) => Promise<AuthStepResult>
   finalizeSessionProfile: (session: Session) => Promise<AuthStepResult | null>
   refreshProfile: () => Promise<void>
   signOut: () => Promise<void>
@@ -170,6 +171,12 @@ function validateRegistrationInput(input: AccessRegistrationInput): AuthStepResu
   if (!isValidPhone(phone)) return { status: 'error', message: mapRegistrationError('invalid_phone') }
 
   return null
+}
+
+function normalizeLoginPassword(raw: string): string {
+  const trimmed = raw.trim()
+  if (/^\d[\d.\s-]*$/.test(trimmed)) return normalizeDni(trimmed)
+  return trimmed
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -356,7 +363,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initSession()
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (event === 'SIGNED_OUT' || !nextSession) {
+        clearGlobalAlertDismiss()
+      }
       setSession(nextSession)
       setUser(nextSession?.user ?? null)
       if (!nextSession) {
@@ -484,24 +494,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return {
       status: 'success',
       message:
-        '¡Cuenta creada! Recordá: para entrar usás tu email y tu DNI (sin puntos) como contraseña.',
+        '¡Cuenta creada! Entrá con tu email y tu DNI. La primera vez te vamos a pedir una contraseña nueva.',
     }
   }
 
-  const login = async (emailRaw: string, dniRaw: string): Promise<AuthStepResult> => {
+  const login = async (emailRaw: string, passwordRaw: string): Promise<AuthStepResult> => {
     const email = emailRaw.trim().toLowerCase()
-    const dni = normalizeDni(dniRaw)
+    const password = normalizeLoginPassword(passwordRaw)
 
     if (!isValidEmail(email)) {
       return { status: 'error', message: mapRegistrationError('invalid_email') }
     }
-    if (!isValidDni(dni)) {
-      return { status: 'error', message: 'Ingresá tu DNI (7 u 8 dígitos).' }
+    if (!password || password.length < 4) {
+      return { status: 'error', message: 'Ingresá tu contraseña (o tu DNI si no la cambiaste).' }
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password: dni,
+      password,
     })
 
     if (error) {
@@ -509,14 +519,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (msg.includes('email not confirmed')) {
         return {
           status: 'error',
-          message: 'Confirmá tu email primero (revisá tu bandeja y spam). Después entrá con email + DNI.',
+          message: 'Confirmá tu email primero (revisá tu bandeja y spam). Después entrá con email y contraseña.',
         }
       }
       if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
         return {
           status: 'error',
-          message: 'Email o DNI incorrectos. Si es tu primera vez, registrate y confirmá el email.',
-          suggestRegister: true,
+          message:
+            'Email o contraseña incorrectos. Si nunca cambiaste tu clave, probá con tu DNI (solo números). Si la olvidaste, pedile al administrador que te la resetee.',
         }
       }
       return { status: 'error', message: mapSignInError(error.message) }
@@ -549,6 +559,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
+    clearGlobalAlertDismiss()
     await supabase.auth.signOut()
     setSession(null)
     setUser(null)

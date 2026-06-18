@@ -72,15 +72,30 @@ export function resolveCountryIso2(fifaCode?: string | null, countryCode?: strin
   return null
 }
 
+export type TeamFlagSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+
+const FLAGCDN_WIDTH: Record<TeamFlagSize, number> = {
+  xs: 80,
+  sm: 160,
+  md: 320,
+  lg: 640,
+  xl: 640,
+}
+
+function flagcdnUrl(iso2: string, width: number) {
+  return `https://flagcdn.com/w${width}/${iso2}.png`
+}
+
 /** URL de bandera real (prioriza flagcdn por país; fallback a URLs guardadas). */
 export function resolveTeamFlagUrl(
   flag?: string | null,
   crest?: string | null,
   countryCode?: string | null,
   fifaCode?: string | null,
+  size: TeamFlagSize = 'md',
 ): string | null {
   const iso2 = resolveCountryIso2(fifaCode, countryCode)
-  if (iso2) return `https://flagcdn.com/w160/${iso2}.png`
+  if (iso2) return flagcdnUrl(iso2, FLAGCDN_WIDTH[size])
 
   for (const value of [flag, crest]) {
     if (!value) continue
@@ -88,6 +103,24 @@ export function resolveTeamFlagUrl(
     if (/^https?:\/\//i.test(trimmed)) return trimmed
   }
   return null
+}
+
+/** Src set retina para banderas flagcdn. */
+export function resolveTeamFlagSrcSet(
+  _flag?: string | null,
+  _crest?: string | null,
+  countryCode?: string | null,
+  fifaCode?: string | null,
+  size: TeamFlagSize = 'md',
+): string | null {
+  const iso2 = resolveCountryIso2(fifaCode, countryCode)
+  if (!iso2) return null
+
+  const base = FLAGCDN_WIDTH[size]
+  const retina = Math.min(base * 2, 1280)
+  if (retina === base) return `${flagcdnUrl(iso2, base)} 1x`
+
+  return `${flagcdnUrl(iso2, base)} 1x, ${flagcdnUrl(iso2, retina)} 2x`
 }
 
 /** Resuelve URL de escudo/bandera sin exponer texto al usuario. */

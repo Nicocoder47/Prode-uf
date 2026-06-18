@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useMotionEnabled } from '../../utils/adaptiveMotion'
 import { ArrowRight } from 'lucide-react'
 import { TeamCrest } from './TeamCrest'
+import { PrizeImageLightbox } from './PrizeImageLightbox'
 import type { WorldCupLiveInsightPayload } from '../../utils/worldCupLiveInsights'
 import type { Match, Team } from '../../types/worldcup'
 import { resolveTeamFlagUrl, teamDisplayName } from '../../utils/teamDisplay'
@@ -47,12 +49,12 @@ function MatchFlags({ match }: { match: Match }) {
   return (
     <div className="wc26-live-card__teams">
       <div className="wc26-live-card__team">
-        <TeamCrest flag={match.homeTeam.flag} code={match.homeTeam.code} size="lg" />
+        <TeamCrest flag={match.homeTeam.flag} code={match.homeTeam.code} countryCode={match.homeTeam.countryCode} size="lg" />
         <span className="wc26-live-card__team-name">{teamDisplayName(match.homeTeam)}</span>
       </div>
       <span className="wc26-live-card__vs">vs</span>
       <div className="wc26-live-card__team">
-        <TeamCrest flag={match.awayTeam.flag} code={match.awayTeam.code} size="lg" />
+        <TeamCrest flag={match.awayTeam.flag} code={match.awayTeam.code} countryCode={match.awayTeam.countryCode} size="lg" />
         <span className="wc26-live-card__team-name">{teamDisplayName(match.awayTeam)}</span>
       </div>
     </div>
@@ -102,7 +104,7 @@ function TrendBars({
     <div className="wc26-live-card__bars">
       <div className="wc26-live-card__bar-row">
         <span className="wc26-live-card__bar-label">
-          <TeamCrest flag={homeTeam.flag} code={homeTeam.code} size="xs" />
+          <TeamCrest flag={homeTeam.flag} code={homeTeam.code} countryCode={homeTeam.countryCode} size="xs" />
           <span>{homeLabel}</span>
         </span>
         <div className="wc26-live-card__bar">
@@ -131,7 +133,7 @@ function TrendBars({
       </div>
       <div className="wc26-live-card__bar-row">
         <span className="wc26-live-card__bar-label">
-          <TeamCrest flag={awayTeam.flag} code={awayTeam.code} size="xs" />
+          <TeamCrest flag={awayTeam.flag} code={awayTeam.code} countryCode={awayTeam.countryCode} size="xs" />
           <span>{awayLabel}</span>
         </span>
         <div className="wc26-live-card__bar">
@@ -148,6 +150,14 @@ function TrendBars({
 }
 
 const TODAY_MATCHES_LIMIT = 4
+const PLAYED_MATCHES_LIMIT = 3
+
+function cardBodyClass(type: WorldCupLiveInsightPayload['type']): string {
+  if (type === 'ranking_move') return 'wc26-live-card__body wc26-live-card__body--stretch'
+  if (type === 'played_matches' || type === 'next_match') return 'wc26-live-card__body wc26-live-card__body--list'
+  if (type === 'community_trend') return 'wc26-live-card__body wc26-live-card__body--trend'
+  return 'wc26-live-card__body wc26-live-card__body--center'
+}
 
 function isResolvedTeam(team?: Team | null): boolean {
   if (!team) return false
@@ -205,7 +215,7 @@ function TodayMatchesList({
               <span className="wc26-live-card__today-time">{kickoff.time}</span>
               <div className="wc26-live-card__today-teams">
                 <span className="wc26-live-card__today-team">
-                  <TeamCrest flag={home.flag} code={home.code} size={crestSize} />
+                  <TeamCrest flag={home.flag} code={home.code} countryCode={home.countryCode} size={crestSize} />
                   <span className="wc26-live-card__today-name">{teamDisplayName(home)}</span>
                 </span>
                 <span
@@ -215,7 +225,7 @@ function TodayMatchesList({
                 </span>
                 <span className="wc26-live-card__today-team">
                   <span className="wc26-live-card__today-name">{teamDisplayName(away)}</span>
-                  <TeamCrest flag={away.flag} code={away.code} size={crestSize} />
+                  <TeamCrest flag={away.flag} code={away.code} countryCode={away.countryCode} size={crestSize} />
                 </span>
               </div>
               <span
@@ -246,7 +256,7 @@ function PlayedMatchesCardBody({
 }) {
   return (
     <>
-      <TodayMatchesList matches={card.matches} showTitle={false} solo limit={5} variant="played" />
+      <TodayMatchesList matches={card.matches} showTitle={false} solo limit={PLAYED_MATCHES_LIMIT} variant="played" />
       {card.cta ? (
         <button type="button" className="wc26-live-card__cta" onClick={() => onAction(card)}>
           {card.cta.label}
@@ -266,13 +276,84 @@ function NextMatchCardBody({
 }) {
   return (
     <>
-      <TodayMatchesList matches={card.todayMatches} showTitle={false} solo limit={12} />
+      <TodayMatchesList matches={card.todayMatches} showTitle={false} solo limit={TODAY_MATCHES_LIMIT} />
       {card.cta ? (
         <button type="button" className="wc26-live-card__cta" onClick={() => onAction(card)}>
           {card.cta.label}
           <ArrowRight className="h-3.5 w-3.5" />
         </button>
       ) : null}
+    </>
+  )
+}
+
+const PRIZE_IMAGE_SRC = '/foto%20primer%20premio.png'
+
+const PRIZE_CONFETTI = [
+  { x: '6%', size: '0.32rem', color: '#f8b91e', rotate: '18deg', delay: '0s', duration: '2.8s' },
+  { x: '14%', size: '0.28rem', color: '#ffffff', rotate: '-24deg', delay: '0.4s', duration: '3.1s' },
+  { x: '22%', size: '0.36rem', color: '#22c55e', rotate: '42deg', delay: '0.15s', duration: '2.6s' },
+  { x: '31%', size: '0.3rem', color: '#ef4444', rotate: '-8deg', delay: '0.55s', duration: '3.4s' },
+  { x: '40%', size: '0.34rem', color: '#f8b91e', rotate: '30deg', delay: '0.25s', duration: '2.9s' },
+  { x: '48%', size: '0.26rem', color: '#86efac', rotate: '-36deg', delay: '0.7s', duration: '3.2s' },
+  { x: '56%', size: '0.38rem', color: '#fde68a', rotate: '12deg', delay: '0.1s', duration: '2.7s' },
+  { x: '64%', size: '0.3rem', color: '#ffffff', rotate: '-18deg', delay: '0.45s', duration: '3s' },
+  { x: '72%', size: '0.33rem', color: '#22c55e', rotate: '48deg', delay: '0.35s', duration: '2.85s' },
+  { x: '80%', size: '0.29rem', color: '#f8b91e', rotate: '-12deg', delay: '0.6s', duration: '3.15s' },
+  { x: '88%', size: '0.35rem', color: '#fca5a5', rotate: '22deg', delay: '0.2s', duration: '2.75s' },
+  { x: '94%', size: '0.27rem', color: '#d4af37', rotate: '-30deg', delay: '0.5s', duration: '3.05s' },
+] as const
+
+function PrizeConfetti() {
+  return (
+    <div className="wc26-live-card__award-confetti" aria-hidden>
+      {PRIZE_CONFETTI.map((piece, index) => (
+        <span
+          key={index}
+          className="wc26-live-card__award-confetti-piece"
+          style={
+            {
+              '--x': piece.x,
+              '--size': piece.size,
+              '--color': piece.color,
+              '--rotate': piece.rotate,
+              '--delay': piece.delay,
+              '--duration': piece.duration,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  )
+}
+
+function HistoricalWinnersCardBody() {
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+
+  return (
+    <>
+      <div className="wc26-live-card__prize-stage">
+        <PrizeConfetti />
+        <button
+          type="button"
+          className="wc26-live-card__prize-thumb"
+          onClick={() => setLightboxOpen(true)}
+          aria-label="Ver imagen del premio en pantalla completa"
+        >
+          <img
+            src={PRIZE_IMAGE_SRC}
+            alt=""
+            className="wc26-live-card__prize-thumb-img"
+            loading="lazy"
+            decoding="async"
+          />
+        </button>
+      </div>
+      <PrizeImageLightbox
+        src={PRIZE_IMAGE_SRC}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </>
   )
 }
@@ -313,67 +394,7 @@ function CardBody({
       )
     }
     case 'ranking_move':
-      if (card.lore) {
-        return (
-          <div className="wc26-live-card__ranking-lore">
-            <p className="wc26-live-card__ranking-lore-headline">
-              <span className="wc26-live-card__ranking-lore-emoji" aria-hidden>
-                {card.lore.emoji}
-              </span>
-              {card.lore.headline}
-            </p>
-            {card.lore.subjectName ? (
-              <p className="wc26-live-card__ranking-lore-subject">{card.lore.subjectName}</p>
-            ) : null}
-            <p className="wc26-live-card__ranking-lore-points">{card.lore.subjectPoints} pts</p>
-            <p className="wc26-live-card__ranking-lore-body">{card.lore.body}</p>
-            {card.cta ? (
-              <button type="button" className="wc26-live-card__cta" onClick={() => onAction(card)}>
-                {card.cta.label}
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            ) : null}
-          </div>
-        )
-      }
-
-      return (
-        <>
-          {card.lines.length > 0 ? (
-            <ul className="wc26-live-card__lines wc26-live-card__lines--compact">
-              {card.lines.map(line => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-          ) : null}
-          <div className="wc26-live-card__ranking-podium">
-            {card.leader ? (
-              <div className="wc26-live-card__ranking-spot wc26-live-card__ranking-spot--leader">
-                <span className="wc26-live-card__ranking-pos">1°</span>
-                <p className="wc26-live-card__ranking-name">{card.leader.name}</p>
-                <p className="wc26-live-card__ranking-legajo">Legajo {card.leader.legajo}</p>
-                <p className="wc26-live-card__ranking-pts">{card.leader.points} pts</p>
-              </div>
-            ) : (
-              <p className="wc26-live-card__ranking-empty">Esperando movimientos</p>
-            )}
-            {card.runnerUp ? (
-              <div className="wc26-live-card__ranking-spot wc26-live-card__ranking-spot--second">
-                <span className="wc26-live-card__ranking-pos">2°</span>
-                <p className="wc26-live-card__ranking-name">{card.runnerUp.name}</p>
-                <p className="wc26-live-card__ranking-legajo">Legajo {card.runnerUp.legajo}</p>
-                <p className="wc26-live-card__ranking-pts">{card.runnerUp.points} pts</p>
-              </div>
-            ) : null}
-          </div>
-          {card.cta ? (
-            <button type="button" className="wc26-live-card__cta" onClick={() => onAction(card)}>
-              {card.cta.label}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          ) : null}
-        </>
-      )
+      return <HistoricalWinnersCardBody />
     case 'popular_match':
       return (
         <>
@@ -455,13 +476,21 @@ export function LiveInsightCard({ card, active = false, onPredict, className = '
       className={`wc26-live-card${active ? ' wc26-live-card--active' : ''} ${typeClass}${className ? ` ${className}` : ''}`}
     >
       <div className="wc26-live-card__inner">
-        <p className="wc26-live-card__kicker">
-          <span aria-hidden="true">{card.emoji}</span> {card.title}
-        </p>
-        {card.subtitle && card.type !== 'community_trend' ? (
-          <p className="wc26-live-card__subtitle">{card.subtitle}</p>
-        ) : null}
-        <CardBody card={card} onAction={handleAction} />
+        {card.type === 'ranking_move' ? (
+          <HistoricalWinnersCardBody />
+        ) : (
+          <>
+            <p className="wc26-live-card__kicker">
+              <span aria-hidden="true">{card.emoji}</span> {card.title}
+            </p>
+            {card.subtitle && card.type !== 'community_trend' ? (
+              <p className="wc26-live-card__subtitle">{card.subtitle}</p>
+            ) : null}
+            <div className={cardBodyClass(card.type)}>
+              <CardBody card={card} onAction={handleAction} />
+            </div>
+          </>
+        )}
       </div>
       <div className="wc26-live-card__watermark" aria-hidden="true" />
     </article>

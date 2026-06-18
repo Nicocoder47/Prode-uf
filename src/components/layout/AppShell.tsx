@@ -3,6 +3,7 @@ import { NavLink, useLocation, Link } from 'react-router-dom'
 import { Home, ShieldCheck, Shield, Play, Trophy, User } from 'lucide-react'
 import { NotificationBell } from '../notifications/NotificationBell.tsx'
 import { NotificationTicker } from '../notifications/NotificationTicker.tsx'
+import { GlobalAppAlertHost } from '../notifications/GlobalAppAlertHost.tsx'
 import { useAuth } from '../../lib/auth.tsx'
 import { BottomNavigation } from '../worldcup/BottomNavigation'
 import { SeccionalLogo } from './SeccionalLogo'
@@ -26,6 +27,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="wc26-screen text-wc26-text">
+      <GlobalAppAlertHost />
       <div className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col md:max-w-[1700px] md:px-6 md:py-4 lg:px-8">
         {!isHome && (
           <MobileTopHeader
