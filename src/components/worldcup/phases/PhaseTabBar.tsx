@@ -1,6 +1,5 @@
 import { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Lock } from 'lucide-react'
 import type { MatchStage } from '../../../types/worldcup'
 import { TOURNAMENT_PHASES } from '../../../constants/phases'
 import type { PhaseProgress } from '../../../constants/phases'
