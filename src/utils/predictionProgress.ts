@@ -1,5 +1,6 @@
-import type { Match, Prediction, Team } from '../types/worldcup'
+import type { Match, MatchStage, Prediction, Team } from '../types/worldcup'
 import { normalizeGroupId, WC26_GROUP_NAMES } from '../constants/groups'
+import { TOURNAMENT_PHASES } from '../constants/phases'
 
 /** Máximo por partido: marcador exacto 5 o resultado 3 */
 export const MAX_POINTS_PER_MATCH = 5
@@ -612,4 +613,47 @@ export function getAdjacentGroupId(
   if (idx < 0) return null
   const target = direction === 'next' ? idx + 1 : idx - 1
   return groups[target] ?? null
+}
+
+/* ══ Stage / Phase progress helpers ══ */
+
+export type StageProgress = {
+  stage: MatchStage
+  total: number
+  predicted: number
+  pending: number
+  complete: boolean
+}
+
+export function getMatchesByStage(matches: Match[], stage: MatchStage): Match[] {
+  return matches
+    .filter(m => m.stage === stage)
+    .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
+}
+
+export function computeStageProgress(
+  matches: Match[],
+  predictionIds: Set<string>,
+  stage: MatchStage,
+): StageProgress {
+  const stageMatches = getMatchesByStage(matches, stage)
+  const predicted = stageMatches.filter(m => predictionIds.has(m.id)).length
+  const pending = stageMatches.filter(
+    m => m.status === 'scheduled' && !m.isLocked && !predictionIds.has(m.id),
+  ).length
+  const total = stageMatches.length
+  return {
+    stage,
+    total,
+    predicted,
+    pending,
+    complete: total > 0 && pending === 0 && predicted > 0,
+  }
+}
+
+export function getAllStagesProgress(
+  matches: Match[],
+  predictionIds: Set<string>,
+): StageProgress[] {
+  return TOURNAMENT_PHASES.map(phase => computeStageProgress(matches, predictionIds, phase.id))
 }

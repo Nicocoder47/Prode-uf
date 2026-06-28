@@ -1,13 +1,15 @@
 import '../../styles/fixture.css'
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { FixtureBoard, FixtureGroupHub, MatchPredictionModal } from '../../components/worldcup'
-import { FixtureGameCenter } from '../../components/worldcup/fixture/FixtureGameCenter'
+import { AnimatePresence, motion } from 'framer-motion'
+import { MatchPredictionModal } from '../../components/worldcup'
+import { PhaseTabBar, PhaseProgressBar, GroupPhaseView, KnockoutPhaseView } from '../../components/worldcup/phases'
 import { DataState } from '../../components/ui/DataState'
 import { useWorldCupMatches, usePredictions, useLeaderboard } from '../../useWorldCupData'
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
 import { useTodayResultsSync } from '../../hooks/useTodayResultsSync.ts'
+import { computeAllPhasesProgress, getMatchesByStage } from '../../constants/phases'
 import {
   buildPredictionMap,
   computeGroupProgress,
@@ -17,7 +19,7 @@ import {
   groupMatches,
 } from '../../utils/predictionProgress'
 import { emptyStateMessage, EMPTY } from '../../utils/emptyState'
-import type { Match } from '../../types/worldcup'
+import type { Match, MatchStage } from '../../types/worldcup'
 
 export default function MatchesPage() {
   useTodayResultsSync()
@@ -26,12 +28,22 @@ export default function MatchesPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { user } = useAuth()
   const [predictMatch, setPredictMatch] = useState<Match | null>(null)
+
+  const activePhase = (searchParams.get('phase') as MatchStage) || 'group'
   const selectedGroup = searchParams.get('group')
+
+  const setActivePhase = (phase: MatchStage) => {
+    setPredictMatch(null)
+    const params: Record<string, string> = { phase }
+    if (phase === 'group' && selectedGroup) params.group = selectedGroup
+    setSearchParams(params)
+  }
 
   const setSelectedGroup = (groupId: string | null) => {
     if (groupId !== selectedGroup) setPredictMatch(null)
-    if (groupId) setSearchParams({ group: groupId })
-    else setSearchParams({})
+    const params: Record<string, string> = { phase: 'group' }
+    if (groupId) params.group = groupId
+    setSearchParams(params)
   }
 
   const { data: matches = [], isLoading, isError, error, refetch } = useWorldCupMatches()
@@ -42,9 +54,10 @@ export default function MatchesPage() {
   const overall = useMemo(() => computeOverallProgress(matches, predictionSet), [matches, predictionSet])
   const groupProgress = useMemo(() => computeGroupProgress(matches, predictionSet), [matches, predictionSet])
   const recommended = useMemo(() => getRecommendedGroup(groupProgress), [groupProgress])
+  const phasesProgress = useMemo(() => computeAllPhasesProgress(matches, predictionSet), [matches, predictionSet])
   const myPoints = useMemo(
     () => leaderboard.find(lb => lb.userId === user?.id)?.points ?? 0,
-    [leaderboard, user?.id]
+    [leaderboard, user?.id],
   )
 
   const openPredict = (match: Match) => {
@@ -53,14 +66,6 @@ export default function MatchesPage() {
       return
     }
     setPredictMatch(match)
-  }
-
-  const handleStartPredict = () => {
-    if (recommended?.groupId) {
-      setSelectedGroup(recommended.groupId)
-      return
-    }
-    document.getElementById('fixture-groups-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const handleCompletePredictions = () => {
@@ -79,7 +84,19 @@ export default function MatchesPage() {
     if (next) openPredict(next)
   }
 
-  const showGameCenter = user?.id && !selectedGroup && !isLoading && !isError
+  const getNextKnockoutMatch = (currentId: string): Match | null => {
+    if (activePhase === 'group') return null
+    const stageMs = getMatchesByStage(matches, activePhase)
+    const predictedIds = new Set([...predictions.map(p => p.matchId), currentId])
+    return stageMs.find(m =>
+      m.id !== currentId &&
+      m.status === 'scheduled' &&
+      !m.isLocked &&
+      !predictedIds.has(m.id) &&
+      m.homeTeam?.code?.toUpperCase() !== 'TBD' &&
+      m.awayTeam?.code?.toUpperCase() !== 'TBD',
+    ) ?? null
+  }
 
   const modal = predictMatch && (
     <MatchPredictionModal
@@ -96,95 +113,81 @@ export default function MatchesPage() {
           homeScore: payload.exactScore?.home ?? 0,
           awayScore: payload.exactScore?.away ?? 0,
         })
+        if (activePhase !== 'group') {
+          const next = getNextKnockoutMatch(predictMatch.id)
+          if (next) setTimeout(() => setPredictMatch(next), 380)
+        }
       }}
     />
   )
 
   return (
     <>
-      <div className={`wc26-fixture-page md:hidden${selectedGroup ? ' wc26-fixture-page--group-fit' : ''}`}>
-        {!selectedGroup && showGameCenter ? (
-          <FixtureGameCenter
-            overall={overall}
-            predictions={predictions}
-            matches={matches}
-            points={myPoints}
-            onStartPredict={handleStartPredict}
-          />
-        ) : null}
+      <div className="wc26-phases-page">
+        {/* Hero header */}
+        <header className="wc26-phases-hero">
+          <p className="wc26-phases-hero__eyebrow">FIFA World Cup 2026</p>
+          <h1 className="wc26-phases-hero__title">Predicciones</h1>
+          <p className="wc26-phases-hero__subtitle">
+            {myPoints > 0 ? `${myPoints} puntos acumulados` : 'Predecí los resultados y sumá puntos'}
+          </p>
+        </header>
 
-        {isLoading && <DataState isLoading loadingMessage="Cargando fixture..." />}
+        {/* Phase TabBar */}
+        {!isLoading && matches.length > 0 && (
+          <PhaseTabBar
+            activePhase={activePhase}
+            onChangePhase={setActivePhase}
+            progress={phasesProgress}
+          />
+        )}
+
+        {/* Progress indicator */}
+        {user?.id && !isLoading && matches.length > 0 && (
+          <PhaseProgressBar progress={phasesProgress} />
+        )}
+
+        {/* Content */}
+        {isLoading && <DataState isLoading loadingMessage="Cargando partidos..." />}
         {(isError || error) && (
           <DataState isError errorMessage="No pudimos cargar los partidos." onRetry={() => refetch()} />
         )}
-        {!isLoading && !isError && (
-          <>
-            {selectedGroup ? (
-              <FixtureGroupHub
-                matches={matches}
-                predictions={predictions}
-                selectedGroup={selectedGroup}
-                recommendedGroupId={recommended?.groupId ?? null}
-                onSelectGroup={setSelectedGroup}
-                onPredict={openPredict}
-                onCompletePredictions={handleCompletePredictions}
-                showCompleteCta={overall.pending > 0}
-                activeMatchId={predictMatch?.id ?? null}
-              />
-            ) : (
-              <section id="fixture-groups-section" className="wc26-fgc-groups-section mt-4">
-                <FixtureGroupHub
+        {!isLoading && !isError && !error && matches.length === 0 && (
+          <DataState isEmpty emptyMessage={emptyStateMessage(EMPTY.matchesUpdating, 'npm run sync:fixtures')} />
+        )}
+
+        {!isLoading && !isError && matches.length > 0 && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activePhase}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="wc26-phases-content"
+            >
+              {activePhase === 'group' ? (
+                <GroupPhaseView
                   matches={matches}
                   predictions={predictions}
                   selectedGroup={selectedGroup}
                   recommendedGroupId={recommended?.groupId ?? null}
                   onSelectGroup={setSelectedGroup}
                   onPredict={openPredict}
+                  onCompletePredictions={handleCompletePredictions}
+                  showCompleteCta={overall.pending > 0}
+                  activeMatchId={predictMatch?.id ?? null}
                 />
-              </section>
-            )}
-          </>
-        )}
-
-      </div>
-
-      <div className="wc26-fixture-page hidden space-y-6 md:block">
-        {selectedGroup ? (
-          <div className="wc26-fixture-hero-header p-6">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#22C55E]">Centro del juego</p>
-            <h1 className="mt-1 text-3xl font-extrabold text-white">Grupo {selectedGroup}</h1>
-          </div>
-        ) : showGameCenter ? (
-          <FixtureGameCenter
-            overall={overall}
-            predictions={predictions}
-            matches={matches}
-            points={myPoints}
-            onStartPredict={handleStartPredict}
-          />
-        ) : null}
-
-        {isLoading && <DataState isLoading loadingMessage="Cargando partidos..." />}
-        {(isError || error) && (
-          <DataState isError errorMessage="Error al cargar partidos." onRetry={() => refetch()} />
-        )}
-        {!isLoading && !isError && !error && matches.length === 0 && (
-          <DataState isEmpty emptyMessage={emptyStateMessage(EMPTY.matchesUpdating, 'npm run sync:fixtures')} />
-        )}
-        {!isLoading && !isError && matches.length > 0 && (
-          <>
-            <FixtureGroupHub
-              matches={matches}
-              predictions={predictions}
-              selectedGroup={selectedGroup}
-              recommendedGroupId={recommended?.groupId ?? null}
-              onSelectGroup={setSelectedGroup}
-              onPredict={openPredict}
-            />
-            {!selectedGroup ? (
-              <FixtureBoard matches={matches} title="Calendario completo" onMatchClick={id => navigate(`/matches/${id}`)} />
-            ) : null}
-          </>
+              ) : (
+                <KnockoutPhaseView
+                  stage={activePhase}
+                  matches={matches}
+                  predictions={predictions}
+                  onPredict={openPredict}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         )}
       </div>
 

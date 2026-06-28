@@ -1705,3 +1705,580 @@
     -webkit-backdrop-filter: none !important;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   PHASES — Rediseño por fases del torneo
+   ══════════════════════════════════════════════════════════════════ */
+
+.wc26-phases-page {
+  color: var(--pm-nav-white, #f4f7fa);
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  padding-inline: 0.65rem;
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+}
+
+/* ── Hero ── */
+.wc26-phases-hero {
+  padding: 1.2rem 0.5rem 0.8rem;
+  text-align: center;
+}
+
+.wc26-phases-hero__eyebrow {
+  margin: 0;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #00E676, #00A3E0, #00E676);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: wc26-shimmer 3s linear infinite;
+}
+
+@keyframes wc26-shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.wc26-phases-hero__title {
+  margin: 0.2rem 0 0;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 2px 20px rgba(0, 230, 118, 0.25), 0 4px 40px rgba(0, 163, 224, 0.15);
+  letter-spacing: -0.02em;
+}
+
+.wc26-phases-hero__subtitle {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  color: rgba(244, 247, 250, 0.5);
+  font-weight: 500;
+}
+
+@media (min-width: 768px) {
+  .wc26-phases-hero {
+    padding: 1.8rem 1rem 1rem;
+  }
+  .wc26-phases-hero__title {
+    font-size: 2.5rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   PHASE TABBAR — Premium FIFA 2026
+   ══════════════════════════════════════════════════════ */
+.wc26-phase-tabbar-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  margin: 0 -0.65rem;
+  padding: 0.7rem 0.7rem 0.75rem;
+  background: linear-gradient(180deg, rgba(2, 8, 20, 0.97) 0%, rgba(4, 14, 30, 0.94) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(0, 200, 100, 0.12);
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(0, 200, 100, 0.08) inset;
+}
+
+.wc26-phase-tabbar {
+  display: flex;
+  gap: 0.28rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0.25rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.wc26-phase-tabbar::-webkit-scrollbar { display: none; }
+
+/* ── Tab base ── */
+.wc26-phase-tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  flex-shrink: 0;
+  min-width: 5rem;
+  padding: 0.7rem 0.85rem 0.65rem;
+  border-radius: 15px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+}
+
+.wc26-phase-tab:not(.wc26-phase-tab--locked):not(.wc26-phase-tab--active):hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+/* ── Animated active indicator ── */
+.wc26-phase-tab__indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: 15px;
+  background: linear-gradient(145deg,
+    rgba(0, 220, 120, 0.28) 0%,
+    rgba(0, 163, 224, 0.20) 60%,
+    rgba(0, 100, 200, 0.12) 100%
+  );
+  border: 1.5px solid rgba(0, 230, 118, 0.65);
+  box-shadow:
+    0 0 12px rgba(0, 230, 118, 0.45),
+    0 0 30px rgba(0, 163, 224, 0.22),
+    0 0 60px rgba(0, 230, 118, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* ── Icon ── */
+.wc26-phase-tab__icon {
+  position: relative;
+  z-index: 1;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+  filter: grayscale(0.5) brightness(0.7);
+}
+
+.wc26-phase-tab--active .wc26-phase-tab__icon {
+  filter: none;
+  transform: scale(1.15);
+  drop-shadow: 0 0 6px rgba(0, 230, 118, 0.8);
+}
+
+.wc26-phase-tab:not(.wc26-phase-tab--locked):not(.wc26-phase-tab--active):hover .wc26-phase-tab__icon {
+  filter: grayscale(0.1) brightness(0.9);
+  transform: scale(1.08);
+}
+
+.wc26-phase-tab--locked .wc26-phase-tab__icon {
+  filter: grayscale(1) brightness(0.5);
+  font-size: 0.9rem;
+}
+
+/* ── Label ── */
+.wc26-phase-tab__label {
+  position: relative;
+  z-index: 1;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color 0.18s ease;
+}
+
+.wc26-phase-tab--active .wc26-phase-tab__label {
+  color: #ffffff;
+  text-shadow: 0 0 12px rgba(0, 230, 118, 0.55), 0 1px 2px rgba(0,0,0,0.4);
+}
+
+.wc26-phase-tab:not(.wc26-phase-tab--locked):not(.wc26-phase-tab--active):hover .wc26-phase-tab__label {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ── Count badge ── */
+.wc26-phase-tab__count {
+  position: relative;
+  z-index: 1;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: rgba(0, 163, 224, 0.7);
+  letter-spacing: 0.03em;
+  background: rgba(0, 163, 224, 0.1);
+  padding: 0.05rem 0.3rem;
+  border-radius: 20px;
+  margin-top: 0.08rem;
+}
+
+.wc26-phase-tab--active .wc26-phase-tab__count {
+  color: #00ff88;
+  background: rgba(0, 230, 118, 0.15);
+  border: 1px solid rgba(0, 230, 118, 0.3);
+  text-shadow: 0 0 6px rgba(0, 230, 118, 0.6);
+}
+
+.wc26-phase-tab--done .wc26-phase-tab__count {
+  color: #00E676;
+  background: rgba(0, 230, 118, 0.12);
+  border: 1px solid rgba(0, 230, 118, 0.25);
+}
+
+/* ── Locked ── */
+.wc26-phase-tab--locked {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+.wc26-phase-tab--locked .wc26-phase-tab__label {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.wc26-phase-tab__soon {
+  position: relative;
+  z-index: 1;
+  font-size: 0.48rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-top: 0.05rem;
+}
+
+/* ── Phase Progress Bar ── */
+.wc26-phase-progress {
+  margin: 0.75rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.wc26-phase-progress__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.wc26-phase-progress__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wc26-phase-progress__percent {
+  font-size: 0.8rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #00A3E0, #00B140);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.wc26-phase-progress__bar {
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin-bottom: 0.65rem;
+}
+
+.wc26-phase-progress__fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #00A3E0, #00B140, #F8B91E);
+}
+
+.wc26-phase-progress__phases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.wc26-phase-progress__phase-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.wc26-phase-progress__phase-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.wc26-phase-progress__phase-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.wc26-phase-progress__phase-count--complete {
+  color: #00E676;
+}
+
+/* ── Phases Content ── */
+.wc26-phases-content {
+  margin-top: 0.75rem;
+}
+
+/* ── Knockout List (same style as GroupFixtureFit list) ── */
+.wc26-ko-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding-bottom: 1rem;
+}
+
+/* ── Knockout Grid (kept for backward compat) ── */
+.wc26-ko-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .wc26-ko-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .wc26-ko-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Knockout Match Card ── */
+.wc26-ko-card {
+  position: relative;
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wc26-ko-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.wc26-ko-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00A3E0, #00B140);
+  opacity: 0.6;
+}
+
+.wc26-ko-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.wc26-ko-card__status--available {
+  background: rgba(0, 163, 224, 0.15);
+  color: #4FC3F7;
+}
+
+.wc26-ko-card__status--predicted {
+  background: rgba(0, 230, 118, 0.12);
+  color: #69F0AE;
+}
+
+.wc26-ko-card__status--locked {
+  background: rgba(255, 152, 0, 0.12);
+  color: #FFB74D;
+}
+
+.wc26-ko-card__status--finished {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.wc26-ko-card__status--tbd {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.wc26-ko-card__teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.wc26-ko-card__team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.wc26-ko-card__team-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.wc26-ko-card__team-name--tbd {
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+}
+
+.wc26-ko-card__tbd-crest {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+}
+
+.wc26-ko-card__score {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin-top: 0.25rem;
+}
+
+.wc26-ko-card__vs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0 0.5rem;
+}
+
+.wc26-ko-card__countdown {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #F8B91E;
+  white-space: nowrap;
+}
+
+.wc26-ko-card__info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.wc26-ko-card__info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.wc26-ko-card__info-item--countdown {
+  color: #F8B91E;
+}
+
+.wc26-ko-card__predict-btn {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #00A3E0, #004B87);
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.wc26-ko-card__predict-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.wc26-ko-card__predict-btn:active {
+  transform: scale(0.98);
+}
+
+.wc26-ko-card__predict-btn--edit {
+  background: linear-gradient(135deg, rgba(0, 163, 224, 0.2), rgba(0, 75, 135, 0.3));
+  border: 1px solid rgba(0, 163, 224, 0.3);
+}
+
+/* ── Knockout Empty State ── */
+.wc26-ko-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+/* ── Responsive tweaks ── */
+@media (min-width: 768px) {
+  .wc26-phases-page {
+    max-width: 960px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  .wc26-phase-tabbar-wrapper {
+    margin: 0;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .wc26-phase-tab {
+    min-width: 5.5rem;
+    padding: 0.7rem 1rem;
+  }
+
+  .wc26-phase-tab__label {
+    font-size: 0.75rem;
+  }
+
+  .wc26-ko-card {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .wc26-phases-page [class*='wc26-ko-card'] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .wc26-phase-progress {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
