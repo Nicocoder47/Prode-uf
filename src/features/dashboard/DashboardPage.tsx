@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MOTION } from '../../constants/design'
+import { buildPlayMatchesUrl, resolveDefaultPlayPhase } from '../../constants/phases'
 import { AdaptiveSection } from '../../utils/adaptiveMotion'
 import {
   WorldCupHero,
@@ -15,7 +16,6 @@ import { useWorldCupLiveInsights } from '../../hooks/useWorldCupLiveInsights'
 import { useWorldCupMatches, useLeaderboard, usePredictions, useTopScorers } from '../../useWorldCupData'
 import { ENABLE_LIVE_INSIGHTS } from '../../config/betaMode'
 import { useAuth } from '../../lib/auth'
-import { useSavePrediction } from '../../hooks/useSavePrediction'
 import {
   computeGroupProgress,
   computeOverallProgress,
@@ -41,16 +41,11 @@ const HomeContinuePredicting = lazy(() =>
 const HomeGamificationPanel = lazy(() =>
   import('../../components/worldcup/HomeGameHub').then(m => ({ default: m.HomeGamificationPanel })),
 )
-const MatchPredictionModal = lazy(() =>
-  import('../../components/worldcup/MatchPredictionModal').then(m => ({ default: m.MatchPredictionModal })),
-)
 
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const currentUserId = user?.id
-  const savePrediction = useSavePrediction(currentUserId)
-  const [predictMatch, setPredictMatch] = useState<Match | null>(null)
   const phaseNow = useHomePhaseClock()
 
   const { data: matches = [] } = useWorldCupMatches()
@@ -106,6 +101,7 @@ export default function DashboardPage() {
   const nextMatch = nextResolved.predictMatch
   const featuredMatch = nextResolved.featuredMatch
   const heroMatch = useMemo(() => getHeroDisplayMatch(nextResolved), [nextResolved])
+  const defaultPlayPhase = useMemo(() => resolveDefaultPlayPhase(matches), [matches])
 
   useTodayResultsSync()
 
@@ -128,12 +124,14 @@ export default function DashboardPage() {
     )
   }, [liveCards, featuredMatch])
 
-  const openPredict = (match: Match) => {
+  const goToPlay = () => navigate(buildPlayMatchesUrl(defaultPlayPhase))
+
+  const goPredictMatch = (match: Match) => {
     if (!currentUserId) {
       navigate('/login')
       return
     }
-    setPredictMatch(match)
+    navigate(buildPlayMatchesUrl(match.stage, match.id))
   }
 
   const belowFoldGamification = currentUserId ? (
@@ -154,14 +152,14 @@ export default function DashboardPage() {
             countdownMatch={nextResolved.countdownMatch}
             phase={nextResolved.phase}
             nextMatch={heroMatch}
-            onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
+            onPredict={() => (nextMatch ? goPredictMatch(nextMatch) : goToPlay())}
             hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
           />
 
           <div className="wc26-content-sheet wc26-content-sheet--home mt-1 px-3 pb-3 pt-5">
             {deferHomeHeavy && ENABLE_LIVE_INSIGHTS && (
               <Suspense fallback={<HomeSectionSkeleton tall />}>
-                <WorldCupLiveCarousel cards={liveCardsResolved} onPredict={openPredict} />
+                <WorldCupLiveCarousel cards={liveCardsResolved} onPredict={goPredictMatch} />
               </Suspense>
             )}
 
@@ -193,13 +191,13 @@ export default function DashboardPage() {
           phase={nextResolved.phase}
           nextMatch={heroMatch}
           hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
-          onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
-          onFixture={() => navigate('/matches')}
+          onPredict={() => (nextMatch ? goPredictMatch(nextMatch) : goToPlay())}
+          onFixture={goToPlay}
         />
 
         {deferHomeHeavy && ENABLE_LIVE_INSIGHTS && (
           <Suspense fallback={<HomeSectionSkeleton tall />}>
-            <WorldCupLiveCarousel cards={liveCardsResolved} onPredict={openPredict} />
+            <WorldCupLiveCarousel cards={liveCardsResolved} onPredict={goPredictMatch} />
           </Suspense>
         )}
 
@@ -207,7 +205,7 @@ export default function DashboardPage() {
           match={featuredMatch}
           phase={nextResolved.phase}
           hasPrediction={nextMatch ? predictionSet.has(nextMatch.id) : false}
-          onPredict={() => (nextMatch ? openPredict(nextMatch) : navigate('/matches'))}
+          onPredict={() => (nextMatch ? goPredictMatch(nextMatch) : goToPlay())}
         />
 
         <Suspense fallback={<HomeSectionSkeleton tall />}>
@@ -221,29 +219,6 @@ export default function DashboardPage() {
         {deferHomeHeavy ? belowFoldGamification : null}
       </div>
 
-      {predictMatch && (
-        <Suspense fallback={null}>
-          <MatchPredictionModal
-            key={predictMatch.id}
-            match={predictMatch}
-            isOpen={!!predictMatch}
-            onClose={() => setPredictMatch(null)}
-            allMatches={matches}
-            onContinueNext={setPredictMatch}
-            existingPrediction={dbPredictions.find(p => p.matchId === predictMatch.id)}
-            onSave={async payload => {
-              await savePrediction.mutateAsync({
-                matchId: predictMatch.id,
-                homeScore: payload.exactScore?.home ?? 0,
-                awayScore: payload.exactScore?.away ?? 0,
-                etHomeScore: payload.etScore?.home ?? null,
-                etAwayScore: payload.etScore?.away ?? null,
-                penaltyWinner: payload.penaltyWinner ?? null,
-              })
-            }}
-          />
-        </Suspense>
-      )}
     </>
   )
 }

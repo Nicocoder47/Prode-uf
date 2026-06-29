@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { Home, Shield, Play, Trophy, User, type LucideIcon } from 'lucide-react'
+import { usePlayMatchesHref } from '../../hooks/usePlayMatchesHref'
 
 type NavItem = {
   to: string
@@ -17,6 +18,8 @@ const navItems: NavItem[] = [
 ]
 
 export function BottomNavigation() {
+  const playHref = usePlayMatchesHref()
+
   return (
     <nav
       className="wc26-bottom-nav fixed inset-x-0 bottom-0 z-50 md:hidden"
@@ -30,7 +33,7 @@ export function BottomNavigation() {
         {navItems.map(({ to, label, icon: Icon, featured }) => (
           <NavLink
             key={to}
-            to={to}
+            to={featured ? playHref : to}
             end={to === '/'}
             aria-label={featured ? 'Jugar — centro de partidos' : label}
             className={({ isActive }) =>

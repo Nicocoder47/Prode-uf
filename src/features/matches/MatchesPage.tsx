@@ -1,5 +1,5 @@
 import '../../styles/fixture.css'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { MatchPredictionModal } from '../../components/worldcup'
@@ -9,7 +9,7 @@ import { useWorldCupMatches, usePredictions, useLeaderboard } from '../../useWor
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
 import { useTodayResultsSync } from '../../hooks/useTodayResultsSync.ts'
-import { computeAllPhasesProgress } from '../../constants/phases'
+import { computeAllPhasesProgress, resolveDefaultPlayPhase } from '../../constants/phases'
 import {
   buildPredictionMap,
   computeGroupProgress,
@@ -29,8 +29,36 @@ export default function MatchesPage() {
   const { user } = useAuth()
   const [predictMatch, setPredictMatch] = useState<Match | null>(null)
 
-  const activePhase = (searchParams.get('phase') as MatchStage) || 'group'
+  const phaseParam = searchParams.get('phase') as MatchStage | null
+  const matchIdParam = searchParams.get('match')
   const selectedGroup = searchParams.get('group')
+
+  const { data: matches = [], isLoading, isError, error, refetch } = useWorldCupMatches()
+
+  const defaultPhase = useMemo(() => resolveDefaultPlayPhase(matches), [matches])
+  const activePhase = phaseParam ?? defaultPhase
+
+  useEffect(() => {
+    if (isLoading || matches.length === 0 || phaseParam) return
+    if (defaultPhase === 'group') return
+    const params: Record<string, string> = { phase: defaultPhase }
+    if (matchIdParam) params.match = matchIdParam
+    setSearchParams(params, { replace: true })
+  }, [isLoading, matches.length, phaseParam, defaultPhase, matchIdParam, setSearchParams])
+
+  useEffect(() => {
+    if (!matchIdParam || matches.length === 0) return
+    const match = matches.find(m => m.id === matchIdParam)
+    if (!match || predictMatch?.id === match.id) return
+    setPredictMatch(match)
+  }, [matchIdParam, matches, predictMatch?.id])
+
+  const clearMatchParam = () => {
+    if (!searchParams.get('match')) return
+    const params = Object.fromEntries(searchParams.entries())
+    delete params.match
+    setSearchParams(params)
+  }
 
   const setActivePhase = (phase: MatchStage) => {
     setPredictMatch(null)
@@ -46,7 +74,6 @@ export default function MatchesPage() {
     setSearchParams(params)
   }
 
-  const { data: matches = [], isLoading, isError, error, refetch } = useWorldCupMatches()
   const { data: predictions = [] } = usePredictions(user?.id)
   const { data: leaderboard = [] } = useLeaderboard()
   const savePrediction = useSavePrediction(user?.id)
@@ -66,6 +93,7 @@ export default function MatchesPage() {
       return
     }
     setPredictMatch(match)
+    setSearchParams({ phase: match.stage, match: match.id }, { replace: true })
   }
 
   const handleCompletePredictions = () => {
@@ -89,9 +117,15 @@ export default function MatchesPage() {
       key={predictMatch.id}
       match={predictMatch}
       isOpen={!!predictMatch}
-      onClose={() => setPredictMatch(null)}
+      onClose={() => {
+        setPredictMatch(null)
+        clearMatchParam()
+      }}
       allMatches={matches}
-      onContinueNext={setPredictMatch}
+      onContinueNext={next => {
+        setPredictMatch(next)
+        setSearchParams({ phase: next.stage, match: next.id })
+      }}
       existingPrediction={predictions.find(p => p.matchId === predictMatch.id)}
       onSave={async payload => {
         await savePrediction.mutateAsync({

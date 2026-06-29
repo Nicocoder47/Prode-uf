@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { buildPlayMatchesUrl } from '../../constants/phases'
+import { usePlayMatchesHref } from '../../hooks/usePlayMatchesHref'
 import { motion } from 'framer-motion'
 import { useMotionEnabled } from '../../utils/adaptiveMotion'
 import { ArrowRight } from 'lucide-react'
@@ -412,10 +414,15 @@ function CardBody({
 
 export function LiveInsightCard({ card, active = false, onPredict, className = '' }: LiveInsightCardProps) {
   const navigate = useNavigate()
+  const playHref = usePlayMatchesHref()
 
   const handleAction = (c: WorldCupLiveInsightPayload) => {
-    if (c.cta?.action === 'predict' && c.type === 'next_match') {
-      onPredict?.(c.match)
+    if (c.cta?.action === 'predict' && c.type === 'next_match' && c.match) {
+      if (onPredict) {
+        onPredict(c.match)
+        return
+      }
+      navigate(buildPlayMatchesUrl(c.match.stage, c.match.id))
       return
     }
     if (c.cta?.action === 'leaderboard') {
@@ -426,7 +433,7 @@ export function LiveInsightCard({ card, active = false, onPredict, className = '
       navigate('/login')
       return
     }
-    navigate('/matches')
+    navigate(playHref)
   }
 
   const typeClass = `wc26-live-card--${card.type}`

@@ -53,6 +53,29 @@ export function isPhaseUnlocked(stage: MatchStage, matches: Match[]): boolean {
   return matches.some(m => m.stage === stage && hasResolvedTeams(m))
 }
 
+/** Fase de grupos terminada: no quedan partidos programados ni en juego. */
+export function isGroupStageComplete(matches: Match[]): boolean {
+  const groupMatches = matches.filter(m => m.stage === 'group')
+  if (groupMatches.length === 0) return isPhaseUnlocked('round32', matches)
+  return !groupMatches.some(
+    m => m.status === 'scheduled' || m.status === 'live' || m.status === 'halftime',
+  )
+}
+
+/** Fase por defecto al entrar a Jugar (16avos si ya terminó la fase de grupos). */
+export function resolveDefaultPlayPhase(matches: Match[]): MatchStage {
+  if (isGroupStageComplete(matches) || isPhaseUnlocked('round32', matches)) {
+    return 'round32'
+  }
+  return 'group'
+}
+
+export function buildPlayMatchesUrl(phase: MatchStage, matchId?: string): string {
+  const params = new URLSearchParams({ phase })
+  if (matchId) params.set('match', matchId)
+  return `/matches?${params.toString()}`
+}
+
 export function getMatchesByStage(matches: Match[], stage: MatchStage): Match[] {
   return matches
     .filter(m => m.stage === stage)

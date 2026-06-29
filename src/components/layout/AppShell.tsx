@@ -7,6 +7,7 @@ import { useAuth } from '../../lib/auth.tsx'
 import { BottomNavigation } from '../worldcup/BottomNavigation'
 import { SeccionalLogo } from './SeccionalLogo'
 import { MobileTopHeader } from './MobileTopHeader'
+import { usePlayMatchesHref } from '../../hooks/usePlayMatchesHref'
 
 const navItems = [
   { to: '/', label: 'Inicio', icon: Home },
@@ -20,6 +21,7 @@ const navItems = [
 export function AppShell({ children }: { children: ReactNode }) {
   const { profile } = useAuth()
   const location = useLocation()
+  const playHref = usePlayMatchesHref()
   const isFixture = location.pathname === '/matches' || location.pathname.startsWith('/matches/')
   const isHome = location.pathname === '/'
   const navItemsToShow = profile?.role === 'admin' ? navItems : navItems.filter(item => item.to !== '/admin')
@@ -64,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {navItemsToShow.map(({ to, label, icon: Icon, featured }) => (
             <NavLink
               key={to}
-              to={to}
+              to={featured ? playHref : to}
               end={to === '/'}
               className={({ isActive }) =>
                 [
