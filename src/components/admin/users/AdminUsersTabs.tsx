@@ -1,15 +1,15 @@
-export type AdminUsersTab = 'all' | 'review' | 'verified' | 'recovery'
+export type AdminUsersTab = 'all' | 'review' | 'verified' | 'recovery' | 'login_issues'
 
 type TabDef = {
   id: AdminUsersTab
   label: string
   count: number
-  tone?: 'red' | 'green' | 'amber'
+  tone?: 'red' | 'green' | 'amber' | 'orange'
 }
 
 type Props = {
   active: AdminUsersTab
-  counts: { all: number; review: number; verified: number; recovery: number }
+  counts: { all: number; review: number; verified: number; recovery: number; login_issues: number }
   onChange: (tab: AdminUsersTab) => void
 }
 
@@ -18,6 +18,7 @@ export function AdminUsersTabs({ active, counts, onChange }: Props) {
     { id: 'all', label: 'Todos', count: counts.all },
     { id: 'review', label: 'En revisión', count: counts.review, tone: 'red' },
     { id: 'verified', label: 'Verificados', count: counts.verified, tone: 'green' },
+    { id: 'login_issues', label: 'Login con error', count: counts.login_issues, tone: 'orange' },
     { id: 'recovery', label: 'Recuperar', count: counts.recovery, tone: 'amber' },
   ]
 

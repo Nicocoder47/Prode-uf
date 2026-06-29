@@ -2,38 +2,52 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { supabase } from '../lib/supabase'
 import { worldCupKeys } from '../useWorldCupData'
+import {
+  isMissingExtendedSaveRpc,
+  isMissingLegacySaveRpc,
+  mapPredictionSaveError,
+  needsExtendedSave,
+  type SavePredictionInput,
+} from '../utils/predictionSaveErrors'
 
-export interface SavePredictionInput {
-  matchId: string
-  homeScore: number
-  awayScore: number
-}
+export type { SavePredictionInput }
 
 interface SavePredictionRpcResult {
   ok: boolean
   prediction?: Record<string, unknown>
 }
 
-function mapRpcError(message: string): string {
-  if (message.includes('not_authenticated')) {
-    return 'Debes iniciar sesión con tu email para predecir.'
+type RpcError = { message: string; code?: string | null }
+
+async function callExtendedSavePredictionRpc(
+  input: SavePredictionInput,
+): Promise<{ data: SavePredictionRpcResult | null; error: RpcError | null }> {
+  const res = await supabase.rpc('save_prediction', {
+    p_match_id: input.matchId,
+    p_score_home: input.homeScore,
+    p_score_away: input.awayScore,
+    p_et_score_home: input.etHomeScore ?? null,
+    p_et_score_away: input.etAwayScore ?? null,
+    p_penalty_winner: input.penaltyWinner ?? null,
+  })
+  return {
+    data: res.data as SavePredictionRpcResult | null,
+    error: res.error ? { message: res.error.message, code: res.error.code } : null,
   }
-  if (message.includes('account_inactive')) {
-    return 'Tu cuenta está deshabilitada. No podés predecir.'
+}
+
+async function callLegacySavePredictionRpc(
+  input: SavePredictionInput,
+): Promise<{ data: SavePredictionRpcResult | null; error: RpcError | null }> {
+  const res = await supabase.rpc('save_prediction', {
+    p_match_id: input.matchId,
+    p_score_home: input.homeScore,
+    p_score_away: input.awayScore,
+  })
+  return {
+    data: res.data as SavePredictionRpcResult | null,
+    error: res.error ? { message: res.error.message, code: res.error.code } : null,
   }
-  if (message.includes('password_change_required')) {
-    return 'Debés cambiar tu contraseña antes de predecir.'
-  }
-  if (message.includes('predictions_closed') || message.includes('kickoff')) {
-    return 'Las predicciones están cerradas para este partido.'
-  }
-  if (message.includes('prediction_locked')) {
-    return 'Esta predicción ya está cerrada y no se puede modificar.'
-  }
-  if (message.includes('invalid_scores')) {
-    return 'Marcador inválido. Ingresá goles entre 0 y 99.'
-  }
-  return message
 }
 
 export function useSavePrediction(userId?: string) {
@@ -45,17 +59,26 @@ export function useSavePrediction(userId?: string) {
         throw new Error('Debes iniciar sesión con tu email para predecir.')
       }
 
-      const { data, error } = await supabase.rpc('save_prediction', {
-        p_match_id: input.matchId,
-        p_score_home: input.homeScore,
-        p_score_away: input.awayScore,
-      })
+      let { data, error } = await callExtendedSavePredictionRpc(input)
 
-      if (error) throw new Error(mapRpcError(error.message))
+      if (error && isMissingExtendedSaveRpc(error)) {
+        if (needsExtendedSave(input)) {
+          throw new Error(mapPredictionSaveError(error.message))
+        }
+        const legacy = await callLegacySavePredictionRpc(input)
+        data = legacy.data
+        error = legacy.error
+      }
 
-      const result = data as SavePredictionRpcResult | null
+      if (error && isMissingLegacySaveRpc(error) && needsExtendedSave(input)) {
+        throw new Error(mapPredictionSaveError(error.message))
+      }
+
+      if (error) throw new Error(mapPredictionSaveError(error.message))
+
+      const result = data
       if (!result?.ok || !result.prediction) {
-        throw new Error('No se pudo guardar la predicción.')
+        throw new Error(mapPredictionSaveError('save_prediction_empty_response'))
       }
 
       return result.prediction

@@ -287,7 +287,7 @@ function NextMatchCardBody({
   )
 }
 
-const PRIZE_IMAGE_SRC = '/foto%20primer%20premio.png'
+const PRIZE_IMAGE_SRC = '/ganadores.png'
 
 function HistoricalWinnersCardBody() {
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -302,7 +302,7 @@ function HistoricalWinnersCardBody() {
       >
         <img
           src={PRIZE_IMAGE_SRC}
-          alt=""
+          alt="Ganadores Premios Cerveceros"
           className="wc26-live-card__prize-thumb-img"
           loading="eager"
           decoding="async"

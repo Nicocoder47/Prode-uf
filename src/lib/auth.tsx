@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { PUBLIC_DEMO_ACCESS } from '../config/publicAccess.ts'
+import { reportLoginAttempt } from './loginAudit.ts'
 import { logUserLogin } from '../services/admin/adminService.ts'
 import { clearGlobalAlertDismiss } from '../utils/globalAlertSession.ts'
 import { supabase } from './supabase'
@@ -460,6 +461,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (error) {
       const msg = error.message.toLowerCase()
+      void reportLoginAttempt({
+        email,
+        success: false,
+        errorCode: 'register_error',
+        errorMessage: error.message,
+        attemptType: 'register',
+      })
       if (msg.includes('already registered') || msg.includes('already been registered')) {
         return { status: 'error', message: mapRegistrationError('email_taken'), suggestLogin: true }
       }
@@ -516,6 +524,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (error) {
       const msg = error.message.toLowerCase()
+      void reportLoginAttempt({
+        email,
+        success: false,
+        errorCode: error.status?.toString() ?? 'auth_error',
+        errorMessage: error.message,
+        attemptType: 'login',
+      })
       if (msg.includes('email not confirmed')) {
         return {
           status: 'error',
@@ -537,10 +552,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const profileError = await finalizeSessionProfile(data.session)
-    if (profileError) return profileError
+    if (profileError) {
+      void reportLoginAttempt({
+        email,
+        success: false,
+        errorCode: 'profile_error',
+        errorMessage: profileError.message,
+        attemptType: 'login',
+      })
+      return profileError
+    }
 
     const activeError = await assertAccountActive(data.session.user.id)
-    if (activeError) return activeError
+    if (activeError) {
+      void reportLoginAttempt({
+        email,
+        success: false,
+        errorCode: 'account_disabled',
+        errorMessage: activeError.message,
+        attemptType: 'login',
+      })
+      return activeError
+    }
 
     try {
       await logUserLogin()
@@ -548,9 +581,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const msg = err instanceof Error ? err.message : ''
       if (msg.includes('account_disabled')) {
         await supabase.auth.signOut()
+        void reportLoginAttempt({
+          email,
+          success: false,
+          errorCode: 'account_disabled',
+          errorMessage: msg,
+          attemptType: 'login',
+        })
         return { status: 'error', message: mapRegistrationError('account_disabled') }
       }
     }
+
+    void reportLoginAttempt({ email, success: true, attemptType: 'login' })
 
     setSession(data.session)
     setUser(data.session.user)

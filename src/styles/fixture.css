@@ -1941,79 +1941,135 @@
 
 /* ── Phase Progress Bar ── */
 .wc26-phase-progress {
-  margin: 0.75rem 0;
-  padding: 0.85rem 1rem;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  margin: 0.5rem 0 0.65rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #00b140 0%, #008a33 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 18px rgba(0, 112, 43, 0.22);
+}
+
+.wc26-phase-progress--with-help {
+  padding: 0.6rem 0.75rem 0.65rem;
 }
 
 .wc26-phase-progress__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .wc26-phase-progress__title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #fff;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .wc26-phase-progress__percent {
-  font-size: 0.8rem;
-  font-weight: 800;
-  background: linear-gradient(90deg, #00A3E0, #00B140);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
 }
 
 .wc26-phase-progress__bar {
-  height: 4px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  margin-bottom: 0.65rem;
+}
+
+.wc26-phase-progress--with-help .wc26-phase-progress__bar {
+  margin-bottom: 0.5rem;
 }
 
 .wc26-phase-progress__fill {
   height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #00A3E0, #00B140, #F8B91E);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
-.wc26-phase-progress__phases {
+.wc26-phase-progress__help {
+  margin: 0;
+  padding: 0;
+}
+
+.wc26-phase-progress__chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1rem;
+  align-items: stretch;
+  gap: 0.35rem;
+  margin-bottom: 0.4rem;
 }
 
-.wc26-phase-progress__phase-item {
-  display: flex;
+.wc26-phase-progress__chip {
+  display: inline-flex;
+  flex: 1 1 calc(25% - 0.3rem);
+  min-width: 3.1rem;
+  flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  gap: 0.08rem;
+  padding: 0.35rem 0.25rem;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
-.wc26-phase-progress__phase-label {
-  font-size: 0.6rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.4);
+.wc26-phase-progress__chip--max {
+  background: rgba(0, 0, 0, 0.22);
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
-.wc26-phase-progress__phase-count {
-  font-size: 0.6rem;
+.wc26-phase-progress__chip-label {
+  font-size: 0.52rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.78);
 }
 
-.wc26-phase-progress__phase-count--complete {
-  color: #00E676;
+.wc26-phase-progress__n {
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.wc26-phase-progress__n--r90 {
+  color: #fde047;
+  text-shadow: 0 0 10px rgba(253, 224, 71, 0.45);
+}
+
+.wc26-phase-progress__n--et {
+  color: #7dd3fc;
+  text-shadow: 0 0 10px rgba(125, 211, 252, 0.4);
+}
+
+.wc26-phase-progress__n--pen {
+  color: #6ee7b7;
+  text-shadow: 0 0 10px rgba(110, 231, 183, 0.4);
+}
+
+.wc26-phase-progress__n--max {
+  font-size: 1.05rem;
+  color: #fff;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+}
+
+.wc26-phase-progress__hint {
+  margin: 0;
+  font-size: 0.58rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.82);
+  text-align: center;
+  text-wrap: balance;
 }
 
 /* ── Phases Content ── */

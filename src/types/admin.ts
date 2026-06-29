@@ -483,3 +483,52 @@ export interface AdminNotificationRow {
   target_user_name: string | null
   read_count: number
 }
+
+export interface AdminLoginIssuesSummary {
+  never_logged_in: number
+  likely_wrong_password: number
+  inactive_accounts: number
+  blocked_accounts: number
+  must_change_password: number
+  failed_attempts_24h: number
+  failed_attempts_7d: number
+  generated_at: string
+}
+
+export interface AdminLoginAtRiskUser {
+  id: string
+  full_name: string
+  email: string
+  dni_masked: string
+  legajo: string | null
+  last_login_at: string | null
+  password_changed_at: string | null
+  must_change_password: boolean
+  is_active: boolean
+  is_blocked: boolean
+  predictions_count: number
+  last_error_message: string | null
+  last_failed_at: string | null
+  failed_attempts_7d: number
+  issue_tags: string[]
+  priority: number
+}
+
+export interface AdminLoginFailureRow {
+  id: string
+  email: string
+  user_id: string | null
+  error_code: string | null
+  error_message: string | null
+  attempt_type: string
+  created_at: string
+  full_name: string | null
+  dni_masked: string | null
+  legajo: string | null
+}
+
+export interface AdminLoginIssuesReport {
+  summary: AdminLoginIssuesSummary
+  at_risk_users: AdminLoginAtRiskUser[]
+  recent_failures: AdminLoginFailureRow[]
+}

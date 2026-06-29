@@ -1,8 +1,11 @@
 import { useMemo, useState } from 'react'
 import { TeamProfileCard } from '../../components/worldcup/TeamProfileCard'
 import { useWorldCupTeams, useStandings, useAllPlayers, useWorldCupMatches } from '../../useWorldCupData'
-import { groupColor, normalizeGroupId } from '../../constants/groups'
+import { groupColor } from '../../constants/groups'
+import { WC26_PARTICIPANT_COUNT } from '../../constants/wc26Participants'
 import { computeTeamForm, computeTeamScoring } from '../../utils/teamAnalytics'
+import { teamDisplayName } from '../../utils/teamDisplay'
+import { buildTeamGroupMap, filterWc26Teams } from '../../utils/wc26Teams'
 import type { Player } from '../../types/worldcup'
 import { EMPTY } from '../../utils/emptyState'
 
@@ -13,13 +16,12 @@ export default function TeamsListPage() {
   const { data: players = [] } = useAllPlayers()
   const { data: matches = [] } = useWorldCupMatches()
 
-  const groupByTeam = useMemo(() => {
-    const map = new Map<string, string>()
-    for (const s of standings) {
-      if (s.teamId && s.groupLabel) map.set(s.teamId, normalizeGroupId(s.groupLabel))
-    }
-    return map
-  }, [standings])
+  const participantTeams = useMemo(() => filterWc26Teams(teams), [teams])
+
+  const groupByTeam = useMemo(
+    () => buildTeamGroupMap(standings, matches, participantTeams),
+    [standings, matches, participantTeams],
+  )
 
   const playersByTeam = useMemo(() => {
     const map = new Map<string, Player[]>()
@@ -40,9 +42,20 @@ export default function TeamsListPage() {
   }, [standings])
 
   const sortedTeams = useMemo(
-    () => [...teams].sort((a, b) => a.name.localeCompare(b.name)),
-    [teams]
+    () =>
+      [...participantTeams].sort((a, b) => {
+        const ga = groupByTeam.get(a.id) ?? 'Z'
+        const gb = groupByTeam.get(b.id) ?? 'Z'
+        if (ga !== gb) return ga.localeCompare(gb)
+        return teamDisplayName(a).localeCompare(teamDisplayName(b), 'es')
+      }),
+    [participantTeams, groupByTeam],
   )
+
+  const teamCountLabel =
+    participantTeams.length === WC26_PARTICIPANT_COUNT
+      ? `${WC26_PARTICIPANT_COUNT} equipos`
+      : `${participantTeams.length} equipos`
 
   const toggleTeam = (teamId: string) => {
     setExpandedId(current => (current === teamId ? null : teamId))
@@ -52,7 +65,7 @@ export default function TeamsListPage() {
     <div className="space-y-4 pb-3">
       <header className="wc26-page-header wc26-page-header--green wc26-page-header--teams">
         <p className="wc26-page-header__eyebrow">Selecciones</p>
-        <h1 className="text-2xl font-extrabold text-white md:text-3xl">48 equipos</h1>
+        <h1 className="text-2xl font-extrabold text-white md:text-3xl">{teamCountLabel}</h1>
         <p className="mt-1 text-sm text-white/85">Tocá una selección para ver plantel, DT y destacados</p>
       </header>
 
@@ -64,7 +77,7 @@ export default function TeamsListPage() {
 
       <div className="wc26-teams-grid grid grid-cols-2 gap-2 sm:gap-2.5 xl:grid-cols-3">
         {sortedTeams.map((team, i) => {
-          const group = groupByTeam.get(team.id) || normalizeGroupId(team.group) || '—'
+          const group = groupByTeam.get(team.id) || '—'
           const accent = group !== '—' ? groupColor(group) : '#006B3F'
           const teamPlayers = playersByTeam.get(team.id) ?? []
           const form = computeTeamForm(matches, team.id)

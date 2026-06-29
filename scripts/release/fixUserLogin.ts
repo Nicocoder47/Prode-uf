@@ -102,12 +102,14 @@ const { error: profileUpdateErr } = await service
   .update({
     must_change_password: false,
     password_changed_at: null,
+    is_active: true,
+    is_blocked: false,
     updated_at: new Date().toISOString(),
   })
   .eq('id', profile.id)
 
-if (profileUpdateErr) console.warn('No se pudo limpiar password_changed_at:', profileUpdateErr.message)
-else console.log('Perfil actualizado: must_change_password=false, password_changed_at=null')
+if (profileUpdateErr) console.warn('No se pudo actualizar perfil:', profileUpdateErr.message)
+else console.log('Perfil actualizado: clave=DNI, cuenta activa')
 
 const { error: signErr } = await anonClient.auth.signInWithPassword({
   email: profile.email.trim().toLowerCase(),

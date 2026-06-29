@@ -31,6 +31,8 @@ BEGIN
   SET
     must_change_password = false,
     password_changed_at = NULL,
+    is_active = true,
+    is_blocked = false,
     updated_at = now()
   WHERE id = p_user_id;
 

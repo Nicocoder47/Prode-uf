@@ -3081,6 +3081,12 @@
   color: #fde68a;
 }
 
+.admin-users-tabs__btn--orange.is-active {
+  border-color: rgba(251, 146, 60, 0.45);
+  background: rgba(251, 146, 60, 0.16);
+  color: #fdba74;
+}
+
 .admin-users-tabs__count {
   display: inline-flex;
   min-width: 1.15rem;
@@ -4861,5 +4867,110 @@
   border-color: #fecaca;
   background: #fef2f2;
   color: #b91c1c;
+}
+
+.admin-login-issues__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.admin-login-issues__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.admin-login-issues__stat--warn {
+  border-color: rgba(251, 146, 60, 0.35);
+  background: rgba(251, 146, 60, 0.08);
+}
+
+.admin-login-issues__stat-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.admin-login-issues__stat-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.admin-login-issues__table-wrap {
+  overflow-x: auto;
+}
+
+.admin-login-issues__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.admin-login-issues__table th,
+.admin-login-issues__table td {
+  padding: 0.55rem 0.45rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  vertical-align: top;
+  text-align: left;
+}
+
+.admin-login-issues__table th {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.admin-login-issues__tag {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  background: rgba(251, 146, 60, 0.15);
+  color: #fdba74;
+}
+
+.admin-login-issues__btn {
+  border-radius: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.admin-login-issues__btn--accent {
+  border-color: rgba(52, 211, 153, 0.35);
+  background: rgba(16, 185, 129, 0.12);
+  color: #6ee7b7;
+}
+
+.admin-login-issues__failures {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: 28rem;
+  overflow-y: auto;
+}
+
+.admin-login-issues__failure-row {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
 }
 

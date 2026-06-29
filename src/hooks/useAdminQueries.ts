@@ -13,6 +13,7 @@ import {
   fetchAdminSystemHealth,
   fetchAdminMatchSyncHealth,
   fetchAdminUserDetail,
+  fetchAdminLoginIssues,
   fetchAdminUsers,
   fetchAdminDeletedUsers,
   fetchMatchPredictionCounts,
@@ -30,6 +31,7 @@ import type {
   AdminSystemHealth,
   AdminMatchSyncHealth,
   AdminDeletedUserRow,
+  AdminLoginIssuesReport,
   AdminUserDetail,
   AdminUserRow,
 } from '../types/admin'
@@ -40,6 +42,7 @@ export const adminKeys = {
   betaCapacity: () => [...adminKeys.all, 'beta-capacity'] as const,
   betaOverview: () => [...adminKeys.all, 'beta-overview'] as const,
   users: () => [...adminKeys.all, 'users'] as const,
+  loginIssues: () => [...adminKeys.all, 'login-issues'] as const,
   deletedUsers: () => [...adminKeys.all, 'deleted-users'] as const,
   userDetail: (id: string) => [...adminKeys.all, 'user', id] as const,
   activity: (filters: string) => [...adminKeys.all, 'activity', filters] as const,
@@ -119,6 +122,15 @@ export function useAdminUsers() {
     queryKey: adminKeys.users(),
     queryFn: fetchAdminUsers,
     staleTime: 30_000,
+  })
+}
+
+export function useAdminLoginIssues() {
+  return useQuery<AdminLoginIssuesReport>({
+    queryKey: adminKeys.loginIssues(),
+    queryFn: fetchAdminLoginIssues,
+    staleTime: 20_000,
+    refetchInterval: 60_000,
   })
 }
 
@@ -202,6 +214,7 @@ export function useInvalidateAdmin() {
   return {
     invalidateAll: () => queryClient.invalidateQueries({ queryKey: adminKeys.all }),
     invalidateUsers: () => queryClient.invalidateQueries({ queryKey: adminKeys.users() }),
+    invalidateLoginIssues: () => queryClient.invalidateQueries({ queryKey: adminKeys.loginIssues() }),
     invalidateDeletedUsers: () => queryClient.invalidateQueries({ queryKey: adminKeys.deletedUsers() }),
     invalidateDashboard: () => queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() }),
     invalidateBetaOverview: () => queryClient.invalidateQueries({ queryKey: adminKeys.betaOverview() }),

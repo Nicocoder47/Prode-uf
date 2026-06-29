@@ -285,6 +285,9 @@ export default function MatchDetailPage() {
               matchId: activeMatch.id,
               homeScore: payload.exactScore.home,
               awayScore: payload.exactScore.away,
+              etHomeScore: payload.etScore?.home ?? null,
+              etAwayScore: payload.etScore?.away ?? null,
+              penaltyWinner: payload.penaltyWinner ?? null,
             })
           }}
         />

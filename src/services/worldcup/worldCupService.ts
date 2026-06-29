@@ -44,6 +44,7 @@ import type {
 
 import { WC26_GROUP_NAMES, normalizeGroupId } from '../../constants/groups';
 import { filterActiveLeaderboard } from '../../utils/leaderboardDisplay';
+import { filterWc26Teams } from '../../utils/wc26Teams';
 
 export type LiveMatchStatRow = {
   matchId: string
@@ -98,11 +99,11 @@ export const worldCupService = {
 
   getTeams: async (): Promise<Team[]> =>
     withFootballApi(
-      () => footballApiClient.getTeams(),
+      () => footballApiClient.getTeams().then(filterWc26Teams),
       async () => {
         const { data, error } = await supabase.from('teams').select(TEAM_COLS).order('name');
         if (error) throw error;
-        return (data ?? []).map(row => mapDbTeamToTeam(asDbRow(row)));
+        return filterWc26Teams((data ?? []).map(row => mapDbTeamToTeam(asDbRow(row))));
       },
     ),
 

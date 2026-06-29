@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from 'node:fs';
-import { syncTeamGroupsFromStandings } from '../src/services/sync/syncTeamGroups';
+import { syncTeamGroups } from '../src/services/sync/syncTeamGroups';
 import { createNodeSupabaseClient } from './lib/supabaseNodeClient.js';
 
 function loadEnvFile(path: string) {
@@ -89,7 +89,7 @@ async function main() {
   if (tgErr) fail('teams.group_label not null', tgErr.message);
   else if ((nullCount ?? 0) === 0) pass('teams.group_label not null');
   else {
-    const updated = await syncTeamGroupsFromStandings();
+    const updated = await syncTeamGroups();
     const { count: after } = await supabase.from('teams').select('*', { count: 'exact', head: true }).is('group_label', null);
     if ((after ?? 0) === 0) pass('teams.group_label not null', `${updated} equipos actualizados`);
     else fail('teams.group_label not null', `${after} equipos sin grupo`);

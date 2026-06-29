@@ -9,7 +9,7 @@ import { useWorldCupMatches, usePredictions, useLeaderboard } from '../../useWor
 import { useAuth } from '../../lib/auth'
 import { useSavePrediction } from '../../hooks/useSavePrediction'
 import { useTodayResultsSync } from '../../hooks/useTodayResultsSync.ts'
-import { computeAllPhasesProgress, getMatchesByStage } from '../../constants/phases'
+import { computeAllPhasesProgress } from '../../constants/phases'
 import {
   buildPredictionMap,
   computeGroupProgress,
@@ -84,20 +84,6 @@ export default function MatchesPage() {
     if (next) openPredict(next)
   }
 
-  const getNextKnockoutMatch = (currentId: string): Match | null => {
-    if (activePhase === 'group') return null
-    const stageMs = getMatchesByStage(matches, activePhase)
-    const predictedIds = new Set([...predictions.map(p => p.matchId), currentId])
-    return stageMs.find(m =>
-      m.id !== currentId &&
-      m.status === 'scheduled' &&
-      !m.isLocked &&
-      !predictedIds.has(m.id) &&
-      m.homeTeam?.code?.toUpperCase() !== 'TBD' &&
-      m.awayTeam?.code?.toUpperCase() !== 'TBD',
-    ) ?? null
-  }
-
   const modal = predictMatch && (
     <MatchPredictionModal
       key={predictMatch.id}
@@ -112,11 +98,10 @@ export default function MatchesPage() {
           matchId: predictMatch.id,
           homeScore: payload.exactScore?.home ?? 0,
           awayScore: payload.exactScore?.away ?? 0,
+          etHomeScore: payload.etScore?.home ?? null,
+          etAwayScore: payload.etScore?.away ?? null,
+          penaltyWinner: payload.penaltyWinner ?? null,
         })
-        if (activePhase !== 'group') {
-          const next = getNextKnockoutMatch(predictMatch.id)
-          if (next) setTimeout(() => setPredictMatch(next), 380)
-        }
       }}
     />
   )
@@ -144,7 +129,7 @@ export default function MatchesPage() {
 
         {/* Progress indicator */}
         {user?.id && !isLoading && matches.length > 0 && (
-          <PhaseProgressBar progress={phasesProgress} />
+          <PhaseProgressBar progress={phasesProgress} activePhase={activePhase} />
         )}
 
         {/* Content */}

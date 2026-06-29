@@ -54,6 +54,8 @@ export interface DbMatchRow {
   score_away: number | null;
   score_home_penalties: number | null;
   score_away_penalties: number | null;
+  score_home_after_et: number | null;
+  score_away_after_et: number | null;
   stadium: string | null;
   city: string | null;
   updated_at: string;
@@ -96,26 +98,41 @@ function extractFootballDataScores(
     | {
         fullTime?: { home?: number | null; away?: number | null };
         halfTime?: { home?: number | null; away?: number | null };
+        extraTime?: { home?: number | null; away?: number | null };
       }
     | undefined,
   mappedStatus: string,
-): { home: number | null; away: number | null } {
+): {
+  home: number | null;
+  away: number | null;
+  homeAfterEt: number | null;
+  awayAfterEt: number | null;
+} {
   const ftHome = score?.fullTime?.home;
   const ftAway = score?.fullTime?.away;
-  if (ftHome != null && ftAway != null) {
-    return { home: ftHome, away: ftAway };
+  const etHome = score?.extraTime?.home;
+  const etAway = score?.extraTime?.away;
+
+  let home: number | null = ftHome ?? null;
+  let away: number | null = ftAway ?? null;
+
+  if (home != null && away != null) {
+    const homeAfterEt =
+      etHome != null && etAway != null ? home + etHome : null;
+    const awayAfterEt =
+      etHome != null && etAway != null ? away + etAway : null;
+    return { home, away, homeAfterEt, awayAfterEt };
   }
 
-  // En vivo / entretiempo la API suele tener solo halfTime.
   if (mappedStatus === 'live' || mappedStatus === 'halftime') {
     const htHome = score?.halfTime?.home;
     const htAway = score?.halfTime?.away;
     if (htHome != null && htAway != null) {
-      return { home: htHome, away: htAway };
+      return { home: htHome, away: htAway, homeAfterEt: null, awayAfterEt: null };
     }
   }
 
-  return { home: ftHome ?? null, away: ftAway ?? null };
+  return { home, away, homeAfterEt: null, awayAfterEt: null };
 }
 
 export function mapFootballDataStatus(status: string): string {
@@ -208,11 +225,12 @@ export function normalizeFootballDataMatch(
   const score = raw.score as {
     fullTime?: { home?: number | null; away?: number | null };
     halfTime?: { home?: number | null; away?: number | null };
+    extraTime?: { home?: number | null; away?: number | null };
     penalties?: { home?: number | null; away?: number | null };
   } | undefined;
 
   const mappedStatus = mapFootballDataStatus(String(raw.status ?? 'SCHEDULED'));
-  const { home: scoreHome, away: scoreAway } = extractFootballDataScores(score, mappedStatus);
+  const { home: scoreHome, away: scoreAway, homeAfterEt, awayAfterEt } = extractFootballDataScores(score, mappedStatus);
 
   const group = extractGroupLabel(raw.group as string);
 
@@ -230,6 +248,8 @@ export function normalizeFootballDataMatch(
     score_away: scoreAway,
     score_home_penalties: score?.penalties?.home ?? null,
     score_away_penalties: score?.penalties?.away ?? null,
+    score_home_after_et: homeAfterEt,
+    score_away_after_et: awayAfterEt,
     stadium: typeof raw.venue === 'string' ? raw.venue : null,
     city: null,
     updated_at: new Date().toISOString(),

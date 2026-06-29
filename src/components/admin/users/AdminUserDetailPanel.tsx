@@ -84,6 +84,7 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
   const [showResetScore, setShowResetScore] = useState(false)
   const [showResetPasswordDni, setShowResetPasswordDni] = useState(false)
   const [resetPasswordDniConfirm, setResetPasswordDniConfirm] = useState('')
+  const [passwordResetDone, setPasswordResetDone] = useState<{ email: string; dni: string } | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteReason, setDeleteReason] = useState('')
 
@@ -140,7 +141,9 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
       showToast(message)
       if (closeAfter) onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error')
+      const message = err instanceof Error ? err.message : 'Error'
+      setError(message)
+      showToast(message, 'error')
     } finally {
       setBusy(false)
     }
@@ -516,10 +519,34 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
         busy={busy}
         onCancel={() => { setShowResetPasswordDni(false); setResetPasswordDniConfirm('') }}
         onConfirm={() => runAction(async () => {
-          await adminResetPasswordToDni(u.id)
+          const result = await adminResetPasswordToDni(u.id)
           setShowResetPasswordDni(false)
           setResetPasswordDniConfirm('')
+          setPasswordResetDone({
+            email: result.email || u.email,
+            dni: result.dni || u.dni_masked?.replace(/\D/g, '') || '',
+          })
         }, 'Contraseña restablecida al DNI')}
+      />
+
+      <AdminConfirmModal
+        open={Boolean(passwordResetDone)}
+        title="Clave restablecida correctamente"
+        description={
+          passwordResetDone ? (
+            <div className="space-y-2 text-sm">
+              <p>Decile a <strong>{u.full_name}</strong> que entre con estos datos:</p>
+              <p><strong>Email:</strong> {passwordResetDone.email}</p>
+              <p><strong>Contraseña:</strong> {passwordResetDone.dni} (solo números, sin puntos)</p>
+              <p className="text-amber-200/90">Si cambia la clave otra vez, va a dejar de funcionar el DNI.</p>
+            </div>
+          ) : null
+        }
+        confirmLabel="Entendido"
+        reversible
+        busy={false}
+        onCancel={() => setPasswordResetDone(null)}
+        onConfirm={() => setPasswordResetDone(null)}
       />
 
       <AdminConfirmModal

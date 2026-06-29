@@ -183,6 +183,9 @@ export default function PredictionsPage() {
           matchId: predictMatch.id,
           homeScore: payload.exactScore?.home ?? 0,
           awayScore: payload.exactScore?.away ?? 0,
+          etHomeScore: payload.etScore?.home ?? null,
+          etAwayScore: payload.etScore?.away ?? null,
+          penaltyWinner: payload.penaltyWinner ?? null,
         })
       }}
     />

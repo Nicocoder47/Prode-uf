@@ -54,7 +54,7 @@ export async function resetUserPasswordToDni(userId: string, actorAccessToken: s
 
   if (targetError) throw targetError
   if (!target) throw new Error('user_not_found')
-  if (target.deleted_at || target.is_active === false) throw new Error('account_disabled')
+  if (target.deleted_at) throw new Error('account_deleted')
   if (target.role === 'admin') throw new Error('cannot_reset_admin_password')
 
   const dni = normalizeDni(String(target.dni ?? ''))
@@ -79,5 +79,5 @@ export async function resetUserPasswordToDni(userId: string, actorAccessToken: s
   })
   if (markError) throw markError
 
-  return { ok: true, user_id: userId, email: target.email }
+  return { ok: true, user_id: userId, email: target.email, dni }
 }

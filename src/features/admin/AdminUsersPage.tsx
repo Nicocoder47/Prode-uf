@@ -3,7 +3,9 @@ import { useSearchParams } from 'react-router-dom'
 import { Eraser, SlidersHorizontal } from 'lucide-react'
 import { PremiumButton } from '../../components/ui/PremiumButton.tsx'
 import { PremiumCard } from '../../components/ui/PremiumCard.tsx'
-import { useAdminUsers, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
+import { useAdminUsers, useAdminLoginIssues, useInvalidateAdmin } from '../../hooks/useAdminQueries.ts'
+import { adminResetPasswordToDni } from '../../services/admin/adminService.ts'
+import { useAppToast } from '../../components/ui/ToastProvider.tsx'
 import type { AdminUserRow } from '../../types/admin.ts'
 import { isTestUserEmail } from '../../utils/adminTestUser.ts'
 import {
@@ -21,6 +23,7 @@ import { AdminDeletedUsersRecovery, useAdminDeletedUsersPendingCount } from '../
 import { AdminUserDetailSheet } from '../../components/admin/users/AdminUserDetailSheet.tsx'
 import { AdminUsersPager } from '../../components/admin/users/AdminUsersPager.tsx'
 import { AdminUsersTabs, type AdminUsersTab } from '../../components/admin/users/AdminUsersTabs.tsx'
+import { AdminLoginIssuesPanel } from '../../components/admin/users/AdminLoginIssuesPanel.tsx'
 
 const PAGE_SIZE = 25
 
@@ -37,7 +40,9 @@ function isTestUser(u: AdminUserRow) {
 
 export default function AdminUsersPage() {
   const { data: users = [], isLoading, error, refetch } = useAdminUsers()
-  const { invalidateUsers, invalidateBetaOverview, invalidateDashboard } = useInvalidateAdmin()
+  const { data: loginIssues } = useAdminLoginIssues()
+  const { invalidateUsers, invalidateLoginIssues, invalidateBetaOverview, invalidateDashboard } = useInvalidateAdmin()
+  const { showToast } = useAppToast()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
@@ -57,6 +62,7 @@ export default function AdminUsersPage() {
   const [testFilter, setTestFilter] = useState('')
   const [todayFilter, setTodayFilter] = useState(false)
   const [noLoginFilter, setNoLoginFilter] = useState(false)
+  const [resetBusyUserId, setResetBusyUserId] = useState<string | null>(null)
 
   const filterState = {
     reviewFilter,
@@ -102,7 +108,8 @@ export default function AdminUsersPage() {
     review: users.filter(u => getAdminUserVisualTone(u) === 'red').length,
     verified: users.filter(u => getAdminUserVisualTone(u) === 'green').length,
     recovery: recoveryCount,
-  }), [users, recoveryCount])
+    login_issues: loginIssues?.at_risk_users?.length ?? 0,
+  }), [users, recoveryCount, loginIssues?.at_risk_users?.length])
 
   const tabFiltered = useMemo(() => {
     if (activeTab === 'recovery') return []
@@ -119,6 +126,8 @@ export default function AdminUsersPage() {
   const pageUsers = tabFiltered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
   const selectedUser = users.find(u => u.id === selectedUserId) ?? null
   const isRecoveryTab = activeTab === 'recovery'
+  const isLoginIssuesTab = activeTab === 'login_issues'
+  const isSpecialTab = isRecoveryTab || isLoginIssuesTab
 
   useEffect(() => {
     const userId = searchParams.get('userId')
@@ -153,15 +162,41 @@ export default function AdminUsersPage() {
   function changeTab(tab: AdminUsersTab) {
     setActiveTab(tab)
     setPage(0)
-    if (tab === 'recovery') {
+    if (tab === 'recovery' || tab === 'login_issues') {
       setSelectedUserId(null)
       setDetailOpen(false)
       setSearchParams({})
     }
   }
 
+  async function handleResetPasswordDni(userId: string, name: string) {
+    if (!window.confirm(`¿Restablecer la contraseña de ${name} a su DNI?`)) return
+    setResetBusyUserId(userId)
+    try {
+      const result = await adminResetPasswordToDni(userId)
+      showToast(`Listo: ${name} entra con ${result.email} y DNI ${result.dni}`)
+      invalidateUsers()
+      invalidateLoginIssues()
+      invalidateBetaOverview()
+      invalidateDashboard()
+      refetch()
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'No se pudo restablecer la clave', 'error')
+    } finally {
+      setResetBusyUserId(null)
+    }
+  }
+
+  function openUserFromLoginIssues(userId: string) {
+    const found = users.find(u => u.id === userId)
+    if (!found) return
+    setActiveTab('all')
+    selectUser(found)
+  }
+
   function handleChanged() {
     invalidateUsers()
+    invalidateLoginIssues()
     invalidateBetaOverview()
     invalidateDashboard()
     refetch()
@@ -243,7 +278,7 @@ export default function AdminUsersPage() {
         </PremiumCard>
       )}
 
-      {!isRecoveryTab && (
+      {!isSpecialTab && (
       <div className="admin-users-mobile-toolbar admin-users-mobile-only sticky top-[calc(3.25rem+env(safe-area-inset-top))] z-20 -mx-1 space-y-2 border-b border-white/10 bg-[#041418]/95 px-1 py-2 backdrop-blur-xl">
         <input
           className="admin-users-mobile-toolbar__search"
@@ -283,7 +318,7 @@ export default function AdminUsersPage() {
         totalCount={users.length}
       />
 
-      {!isRecoveryTab && (
+      {!isSpecialTab && (
       <PremiumCard title="Filtros" description={`${tabFiltered.length} de ${users.length} usuarios`} className="admin-users-filters-card admin-users-desktop-only">
         <div className="mb-3 flex flex-wrap gap-2">
           <PremiumButton size="sm" variant="ghost" onClick={exportCsv}>Exportar CSV</PremiumButton>
@@ -303,6 +338,14 @@ export default function AdminUsersPage() {
           onClearAll={resetFilters}
         />
       </PremiumCard>
+      )}
+
+      {isLoginIssuesTab && (
+        <AdminLoginIssuesPanel
+          onSelectUser={openUserFromLoginIssues}
+          onResetPassword={handleResetPasswordDni}
+          busyUserId={resetBusyUserId}
+        />
       )}
 
       {isRecoveryTab ? (
@@ -345,7 +388,7 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {!isRecoveryTab && (
+      {!isSpecialTab && (
         <div className="admin-users-desktop-table admin-users-desktop-only">
           {isLoading ? (
             <p className="admin-users-desktop-table__loading">Cargando usuarios…</p>

@@ -106,6 +106,11 @@ export interface Match {
   status: MatchStatus;
   homeScore: number | null;     // <- matches.score_home
   awayScore: number | null;     // <- matches.score_away
+  /** Marcador acumulado al finalizar el alargue (solo eliminatorias). */
+  homeScoreAfterEt?: number | null;
+  awayScoreAfterEt?: number | null;
+  homePenalties?: number | null;
+  awayPenalties?: number | null;
   referee?: string | null;
   mvpPlayerId?: string | null;
   isLocked?: boolean;
@@ -133,6 +138,9 @@ export interface Prediction {
   // Campos crudos (para el modal de prediccion)
   predictedHomeScore?: number | null;  // <- predicted_score_home
   predictedAwayScore?: number | null;  // <- predicted_score_away
+  predictedEtHomeScore?: number | null;
+  predictedEtAwayScore?: number | null;
+  predictedPenaltyWinner?: 'home' | 'away' | null;
   predictedFirstScorerId?: string | null;
   predictedMvpId?: string | null;
   tokenCost?: number;

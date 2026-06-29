@@ -5,7 +5,6 @@ import { BackgroundProvider } from './components/layout/BackgroundProvider.tsx'
 import { ToastProvider } from './components/ui/ToastProvider.tsx'
 import { DeviceReporterBridge } from './components/layout/DeviceReporterBridge.tsx'
 import { SocialContactBar } from './components/layout/SocialContactBar.tsx'
-import { GlobalAppAlertHost } from './components/notifications/GlobalAppAlertHost.tsx'
 import ProtectedRoute from './routes/ProtectedRoute.tsx'
 import AdminRoute from './routes/AdminRoute.tsx'
 
@@ -65,7 +64,6 @@ function App() {
   return (
     <BackgroundProvider>
       <ToastProvider>
-        <GlobalAppAlertHost />
         <DeviceReporterBridge />
         <SocialContactBar />
         <Suspense fallback={<PageLoader />}>

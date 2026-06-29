@@ -1,9 +1,12 @@
 import type { Match, MatchStage, Prediction, Team } from '../types/worldcup'
 import { normalizeGroupId, WC26_GROUP_NAMES } from '../constants/groups'
 import { TOURNAMENT_PHASES } from '../constants/phases'
+import { maxPointsForMatch } from '../constants/knockoutScoring'
 
-/** Máximo por partido: marcador exacto 5 o resultado 3 */
+/** Máximo por partido en fase de grupos (exacto 5 / resultado 3). */
 export const MAX_POINTS_PER_MATCH = 5
+
+export { maxPointsForMatch }
 
 export type MatchPredictUiStatus = 'available' | 'predicted' | 'closed' | 'scored' | 'missed'
 
@@ -525,6 +528,25 @@ export function getNextGroupMatch(matches: Match[], current: Match): Match | nul
     .sort((a, b) => kickoffMs(a) - kickoffMs(b))
 
   return candidates.find(m => kickoffMs(m) > currentKick) ?? null
+}
+
+/** Siguiente partido programado de la misma fase eliminatoria. */
+export function getNextStageMatch(matches: Match[], current: Match): Match | null {
+  const currentKick = kickoffMs(current)
+  const candidates = getMatchesByStage(matches, current.stage).filter(
+    m =>
+      m.id !== current.id &&
+      m.status === 'scheduled' &&
+      !m.isLocked &&
+      hasResolvedTeams(m),
+  )
+  return candidates.find(m => kickoffMs(m) > currentKick) ?? candidates[0] ?? null
+}
+
+/** Siguiente partido al que el usuario puede continuar (grupo o misma fase). */
+export function getNextPredictableMatch(matches: Match[], current: Match): Match | null {
+  if (current.group) return getNextGroupMatch(matches, current)
+  return getNextStageMatch(matches, current)
 }
 
 export function getDaysUntilNextMatch(matches: Match[]): number | null {

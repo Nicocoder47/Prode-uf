@@ -153,8 +153,8 @@ function legajoLabel(entry: LeaderboardEntry): string {
   return entry.profile?.legajo?.trim() || '—'
 }
 
-/** Ganadores oficiales de premiación (solo card histórica). Orden: 1°, 2°, 3°. */
-export const HISTORICAL_WINNER_LEGAJOS = ['26861', '11855', '26211'] as const
+/** Ganadores oficiales Premios Cerveceros (solo card histórica). Orden: 1°, 2°. */
+export const HISTORICAL_WINNER_LEGAJOS = ['27317', '28886'] as const
 
 function buildHistoricalWinnersPodium(leaderboard: LeaderboardEntry[]): {
   leader: RankingPodiumEntry | null
@@ -476,7 +476,7 @@ export function buildWorldCupLiveInsights(input: BuildWorldCupLiveInsightsInput)
         id: 'ranking-move',
         type: 'ranking_move' as const,
         emoji: '🏆',
-        title: 'Ganadores históricos',
+        title: 'Ganadores Premios Cerveceros',
         lines: loreActive ? [] : buildRankingMoveLines(input.leaderboard, new Date(now)),
         leader: podium.leader,
         runnerUp: podium.runnerUp,

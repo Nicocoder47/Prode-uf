@@ -88,8 +88,8 @@ serve(async (req: Request) => {
   if (!target) {
     return json({ error: 'user_not_found' }, 404)
   }
-  if (target.deleted_at || target.is_active === false) {
-    return json({ error: 'account_disabled' }, 400)
+  if (target.deleted_at) {
+    return json({ error: 'account_deleted' }, 400)
   }
   if (target.role === 'admin') {
     return json({ error: 'cannot_reset_admin_password' }, 400)
@@ -130,6 +130,7 @@ serve(async (req: Request) => {
     ok: true,
     user_id: userId,
     email: target.email,
+    dni,
     mark: markData,
   })
 })

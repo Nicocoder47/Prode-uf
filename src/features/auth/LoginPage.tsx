@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/auth.tsx'
 import { supabase } from '../../lib/supabase.ts'
 import { normalizeDni, normalizeLegajo, normalizePhone, mapSignInError } from '../../utils/registration.ts'
+import { reportLoginAttempt } from '../../lib/loginAudit.ts'
 import { AuthField, AuthShell, AuthStatusMessage, type UiStatus } from './AuthShell.tsx'
 
 type AuthMode = 'register' | 'login'
@@ -143,7 +144,17 @@ export default function LoginPage() {
       }
     } catch (err) {
       setStatus('error')
-      setMessage(err instanceof Error ? err.message : 'No pudimos completar la operación. Intentá de nuevo.')
+      const message = err instanceof Error ? err.message : 'No pudimos completar la operación. Intentá de nuevo.'
+      if (mode === 'login' && cleanEmail) {
+        void reportLoginAttempt({
+          email: cleanEmail,
+          success: false,
+          errorCode: 'client_error',
+          errorMessage: message,
+          attemptType: 'login',
+        })
+      }
+      setMessage(message)
     }
   }
 

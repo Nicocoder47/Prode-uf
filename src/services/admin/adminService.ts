@@ -1,4 +1,5 @@
 import { adminFetch, isAdminApiAvailable } from '../../lib/adminApi'
+import { resolveSupabaseClientConfig } from '../../config/supabaseEnv.ts'
 import { supabase } from '../../lib/supabase'
 import type {
   AdminActivityRow,
@@ -19,6 +20,7 @@ import type {
   AdminTestUsersPreview,
   AdminUserDetail,
   AdminUserRow,
+  AdminLoginIssuesReport,
   AppNotification,
 } from '../../types/admin'
 import { ADMIN_RPC_FAIL_MESSAGE, shouldFailClosedOnAdminRpc } from '../../utils/adminFailClosed'
@@ -177,6 +179,12 @@ export async function fetchAdminUsers(): Promise<AdminUserRow[]> {
     if (error) throw error
     return unwrap<AdminUserRow[]>(data ?? [])
   }, fetchAdminUsersFallback)
+}
+
+export async function fetchAdminLoginIssues(): Promise<AdminLoginIssuesReport> {
+  const { data, error } = await supabase.rpc('admin_get_login_issues')
+  requireRpc(error, 'login_attempts_audit')
+  return unwrap<AdminLoginIssuesReport>(data)
 }
 
 export async function fetchAdminUserDetail(userId: string): Promise<AdminUserDetail> {
@@ -405,31 +413,57 @@ export async function adminForcePasswordChange(userId: string) {
   if (error) throw error
 }
 
-export async function adminResetPasswordToDni(userId: string) {
-  const { data, error } = await supabase.functions.invoke('admin-reset-password-dni', {
-    body: { user_id: userId },
+export type AdminResetPasswordResult = {
+  ok: true
+  email: string
+  dni: string
+}
+
+export async function adminResetPasswordToDni(userId: string): Promise<AdminResetPasswordResult> {
+  const { data: sessionData } = await supabase.auth.getSession()
+  const token = sessionData.session?.access_token
+  if (!token) {
+    throw new Error('Sesión expirada. Volvé a iniciar sesión como admin.')
+  }
+
+  const { url, anonKey } = resolveSupabaseClientConfig()
+  const res = await fetch(`${url}/functions/v1/admin-reset-password-dni`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      apikey: anonKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ user_id: userId }),
   })
 
-  if (!error) {
-    const payload = data as { ok?: boolean; error?: string } | null
-    if (payload?.error) throw new Error(payload.error)
-    if (payload?.ok) return
-    if (data == null) return
-  }
+  let payload = (await res.json().catch(() => null)) as {
+    ok?: boolean
+    error?: string
+    email?: string
+    dni?: string
+  } | null
 
-  if (isAdminApiAvailable()) {
-    const res = await adminFetch(`/api/admin/users/${userId}/reset-password-dni`, { method: 'POST' })
-    if (!res.ok) {
-      const body = (await res.json().catch(() => ({}))) as { error?: string }
-      throw new Error(body.error ?? `HTTP ${res.status}`)
+  if (!res.ok) {
+    if (isAdminApiAvailable()) {
+      const fallback = await adminFetch(`/api/admin/users/${userId}/reset-password-dni`, { method: 'POST' })
+      if (fallback.ok) {
+        const body = (await fallback.json().catch(() => ({}))) as { email?: string; dni?: string }
+        return { ok: true, email: body.email ?? '', dni: body.dni ?? '' }
+      }
     }
-    return
+    const detail = payload?.error ?? `HTTP ${res.status}`
+    throw new Error(typeof detail === 'string' ? detail : 'No se pudo restablecer la clave')
   }
 
-  throw new Error(
-    error?.message ??
-      'No se pudo restablecer la clave. Desplegá la Edge Function admin-reset-password-dni en Supabase.',
-  )
+  if (payload?.error) throw new Error(payload.error)
+  if (!payload?.ok) throw new Error('Respuesta inválida del servidor')
+
+  return {
+    ok: true,
+    email: payload.email ?? '',
+    dni: payload.dni ?? '',
+  }
 }
 
 export async function adminBlockUser(userId: string, reason: string) {
