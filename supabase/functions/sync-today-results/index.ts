@@ -84,6 +84,25 @@ type MatchRow = {
   updated_at: string
 }
 
+function extractFootballData90Score(score: {
+  regularTime?: { home?: number | null; away?: number | null }
+  fullTime?: { home?: number | null; away?: number | null }
+  halfTime?: { home?: number | null; away?: number | null }
+} | undefined, mappedStatus: string): { home: number | null; away: number | null } {
+  const rtHome = score?.regularTime?.home
+  const rtAway = score?.regularTime?.away
+  const ftHome = score?.fullTime?.home
+  const ftAway = score?.fullTime?.away
+  if (rtHome != null && rtAway != null) return { home: rtHome, away: rtAway }
+  if (ftHome != null && ftAway != null) return { home: ftHome, away: ftAway }
+  if (mappedStatus === 'live' || mappedStatus === 'halftime') {
+    const htHome = score?.halfTime?.home
+    const htAway = score?.halfTime?.away
+    if (htHome != null && htAway != null) return { home: htHome, away: htAway }
+  }
+  return { home: ftHome ?? null, away: ftAway ?? null }
+}
+
 async function fetchFootballDataToday(apiKey: string, wcCode: string, teamMap: Map<string, string>): Promise<MatchRow[]> {
   const day = todayInArgentina()
   const res = await fetch(
@@ -104,24 +123,12 @@ async function fetchFootballDataToday(apiKey: string, wcCode: string, teamMap: M
     if (!homeUuid || !awayUuid) continue
 
     const score = raw.score as {
+      regularTime?: { home?: number | null; away?: number | null }
       fullTime?: { home?: number | null; away?: number | null }
       halfTime?: { home?: number | null; away?: number | null }
     } | undefined
-    const ftHome = score?.fullTime?.home
-    const ftAway = score?.fullTime?.away
     const mappedStatus = mapFootballDataStatus(String(raw.status ?? 'SCHEDULED'))
-    const scoreHome =
-      ftHome != null && ftAway != null
-        ? ftHome
-        : mappedStatus === 'live' || mappedStatus === 'halftime'
-          ? (score?.halfTime?.home ?? null)
-          : (ftHome ?? null)
-    const scoreAway =
-      ftHome != null && ftAway != null
-        ? ftAway
-        : mappedStatus === 'live' || mappedStatus === 'halftime'
-          ? (score?.halfTime?.away ?? null)
-          : (ftAway ?? null)
+    const { home: scoreHome, away: scoreAway } = extractFootballData90Score(score, mappedStatus)
     const stage = String(raw.stage ?? raw.matchday ?? '')
 
     rows.push({
@@ -154,24 +161,12 @@ function normalizeFootballDataRawMatch(
   if (!homeUuid || !awayUuid) return null
 
   const score = raw.score as {
+    regularTime?: { home?: number | null; away?: number | null }
     fullTime?: { home?: number | null; away?: number | null }
     halfTime?: { home?: number | null; away?: number | null }
   } | undefined
-  const ftHome = score?.fullTime?.home
-  const ftAway = score?.fullTime?.away
   const mappedStatus = mapFootballDataStatus(String(raw.status ?? 'SCHEDULED'))
-  const scoreHome =
-    ftHome != null && ftAway != null
-      ? ftHome
-      : mappedStatus === 'live' || mappedStatus === 'halftime'
-        ? (score?.halfTime?.home ?? null)
-        : (ftHome ?? null)
-  const scoreAway =
-    ftHome != null && ftAway != null
-      ? ftAway
-      : mappedStatus === 'live' || mappedStatus === 'halftime'
-        ? (score?.halfTime?.away ?? null)
-        : (ftAway ?? null)
+  const { home: scoreHome, away: scoreAway } = extractFootballData90Score(score, mappedStatus)
   const stage = String(raw.stage ?? raw.matchday ?? '')
 
   return {

@@ -191,7 +191,12 @@ export async function syncTodayMatchResultsFromApi(): Promise<TodayMatchResultsS
       statsBundlesSynced,
     })
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
+    const msg =
+      err && typeof err === 'object' && 'message' in err
+        ? String((err as { message: unknown }).message)
+        : err instanceof Error
+          ? err.message
+          : JSON.stringify(err)
     errors.push(msg)
     logSyncPhase('today_results', { event: 'error', provider: providerName, error: msg })
   }

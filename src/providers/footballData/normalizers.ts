@@ -96,6 +96,7 @@ function teamCode(raw: { tla?: string; shortName?: string; name?: string; id?: n
 function extractFootballDataScores(
   score:
     | {
+        regularTime?: { home?: number | null; away?: number | null };
         fullTime?: { home?: number | null; away?: number | null };
         halfTime?: { home?: number | null; away?: number | null };
         extraTime?: { home?: number | null; away?: number | null };
@@ -108,13 +109,16 @@ function extractFootballDataScores(
   homeAfterEt: number | null;
   awayAfterEt: number | null;
 } {
+  const rtHome = score?.regularTime?.home;
+  const rtAway = score?.regularTime?.away;
   const ftHome = score?.fullTime?.home;
   const ftAway = score?.fullTime?.away;
   const etHome = score?.extraTime?.home;
   const etAway = score?.extraTime?.away;
 
-  let home: number | null = ftHome ?? null;
-  let away: number | null = ftAway ?? null;
+  // 90': regularTime en partidos con alargue/penales; fullTime en fase de grupos.
+  let home: number | null = rtHome ?? ftHome ?? null;
+  let away: number | null = rtAway ?? ftAway ?? null;
 
   if (home != null && away != null) {
     const homeAfterEt =

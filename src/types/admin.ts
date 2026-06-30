@@ -429,6 +429,9 @@ export interface AdminUserPredictionRow {
   match_id: string
   predicted_score_home: number | null
   predicted_score_away: number | null
+  predicted_et_score_home?: number | null
+  predicted_et_score_away?: number | null
+  predicted_penalty_winner?: 'home' | 'away' | null
   points: number
   status: string
   created_at: string
@@ -436,10 +439,20 @@ export interface AdminUserPredictionRow {
   scored_at?: string | null
   kick_off: string
   match_status: string
+  match_phase?: string | null
   result_home: number | null
   result_away: number | null
+  result_home_after_et?: number | null
+  result_away_after_et?: number | null
+  result_et_home?: number | null
+  result_et_away?: number | null
+  result_home_penalties?: number | null
+  result_away_penalties?: number | null
+  result_penalty_winner?: 'home' | 'away' | null
   home_team: string | null
   away_team: string | null
+  home_team_code?: string | null
+  away_team_code?: string | null
 }
 
 export interface AdminUserDetailPadron {

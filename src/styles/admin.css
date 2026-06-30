@@ -4289,14 +4289,87 @@
 
 .admin-user-detail-pred-row {
   display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: 0.25rem 0.5rem;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 0.35rem 0.5rem;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(0, 0, 0, 0.15);
-  padding: 0.4rem 0.55rem;
+  padding: 0.5rem 0.6rem;
   font-size: 0.7rem;
+}
+
+.admin-user-detail-pred-row__breakdown {
+  grid-column: 1 / 2;
+  min-width: 0;
+}
+
+.admin-pred-breakdown {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+}
+
+.admin-pred-breakdown__head {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 1fr 2.5rem;
+  gap: 0.35rem;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.admin-pred-breakdown__row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 1fr 2.5rem;
+  gap: 0.35rem;
+  align-items: center;
+  border-radius: 6px;
+  padding: 0.15rem 0.2rem;
+}
+
+.admin-pred-breakdown--compact .admin-pred-breakdown__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.45rem;
+}
+
+.admin-pred-breakdown__label {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.62rem;
+}
+
+.admin-pred-breakdown__pred,
+.admin-pred-breakdown__actual {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  color: #fff;
+}
+
+.admin-pred-breakdown__actual {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.admin-pred-breakdown__pts {
+  font-weight: 800;
+  font-size: 0.65rem;
+  color: #f5c451;
+  text-align: right;
+}
+
+.admin-pred-breakdown--compact .admin-pred-breakdown__pts {
+  text-align: left;
+}
+
+.admin-pred-breakdown__cell--hit {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.admin-pred-breakdown__cell--miss {
+  background: rgba(239, 68, 68, 0.08);
 }
 
 .admin-user-detail-pred-row__match {
@@ -4315,6 +4388,11 @@
 .admin-user-detail-pred-row__pts {
   font-weight: 800;
   color: rgba(245, 196, 81, 0.9);
+}
+
+.admin-user-detail-pred-row__pts--muted {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .admin-user-detail-audit-row {

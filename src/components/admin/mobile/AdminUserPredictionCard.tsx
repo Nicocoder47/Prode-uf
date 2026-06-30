@@ -1,5 +1,9 @@
 import { AlertTriangle } from 'lucide-react'
 import type { AdminUserPredictionRow } from '../../../types/admin'
+import {
+  formatAdminPredictionPoints,
+} from '../../../utils/adminPredictionDisplay'
+import { AdminPredictionBreakdown } from '../users/AdminPredictionBreakdown'
 
 type PredictionStatus = 'pending' | 'locked' | 'scored'
 
@@ -64,17 +68,9 @@ export function AdminUserPredictionCard({ prediction: p }: Props) {
           <span className="admin-pred-card__label">Estado partido</span>
           <span className="admin-pred-card__value">{matchLabel}</span>
         </div>
-        <div>
-          <span className="admin-pred-card__label">Predicción</span>
-          <span className="admin-pred-card__value admin-pred-card__value--mono">
-            {p.predicted_score_home ?? '—'} - {p.predicted_score_away ?? '—'}
-          </span>
-        </div>
-        <div>
-          <span className="admin-pred-card__label">Resultado real</span>
-          <span className="admin-pred-card__value admin-pred-card__value--mono">
-            {p.result_home != null ? `${p.result_home} - ${p.result_away}` : '—'}
-          </span>
+        <div className="admin-pred-card__span">
+          <span className="admin-pred-card__label">Desglose pronóstico</span>
+          <AdminPredictionBreakdown prediction={p} compact />
         </div>
         {scoredAt && (
           <div className="admin-pred-card__span">
@@ -86,7 +82,12 @@ export function AdminUserPredictionCard({ prediction: p }: Props) {
 
       {message && <p className="admin-pred-card__message">{message}</p>}
       {status === 'scored' && (
-        <p className="admin-pred-card__message admin-pred-card__message--scored">Puntos: {p.points}</p>
+        <p className="admin-pred-card__message admin-pred-card__message--scored">
+          Puntos: {p.points}
+        </p>
+      )}
+      {status === 'locked' && (
+        <p className="admin-pred-card__message">{formatAdminPredictionPoints(p).label}</p>
       )}
       {isOrphan && (
         <p className="admin-pred-card__orphan" role="alert">

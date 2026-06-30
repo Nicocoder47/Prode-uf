@@ -26,6 +26,8 @@ import { AdminUserDetailMobileHero } from '../../components/admin/mobile/AdminUs
 import { AdminUserPredictionsTab } from '../../components/admin/mobile/AdminUserPredictionsTab.tsx'
 import { AdminUserInfoSections } from '../../components/admin/AdminUserInfoSections.tsx'
 import { REVIEW_STATUS_CLASS, REVIEW_STATUS_LABEL } from '../../utils/reviewStatus.ts'
+import { AdminPredictionBreakdown } from '../../components/admin/users/AdminPredictionBreakdown.tsx'
+import { formatAdminPredictionPoints } from '../../utils/adminPredictionDisplay.ts'
 
 type Tab = 'summary' | 'predictions' | 'security' | 'actions' | 'audit'
 
@@ -261,8 +263,7 @@ export function AdminUserDetailDrawer({ user, initialTab = 'summary', onClose, o
                 <thead>
                   <tr className="border-b border-white/10 text-white/50">
                     <th className="py-2 pr-2">Partido</th>
-                    <th className="py-2 pr-2">Predicho</th>
-                    <th className="py-2 pr-2">Resultado</th>
+                    <th className="py-2 pr-2">Desglose</th>
                     <th className="py-2 pr-2">Pts</th>
                     <th className="py-2">Carga</th>
                   </tr>
@@ -272,11 +273,12 @@ export function AdminUserDetailDrawer({ user, initialTab = 'summary', onClose, o
                     detail!.predictions.map(p => (
                       <tr key={p.id} className="border-b border-white/5">
                         <td className="py-2 pr-2 text-white">{p.home_team ?? '?'} vs {p.away_team ?? '?'}</td>
-                        <td className="py-2 pr-2 font-mono">{p.predicted_score_home ?? '—'} - {p.predicted_score_away ?? '—'}</td>
-                        <td className="py-2 pr-2 font-mono text-white/70">
-                          {p.result_home != null ? `${p.result_home} - ${p.result_away}` : '—'}
+                        <td className="py-2 pr-2 align-top">
+                          <AdminPredictionBreakdown prediction={p} compact />
                         </td>
-                        <td className="py-2 pr-2 font-bold text-wc26-yellow">{p.points}</td>
+                        <td className="py-2 pr-2 font-bold text-wc26-yellow align-top">
+                          {formatAdminPredictionPoints(p).label}
+                        </td>
                         <td className="py-2 text-white/50">{formatDate(p.created_at)}</td>
                       </tr>
                     ))

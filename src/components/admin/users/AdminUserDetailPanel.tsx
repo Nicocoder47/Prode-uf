@@ -21,6 +21,10 @@ import {
   adminSoftDeleteUser,
   adminUnblockUser,
 } from '../../../services/admin/adminService'
+import {
+  formatAdminPredictionPoints,
+} from '../../../utils/adminPredictionDisplay'
+import { AdminPredictionBreakdown } from './AdminPredictionBreakdown'
 import type { AdminUserRow } from '../../../types/admin'
 import { isTestUserEmail } from '../../../utils/adminTestUser'
 import {
@@ -381,18 +385,23 @@ export function AdminUserDetailPanel({ user, onClose, onChanged, variant = 'pane
             </p>
           ) : predictions.length ? (
             <div className="admin-user-detail-predictions">
-              {predictions.map(p => (
+              {predictions.map(p => {
+                const pts = formatAdminPredictionPoints(p)
+                return (
                 <div key={p.id} className="admin-user-detail-pred-row">
                   <span className="admin-user-detail-pred-row__match">
                     {p.home_team ?? '?'} vs {p.away_team ?? '?'}
                   </span>
-                  <span className="admin-user-detail-pred-row__score">
-                    {p.predicted_score_home ?? '—'}-{p.predicted_score_away ?? '—'}
-                    {p.result_home != null ? ` · ${p.result_home}-${p.result_away}` : ''}
+                  <div className="admin-user-detail-pred-row__breakdown">
+                    <AdminPredictionBreakdown prediction={p} />
+                  </div>
+                  <span
+                    className={`admin-user-detail-pred-row__pts${pts.muted ? ' admin-user-detail-pred-row__pts--muted' : ''}`}
+                  >
+                    {pts.label}
                   </span>
-                  <span className="admin-user-detail-pred-row__pts">{p.points ?? 0} pts</span>
                 </div>
-              ))}
+              )})}
             </div>
           ) : (
             <p className="admin-user-detail-panel__empty">Sin predicciones registradas.</p>
